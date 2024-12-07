@@ -3,21 +3,29 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { TruckIcon, ShieldCheckIcon, CreditCardIcon } from '@heroicons/react/24/outline';
 
+
 const services = [
   {
     icon: TruckIcon,
-    title: "Free Shipping",
-    description: "Free shipping on all orders over $50"
+    title: "Fast delivery",
+    description: "All it takes is 3 to 5 business days"
   },
+  
+
   {
     icon: ShieldCheckIcon,
-    title: "Secure Payment",
-    description: "100% secure payment processing"
+    title: "Transparency",
+    description: "All defects if any will be on the description of a device"
   },
+  // {
+  //   icon: ShieldCheckIcon,
+  //   title: "Secure Payment",
+  //   description: "100% secure payment processing"
+  // },
   {
     icon: CreditCardIcon,
     title: "Money Back Guarantee",
-    description: "30-day money-back guarantee"
+    description: "7-days money-back guarantee if the product has not being recieved"
   }
 ];
 

@@ -1,5 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faFacebook,
+  faTiktok,
+  faYoutube,
+  faTwitter,
+  faInstagram,
+} from '@fortawesome/free-brands-svg-icons';
 
 const Contact = () => {
   const handleSubmit = (e) => {
@@ -29,7 +37,7 @@ const Contact = () => {
                   className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="email" className="block text-gray-400 mb-2">
                   Email
@@ -41,7 +49,7 @@ const Contact = () => {
                   className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="message" className="block text-gray-400 mb-2">
                   Message
@@ -53,7 +61,7 @@ const Contact = () => {
                   className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 ></textarea>
               </div>
-              
+
               <button
                 type="submit"
                 className="w-full bg-yellow-400 text-gray-900 py-3 rounded-lg font-medium hover:bg-yellow-500 transition-colors"
@@ -62,7 +70,7 @@ const Contact = () => {
               </button>
             </form>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -79,13 +87,61 @@ const Contact = () => {
                 Sunday: Closed
               </p>
             </div>
-            
+
             <div>
               <h3 className="text-xl font-semibold text-white mb-4">
                 Follow Us
               </h3>
               <div className="flex space-x-4">
-                {/* Add social media icons/links here */}
+                {/* Facebook */}
+                <a
+                  href="https://www.facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <FontAwesomeIcon icon={faFacebook} size="2x" />
+                </a>
+
+                {/* TikTok */}
+                <a
+                  href="https://www.tiktok.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <FontAwesomeIcon icon={faTiktok} size="2x" />
+                </a>
+
+                {/* YouTube */}
+                <a
+                  href="https://www.youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <FontAwesomeIcon icon={faYoutube} size="2x" />
+                </a>
+
+                {/* Twitter (X) */}
+                <a
+                  href="https://www.twitter.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <FontAwesomeIcon icon={faTwitter} size="2x" />
+                </a>
+
+                {/* Instagram */}
+                <a
+                  href="https://www.instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <FontAwesomeIcon icon={faInstagram} size="2x" />
+                </a>
               </div>
             </div>
           </motion.div>

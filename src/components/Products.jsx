@@ -23,7 +23,7 @@ const Products = () => {
       >
         <div className="aspect-w-16 aspect-h-9">
           <img
-            src={product.image}
+            src={'https://picsum.photos/600/800'}
             alt={product.name}
             className="w-full h-64 object-cover"
             loading="lazy"

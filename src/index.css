@@ -19,3 +19,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #111827;
 }
+
+.scrolling-text {
+  animation: scrollText 10s linear infinite;
+}
