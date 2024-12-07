@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { TruckIcon, ShieldCheckIcon, CreditCardIcon } from '@heroicons/react/24/outline';
-
+import { TruckIcon, ShieldCheckIcon, CreditCardIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 const services = [
   {
@@ -10,22 +9,20 @@ const services = [
     title: "Fast delivery",
     description: "All it takes is 3 to 5 business days"
   },
-  
-
   {
     icon: ShieldCheckIcon,
     title: "Transparency",
     description: "All defects if any will be on the description of a device"
   },
-  // {
-  //   icon: ShieldCheckIcon,
-  //   title: "Secure Payment",
-  //   description: "100% secure payment processing"
-  // },
   {
     icon: CreditCardIcon,
     title: "Money Back Guarantee",
-    description: "7-days money-back guarantee if the product has not being recieved"
+    description: "7-days money-back guarantee if the product has not been received"
+  },
+  {
+    icon: ClockIcon,
+    title: "Doorstep Delivery",
+    description: "Free delivery if you live in YOLA or JIMETA"
   }
 ];
 
@@ -55,7 +52,7 @@ const Services = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
-              className="bg-gray-900 p-6 rounded-lg text-center"
+              className={`bg-gray-900 p-6 rounded-lg text-center ${index === 3 ? 'md:col-span-3' : ''}`}
             >
               <service.icon className="h-12 w-12 text-yellow-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">

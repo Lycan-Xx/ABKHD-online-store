@@ -146,6 +146,10 @@ const Contact = () => {
             </div>
           </motion.div>
         </div>
+
+        <div className='text-gray-300 font-mono'>
+          2040 ABKHD alll rights reerved
+        </div>
       </div>
     </footer>
   );
