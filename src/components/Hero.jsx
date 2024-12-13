@@ -12,25 +12,27 @@ const Hero = () => {
         transition={{ duration: 0.8 }}
         className="text-center px-4"
       >
-        <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-          Hello welcome,{' '}
+        <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-relaxed">
+          Hello, Welcome! 
           <br />
-          <p className='pt-8'>Want an Affordable and Good quality</p> 
-		  <br /><span className='text-yellow-400 font-xl'> Used </span> <br /> <p> <span className='text-green-400'> Mobile phone</span> and <span className='text-red-700'> PC </span></p>
-		  <br />
-          <span className="text-yellow-400">scroll down</span>
-          <br />
-          to see our available products
+          <span className="pt-8 block">Want an Affordable and Good Quality</span>
+          <span className="text-yellow-400">Used </span> 
+          <span className="block">
+            <span className="text-green-400">Mobile Phone</span> and 
+            <span className="text-red-700"> PC</span>?
+          </span>
         </h1>
-        
+        <p className="text-lg text-gray-300 mb-4">Scroll down to see our available products</p>
+
+        {/* Animated Scroll Indicator */}
         <motion.div
           animate={{
-            y: [0, 10, 0],
+            y: [0, 10, 0], // Bounce animation
           }}
           transition={{
             duration: 1.5,
             repeat: Infinity,
-            repeatType: "reverse"
+            repeatType: 'reverse',
           }}
           className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
         >
