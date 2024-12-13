@@ -93,7 +93,6 @@ const Contact = () => {
                 Follow Us
               </h3>
               <div className="flex space-x-4">
-                {/* Facebook */}
                 <a
                   href="https://www.facebook.com"
                   target="_blank"
@@ -102,8 +101,6 @@ const Contact = () => {
                 >
                   <FontAwesomeIcon icon={faFacebook} size="2x" />
                 </a>
-
-                {/* TikTok */}
                 <a
                   href="https://www.tiktok.com"
                   target="_blank"
@@ -112,8 +109,6 @@ const Contact = () => {
                 >
                   <FontAwesomeIcon icon={faTiktok} size="2x" />
                 </a>
-
-                {/* YouTube */}
                 <a
                   href="https://www.youtube.com"
                   target="_blank"
@@ -122,8 +117,6 @@ const Contact = () => {
                 >
                   <FontAwesomeIcon icon={faYoutube} size="2x" />
                 </a>
-
-                {/* Twitter (X) */}
                 <a
                   href="https://www.twitter.com"
                   target="_blank"
@@ -132,8 +125,6 @@ const Contact = () => {
                 >
                   <FontAwesomeIcon icon={faTwitter} size="2x" />
                 </a>
-
-                {/* Instagram */}
                 <a
                   href="https://www.instagram.com"
                   target="_blank"
@@ -147,8 +138,11 @@ const Contact = () => {
           </motion.div>
         </div>
 
-        <div className='text-gray-300 font-mono'>
-          2040 ABKHD alll rights reerved
+        {/* Centered Copyright */}
+        <div className="mt-12">
+          <p className="text-center text-gray-300 font-mono">
+            © 2024 ABKHD. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

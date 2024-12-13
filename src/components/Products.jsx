@@ -1,53 +1,62 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { PRODUCTS, WHATSAPP_NUMBER } from '../utils/constants';
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import PRODUCTS from './products.json'; // Import the JSON file
 import { fadeIn, staggerContainer } from '../utils/animations';
+import { WHATSAPP_NUMBER } from '../utils/constants';
 
 const Products = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const ProductCard = ({ product, onClick }) => {
-    return (
-      <motion.div
-        variants={fadeIn}
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.98 }}
-        className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg"
-        onClick={() => onClick(product)}
-      >
-        <div className="aspect-w-16 aspect-h-9">
-          <img
-            src={'https://picsum.photos/600/800'}
-            alt={product.name}
-            className="w-full h-64 object-cover"
-            loading="lazy"
-          />
-        </div>
-        <div className="p-6">
-          <h3 className="text-xl font-semibold text-white mb-2">{product.name}</h3>
-          <p className="text-gray-400 mb-4">{product.description}</p>
-          <div className="flex justify-between items-center">
-            <span className="text-yellow-400 font-bold text-xl">${product.price}</span>
-            <button
-              className="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-medium hover:bg-yellow-500 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                onClick(product);
-              }}
-            >
-              View Details
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    );
+  const handleImageNavigation = (direction) => {
+    if (!selectedProduct) return;
+
+    const totalImages = selectedProduct.images.length;
+    setCurrentImageIndex((prevIndex) => {
+      if (direction === 'left') {
+        return prevIndex === 0 ? totalImages - 1 : prevIndex - 1;
+      }
+      if (direction === 'right') {
+        return prevIndex === totalImages - 1 ? 0 : prevIndex + 1;
+      }
+      return prevIndex;
+    });
   };
+
+  const ProductCard = ({ product, onClick }) => (
+    <motion.div
+      variants={fadeIn}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.98 }}
+      className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg"
+      onClick={() => {
+        onClick(product);
+        setCurrentImageIndex(0); // Reset image index on new product selection
+      }}
+    >
+      <div className="aspect-w-16 aspect-h-9">
+        <img
+          src={product.images[0]} // Display the first image as the card thumbnail
+          alt={product.name}
+          className="w-full h-64 object-cover"
+          loading="lazy"
+        />
+      </div>
+      <div className="p-6">
+        <h3 className="text-xl font-semibold text-white mb-2">{product.name}</h3>
+        <p className="text-gray-400 mb-4">{product.description}</p>
+        <div className="flex justify-between items-center">
+          <span className="text-yellow-400 font-bold text-xl">${product.price}</span>
+        </div>
+      </div>
+    </motion.div>
+  );
 
   const ProductDetail = ({ product, onClose }) => {
     const handleWhatsApp = () => {
@@ -68,25 +77,61 @@ const Products = () => {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-gray-800 rounded-lg max-w-4xl w-full overflow-hidden relative shadow-xl"
+            className="bg-gray-800 rounded-lg max-w-5xl w-full overflow-hidden relative shadow-xl"
           >
+            {/* Exit Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-50"
+              style={{
+                padding: '0.5rem',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                borderRadius: '50%',
+              }}
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
 
             <div className="flex flex-col md:flex-row">
-              <div className="md:w-2/5">
-                <img
-                  src={product.image}
+              <div className="relative md:w-3/5">
+                <motion.img
+                  key={product.images[currentImageIndex]} // Key prop to trigger re-render
+                  src={product.images[currentImageIndex]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-opacity duration-300"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  loading="lazy"
                 />
+                <button
+                  onClick={() => handleImageNavigation('left')}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-700/75 text-white p-2 rounded-full hover:bg-gray-600 transition-colors"
+                >
+                  <ChevronLeftIcon className="h-6 w-6" />
+                </button>
+                <button
+                  onClick={() => handleImageNavigation('right')}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-700/75 text-white p-2 rounded-full hover:bg-gray-600 transition-colors"
+                >
+                  <ChevronRightIcon className="h-6 w-6" />
+                </button>
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                  {product.images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`h-3 w-3 rounded-full ${
+                        index === currentImageIndex
+                          ? 'bg-yellow-400'
+                          : 'bg-gray-500 hover:bg-yellow-400'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
 
-              <div className="md:w-3/5 p-8">
+              <div className="md:w-2/5 p-8">
                 <h2 className="text-2xl font-bold text-white mb-4">{product.name}</h2>
                 <p className="text-gray-400 mb-6">{product.description}</p>
                 <div className="mb-8">
@@ -131,7 +176,10 @@ const Products = () => {
       </motion.div>
 
       {selectedProduct && (
-        <ProductDetail product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+        <ProductDetail
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
       )}
     </section>
   );

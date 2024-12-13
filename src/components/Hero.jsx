@@ -15,7 +15,8 @@ const Hero = () => {
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
           Hello welcome,{' '}
           <br />
-          <p className='pt-8'>Want an Affordable and Good quality</p> <span className='text-yellow-400 font-xl'> Used </span> <br /> <p> <span className='text-green-400'> Mobile phone</span> and <span className='text-red-700'> PC </span></p>
+          <p className='pt-8'>Want an Affordable and Good quality</p> 
+		  <br /><span className='text-yellow-400 font-xl'> Used </span> <br /> <p> <span className='text-green-400'> Mobile phone</span> and <span className='text-red-700'> PC </span></p>
 		  <br />
           <span className="text-yellow-400">scroll down</span>
           <br />
