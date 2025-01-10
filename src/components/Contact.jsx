@@ -39,10 +39,11 @@ const Contact = () => {
     }));
   };
 
-  const getMailtoLink = () => {
-    if (!settings?.contactEmail || !formData.name || !formData.message) return '#';
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!settings?.contactEmail || !formData.name || !formData.message) return;
 
-    const date = new Date();
+    const date = new Date("2025-01-10T14:13:55+01:00");
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const day = date.getDate();
     const month = months[date.getMonth()];
@@ -51,19 +52,19 @@ const Contact = () => {
     const minutes = `0${date.getMinutes()}`.slice(-2);
     const seconds = `0${date.getSeconds()}`.slice(-2);
     const currentTime = `${day} ${month} ${year} at ${hour}:${minutes}:${seconds}`;
+    
     const subject = "ABKHD Contact Form";
     const body = [
       "",
-      `Name: ${formData.name}`,
-      formData.phone ? `Contact Number: ${formData.phone}` : "",
+      `Name: ${formData.name}\n`,
+      formData.phone ? `Contact Number: ${formData.phone}\n` : "",
       "",
-      "Message:",
-      formData.message,
+      `Message: ${formData.message} \n`,
       "",
-      `Sent on: ${currentTime}`,
+      `Sent on: ${currentTime}\n`,
     ].filter(Boolean).join("\n");
 
-    return `mailto:${settings.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:${settings.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
@@ -77,7 +78,7 @@ const Contact = () => {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl font-bold text-white mb-6">Contact Us</h2>
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-gray-400 mb-2">
                   Name <span className="text-red-500">*</span>
@@ -122,21 +123,17 @@ const Contact = () => {
                 ></textarea>
               </div>
 
-              <a
-                href={getMailtoLink()}
-                onClick={(e) => {
-                  if (!settings?.contactEmail || !formData.name || !formData.message) {
-                    e.preventDefault();
-                  }
-                }}
-                className={`block w-full text-center bg-yellow-400 text-gray-900 py-2 px-4 rounded-lg font-medium transition-colors ${
+              <button
+                type="submit"
+                disabled={!settings?.contactEmail || !formData.name || !formData.message}
+                className={`w-full bg-yellow-400 text-gray-900 py-2 px-4 rounded-lg font-medium transition-colors ${
                   (!settings?.contactEmail || !formData.name || !formData.message)
                     ? 'opacity-50 cursor-not-allowed'
                     : 'hover:bg-yellow-500'
                 }`}
               >
                 Send Message
-              </a>
+              </button>
             </form>
           </motion.div>
 

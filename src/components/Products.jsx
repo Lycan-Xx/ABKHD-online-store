@@ -25,6 +25,7 @@ const Products = () => {
           getProducts(),
           getSettings()
         ]);
+        console.log('Products data received:', JSON.stringify(productsData[0], null, 2));
         setProducts(productsData);
         setSettings(settingsData);
       } catch (err) {
@@ -53,34 +54,47 @@ const Products = () => {
     });
   };
 
-  const ProductCard = ({ product, onClick }) => (
-    <motion.div
-      variants={fadeIn}
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.98 }}
-      className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg"
-      onClick={() => {
-        onClick(product);
-        setCurrentImageIndex(0); // Reset image index on new product selection
-      }}
-    >
-      <div className="aspect-w-16 aspect-h-9">
-        <img
-          src={product.images[0]} // Display the first image as the card thumbnail
-          alt={product.name}
-          className="w-full h-64 object-cover"
-          loading="lazy"
-        />
-      </div>
-      <div className="p-6">
-        <h3 className="text-xl font-semibold text-white mb-2">{product.name}</h3>
-        <p className="text-gray-300">{product.description}</p>
-        <div className="mt-4">
-          <span className="text-yellow-400 text-lg font-bold">₦{product.price.toLocaleString()}</span>
+  const ProductCard = ({ product, onClick }) => {
+    // Convert image array object to URL string
+    const getImageUrl = (imageObj) => {
+      if (!imageObj) return '';
+      return Object.entries(imageObj)
+        .filter(([key]) => !isNaN(key))
+        .map(([, value]) => value)
+        .join('');
+    };
+
+    const thumbnailUrl = product.images[0] ? getImageUrl(product.images[0]) : '';
+
+    return (
+      <motion.div
+        variants={fadeIn}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.98 }}
+        className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg"
+        onClick={() => {
+          onClick(product);
+          setCurrentImageIndex(0);
+        }}
+      >
+        <div className="aspect-w-16 aspect-h-9">
+          <img
+            src={thumbnailUrl}
+            alt={product.title}
+            className="w-full h-64 object-cover"
+            loading="lazy"
+          />
         </div>
-      </div>
-    </motion.div>
-  );
+        <div className="p-6">
+          <h3 className="text-xl font-semibold text-white mb-2">{product.title}</h3>
+          <p className="text-gray-300">{product.description}</p>
+          <div className="mt-4">
+            <span className="text-yellow-400 text-lg font-bold">₦{product.price.toLocaleString()}</span>
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
 
   const ProductDetail = ({ product, onClose }) => {
     const handleWhatsApp = () => {
@@ -88,7 +102,7 @@ const Products = () => {
         console.error('WhatsApp number not loaded');
         return;
       }
-      const message = `Hi, I'm interested in ${product.name}`;
+      const message = `Hi, I'm interested in ${product.title}`;
       const url = `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
     };
@@ -126,7 +140,7 @@ const Products = () => {
                   <motion.img
                     key={`${product.id}-image-${index}`}
                     src={image}
-                    alt={`${product.name} - Image ${index + 1}`}
+                    alt={`${product.title} - Image ${index + 1}`}
                     className={`w-full h-full object-cover transition-opacity duration-300 ${
                       index === currentImageIndex ? 'block' : 'hidden'
                     }`}
@@ -164,10 +178,10 @@ const Products = () => {
               </div>
 
               <div className="bg-gray-900 p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">{selectedProduct.name}</h2>
-                <p className="text-gray-300 mb-6">{selectedProduct.description}</p>
+                <h2 className="text-2xl font-bold text-white mb-4">{product.title}</h2>
+                <p className="text-gray-300 mb-6">{product.description}</p>
                 <div className="mb-8">
-                  <span className="text-3xl font-bold text-yellow-400">₦{selectedProduct.price.toLocaleString()}</span>
+                  <span className="text-3xl font-bold text-yellow-400">₦{product.price.toLocaleString()}</span>
                 </div>
 
                 <button
@@ -222,8 +236,8 @@ const Products = () => {
       <motion.div
         ref={ref}
         variants={staggerContainer}
-        initial="initial"
-        animate={inView ? 'animate' : 'initial'}
+        initial="hidden"
+        animate={inView ? "show" : "hidden"}
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
         <motion.h2
@@ -233,9 +247,13 @@ const Products = () => {
           Our Products
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} onClick={setSelectedProduct} />
+            <ProductCard
+              key={product._id || product.id}
+              product={product}
+              onClick={setSelectedProduct}
+            />
           ))}
         </div>
       </motion.div>
