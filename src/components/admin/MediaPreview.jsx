@@ -2,6 +2,14 @@ import React from 'react';
 import { Play } from 'lucide-react';
 
 const MediaPreview = ({ media, type = 'image' }) => {
+  const getImageUrl = (imageObj) => {
+    if (!imageObj) return '';
+    return Object.entries(imageObj)
+      .filter(([key]) => !isNaN(key))
+      .map(([, value]) => value)
+      .join('');
+  };
+
   if (!media) {
     return (
       <div className="w-full h-full bg-gray-700 flex items-center justify-center">
@@ -25,9 +33,10 @@ const MediaPreview = ({ media, type = 'image' }) => {
     );
   }
 
+  const imageUrl = getImageUrl(media);
   return (
     <img
-      src={media.url}
+      src={imageUrl}
       alt="Product"
       className="w-full h-full object-cover"
       loading="lazy"

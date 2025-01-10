@@ -97,6 +97,49 @@ const Products = () => {
   };
 
   const ProductDetail = ({ product, onClose }) => {
+    const [loadedImages, setLoadedImages] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const getImageUrl = (imageObj) => {
+      if (!imageObj) return '';
+      return Object.entries(imageObj)
+        .filter(([key]) => !isNaN(key))
+        .map(([, value]) => value)
+        .join('');
+    };
+
+    // Preload images when the modal opens
+    useEffect(() => {
+      setIsLoading(true);
+      const imageUrls = product.images.map(getImageUrl);
+      
+      Promise.all(
+        imageUrls.map(
+          url =>
+            new Promise((resolve) => {
+              const img = new Image();
+              img.src = url;
+              img.onload = () => resolve(url);
+              img.onerror = () => resolve(null);
+            })
+        )
+      ).then((loaded) => {
+        setLoadedImages(loaded.filter(Boolean));
+        setIsLoading(false);
+      });
+    }, [product]);
+
+    const handleImageNavigation = (direction) => {
+      if (loadedImages.length <= 1) return;
+      
+      setCurrentImageIndex((prevIndex) => {
+        if (direction === 'left') {
+          return prevIndex === 0 ? loadedImages.length - 1 : prevIndex - 1;
+        }
+        return prevIndex === loadedImages.length - 1 ? 0 : prevIndex + 1;
+      });
+    };
+
     const handleWhatsApp = () => {
       if (!settings?.whatsappNumber) {
         console.error('WhatsApp number not loaded');
@@ -108,93 +151,121 @@ const Products = () => {
     };
 
     return (
-      <AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-gray-900/95 z-50 flex items-center justify-center p-4"
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-gray-800 rounded-lg max-w-5xl w-full overflow-hidden relative shadow-xl"
-          >
-            {/* Exit Button */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-50"
-              style={{
-                padding: '0.5rem',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                borderRadius: '50%',
-              }}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 z-50 overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-75" onClick={onClose} />
+        
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full max-w-4xl overflow-hidden rounded-lg bg-gray-800 shadow-2xl"
             >
-              <XMarkIcon className="h-6 w-6" />
-            </button>
+              <button
+                onClick={onClose}
+                className="absolute right-4 top-4 z-10 rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-sm transition-colors hover:bg-black/75 hover:text-white"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
 
-            <div className="flex flex-col md:flex-row">
-              <div className="relative md:w-3/5">
-                {product.images.map((image, index) => (
-                  <motion.img
-                    key={`${product.id}-image-${index}`}
-                    src={image}
-                    alt={`${product.title} - Image ${index + 1}`}
-                    className={`w-full h-full object-cover transition-opacity duration-300 ${
-                      index === currentImageIndex ? 'block' : 'hidden'
-                    }`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    loading="lazy"
-                  />
-                ))}
-                <button
-                  onClick={() => handleImageNavigation('left')}
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-700/75 text-white p-2 rounded-full hover:bg-gray-600 transition-colors"
-                >
-                  <ChevronLeftIcon className="h-6 w-6" />
-                </button>
-                <button
-                  onClick={() => handleImageNavigation('right')}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-700/75 text-white p-2 rounded-full hover:bg-gray-600 transition-colors"
-                >
-                  <ChevronRightIcon className="h-6 w-6" />
-                </button>
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                  {product.images.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`h-3 w-3 rounded-full ${
-                        index === currentImageIndex
-                          ? 'bg-yellow-400'
-                          : 'bg-gray-500 hover:bg-yellow-400'
-                      }`}
-                    />
-                  ))}
-                </div>
+              <div className="relative h-[32rem]">
+                {isLoading ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+                    <div className="h-12 w-12 rounded-full border-4 border-yellow-400 border-t-transparent animate-spin" />
+                  </div>
+                ) : (
+                  <div className="relative h-full">
+                    <div className="absolute inset-0">
+                      {loadedImages.map((url, index) => (
+                        <motion.div
+                          key={url}
+                          initial={false}
+                          animate={{
+                            opacity: index === currentImageIndex ? 1 : 0,
+                            zIndex: index === currentImageIndex ? 1 : 0,
+                          }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute inset-0"
+                        >
+                          <img
+                            src={url}
+                            alt={`${product.title} - Image ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {loadedImages.length > 1 && (
+                      <>
+                        <motion.button
+                          initial={false}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleImageNavigation('left')}
+                          className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-sm transition-all hover:bg-black/75 hover:text-white"
+                        >
+                          <ChevronLeftIcon className="h-6 w-6" />
+                        </motion.button>
+                        <motion.button
+                          initial={false}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleImageNavigation('right')}
+                          className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-sm transition-all hover:bg-black/75 hover:text-white"
+                        >
+                          <ChevronRightIcon className="h-6 w-6" />
+                        </motion.button>
+
+                        <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 space-x-2">
+                          {loadedImages.map((_, index) => (
+                            <motion.button
+                              key={index}
+                              initial={false}
+                              whileHover={{ scale: 1.2 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => setCurrentImageIndex(index)}
+                              className={`h-2 rounded-full transition-all ${
+                                index === currentImageIndex
+                                  ? 'w-8 bg-yellow-400'
+                                  : 'w-2 bg-white/50 hover:bg-white/75'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
-              <div className="bg-gray-900 p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">{product.title}</h2>
-                <p className="text-gray-300 mb-6">{product.description}</p>
-                <div className="mb-8">
-                  <span className="text-3xl font-bold text-yellow-400">₦{product.price.toLocaleString()}</span>
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-white">{product.title}</h2>
+                <p className="mt-2 text-gray-300">{product.description}</p>
+                <div className="mt-4">
+                  <span className="text-3xl font-bold text-yellow-400">
+                    ₦{product.price.toLocaleString()}
+                  </span>
                 </div>
-
                 <button
                   onClick={handleWhatsApp}
-                  className="w-full bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
+                  className="mt-6 w-full rounded-lg bg-green-500 py-3 font-medium text-white transition-colors hover:bg-green-600"
                 >
                   Contact via WhatsApp
                 </button>
               </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      </AnimatePresence>
+            </motion.div>
+          </div>
+        </div>
+      </motion.div>
     );
   };
 
