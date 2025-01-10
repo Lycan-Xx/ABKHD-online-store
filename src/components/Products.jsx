@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { getProducts } from '../services/products';
+import { getSettings } from '../services/settings';
 import { fadeIn, staggerContainer } from '../utils/animations';
-import { WHATSAPP_NUMBER } from '../utils/constants';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -12,25 +12,30 @@ const Products = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [settings, setSettings] = useState(null);
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
   useEffect(() => {
-    const loadProducts = async () => {
+    const loadData = async () => {
       try {
-        const data = await getProducts();
-        setProducts(data);
+        const [productsData, settingsData] = await Promise.all([
+          getProducts(),
+          getSettings()
+        ]);
+        setProducts(productsData);
+        setSettings(settingsData);
       } catch (err) {
-        setError('Failed to load products. Please try again later.');
-        console.error('Error loading products:', err);
+        setError('Failed to load data. Please try again later.');
+        console.error('Error loading data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadProducts();
+    loadData();
   }, []);
 
   const handleImageNavigation = (direction) => {
@@ -79,8 +84,12 @@ const Products = () => {
 
   const ProductDetail = ({ product, onClose }) => {
     const handleWhatsApp = () => {
+      if (!settings?.whatsappNumber) {
+        console.error('WhatsApp number not loaded');
+        return;
+      }
       const message = `Hi, I'm interested in ${product.name}`;
-      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      const url = `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
     };
 
@@ -113,16 +122,20 @@ const Products = () => {
 
             <div className="flex flex-col md:flex-row">
               <div className="relative md:w-3/5">
-                <motion.img
-                  key={product.images[currentImageIndex]} // Key prop to trigger re-render
-                  src={product.images[currentImageIndex]}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-opacity duration-300"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  loading="lazy"
-                />
+                {product.images.map((image, index) => (
+                  <motion.img
+                    key={`${product.id}-image-${index}`}
+                    src={image}
+                    alt={`${product.name} - Image ${index + 1}`}
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${
+                      index === currentImageIndex ? 'block' : 'hidden'
+                    }`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    loading="lazy"
+                  />
+                ))}
                 <button
                   onClick={() => handleImageNavigation('left')}
                   className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-700/75 text-white p-2 rounded-full hover:bg-gray-600 transition-colors"
@@ -177,9 +190,16 @@ const Products = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-white mb-12 text-center">Our Products</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg animate-pulse"></div>
-            <div className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg animate-pulse"></div>
-            <div className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg animate-pulse"></div>
+            {[1, 2, 3].map((index) => (
+              <div key={`loading-${index}`} className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg animate-pulse">
+                <div className="h-64 bg-gray-700"></div>
+                <div className="p-6 space-y-3">
+                  <div className="h-6 bg-gray-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-700 rounded w-full"></div>
+                  <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
