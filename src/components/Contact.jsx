@@ -15,7 +15,7 @@ const Contact = () => {
   const [settings, setSettings] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    phone: '',
     message: ''
   });
 
@@ -39,23 +39,6 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!settings?.email) {
-      console.error('Settings email not loaded');
-      return;
-    }
-
-    const subject = `Contact Form Submission from ${formData.name}`;
-    const body = `
-Name: ${formData.name}
-Email: ${formData.email}
-Message: ${formData.message}
-    `;
-
-    window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  };
-
   return (
     <section id="contact" className="py-20 bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,10 +50,10 @@ Message: ${formData.message}
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl font-bold text-white mb-6">Contact Us</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-gray-400 mb-2">
-                  Name
+                  Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -84,23 +67,22 @@ Message: ${formData.message}
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-gray-400 mb-2">
-                  Email
+                <label htmlFor="phone" className="block text-gray-400 mb-2">
+                  Phone Number
                 </label>
                 <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
                   onChange={handleChange}
-                  required
                   className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 />
               </div>
 
               <div>
                 <label htmlFor="message" className="block text-gray-400 mb-2">
-                  Message
+                  Message <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   id="message"
@@ -113,12 +95,22 @@ Message: ${formData.message}
                 ></textarea>
               </div>
 
-              <button
-                type="submit"
-                className="w-full bg-yellow-400 text-gray-900 py-2 px-4 rounded-lg font-medium hover:bg-yellow-500 transition-colors"
+              <a
+                href={`mailto:${settings?.email}?subject=Contact Form Submission&body=${encodeURIComponent(
+                  `Name: ${formData.name}\nPhone: ${formData.phone}\n\nMessage:\n${formData.message}`
+                )}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!formData.name || !formData.message) {
+                    alert('Please fill in all required fields (Name and Message)');
+                    return;
+                  }
+                  window.location.href = e.currentTarget.href;
+                }}
+                className="block w-full bg-yellow-400 text-gray-900 py-2 px-4 rounded-lg font-medium hover:bg-yellow-500 transition-colors text-center"
               >
                 Send Message
-              </button>
+              </a>
             </form>
           </motion.div>
 
