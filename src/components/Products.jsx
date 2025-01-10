@@ -1,18 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import PRODUCTS from './products.json'; // Import the JSON file
+import { getProducts } from '../services/products';
 import { fadeIn, staggerContainer } from '../utils/animations';
 import { WHATSAPP_NUMBER } from '../utils/constants';
 
 const Products = () => {
+  const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (err) {
+        setError('Failed to load products. Please try again later.');
+        console.error('Error loading products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
 
   const handleImageNavigation = (direction) => {
     if (!selectedProduct) return;
@@ -50,9 +69,9 @@ const Products = () => {
       </div>
       <div className="p-6">
         <h3 className="text-xl font-semibold text-white mb-2">{product.name}</h3>
-        <p className="text-gray-400 mb-4">{product.description}</p>
-        <div className="flex justify-between items-center">
-          <span className="text-yellow-400 font-bold text-xl">${product.price}</span>
+        <p className="text-gray-300">{product.description}</p>
+        <div className="mt-4">
+          <span className="text-yellow-400 text-lg font-bold">₦{product.price.toLocaleString()}</span>
         </div>
       </div>
     </motion.div>
@@ -131,11 +150,11 @@ const Products = () => {
                 </div>
               </div>
 
-              <div className="md:w-2/5 p-8">
-                <h2 className="text-2xl font-bold text-white mb-4">{product.name}</h2>
-                <p className="text-gray-400 mb-6">{product.description}</p>
+              <div className="bg-gray-900 p-6">
+                <h2 className="text-2xl font-bold text-white mb-4">{selectedProduct.name}</h2>
+                <p className="text-gray-300 mb-6">{selectedProduct.description}</p>
                 <div className="mb-8">
-                  <span className="text-3xl font-bold text-yellow-400">${product.price}</span>
+                  <span className="text-3xl font-bold text-yellow-400">₦{selectedProduct.price.toLocaleString()}</span>
                 </div>
 
                 <button
@@ -151,6 +170,32 @@ const Products = () => {
       </AnimatePresence>
     );
   };
+
+  if (loading) {
+    return (
+      <section id="products" className="py-20 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-white mb-12 text-center">Our Products</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg animate-pulse"></div>
+            <div className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg animate-pulse"></div>
+            <div className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer shadow-lg animate-pulse"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="products" className="py-20 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-white mb-12 text-center">Our Products</h2>
+          <p className="text-gray-400 text-center">{error}</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="products" className="py-20 bg-gray-900">
@@ -169,7 +214,7 @@ const Products = () => {
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {PRODUCTS.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} onClick={setSelectedProduct} />
           ))}
         </div>
