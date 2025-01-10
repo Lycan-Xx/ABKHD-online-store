@@ -4,6 +4,8 @@ export const BUSINESS_HOURS = {
 	sunday: 'Closed'
 };
 
+// Remove the hardcoded CONTACT_EMAIL since it will be fetched from MongoDB
+
 export const SOCIAL_MEDIA = {
 	facebook: 'https://www.facebook.com',
 	instagram: 'https://www.instagram.com',

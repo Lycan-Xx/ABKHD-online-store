@@ -8,8 +8,8 @@ import {
   faTwitter,
   faInstagram,
 } from '@fortawesome/free-brands-svg-icons';
-import { getSettings } from '../services/settings';
 import { BUSINESS_HOURS, SOCIAL_MEDIA } from '../utils/constants';
+import { getSettings } from '../services/settings';
 
 const Contact = () => {
   const [settings, setSettings] = useState(null);
@@ -37,6 +37,33 @@ const Contact = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const getMailtoLink = () => {
+    if (!settings?.contactEmail || !formData.name || !formData.message) return '#';
+
+    const date = new Date();
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    const hour = date.getHours();
+    const minutes = `0${date.getMinutes()}`.slice(-2);
+    const seconds = `0${date.getSeconds()}`.slice(-2);
+    const currentTime = `${day} ${month} ${year} at ${hour}:${minutes}:${seconds}`;
+    const subject = "ABKHD Contact Form";
+    const body = [
+      "",
+      `Name: ${formData.name}`,
+      formData.phone ? `Contact Number: ${formData.phone}` : "",
+      "",
+      "Message:",
+      formData.message,
+      "",
+      `Sent on: ${currentTime}`,
+    ].filter(Boolean).join("\n");
+
+    return `mailto:${settings.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
@@ -96,18 +123,17 @@ const Contact = () => {
               </div>
 
               <a
-                href={`mailto:${settings?.email}?subject=Contact Form Submission&body=${encodeURIComponent(
-                  `Name: ${formData.name}\nPhone: ${formData.phone}\n\nMessage:\n${formData.message}`
-                )}`}
+                href={getMailtoLink()}
                 onClick={(e) => {
-                  e.preventDefault();
-                  if (!formData.name || !formData.message) {
-                    alert('Please fill in all required fields (Name and Message)');
-                    return;
+                  if (!settings?.contactEmail || !formData.name || !formData.message) {
+                    e.preventDefault();
                   }
-                  window.location.href = e.currentTarget.href;
                 }}
-                className="block w-full bg-yellow-400 text-gray-900 py-2 px-4 rounded-lg font-medium hover:bg-yellow-500 transition-colors text-center"
+                className={`block w-full text-center bg-yellow-400 text-gray-900 py-2 px-4 rounded-lg font-medium transition-colors ${
+                  (!settings?.contactEmail || !formData.name || !formData.message)
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-yellow-500'
+                }`}
               >
                 Send Message
               </a>
