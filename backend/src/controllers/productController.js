@@ -95,12 +95,34 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Delete media from Cloudinary
-    await Promise.all([
-      ...product.images.map(image => deleteMedia(image.publicId)),
-      ...product.videos.map(video => deleteMedia(video.publicId))
-    ]);
+    // Delete media from Cloudinary with error handling for each item
+    const deletePromises = [
+      ...product.images.map(async (image) => {
+        try {
+          if (image.publicId) {
+            await deleteMedia(image.publicId);
+          }
+        } catch (error) {
+          console.error(`Failed to delete image ${image.publicId}:`, error);
+          // Continue with deletion even if Cloudinary fails
+        }
+      }),
+      ...product.videos.map(async (video) => {
+        try {
+          if (video.publicId) {
+            await deleteMedia(video.publicId);
+          }
+        } catch (error) {
+          console.error(`Failed to delete video ${video.publicId}:`, error);
+          // Continue with deletion even if Cloudinary fails
+        }
+      })
+    ];
 
+    // Wait for all delete operations to complete
+    await Promise.all(deletePromises);
+
+    // Delete the product from database
     await Product.findByIdAndDelete(id);
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {

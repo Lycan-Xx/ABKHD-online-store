@@ -11,22 +11,40 @@ cloudinary.config({
 
 export const uploadMedia = async (file, folder) => {
   try {
+    console.log('Uploading file to Cloudinary:', { folder });
     const result = await cloudinary.uploader.upload(file, {
-      folder: `abkhd-store/${folder}`
+      folder: `abkhd-store/${folder}`,
+      resource_type: 'auto'
     });
+    console.log('Upload successful:', result.public_id);
     return {
       url: result.secure_url,
       publicId: result.public_id
     };
   } catch (error) {
-    throw new Error('Error uploading to Cloudinary');
+    console.error('Cloudinary upload error:', error);
+    throw new Error(`Error uploading to Cloudinary: ${error.message}`);
   }
 };
 
 export const deleteMedia = async (publicId) => {
+  if (!publicId) {
+    console.warn('No publicId provided for deletion');
+    return;
+  }
+
   try {
-    await cloudinary.uploader.destroy(publicId);
+    console.log('Deleting media from Cloudinary:', publicId);
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: 'auto'
+    });
+    console.log('Delete result:', result);
+    
+    if (result.result !== 'ok') {
+      throw new Error(`Cloudinary deletion failed: ${result.result}`);
+    }
   } catch (error) {
-    throw new Error('Error deleting from Cloudinary');
+    console.error('Cloudinary delete error:', error);
+    throw new Error(`Error deleting from Cloudinary: ${error.message}`);
   }
 };
