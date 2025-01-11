@@ -16,7 +16,7 @@ const Hero = () => {
           Hello, Welcome! 
           <br />
           <span className="pt-8 block">Want an Affordable and Good Quality</span>
-          <span className="text-yellow-400">Used </span> 
+          <span className="text-yellow-400">Foreign Used </span> 
           <span className="block">
             <span className="text-green-400">Mobile Phone</span> and 
             <span className="text-red-700"> PC</span>?
