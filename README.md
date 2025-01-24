@@ -24,6 +24,12 @@ CLOUDINARY_API_SECRET=your_api_secret
 JWT_SECRET=your_jwt_secret
 ```
 
+## Environment Setup
+1. Copy `.env.example` to `.env`
+2. Fill in your environment variables
+
+Never commit `.env` files containing real credentials to version control.
+
 #### Installation
 1. Backend Setup:
    ```bash
