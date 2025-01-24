@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import { Upload, X } from 'lucide-react';
+import MediaGrid from './MediaGrid';
+import UploadProgress from './UploadProgress';
 
 const ProductForm = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     description: initialData?.description || '',
     price: initialData?.price || '',
-    images: [],
-    videos: []
+  });
+
+  const [existingMedia, setExistingMedia] = useState({
+    images: initialData?.images || [],
+    videos: initialData?.videos || []
   });
 
   const [selectedFiles, setSelectedFiles] = useState({
     images: [],
     videos: []
   });
+
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -29,37 +37,68 @@ const ProductForm = ({ onSubmit, initialData }) => {
     }
   };
 
-  const removeFile = (type, index) => {
+  const handleRemoveExisting = (type, index) => {
+    setExistingMedia(prev => ({
+      ...prev,
+      [type]: prev[type].filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleRemoveNew = (type, index) => {
     setSelectedFiles(prev => ({
       ...prev,
       [type]: prev[type].filter((_, i) => i !== index)
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsUploading(true);
+    setUploadProgress(0);
+    
     const form = new FormData();
     
-    // Append text fields
+    // Add basic form data
     form.append('title', formData.title);
     form.append('description', formData.description);
     form.append('price', formData.price);
     
-    // Append files
+    // Add existing media
+    form.append('existingImages', JSON.stringify(existingMedia.images));
+    form.append('existingVideos', JSON.stringify(existingMedia.videos));
+    
+    // Calculate total files for progress
+    const totalFiles = selectedFiles.images.length + selectedFiles.videos.length;
+    let filesProcessed = 0;
+
+    // Add new files
     selectedFiles.images.forEach(image => {
       form.append('images', image);
-    });
-    selectedFiles.videos.forEach(video => {
-      form.append('videos', video);
+      filesProcessed++;
+      setUploadProgress((filesProcessed / totalFiles) * 100);
     });
 
-    onSubmit(form);
+    selectedFiles.videos.forEach(video => {
+      form.append('videos', video);
+      filesProcessed++;
+      setUploadProgress((filesProcessed / totalFiles) * 100);
+    });
+
+    try {
+      await onSubmit(form);
+      setUploadProgress(100);
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Product Name Input - Add this first */}
       <div>
-        <label className="block text-gray-400 mb-2">Title</label>
+        <label className="block text-gray-400 mb-2">Product Name</label>
         <input
           type="text"
           name="title"
@@ -68,6 +107,47 @@ const ProductForm = ({ onSubmit, initialData }) => {
           className="w-full bg-gray-700 text-white rounded-lg px-4 py-2"
           required
         />
+      </div>
+
+      {/* Existing Media Preview */}
+      {existingMedia.images.length > 0 && (
+        <div>
+          <label className="block text-gray-400 mb-2">Current Images</label>
+          <MediaGrid 
+            images={existingMedia.images}
+            onRemove={(index) => handleRemoveExisting('images', index)}
+          />
+        </div>
+      )}
+
+      {/* New Media Upload */}
+      <div>
+        <label className="block text-gray-400 mb-2">Add New Images</label>
+        <div className="space-y-4">
+          <label className="cursor-pointer bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600 inline-block">
+            <Upload className="inline-block mr-2" size={20} />
+            Choose Images
+            <input
+              type="file"
+              name="images"
+              onChange={handleChange}
+              accept="image/*"
+              multiple
+              className="hidden"
+              max="5"
+            />
+          </label>
+          
+          {/* New Image Previews */}
+          {selectedFiles.images.length > 0 && (
+            <MediaGrid 
+              images={selectedFiles.images.map(file => ({
+                url: URL.createObjectURL(file)
+              }))}
+              onRemove={(index) => handleRemoveNew('images', index)}
+            />
+          )}
+        </div>
       </div>
 
       <div>
@@ -97,45 +177,6 @@ const ProductForm = ({ onSubmit, initialData }) => {
       </div>
 
       <div>
-        <label className="block text-gray-400 mb-2">Images (max 5)</label>
-        <div className="space-y-4">
-          <label className="cursor-pointer bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600 inline-block">
-            <Upload className="inline-block mr-2" size={20} />
-            Choose Images
-            <input
-              type="file"
-              name="images"
-              onChange={handleChange}
-              accept="image/*"
-              multiple
-              className="hidden"
-              max="5"
-            />
-          </label>
-          
-          {/* Image previews */}
-          <div className="grid grid-cols-3 gap-4">
-            {selectedFiles.images.map((file, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={`Preview ${index}`}
-                  className="w-full h-32 object-cover rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeFile('images', index)}
-                  className="absolute top-2 right-2 bg-red-500 rounded-full p-1"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div>
         <label className="block text-gray-400 mb-2">Videos (max 2)</label>
         <div className="space-y-4">
           <label className="cursor-pointer bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600 inline-block">
@@ -159,7 +200,7 @@ const ProductForm = ({ onSubmit, initialData }) => {
                 <span className="text-sm text-gray-300">{file.name}</span>
                 <button
                   type="button"
-                  onClick={() => removeFile('videos', index)}
+                  onClick={() => handleRemoveNew('videos', index)}
                   className="text-red-500"
                 >
                   <X size={16} />
@@ -170,11 +211,25 @@ const ProductForm = ({ onSubmit, initialData }) => {
         </div>
       </div>
 
+      {isUploading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg w-96">
+            <h3 className="text-lg font-semibold text-white mb-4">Uploading Media...</h3>
+            <UploadProgress progress={uploadProgress} />
+          </div>
+        </div>
+      )}
+
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+        disabled={isUploading}
+        className={`w-full py-2 px-4 rounded-lg ${
+          isUploading 
+            ? 'bg-gray-600 cursor-not-allowed' 
+            : 'bg-blue-600 hover:bg-blue-700'
+        } text-white`}
       >
-        {initialData ? 'Update Product' : 'Create Product'}
+        {isUploading ? 'Uploading...' : initialData ? 'Update Product' : 'Create Product'}
       </button>
     </form>
   );

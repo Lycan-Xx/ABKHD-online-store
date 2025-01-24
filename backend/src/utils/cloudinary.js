@@ -9,16 +9,18 @@ cloudinary.config({
 	api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-export const uploadMedia = async (file, folder) => {
+export const uploadMedia = async (file, folder, resourceType = 'auto') => {
 	try {
 		const result = await cloudinary.uploader.upload(file, {
 			folder: `abkhd-store/${folder}`,
-			resource_type: 'auto'
+			resource_type: resourceType,
+			chunk_size: 6000000 // Increase chunk size for video uploads
 		});
 
 		return {
 			url: result.secure_url,
-			publicId: result.public_id
+			publicId: result.public_id,
+			resourceType: result.resource_type
 		};
 	} catch (error) {
 		console.error('Upload error:', error);

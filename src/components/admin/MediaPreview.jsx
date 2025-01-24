@@ -1,7 +1,9 @@
-import React from 'react';
-import { Play } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, Pause } from 'lucide-react';
 
 const MediaPreview = ({ media, type = 'image' }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+
   if (!media) {
     return (
       <div className="w-full h-full bg-gray-700 flex items-center justify-center">
@@ -10,20 +12,23 @@ const MediaPreview = ({ media, type = 'image' }) => {
     );
   }
 
-  // Use the URL directly from the media object
-  const mediaUrl = media.url;
+  const mediaUrl = typeof media === 'string' ? media : media.url;
+  const isVideo = type === 'video' || media.resourceType === 'video';
 
-  if (type === 'video') {
+  if (isVideo) {
     return (
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full group">
         <video
           src={mediaUrl}
           className="w-full h-full object-cover"
-          controls
+          controls={isPlaying}
+          onClick={() => setIsPlaying(!isPlaying)}
         />
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <Play className="w-12 h-12 text-white" />
-        </div>
+        {!isPlaying && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/75 transition-colors cursor-pointer">
+            <Play className="w-12 h-12 text-white" />
+          </div>
+        )}
       </div>
     );
   }

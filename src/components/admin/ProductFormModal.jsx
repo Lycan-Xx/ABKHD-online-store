@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import ProductForm from './ProductForm';
 
 const ProductFormModal = ({ onSubmit, initialData, onClose }) => {
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleSubmit = async (formData) => {
+    try {
+      await onSubmit(formData, setUploadProgress);
+      onClose();
+    } catch (error) {
+      console.error('Submission failed:', error);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-50">
       <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full">
@@ -18,7 +29,7 @@ const ProductFormModal = ({ onSubmit, initialData, onClose }) => {
           </button>
         </div>
         <ProductForm
-          onSubmit={onSubmit}
+          onSubmit={handleSubmit}
           initialData={initialData}
         />
       </div>

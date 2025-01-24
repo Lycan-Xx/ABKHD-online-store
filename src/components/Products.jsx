@@ -55,8 +55,7 @@ const Products = () => {
   };
 
   const ProductCard = ({ product, onClick }) => {
-    // Get the URL directly from the first image object
-    const thumbnailUrl = product.images[0]?.url || '';
+    const mainImageUrl = product.images[0]?.url || '';
 
     return (
       <motion.div
@@ -68,13 +67,13 @@ const Products = () => {
       >
         <div className="aspect-w-16 aspect-h-9">
           <img
-            src={thumbnailUrl}
+            src={mainImageUrl}
             alt={product.title}
             className="w-full h-64 object-cover"
             loading="lazy"
             onError={(e) => {
-              e.target.src = 'fallback-image-url'; // Add a fallback image
-              console.log('Image load error:', thumbnailUrl);
+              e.target.src = 'fallback-image-url';
+              console.log('Image load error:', mainImageUrl);
             }}
           />
         </div>
@@ -84,44 +83,46 @@ const Products = () => {
   };
 
   const ProductDetail = ({ product, onClose }) => {
-    const [loadedImages, setLoadedImages] = useState([]);
+    const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+    const [loadedMedia, setLoadedMedia] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Update this function to properly handle the image object structure
-    const getImageUrl = (imageObj) => {
-      return imageObj?.url || '';
-    };
+    // Combine images and videos
+    const allMedia = [
+      ...product.images.map(img => ({ ...img, type: 'image' })),
+      ...product.videos.map(vid => ({ ...vid, type: 'video' }))
+    ];
 
-    // Update the useEffect to use the correct image URL structure
     useEffect(() => {
       setIsLoading(true);
-      // Map directly to image URLs from the product.images array
-      const imageUrls = product.images.map(img => getImageUrl(img));
-      
       Promise.all(
-        imageUrls.map(
-          url =>
+        allMedia.map(
+          media =>
             new Promise((resolve) => {
-              const img = new Image();
-              img.src = url;
-              img.onload = () => resolve(url);
-              img.onerror = () => resolve(null);
+              if (media.type === 'video') {
+                resolve(media);
+              } else {
+                const img = new Image();
+                img.src = media.url;
+                img.onload = () => resolve(media);
+                img.onerror = () => resolve(null);
+              }
             })
         )
       ).then((loaded) => {
-        setLoadedImages(loaded.filter(Boolean));
+        setLoadedMedia(loaded.filter(Boolean));
         setIsLoading(false);
       });
     }, [product]);
 
     const handleImageNavigation = (direction) => {
-      if (loadedImages.length <= 1) return;
+      if (loadedMedia.length <= 1) return;
       
-      setCurrentImageIndex((prevIndex) => {
+      setCurrentMediaIndex((prevIndex) => {
         if (direction === 'left') {
-          return prevIndex === 0 ? loadedImages.length - 1 : prevIndex - 1;
+          return prevIndex === 0 ? loadedMedia.length - 1 : prevIndex - 1;
         }
-        return prevIndex === loadedImages.length - 1 ? 0 : prevIndex + 1;
+        return prevIndex === loadedMedia.length - 1 ? 0 : prevIndex + 1;
       });
     };
 
@@ -169,27 +170,35 @@ const Products = () => {
                 ) : (
                   <div className="relative h-full">
                     <div className="absolute inset-0">
-                      {loadedImages.map((url, index) => (
+                      {loadedMedia.map((media, index) => (
                         <motion.div
-                          key={url}
+                          key={media.url}
                           initial={false}
                           animate={{
-                            opacity: index === currentImageIndex ? 1 : 0,
-                            zIndex: index === currentImageIndex ? 1 : 0,
+                            opacity: index === currentMediaIndex ? 1 : 0,
+                            zIndex: index === currentMediaIndex ? 1 : 0,
                           }}
                           transition={{ duration: 0.2 }}
                           className="absolute inset-0"
                         >
-                          <img
-                            src={url}
-                            alt={`${product.title} - Image ${index + 1}`}
-                            className="h-full w-full object-cover"
-                          />
+                          {media.type === 'image' ? (
+                            <img
+                              src={media.url}
+                              alt={`${product.title} - Image ${index + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <video
+                              src={media.url}
+                              controls
+                              className="h-full w-full object-cover"
+                            />
+                          )}
                         </motion.div>
                       ))}
                     </div>
 
-                    {loadedImages.length > 1 && (
+                    {loadedMedia.length > 1 && (
                       <>
                         <motion.button
                           initial={false}
@@ -211,15 +220,15 @@ const Products = () => {
                         </motion.button>
 
                         <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 space-x-2">
-                          {loadedImages.map((_, index) => (
+                          {loadedMedia.map((_, index) => (
                             <motion.button
                               key={index}
                               initial={false}
                               whileHover={{ scale: 1.2 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => setCurrentImageIndex(index)}
+                              onClick={() => setCurrentMediaIndex(index)}
                               className={`h-2 rounded-full transition-all ${
-                                index === currentImageIndex
+                                index === currentMediaIndex
                                   ? 'w-8 bg-yellow-400'
                                   : 'w-2 bg-white/50 hover:bg-white/75'
                               }`}

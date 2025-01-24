@@ -23,12 +23,19 @@ export const createProduct = async (req, res) => {
 			)
 		);
 
-		// Create product with image URLs
+		// Upload videos
+		const uploadedVideos = await Promise.all(
+			(files.videos || []).map(video =>
+				uploadMedia(video.path, 'products/videos', 'video')
+			)
+		);
+
 		const product = new Product({
 			title,
 			description,
 			price,
-			images: uploadedImages
+			images: uploadedImages,
+			videos: uploadedVideos
 		});
 
 		await product.save();
@@ -41,32 +48,46 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { title, description, price } = req.body;
+		const { title, description, price, existingImages } = req.body;
 		const files = req.files || {};
-		const images = files.images || [];
-		const videos = files.videos || [];
 
 		const product = await Product.findById(id);
 		if (!product) {
 			return res.status(404).json({ message: 'Product not found' });
 		}
 
+		// Get the existing images from the request
+		const remainingImages = JSON.parse(existingImages || '[]');
+
+		// Find images that were removed
+		const removedImages = product.images.filter(oldImage =>
+			!remainingImages.some(newImage => newImage.publicId === oldImage.publicId)
+		);
+
+		// Delete removed images from Cloudinary
+		for (const image of removedImages) {
+			try {
+				if (image.publicId) {
+					console.log('Deleting image from Cloudinary:', image.publicId);
+					await deleteMedia(image.publicId);
+				}
+			} catch (error) {
+				console.error(`Failed to delete image ${image.publicId}:`, error);
+			}
+		}
+
+		// Update product with remaining images
+		product.images = remainingImages;
+
 		// Handle new images
-		if (images.length > 0) {
+		if (files.images?.length > 0) {
 			const uploadedImages = await Promise.all(
-				images.map(image => uploadMedia(image.path, 'products/images'))
+				files.images.map(image => uploadMedia(image.path, 'products/images'))
 			);
 			product.images.push(...uploadedImages);
 		}
 
-		// Handle new videos
-		if (videos.length > 0) {
-			const uploadedVideos = await Promise.all(
-				videos.map(video => uploadMedia(video.path, 'products/videos'))
-			);
-			product.videos.push(...uploadedVideos);
-		}
-
+		// Update other fields
 		product.title = title || product.title;
 		product.description = description || product.description;
 		product.price = price ? Number(price) : product.price;

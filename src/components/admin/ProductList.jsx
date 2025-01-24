@@ -11,12 +11,17 @@ const getImageUrl = (imageObj) => {
 };
 
 const ProductList = ({ products, onEdit, onDelete }) => {
+  const getMainImage = (product) => {
+    // Get first image from the product's images array
+    return product.images[0]?.url || '';
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {products.map((product) => (
         <div key={product._id} className="bg-gray-800 rounded-lg overflow-hidden">
           <div className="relative aspect-video">
-            <MediaPreview media={getImageUrl(product.images[0])} type="image" />
+            <MediaPreview media={{ url: getMainImage(product) }} type="image" />
           </div>
           
           <div className="p-4">
