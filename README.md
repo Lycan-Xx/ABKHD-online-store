@@ -67,3 +67,21 @@ JWT_SECRET=your_jwt_secret
 - Input validation
 - File upload restrictions
 - CORS configuration
+
+
+
+### Additional notes
+
+to create a new user 
+
+ensure it is ran in the directory of the createAdmin.js
+
+Use this format (node createAdmin.js "John Doe" "email.address.com" "password" "role")
+
+ROLE - is either (user OR admin)
+
+{ node createAdmin.js "Purple Guy" "purple@mail.com" "password" "admin" }
+
+
+
+

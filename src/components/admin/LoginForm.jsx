@@ -11,8 +11,8 @@ const LoginForm = ({ onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(formData.email, formData.password);
-      onSuccess();
+      const userData = await login(formData.email, formData.password);
+      onSuccess(userData); // This passes the full user data including name
     } catch (err) {
       setError('Invalid credentials');
     }
