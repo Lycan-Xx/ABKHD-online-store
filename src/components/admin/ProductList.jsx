@@ -2,13 +2,21 @@ import React from 'react';
 import { Edit, Trash } from 'lucide-react';
 import MediaPreview from './MediaPreview';
 
+const getImageUrl = (imageObj) => {
+  // Check if imageObj has a url property first
+  if (imageObj?.url) {
+    return imageObj.url;
+  }
+  return '';
+};
+
 const ProductList = ({ products, onEdit, onDelete }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {products.map((product) => (
         <div key={product._id} className="bg-gray-800 rounded-lg overflow-hidden">
           <div className="relative aspect-video">
-            <MediaPreview media={product.images[0]} type="image" />
+            <MediaPreview media={getImageUrl(product.images[0])} type="image" />
           </div>
           
           <div className="p-4">

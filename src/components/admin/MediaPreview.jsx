@@ -2,14 +2,6 @@ import React from 'react';
 import { Play } from 'lucide-react';
 
 const MediaPreview = ({ media, type = 'image' }) => {
-  const getImageUrl = (imageObj) => {
-    if (!imageObj) return '';
-    return Object.entries(imageObj)
-      .filter(([key]) => !isNaN(key))
-      .map(([, value]) => value)
-      .join('');
-  };
-
   if (!media) {
     return (
       <div className="w-full h-full bg-gray-700 flex items-center justify-center">
@@ -18,11 +10,14 @@ const MediaPreview = ({ media, type = 'image' }) => {
     );
   }
 
+  // Use the URL directly from the media object
+  const mediaUrl = media.url;
+
   if (type === 'video') {
     return (
       <div className="relative w-full h-full">
         <video
-          src={media.url}
+          src={mediaUrl}
           className="w-full h-full object-cover"
           controls
         />
@@ -33,13 +28,15 @@ const MediaPreview = ({ media, type = 'image' }) => {
     );
   }
 
-  const imageUrl = getImageUrl(media);
   return (
     <img
-      src={imageUrl}
+      src={mediaUrl}
       alt="Product"
       className="w-full h-full object-cover"
       loading="lazy"
+      onError={(e) => {
+        console.log('Image load error:', mediaUrl);
+      }}
     />
   );
 };
