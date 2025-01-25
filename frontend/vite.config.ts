@@ -15,7 +15,7 @@ export default defineConfig({
 		}
 	},
 	server: {
-		port: Number(process.env.PORT) || 3000, // Use PORT from environment or default to 3000
+		port: 3000, // Use a different port for the frontend
 		host: '0.0.0.0', // Bind to all network interfaces
 	},
 	optimizeDeps: {
