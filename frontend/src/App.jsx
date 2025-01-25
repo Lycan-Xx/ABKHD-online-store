@@ -10,7 +10,7 @@ import Admin from './pages/Admin';
 
 function App() {
   return (
-    <BrowserRouter basename="/ABKHD-online-store">
+    <BrowserRouter>
       <Routes>
         <Route path="/admin" element={<Admin />} />
         <Route path="/" element={
