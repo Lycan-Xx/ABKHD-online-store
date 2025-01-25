@@ -26,6 +26,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/settings', settingsRoutes);
 
+// Serve static files from the dist directory
+app.use(express.static('dist'));
+
 // Error Handling Middleware
 app.use(errorHandler);
 
@@ -35,7 +38,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Start Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
