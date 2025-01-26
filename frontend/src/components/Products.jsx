@@ -142,122 +142,120 @@ const Products = () => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-50 overflow-hidden"
+        className="fixed inset-0 z-50 overflow-y-auto"
       >
         <div className="absolute inset-0 bg-black bg-opacity-75" onClick={onClose} />
         
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="relative w-full max-w-4xl overflow-hidden rounded-lg bg-gray-800 shadow-2xl"
+        <div className="min-h-full p-4 flex items-center justify-center">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="relative w-full max-w-4xl bg-gray-800 shadow-2xl rounded-lg my-8 max-h-[90vh] flex flex-col"
+          >
+            <button
+              onClick={onClose}
+              className="absolute right-4 top-4 z-10 rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-sm transition-colors hover:bg-black/75 hover:text-white"
             >
-              <button
-                onClick={onClose}
-                className="absolute right-4 top-4 z-10 rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-sm transition-colors hover:bg-black/75 hover:text-white"
-              >
-                <XMarkIcon className="h-6 w-6" />
-              </button>
+              <XMarkIcon className="h-6 w-6" />
+            </button>
 
-              <div className="relative h-[32rem]">
-                {isLoading ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
-                    <div className="h-12 w-12 rounded-full border-4 border-yellow-400 border-t-transparent animate-spin" />
-                  </div>
-                ) : (
-                  <div className="relative h-full">
-                    <div className="absolute inset-0">
-                      {loadedMedia.map((media, index) => (
-                        <motion.div
-                          key={media.url}
-                          initial={false}
-                          animate={{
-                            opacity: index === currentMediaIndex ? 1 : 0,
-                            zIndex: index === currentMediaIndex ? 1 : 0,
-                          }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute inset-0"
-                        >
-                          {media.type === 'image' ? (
-                            <img
-                              src={media.url}
-                              alt={`${product.title} - Image ${index + 1}`}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <video
-                              src={media.url}
-                              controls
-                              className="h-full w-full object-cover"
-                            />
-                          )}
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    {loadedMedia.length > 1 && (
-                      <>
-                        <motion.button
-                          initial={false}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleImageNavigation('left')}
-                          className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-sm transition-all hover:bg-black/75 hover:text-white"
-                        >
-                          <ChevronLeftIcon className="h-6 w-6" />
-                        </motion.button>
-                        <motion.button
-                          initial={false}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleImageNavigation('right')}
-                          className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-sm transition-all hover:bg-black/75 hover:text-white"
-                        >
-                          <ChevronRightIcon className="h-6 w-6" />
-                        </motion.button>
-
-                        <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 space-x-2">
-                          {loadedMedia.map((_, index) => (
-                            <motion.button
-                              key={index}
-                              initial={false}
-                              whileHover={{ scale: 1.2 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => setCurrentMediaIndex(index)}
-                              className={`h-2 rounded-full transition-all ${
-                                index === currentMediaIndex
-                                  ? 'w-8 bg-yellow-400'
-                                  : 'w-2 bg-white/50 hover:bg-white/75'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-white">{product.title}</h2>
-                <p className="mt-2 text-gray-300">{product.description}</p>
-                <div className="mt-4">
-                  <span className="text-3xl font-bold text-yellow-400">
-                    ₦{product.price.toLocaleString()}
-                  </span>
+            <div className="flex-shrink-0 relative h-[32rem]">
+              {isLoading ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+                  <div className="h-12 w-12 rounded-full border-4 border-yellow-400 border-t-transparent animate-spin" />
                 </div>
-                <button
-                  onClick={handleWhatsApp}
-                  className="mt-6 w-full rounded-lg bg-green-500 py-3 font-medium text-white transition-colors hover:bg-green-600"
-                >
-                  Contact via WhatsApp
-                </button>
+              ) : (
+                <div className="relative h-full">
+                  <div className="absolute inset-0">
+                    {loadedMedia.map((media, index) => (
+                      <motion.div
+                        key={media.url}
+                        initial={false}
+                        animate={{
+                          opacity: index === currentMediaIndex ? 1 : 0,
+                          zIndex: index === currentMediaIndex ? 1 : 0,
+                        }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute inset-0"
+                      >
+                        {media.type === 'image' ? (
+                          <img
+                            src={media.url}
+                            alt={`${product.title} - Image ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <video
+                            src={media.url}
+                            controls
+                            className="h-full w-full object-cover"
+                          />
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {loadedMedia.length > 1 && (
+                    <>
+                      <motion.button
+                        initial={false}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleImageNavigation('left')}
+                        className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-sm transition-all hover:bg-black/75 hover:text-white"
+                      >
+                        <ChevronLeftIcon className="h-6 w-6" />
+                      </motion.button>
+                      <motion.button
+                        initial={false}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleImageNavigation('right')}
+                        className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-sm transition-all hover:bg-black/75 hover:text-white"
+                      >
+                        <ChevronRightIcon className="h-6 w-6" />
+                      </motion.button>
+
+                      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 space-x-2">
+                        {loadedMedia.map((_, index) => (
+                          <motion.button
+                            key={index}
+                            initial={false}
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setCurrentMediaIndex(index)}
+                            className={`h-2 rounded-full transition-all ${
+                              index === currentMediaIndex
+                                ? 'w-8 bg-yellow-400'
+                                : 'w-2 bg-white/50 hover:bg-white/75'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 overflow-y-auto">
+              <h2 className="text-2xl font-bold text-white">{product.title}</h2>
+              <p className="mt-2 text-gray-300">{product.description}</p>
+              <div className="mt-4">
+                <span className="text-3xl font-bold text-yellow-400">
+                  ₦{product.price.toLocaleString()}
+                </span>
               </div>
-            </motion.div>
-          </div>
+              <button
+                onClick={handleWhatsApp}
+                className="mt-6 w-full rounded-lg bg-green-500 py-3 font-medium text-white transition-colors hover:bg-green-600"
+              >
+                Contact via WhatsApp
+              </button>
+            </div>
+          </motion.div>
         </div>
       </motion.div>
     );
