@@ -42,7 +42,7 @@ const Admin = () => {
     if (token) {
       // Get user data from localStorage if available
       const userData = JSON.parse(localStorage.getItem('user'));
-	  console.log('Loaded user data from storage:', userData); //Debug log
+      console.log('Loaded user data from storage:', userData); //Debug log
       if (userData) {
         setUser(userData);
       }
@@ -70,11 +70,11 @@ const Admin = () => {
   };
 
   const handleLoginSuccess = (userData) => {
-	console.log('Login success, user data:', userData); //Debug log
+    console.log('Login success, user data:', userData); //Debug log
     setIsAuthenticated(true);
     setUser(userData.user); // Store the full user data including name
     localStorage.setItem('token', userData.token);
-	localStorage.setItem('user', JSON.stringify(userData.user)); // Store user data
+    localStorage.setItem('user', JSON.stringify(userData.user)); // Store user data
   };
 
   const handleSettingsSave = async (updatedSettings) => {
@@ -159,8 +159,8 @@ const Admin = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold">
            <span className='text-4xl mb-2'> Admin panel</span> <br />
-			 <span className="text-yellow-400">{user?.name || 'Admin'}</span> <br />
-			  <span className='text-red-600'>{user?.email || 'Email'} </span>
+           <span className="text-yellow-400">{user?.name || 'Admin'}</span> <br />
+            <span className='text-red-600'>{user?.email || 'Email'} </span>
           </h1>
           <p className="text-gray-400 mt-2 text-2xl">Manage your products and settings</p>
         </div>

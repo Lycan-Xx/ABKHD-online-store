@@ -7,6 +7,13 @@ This system consists of:
 3. MongoDB for data storage
 4. Cloudinary for media management
 
+### Features
+- Product Management (CRUD)
+- Image/Video Upload via Cloudinary
+- WhatsApp Number Configuration
+- Contact Email Management
+- Secure Admin Authentication
+
 ### Setup Instructions
 
 #### Prerequisites
@@ -15,7 +22,7 @@ This system consists of:
 - Cloudinary account
 
 #### Environment Variables
-Create `.env` file in the backend directory:
+Create a `.env` file in the backend directory:
 ```env
 MONGODB_URI=your_mongodb_connection_string
 CLOUDINARY_CLOUD_NAME=your_cloud_name
@@ -24,13 +31,14 @@ CLOUDINARY_API_SECRET=your_api_secret
 JWT_SECRET=your_jwt_secret
 ```
 
-## Environment Setup
+Never commit `.env` files containing real credentials to version control.
+
+#### Environment Setup
 1. Copy `.env.example` to `.env`
 2. Fill in your environment variables
 
-Never commit `.env` files containing real credentials to version control.
-
 #### Installation
+
 1. Backend Setup:
    ```bash
    cd backend
@@ -45,49 +53,178 @@ Never commit `.env` files containing real credentials to version control.
    npm run dev
    ```
 
-### Features
-- Product Management (CRUD)
-- Image/Video Upload via Cloudinary
-- WhatsApp Number Configuration
-- Contact Email Management
-- Secure Admin Authentication
+### Project Structure
 
-### API Documentation
+The project is organized into two main directories:
+- `frontend`: Contains all frontend-related code
+- `backend`: Contains all backend-related code
 
-#### Authentication
-- POST /api/auth/login
-- POST /api/auth/logout
+### Setting Up the Project
 
-#### Products
-- GET /api/products
-- POST /api/products
-- PUT /api/products/:id
-- DELETE /api/products/:id
+1. Create a new `frontend` directory and move all frontend-related files:
+   ```bash
+   mkdir -p frontend
+   mv src frontend/
+   mv public frontend/
+   mv index.html frontend/
+   mv vite.config.ts frontend/
+   mv package*.json frontend/
+   mv postcss.config.js frontend/
+   mv tailwind.config.js frontend/
+   mv tsconfig*.json frontend/
+   ```
 
-#### Settings
-- GET /api/settings
-- PUT /api/settings
+2. Update the paths in `vite.config.ts`:
+   ```typescript
+   import { defineConfig } from 'vite';
+   import react from '@vitejs/plugin-react';
 
-### Security
-- JWT-based authentication
-- Input validation
-- File upload restrictions
-- CORS configuration
+   export default defineConfig({
+     plugins: [react()],
+     base: '/', 
+     server: {
+       port: process.env.PORT || 3000,
+       host: '0.0.0.0',
+     },
+     optimizeDeps: {
+       exclude: ['lucide-react'],
+     },
+   });
+   ```
 
+3. Update `package.json` paths:
+   ```json
+   {
+     "name": "abkhd-store-frontend",
+     "private": true,
+     "version": "0.0.0",
+     "type": "module",
+     "scripts": {
+       "dev": "vite",
+       "build": "vite build",
+       "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+       "preview": "vite preview"
+     }
+   }
+   ```
 
+4. Create a root `package.json` for managing both frontend and backend:
+   ```json
+   {
+     "name": "abkhd-store",
+     "version": "1.0.0",
+     "private": true,
+     "workspaces": [
+       "frontend",
+       "backend"
+     ],
+     "scripts": {
+       "frontend": "cd frontend && npm run dev",
+       "backend": "cd backend && npm run dev",
+       "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+       "build": "cd frontend && npm run build",
+       "start": "cd backend && npm start"
+     },
+     "devDependencies": {
+       "concurrently": "^8.0.0"
+     }
+   }
+   ```
 
-### Additional notes
+5. Update your `.gitignore` file:
+   ```gitignore
+   # Dependencies
+   node_modules
+   frontend/node_modules
+   backend/node_modules
 
-to create a new user 
+   # Build
+   frontend/dist
+   frontend/dist-ssr
+   *.local
 
-ensure it is ran in the directory of the createAdmin.js
+   # Environment variables
+   .env
+   frontend/.env
+   backend/.env
+   .env.local
+   .env.development
+   .env.test
+   .env.production
 
-Use this format (node createAdmin.js "John Doe" "email.address.com" "password" "role")
+   # Editor directories and files
+   .vscode/*
+   !.vscode/extensions.json
+   .idea
+   .DS_Store
+   *.suo
+   *.ntvs*
+   *.njsproj
+   *.sln
+   *.sw?
+   ```
 
-ROLE - is either (user OR admin)
+### Running the Project
 
-{ node createAdmin.js "Purple Guy" "purple@mail.com" "password" "admin" }
+1. Install dependencies:
+   ```bash
+   # Install root dependencies
+   npm install
 
+   # Install frontend dependencies
+   cd frontend && npm install
 
+   # Install backend dependencies
+   cd backend && npm install
+   ```
 
+2. Start the development servers:
+   - To run the frontend only:
+     ```bash
+     npm run frontend
+     ```
+   - To run the backend only:
+     ```bash
+     npm run backend
+     ```
+   - To run both frontend and backend:
+     ```bash
+     npm run dev
+     ```
 
+### Additional Configuration
+
+1. Update your backend CORS configuration in `index.js`:
+   ```javascript
+   const corsOptions = {
+     origin: process.env.NODE_ENV === 'production' 
+       ? process.env.FRONTEND_URL 
+       : 'http://localhost:3000',
+     credentials: true
+   };
+   app.use(cors(corsOptions));
+   ```
+
+2. Update the API URL in `api.js`:
+   ```javascript
+   import axios from 'axios';
+
+   const api = axios.create({
+     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+   });
+   ```
+
+### Additional Notes
+
+To create a new user, ensure it is run in the directory of the `createAdmin.js` file.
+
+Use this format:
+```bash
+node createAdmin.js "John Doe" "email.address.com" "password" "role"
+```
+`ROLE` can be either `user` or `admin`.
+
+Example:
+```bash
+node createAdmin.js "Purple Guy" "purple@mail.com" "password" "admin"
+```
