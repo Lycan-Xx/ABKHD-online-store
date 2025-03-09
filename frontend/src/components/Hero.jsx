@@ -81,11 +81,13 @@ const Hero = () => {
             repeat: Infinity,
             repeatType: 'reverse',
           }}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
         >
-          <Link to="products" smooth={true} duration={500} className="flex flex-col items-center">
-            <span className="text-gray-400 text-sm mb-2">Discover More</span>
-            <ChevronDownIcon className="h-6 w-6 text-teal-400 cursor-pointer" />
+          <Link to="products" smooth={true} duration={500}>
+            <div className="flex flex-col items-center">
+              <span className="text-gray-400 text-sm mb-2 text-center">Discover More</span>
+              <ChevronDownIcon className="h-6 w-6 text-teal-400 cursor-pointer animate-bounce" />
+            </div>
           </Link>
         </motion.div>
       </motion.div>
