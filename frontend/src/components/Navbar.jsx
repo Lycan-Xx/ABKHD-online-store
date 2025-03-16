@@ -58,7 +58,7 @@ const Navbar = () => {
                     smooth={true}
                     duration={800}
                     offset={-80}
-                    className={`text-gray-300 hover:text-teal-400 cursor-pointer px-5 py-2 rounded-md text-sm font-normal transition-all duration-300 flex items-center space-x-1 group border border-transparent`}
+                    className={`text-gray-300 hover:text-teal-400 cursor-pointer px-5 py-2 rounded-md text-md font-normal transition-all duration-300 flex items-center space-x-1 group border border-transparent`}
                     activeClass="text-teal-400 bg-gray-800/50 border-[6px] border-teal-600 scale-145 transform [&>svg]:text-teal-400"
                     spy={true}
                   >
@@ -66,14 +66,7 @@ const Navbar = () => {
                     <span>{item.name}</span>
                   </Link>
                 ))}
-                <Link
-                  to="contact"
-                  smooth={true}
-                  duration={800}
-                  className="ml-2 bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-md text-sm font-normal transition-all duration-300 shadow-md hover:shadow-lg hover:translate-y-px"
-                >
-                  Get in Touch
-                </Link>
+
               </div>
             </div>
             

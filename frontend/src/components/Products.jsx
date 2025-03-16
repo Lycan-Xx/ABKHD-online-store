@@ -56,7 +56,7 @@ const Products = () => {
       return 0;
     });
 
-  const categories = ['all', ...new Set(products.filter((p) => p?.category).map((p) => p.category))];
+  const categories = ['all', 'phones', 'computer'];
 
   if (loading) {
     return (

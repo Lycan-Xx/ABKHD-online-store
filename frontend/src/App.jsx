@@ -7,6 +7,8 @@ import Services from './components/Services';
 import FAQ from './components/FAQ';
 import Contact from './components/Contact';
 import Admin from './pages/Admin';
+import Footer from './components/Footer';
+
 
 function App() {
   return (
@@ -21,6 +23,7 @@ function App() {
             <Services />
             <FAQ />
             <Contact />
+			<Footer />
           </div>
         } />
       </Routes>

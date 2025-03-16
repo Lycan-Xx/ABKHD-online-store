@@ -169,7 +169,7 @@ const Contact = () => {
               <div className="mt-6">
                 <a href={`tel:${settings?.contactPhone || ''}`} className="flex items-center space-x-3">
                   <FaPhone className="text-teal-400 text-lg" />
-                  <span className="text-gray-400">{settings?.contactPhone || 'Contact us by phone'}</span>
+                  <span className="text-gray-400">{settings?.contactPhone || 'Contact us by phone'}  (070) 000000000 </span>
                 </a>
               </div>
             </div>
