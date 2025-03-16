@@ -1,97 +1,110 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-scroll';
 
 const Hero = () => {
-  // Variants for staggered animations
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.3
-      }
-    }
-  };
+  // State for image to prevent regeneration on re-renders
+  const [randomSeed, setRandomSeed] = useState(Math.floor(Math.random() * 1000));
   
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
+  useEffect(() => {
+    // More efficient animation using CSS variables and requestAnimationFrame
+    const glitchElements = document.querySelectorAll('.glitch-text');
+    let animationFrame;
+    
+    const triggerGlitch = () => {
+      glitchElements.forEach(el => {
+        el.classList.add('glitching');
+        setTimeout(() => el.classList.remove('glitching'), 800);
+      });
+      
+      animationFrame = setTimeout(triggerGlitch, 5000);
+    };
+    
+    triggerGlitch();
+    return () => clearTimeout(animationFrame);
+  }, []);
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-b from-gray-900 to-gray-800 flex items-center justify-center px-4 md:px-8 py-16">
-      {/* Background decoration elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-blue-500/10 blur-3xl"></div>
-        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-purple-500/10 blur-3xl"></div>
-        <div className="absolute bottom-0 left-1/4 w-72 h-72 rounded-full bg-yellow-500/10 blur-3xl"></div>
-      </div>
+    <section className="min-h-screen relative bg-gradient-to-b from-gray-900 to-black flex items-center justify-center overflow-hidden">
+      {/* Subtle background texture */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
       
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="text-center relative z-10 max-w-4xl mx-auto"
-      >
-        <motion.div variants={itemVariants} className="mb-2">
-          <span className="inline-block py-1 px-3 rounded-full bg-indigo-500/20 text-indigo-300 text-sm font-medium mb-6">
-            Premium Second-Hand Electronics
-          </span>
-        </motion.div>
+      {/* Soft ambient light effects */}
+      <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-blue-400 opacity-5 blur-3xl"></div>
+      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-teal-400 opacity-5 blur-3xl"></div>
+      
+      {/* Main content container */}
+      <div className="relative z-10 max-w-6xl w-full mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          {/* Left side: Text content */}
+          <div className="text-left space-y-8">
+            <span className="inline-block py-1 px-3 border border-teal-500 text-teal-400 text-sm font-normal tracking-wider">
+              TRUSTED TECHNOLOGY MARKETPLACE
+            </span>
+            
+            <h1 className="font-light text-5xl lg:text-6xl tracking-tight text-white">
+              <span className="block font-normal">Give Technology</span>
+              <span className="block text-teal-400 font-medium mt-2 glitch-text">
+                A Second Life
+              </span>
+            </h1>
+            
+            <p className="text-lg leading-relaxed text-gray-300 max-w-lg font-light">
+              Quality-tested devices at fair prices. We believe in extending the lifecycle of electronics while making technology accessible to everyone.
+            </p>
+            
+            <div className="pt-4 flex flex-wrap gap-6">
+              <Link to="products" smooth={true} duration={800}>
+                <button className="px-8 py-3 bg-teal-600 hover:bg-teal-500 text-white font-normal rounded-md transition-all duration-300 shadow-lg hover:shadow-xl hover:translate-y-1">
+                  Browse Devices
+                </button>
+              </Link>
+              
+              <Link to="about" smooth={true} duration={800}>
+                <button className="px-8 py-3 bg-transparent border border-gray-400 hover:border-teal-400 text-gray-300 hover:text-teal-400 font-normal rounded-md transition-all duration-300">
+                  Our Promise
+                </button>
+              </Link>
+            </div>
+          </div>
+          
+          {/* Right side: Device image with simpler framing */}
+          <div className="relative h-96 flex items-center justify-center">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl group transition-all duration-500">
+              {/* Frame with subtle glow */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-teal-900/20 to-blue-900/20 group-hover:opacity-80 transition-opacity duration-500"></div>
+              
+              {/* Random Picsum image */}
+              <img 
+                src={`https://picsum.photos/seed/${randomSeed}/600/600`}
+                alt="Premium Certified Device" 
+                className="relative w-full h-full object-cover max-h-96 group-hover:scale-105 transition-transform duration-700"
+              />
+              
+              {/* Quality badge */}
+              <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm py-2 px-4 rounded-full">
+                <p className="text-teal-400 text-sm font-medium">100% Tested & Certified</p>
+              </div>
+            </div>
+          </div>
+        </div>
         
-        <motion.h1 variants={itemVariants} className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 mb-6 leading-tight">
-          <span className="text-4xl md:text-5xl lg:text-6xl block mb-2">
-            Find Your Perfect Device
-          </span>
-          <span className="text-2xl md:text-3xl lg:text-4xl block mt-4 mb-2">
-            Quality <span className="text-yellow-400 font-bold">Foreign Used</span>
-          </span>
-          <span className="text-2xl md:text-3xl lg:text-4xl block">
-            <span className="text-teal-400 font-bold">Mobile Phones</span> & 
-            <span className="text-rose-500 font-bold"> Laptops</span>
-          </span>
-        </motion.h1>
-        
-        <motion.p variants={itemVariants} className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-          Premium second-hand devices at affordable prices. All products thoroughly tested and guaranteed.
-        </motion.p>
-        
-        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <Link to="products" smooth={true} duration={500}>
-            <button className="px-8 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-medium rounded-lg shadow-lg hover:shadow-teal-500/20 hover:-translate-y-1 transition-all duration-300">
-              Browse Products
-            </button>
-          </Link>
-          <Link to="about" smooth={true} duration={500}>
-            <button className="px-8 py-3 bg-transparent border border-gray-600 text-gray-300 font-medium rounded-lg hover:bg-gray-800 hover:border-gray-500 transition-all duration-300">
-              Our Guarantee
-            </button>
-          </Link>
-        </motion.div>
-        
-        {/* Animated scroll indicator */}
-        <motion.div
-          animate={{
-            y: [0, 8, 0],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            repeatType: 'reverse',
-          }}
-          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
-        >
-          <Link to="products" smooth={true} duration={500}>
-            <div className="flex flex-col items-center">
-              <span className="text-gray-400 text-sm mb-2 text-center">Discover More</span>
-              <ChevronDownIcon className="h-6 w-6 text-teal-400 cursor-pointer animate-bounce" />
+        {/* Simplified scroll indicator */}
+        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2">
+          <Link to="products" smooth={true} duration={800} className="cursor-pointer group">
+            <div className="flex flex-col items-center space-y-3 opacity-80 hover:opacity-100 transition-opacity">
+              <p className="text-gray-400 group-hover:text-teal-400 text-sm transition-colors duration-300">Discover More</p>
+              <svg className="w-6 h-6 text-teal-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
             </div>
           </Link>
-        </motion.div>
-      </motion.div>
-    </div>
+        </div>
+      </div>
+      
+      {/* Simple, elegant footer divider */}
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
+      
+    </section>
   );
 };
 

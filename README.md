@@ -228,3 +228,8 @@ Example:
 ```bash
 node createAdmin.js "Purple Guy" "purple@mail.com" "password" "admin"
 ```
+
+
+## Features to add
+
+use emailjs to handle automatic email delivery
