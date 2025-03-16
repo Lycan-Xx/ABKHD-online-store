@@ -232,4 +232,5 @@ node createAdmin.js "Purple Guy" "purple@mail.com" "password" "admin"
 
 ## Features to add
 
-use emailjs to handle automatic email delivery
+- Use emailjs to handle automatic email delivery
+- Hero component should have a dynamic image to product description like the tems component used in my previous aj-repair component

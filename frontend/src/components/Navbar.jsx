@@ -43,8 +43,8 @@ const Navbar = () => {
             {/* Logo */}
             <div className="flex-shrink-0 pl-4">
               <span className="font-normal">
-                <span className="text-white text-2xl">Tech</span>
-                <span className="text-teal-400 text-2xl font-medium">Revival</span>
+                <span className="text-white text-2xl">ABK</span>
+                <span className="text-teal-400 text-2xl font-medium">HD</span>
               </span>
             </div>
             
@@ -58,11 +58,11 @@ const Navbar = () => {
                     smooth={true}
                     duration={800}
                     offset={-80}
-                    className={`text-gray-300 hover:text-teal-400 cursor-pointer px-4 py-2 rounded-md text-sm font-normal transition-all duration-300 flex items-center space-x-1 group`}
-                    activeClass="text-teal-400 bg-gray-800/50"
+                    className={`text-gray-300 hover:text-teal-400 cursor-pointer px-5 py-2 rounded-md text-sm font-normal transition-all duration-300 flex items-center space-x-1 group border border-transparent`}
+                    activeClass="text-teal-400 bg-gray-800/50 border-[6px] border-teal-600 scale-145 transform [&>svg]:text-teal-400"
                     spy={true}
                   >
-                    <item.icon className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <item.icon className="w-4 h-4 text-white group-hover:text-teal-400 transition-all duration-300" />
                     <span>{item.name}</span>
                   </Link>
                 ))}

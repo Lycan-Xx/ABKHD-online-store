@@ -36,10 +36,8 @@ const Hero = () => {
       <div className="relative z-10 max-w-6xl w-full mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left side: Text content */}
-          <div className="text-left space-y-8">
-            <span className="inline-block py-1 px-3 border border-teal-500 text-teal-400 text-sm font-normal tracking-wider">
-              TRUSTED TECHNOLOGY MARKETPLACE
-            </span>
+          <div className="text-left space-y-8 mt-8	">
+
             
             <h1 className="font-light text-5xl lg:text-6xl tracking-tight text-white">
               <span className="block font-normal">Give Technology</span>
@@ -49,7 +47,9 @@ const Hero = () => {
             </h1>
             
             <p className="text-lg leading-relaxed text-gray-300 max-w-lg font-light">
-              Quality-tested devices at fair prices. We believe in extending the lifecycle of electronics while making technology accessible to everyone.
+            	Quality-tested
+			  <span className="text-teal-400 text-xl font-mono"> SECOND HAND </span>
+				devices at fair prices. We believe in extending the lifecycle of electronics while making technology accessible to everyone.
             </p>
             
             <div className="pt-4 flex flex-wrap gap-6">
@@ -89,7 +89,7 @@ const Hero = () => {
         </div>
         
         {/* Simplified scroll indicator */}
-        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <Link to="products" smooth={true} duration={800} className="cursor-pointer group">
             <div className="flex flex-col items-center space-y-3 opacity-80 hover:opacity-100 transition-opacity">
               <p className="text-gray-400 group-hover:text-teal-400 text-sm transition-colors duration-300">Discover More</p>
@@ -102,7 +102,7 @@ const Hero = () => {
       </div>
       
       {/* Simple, elegant footer divider */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
       
     </section>
   );
