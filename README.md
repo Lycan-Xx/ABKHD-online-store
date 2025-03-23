@@ -228,10 +228,3 @@ Example:
 ```bash
 node createAdmin.js "Purple Guy" "purple@mail.com" "password" "admin"
 ```
-
-
-## Features to add
-
-- Use emailjs to handle automatic email delivery
-- Hero component should have a dynamic image to product description like the tems component used in my previous aj-repair component
-- Add product category to the backend infrastrucure to manage and handle different categories
