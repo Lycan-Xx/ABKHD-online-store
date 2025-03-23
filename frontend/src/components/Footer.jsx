@@ -16,9 +16,6 @@ const Footer = () => {
           transition={{ duration: 0.5 }}
           className="flex flex-col sm:flex-row items-center justify-between text-gray-400 text-sm"
         >
-		<a href="#" className="hover:text-teal-400 font-mono transition-colors duration-300 mt-4 sm:mt-0">
-            Lycan_Xx
-          </a>
           <p className="mt-4 sm:mt-0">&copy; 2025 ABKHD. All rights reserved.</p>
 
           <a href="#" className="hover:text-teal-400 transition-colors duration-300">
