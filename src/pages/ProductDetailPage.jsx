@@ -235,11 +235,7 @@ const ProductDetailPage = () => {
               >
                 <div className="aspect-square overflow-hidden rounded-lg bg-muted">
                   <img
-                    src={relate<think>
-I need to continue from where I left off in the ProductDetailPage.jsx file. I was in the middle of the related products section, specifically in the img tag for the related product. I need to complete that file and continue with the remaining files to finish the e-commerce website.
-</think>
-
-dProduct.image}
+                    src={relatedProduct.image}
                     alt={relatedProduct.name}
                     className="product-image"
                     crossOrigin="anonymous"
