@@ -1,10 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useToast } from '../contexts/ToastContext'
 import { formatPrice } from '../lib/utils'
 
 const CheckoutPage = () => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
   const { items, getCartTotal, clearCart } = useCart()
   const { addToast } = useToast()
   const navigate = useNavigate()
