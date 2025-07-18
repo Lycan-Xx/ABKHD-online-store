@@ -17,8 +17,8 @@ const ProductDetailPage = () => {
   const [quantity, setQuantity] = useState(1)
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [id])
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   if (!product) {
     return (
@@ -106,7 +106,7 @@ const ProductDetailPage = () => {
                   </span>
                 )}
               </div>
-              {product.rating && (
+              {/* {product.rating && (
                 <div className="flex items-center space-x-1">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
@@ -120,13 +120,13 @@ const ProductDetailPage = () => {
                   </div>
                   <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
                 </div>
-              )}
+              )} */}
             </div>
             <p className="text-muted-foreground">{product.longDescription}</p>
           </div>
 
           {/* Size Selection */}
-          {product.sizes && product.sizes.length > 0 && (
+          {/* {product.sizes && product.sizes.length > 0 && (
             <div>
               <h3 className="font-semibold mb-3">Size</h3>
               <div className="flex flex-wrap gap-2">
@@ -145,10 +145,10 @@ const ProductDetailPage = () => {
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Color Selection */}
-          {product.colors && product.colors.length > 0 && (
+          {/* {product.colors && product.colors.length > 0 && (
             <div>
               <h3 className="font-semibold mb-3">Color</h3>
               <div className="flex flex-wrap gap-2">
@@ -167,7 +167,7 @@ const ProductDetailPage = () => {
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Quantity */}
           <div>
@@ -236,6 +236,7 @@ const ProductDetailPage = () => {
                 key={relatedProduct.id}
                 to={`/products/${relatedProduct.id}`}
                 className="product-card block"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
                 <div className="aspect-square overflow-hidden rounded-lg bg-muted">
                   <img
