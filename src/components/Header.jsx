@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
+import { toggleDarkMode } from '../lib/utils'
 import SearchBar from './SearchBar'
 import CartDrawer from './CartDrawer'
 import MobileMenu from './MobileMenu'
@@ -9,7 +10,19 @@ const Header = () => {
   const { getCartCount } = useCart()
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    // Check for system dark mode preference and saved theme
+    const savedTheme = localStorage.getItem('theme')
+    const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+    if (savedTheme === 'dark' || (!savedTheme && systemDarkMode)) {
+      document.documentElement.classList.add('dark')
+      setIsDarkMode(true)
+    }
+  }, [])
 
   const handleSearch = (query) => {
     navigate(`/products?search=${encodeURIComponent(query)}`)
@@ -49,12 +62,24 @@ const Header = () => {
             </Link>
           </nav>
 
-          {/* Search and Cart */}
+          {/* Search, Dark Mode, and Cart */}
           <div className="flex items-center space-x-4">
             <div className="hidden sm:block">
               <SearchBar onSearch={handleSearch} />
             </div>
             
+            {/* Dark Mode Toggle - Visible on desktop */}
+            <button
+              onClick={() => {
+                toggleDarkMode()
+                setIsDarkMode(!isDarkMode)
+              }}
+              className="hidden md:flex p-2 hover:bg-accent rounded-md transition-colors"
+              aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              <i className={`bi ${isDarkMode ? 'bi-moon-fill' : 'bi-sun-fill'} text-xl`}></i>
+            </button>
+
             <button
               onClick={() => setIsCartOpen(true)}
               className="relative p-2 hover:bg-accent rounded-md transition-colors"
@@ -77,7 +102,15 @@ const Header = () => {
       </header>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileMenu 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={() => {
+          toggleDarkMode()
+          setIsDarkMode(!isDarkMode)
+        }}
+      />
     </>
   )
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-const MobileMenu = ({ isOpen, onClose }) => {
+const MobileMenu = ({ isOpen, onClose, isDarkMode, onToggleDarkMode }) => {
   if (!isOpen) return null
 
   return (
@@ -47,6 +47,17 @@ const MobileMenu = ({ isOpen, onClose }) => {
               </Link>
             </div>
           </nav>
+
+          {/* Dark Mode Toggle */}
+          <div className="border-t p-4">
+            <button
+              onClick={onToggleDarkMode}
+              className="flex items-center justify-between w-full p-3 rounded-md bg-accent hover:bg-accent/80 transition-colors"
+            >
+              <span className="text-sm font-medium">{isDarkMode ? 'Dark Mode' : 'Light Mode'}</span>
+              <i className={`bi ${isDarkMode ? 'bi-moon-fill' : 'bi-sun-fill'} text-xl`}></i>
+            </button>
+          </div>
         </div>
       </div>
     </>
