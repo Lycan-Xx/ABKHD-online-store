@@ -24,7 +24,7 @@ const ProductCard = ({ product }) => {
             </span>
           )}
         </div>
-        {product.rating && (
+        {/* {product.rating && (
           <div className="flex items-center space-x-1">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
@@ -38,7 +38,7 @@ const ProductCard = ({ product }) => {
             </div>
             <span className="text-xs text-muted-foreground">({product.reviews})</span>
           </div>
-        )}
+        )} */}
       </div>
     </Link>
   )

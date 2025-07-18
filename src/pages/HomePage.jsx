@@ -43,7 +43,7 @@ const HomePage = () => {
         </div>
         <ProductGrid products={featuredProducts} />
         <div className="text-center mt-12">
-          <Link to="/products" className="btn-primary px-8 py-3 border-2 border-accent flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200 dark:border-accent/80 focus:ring-2 focus:ring-accent/60">
+          <Link to="/inventory" className="btn-primary px-8 py-3 border-2 border-accent flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200 dark:border-accent/80 focus:ring-2 focus:ring-accent/60">
             <i className="bi bi-grid-fill text-lg"></i>
             View All Products
           </Link>

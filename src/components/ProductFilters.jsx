@@ -86,31 +86,6 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
               />
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="relative h-6 flex items-center">
-              {/* Track */}
-              <div className="absolute w-full h-2 bg-muted rounded-lg"></div>
-              {/* Active range (full for single slider) */}
-              <div 
-                className="absolute h-2 bg-primary rounded-lg"
-                style={{ left: 0, width: `${((priceRange[1] - priceRange[0]) / 100) * 100}%` }}
-              ></div>
-              {/* Single range slider */}
-              <input
-                type="range"
-                min={priceRange[0]}
-                max={priceRange[1]}
-                value={priceRange[1]}
-                onChange={(e) => handlePriceChange(Number(e.target.value), 1)}
-                className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-20 slider-thumb border-2 border-primary focus:ring-2 focus:ring-primary/60"
-                style={{ accentColor: 'hsl(var(--primary))' }}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>${priceRange[0]}</span>
-              <span>${priceRange[1]}</span>
-            </div>
-          </div>
         </div>
       </div>
 

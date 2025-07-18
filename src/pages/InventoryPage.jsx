@@ -102,9 +102,9 @@ const InventoryPage = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <SearchBar onSearch={handleSearch} />
-      </div>
+      </div> */}
 
       <div className="flex flex-col md:flex-row gap-8">
         {/* Filters Sidebar */}
