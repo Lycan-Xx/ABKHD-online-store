@@ -1,16 +1,31 @@
-import React from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 const MobileMenu = ({ isOpen, onClose, isDarkMode, onToggleDarkMode }) => {
-  if (!isOpen) return null
+  const [visible, setVisible] = useState(isOpen)
+  const [shouldRender, setShouldRender] = useState(isOpen)
+  const firstRender = useRef(true)
+
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true)
+      setTimeout(() => setVisible(true), 10)
+    } else {
+      setVisible(false)
+      const timeout = setTimeout(() => setShouldRender(false), 300)
+      return () => clearTimeout(timeout)
+    }
+  }, [isOpen])
+
+  if (!shouldRender) return null
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 z-50 md:hidden" onClick={onClose}></div>
-      <div className="fixed left-0 top-0 h-full w-64 bg-background z-50 shadow-xl md:hidden">
+      <div className={`fixed inset-0 bg-black/50 z-50 md:hidden transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={onClose}></div>
+      <div className={`fixed left-0 top-0 h-full w-64 bg-background z-50 shadow-xl md:hidden transition-transform duration-300 ${visible ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center justify-between p-[9px] border-b">
             <h2 className="text-lg font-semibold">Menu</h2>
             <button
               onClick={onClose}

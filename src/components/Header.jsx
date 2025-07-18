@@ -39,11 +39,11 @@ const Header = () => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-              <i className="bi bi-triangle text-primary-foreground text-sm"></i>
-            </div>
-            <span className="font-bold text-xl">ABKHD STORE</span>
-          </Link>
+              <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                <i className="bi bi-triangle text-black text-sm"></i>
+              </div>
+              <span className="font-bold text-xl">ABKHD STORE</span>
+            </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">

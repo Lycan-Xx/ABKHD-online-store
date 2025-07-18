@@ -1,20 +1,35 @@
-import React from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { formatPrice } from '../lib/utils'
 
 const CartDrawer = ({ isOpen, onClose }) => {
   const { items, updateQuantity, removeItem, getCartTotal } = useCart()
+  const [visible, setVisible] = useState(isOpen)
+  const [shouldRender, setShouldRender] = useState(isOpen)
+  const firstRender = useRef(true)
 
-  if (!isOpen) return null
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true)
+      // Wait for next tick to allow transition
+      setTimeout(() => setVisible(true), 10)
+    } else {
+      setVisible(false)
+      const timeout = setTimeout(() => setShouldRender(false), 300)
+      return () => clearTimeout(timeout)
+    }
+  }, [isOpen])
+
+  if (!shouldRender) return null
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose}></div>
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-background z-50 shadow-xl">
+      <div className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={onClose}></div>
+      <div className={`fixed right-0 top-0 h-full w-full max-w-md bg-background z-50 shadow-xl transition-transform duration-300 ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center justify-between p-[9px] border-b">
             <h2 className="text-lg font-semibold">Shopping Cart</h2>
             <button
               onClick={onClose}
