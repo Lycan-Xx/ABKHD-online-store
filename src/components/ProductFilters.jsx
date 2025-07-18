@@ -23,7 +23,7 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-card p-4 rounded-lg border">
       {/* Sort */}
       <div>
         <h3 className="font-semibold mb-3">Sort By</h3>
@@ -86,23 +86,41 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
               />
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={priceRange[0]}
-              onChange={(e) => handlePriceChange(e.target.value, 0)}
-              className="flex-1"
-            />
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={priceRange[1]}
-              onChange={(e) => handlePriceChange(e.target.value, 1)}
-              className="flex-1"
-            />
+          <div className="space-y-2">
+            <div className="relative h-6 flex items-center">
+              {/* Track */}
+              <div className="absolute w-full h-2 bg-muted rounded-lg"></div>
+              {/* Active range */}
+              <div 
+                className="absolute h-2 bg-primary rounded-lg"
+                style={{
+                  left: `${(priceRange[0] / 100) * 100}%`,
+                  width: `${((priceRange[1] - priceRange[0]) / 100) * 100}%`
+                }}
+              ></div>
+              {/* Min range slider */}
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={priceRange[0]}
+                onChange={(e) => handlePriceChange(e.target.value, 0)}
+                className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-10 slider-thumb"
+              />
+              {/* Max range slider */}
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={priceRange[1]}
+                onChange={(e) => handlePriceChange(e.target.value, 1)}
+                className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-20 slider-thumb"
+              />
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>${priceRange[0]}</span>
+              <span>${priceRange[1]}</span>
+            </div>
           </div>
         </div>
       </div>

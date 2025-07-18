@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { toggleDarkMode } from '../lib/utils'
-import SearchBar from './SearchBar'
 import CartDrawer from './CartDrawer'
 import MobileMenu from './MobileMenu'
 
@@ -11,26 +10,23 @@ const Header = () => {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const navigate = useNavigate()
 
   useEffect(() => {
-    // Check for system dark mode preference and saved theme
-    const savedTheme = localStorage.getItem('theme')
-    const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-    if (savedTheme === 'dark' || (!savedTheme && systemDarkMode)) {
+    const isDark = localStorage.getItem('darkMode') === 'true' ||
+      (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    
+    if (isDark) {
       document.documentElement.classList.add('dark')
-      setIsDarkMode(true)
+    } else {
+      document.documentElement.classList.remove('dark')
     }
+    
+    setIsDarkMode(isDark)
   }, [])
-
-  const handleSearch = (query) => {
-    navigate(`/products?search=${encodeURIComponent(query)}`)
-  }
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-40 w-full border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background/95 transition-colors duration-300">
         <div className="container flex h-16 items-center justify-between">
           {/* Mobile menu button */}
           <button
@@ -43,41 +39,37 @@ const Header = () => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
-              <i className="bi bi-triangle text-white text-sm"></i>
+            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+              <i className="bi bi-triangle text-primary-foreground text-sm"></i>
             </div>
             <span className="font-bold text-xl">ACME STORE</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/products" className="text-sm font-medium hover:text-primary transition-colors">
-              All Products
+            <Link to="/inventory" className="text-sm font-medium hover:text-primary transition-colors">
+              Inventory
             </Link>
-            <Link to="/category/clothing" className="text-sm font-medium hover:text-primary transition-colors">
-              Clothing
+            <Link to="/about" className="text-sm font-medium hover:text-primary transition-colors">
+              About Us
             </Link>
-            <Link to="/category/accessories" className="text-sm font-medium hover:text-primary transition-colors">
-              Accessories
+            <Link to="/contact" className="text-sm font-medium hover:text-primary transition-colors">
+              Contact
             </Link>
           </nav>
 
-          {/* Search, Dark Mode, and Cart */}
+          {/* Dark Mode and Cart */}
           <div className="flex items-center space-x-4">
-            <div className="hidden sm:block">
-              <SearchBar onSearch={handleSearch} />
-            </div>
-            
             {/* Dark Mode Toggle - Visible on desktop */}
             <button
               onClick={() => {
-                toggleDarkMode()
-                setIsDarkMode(!isDarkMode)
+                const newDarkMode = toggleDarkMode()
+                setIsDarkMode(newDarkMode)
               }}
-              className="hidden md:flex p-2 hover:bg-accent rounded-md transition-colors"
+              className="hidden md:flex p-2 hover:bg-accent rounded-md transition-colors duration-200"
               aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              <i className={`bi ${isDarkMode ? 'bi-moon-fill' : 'bi-sun-fill'} text-xl`}></i>
+              <i className={`bi ${isDarkMode ? 'bi-sun-fill' : 'bi-moon-fill'} text-xl transition-transform duration-200 ${isDarkMode ? 'rotate-180' : 'rotate-0'}`}></i>
             </button>
 
             <button
@@ -94,11 +86,6 @@ const Header = () => {
             </button>
           </div>
         </div>
-
-        {/* Mobile Search */}
-        <div className="sm:hidden px-4 pb-4">
-          <SearchBar onSearch={handleSearch} />
-        </div>
       </header>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
@@ -107,8 +94,8 @@ const Header = () => {
         onClose={() => setIsMobileMenuOpen(false)}
         isDarkMode={isDarkMode}
         onToggleDarkMode={() => {
-          toggleDarkMode()
-          setIsDarkMode(!isDarkMode)
+          const newDarkMode = toggleDarkMode()
+          setIsDarkMode(newDarkMode)
         }}
       />
     </>

@@ -1,16 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-
-export function toggleDarkMode() {
-  if (document.documentElement.classList.contains('dark')) {
-    document.documentElement.classList.remove('dark')
-    localStorage.setItem('theme', 'light')
-  } else {
-    document.documentElement.classList.add('dark')
-    localStorage.setItem('theme', 'dark')
-  }
-}
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
   plugins: [react()],
@@ -20,15 +10,18 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ['lucide-react'],
+    exclude: ["lucide-react"],
   },
   server: {
     hmr: {
-      overlay: false
+      overlay: false,
     },
     watch: {
-      usePolling: true
-    }
+      usePolling: true,
+    },
+    allowedHosts: [
+      "812990ae-ebbc-42fa-a1b5-ae0ab4cb4cd3-00-3fju6ixrrhc6k.spock.replit.dev",
+    ],
   },
-  darkMode: 'class',
-})
+  darkMode: "class",
+});

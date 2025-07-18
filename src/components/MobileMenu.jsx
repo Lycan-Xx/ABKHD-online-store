@@ -25,25 +25,25 @@ const MobileMenu = ({ isOpen, onClose, isDarkMode, onToggleDarkMode }) => {
           <nav className="flex-1 p-4">
             <div className="space-y-4">
               <Link
-                to="/products"
+                to="/inventory"
                 onClick={onClose}
                 className="block py-2 text-sm font-medium hover:text-primary transition-colors"
               >
-                All Products
+                Inventory
               </Link>
               <Link
-                to="/category/clothing"
+                to="/about"
                 onClick={onClose}
                 className="block py-2 text-sm font-medium hover:text-primary transition-colors"
               >
-                Clothing
+                About Us
               </Link>
               <Link
-                to="/category/accessories"
+                to="/contact"
                 onClick={onClose}
                 className="block py-2 text-sm font-medium hover:text-primary transition-colors"
               >
-                Accessories
+                Contact
               </Link>
             </div>
           </nav>
