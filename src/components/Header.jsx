@@ -42,7 +42,7 @@ const Header = () => {
             <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
               <i className="bi bi-triangle text-primary-foreground text-sm"></i>
             </div>
-            <span className="font-bold text-xl">ACME STORE</span>
+            <span className="font-bold text-xl">ABKHD STORE</span>
           </Link>
 
           {/* Desktop Navigation */}

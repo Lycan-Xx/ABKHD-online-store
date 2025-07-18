@@ -12,7 +12,7 @@ const Footer = () => {
               <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
                 <i className="bi bi-triangle text-white text-sm"></i>
               </div>
-              <span className="font-bold text-xl">ACME STORE</span>
+              <span className="font-bold text-xl">ABKHD STORE</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Premium quality products for modern living. Crafted with care and attention to detail.
@@ -72,7 +72,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 Acme Store. All rights reserved.</p>
+          <p>&copy; 2024 ABKHD Store. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -193,7 +193,7 @@ const ProductDetailPage = () => {
           {/* Add to Cart */}
           <button
             onClick={handleAddToCart}
-            className="w-full btn-primary py-3 text-base"
+            className="w-full btn-primary py-3 text-base border-2 border-primary shadow-md hover:scale-105 transition-transform duration-200 dark:border-primary/80 focus:ring-2 focus:ring-primary/60"
             disabled={product.stock === 0}
           >
             {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}

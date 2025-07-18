@@ -38,18 +38,19 @@ const HomePage = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Products</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Handpicked items that represent the best of our collection
+            Our latest picks for you
           </p>
         </div>
         <ProductGrid products={featuredProducts} />
         <div className="text-center mt-12">
-          <Link to="/products" className="btn-primary px-8 py-3">
+          <Link to="/products" className="btn-primary px-8 py-3 border-2 border-accent flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200 dark:border-accent/80 focus:ring-2 focus:ring-accent/60">
+            <i className="bi bi-grid-fill text-lg"></i>
             View All Products
           </Link>
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Categories
       <section className="container">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Shop by Category</h2>
@@ -87,7 +88,7 @@ const HomePage = () => {
             </div>
           </Link>
         </div>
-      </section>
+      </section> */}
 
       {/* Features */}
       <section className="bg-muted/50">
@@ -98,21 +99,21 @@ const HomePage = () => {
                 <i className="bi bi-truck text-primary-foreground text-2xl"></i>
               </div>
               <h3 className="text-xl font-semibold mb-2">Free Shipping</h3>
-              <p className="text-muted-foreground">Free shipping on orders over $50</p>
+              <p className="text-muted-foreground">Free shipping only for residents around Jimeta and Yola</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="bi bi-arrow-clockwise text-primary-foreground text-2xl"></i>
               </div>
               <h3 className="text-xl font-semibold mb-2">Easy Returns</h3>
-              <p className="text-muted-foreground">30-day return policy</p>
+              <p className="text-muted-foreground">7-days money back guarantee if you are not satisfied</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="bi bi-shield-check text-primary-foreground text-2xl"></i>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Secure Payment</h3>
-              <p className="text-muted-foreground">Your payment information is safe</p>
+              <h3 className="text-xl font-semibold mb-2">Security and Privacy conscious</h3>
+              <p className="text-muted-foreground">You don't need to create account unless you want to</p>
             </div>
           </div>
         </div>

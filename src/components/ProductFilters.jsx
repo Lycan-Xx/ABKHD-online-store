@@ -90,31 +90,20 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
             <div className="relative h-6 flex items-center">
               {/* Track */}
               <div className="absolute w-full h-2 bg-muted rounded-lg"></div>
-              {/* Active range */}
+              {/* Active range (full for single slider) */}
               <div 
                 className="absolute h-2 bg-primary rounded-lg"
-                style={{
-                  left: `${(priceRange[0] / 100) * 100}%`,
-                  width: `${((priceRange[1] - priceRange[0]) / 100) * 100}%`
-                }}
+                style={{ left: 0, width: `${((priceRange[1] - priceRange[0]) / 100) * 100}%` }}
               ></div>
-              {/* Min range slider */}
+              {/* Single range slider */}
               <input
                 type="range"
-                min="0"
-                max="100"
-                value={priceRange[0]}
-                onChange={(e) => handlePriceChange(e.target.value, 0)}
-                className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-10 slider-thumb"
-              />
-              {/* Max range slider */}
-              <input
-                type="range"
-                min="0"
-                max="100"
+                min={priceRange[0]}
+                max={priceRange[1]}
                 value={priceRange[1]}
-                onChange={(e) => handlePriceChange(e.target.value, 1)}
-                className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-20 slider-thumb"
+                onChange={(e) => handlePriceChange(Number(e.target.value), 1)}
+                className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-20 slider-thumb border-2 border-primary focus:ring-2 focus:ring-primary/60"
+                style={{ accentColor: 'hsl(var(--primary))' }}
               />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">

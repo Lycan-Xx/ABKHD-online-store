@@ -7,7 +7,7 @@ const AboutPage = () => {
       <div className="max-w-4xl mx-auto">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">About ACME Store</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">About ABKHD Store</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             We're passionate about creating premium quality products that enhance modern living through thoughtful design and exceptional craftsmanship.
           </p>
@@ -19,7 +19,7 @@ const AboutPage = () => {
             <h2 className="text-3xl font-bold mb-6">Our Story</h2>
             <div className="space-y-4 text-muted-foreground">
               <p>
-                Founded in 2020, ACME Store began with a simple mission: to create products that seamlessly blend functionality with aesthetic appeal. What started as a small team of designers and craftspeople has grown into a trusted brand known for quality and innovation.
+                Founded in 2020, ABKHD Store began with a simple mission: to create products that seamlessly blend functionality with aesthetic appeal. What started as a small team of designers and craftspeople has grown into a trusted brand known for quality and innovation.
               </p>
               <p>
                 We believe that everyday items should be both beautiful and practical. From our signature t-shirts to our carefully curated accessories, every product is designed with attention to detail and built to last.
@@ -32,7 +32,7 @@ const AboutPage = () => {
           <div className="relative">
             <img
               src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt="ACME Store team"
+              alt="ABKHD Store team"
               className="w-full h-96 object-cover rounded-lg shadow-lg"
               crossOrigin="anonymous"
             />
@@ -112,7 +112,7 @@ const AboutPage = () => {
 
         {/* CTA */}
         <div className="text-center bg-muted/50 rounded-lg p-8">
-          <h2 className="text-2xl font-bold mb-4">Ready to Experience ACME Quality?</h2>
+          <h2 className="text-2xl font-bold mb-4">Ready to Experience ABKHD Quality?</h2>
           <p className="text-muted-foreground mb-6">
             Discover our curated collection of premium products designed for modern living.
           </p>

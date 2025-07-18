@@ -80,8 +80,8 @@ const ContactPage = () => {
                   <div>
                     <h3 className="font-semibold mb-1">Email</h3>
                     <p className="text-muted-foreground">
-                      <a href="mailto:hello@acmestore.com" className="hover:text-primary transition-colors">
-                        hello@acmestore.com
+                      <a href="mailto:hello@abkhdstore.com" className="hover:text-primary transition-colors">
+                        hello@abkhdstore.com
                       </a>
                     </p>
                   </div>

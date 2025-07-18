@@ -87,7 +87,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
               <Link
                 to="/checkout"
                 onClick={onClose}
-                className="w-full btn-primary block text-center"
+                className="w-full btn-primary block text-center border-2 border-accent shadow-lg hover:scale-105 transition-transform duration-200 dark:border-accent/80 focus:ring-2 focus:ring-accent/60"
               >
                 Checkout
               </Link>
