@@ -278,7 +278,7 @@ const CheckoutPage = () => {
             <button
               type="submit"
               disabled={isProcessing}
-              className="w-full btn-primary py-3 text-base disabled:opacity-50"
+              className="w-full btn-primary py-3 text-base border-2 border-primary shadow-lg hover:scale-105 transition-transform duration-200 dark:border-primary/80 focus:ring-2 focus:ring-primary/60 disabled:opacity-50"
             >
               {isProcessing ? (
                 <span className="flex items-center justify-center">
