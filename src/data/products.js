@@ -4,7 +4,7 @@ export const products = [
     name: "Acme Circles T-Shirt",
     price: 20000.00,
     originalPrice: 25000.00,
-    category: "clothing",
+    category: "mobile phones",
     subcategory: "t-shirts",
     description: "A comfortable cotton t-shirt featuring our signature circles design. Perfect for everyday wear.",
     longDescription: "This premium cotton t-shirt features our iconic circles design, crafted with attention to detail and comfort. Made from 100% organic cotton, it's soft, breathable, and built to last. The minimalist design makes it perfect for any occasion.",
@@ -43,7 +43,7 @@ export const products = [
     id: 3,
     name: "Acme Drawstring Bag",
     price: 12000.00,
-    category: "accessories",
+    category: "laptops",
     subcategory: "bags",
     description: "A versatile drawstring bag for all your essentials.",
     longDescription: "This durable drawstring bag is perfect for gym sessions, day trips, or everyday use. Made from high-quality materials with reinforced stitching for long-lasting durability.",
@@ -61,7 +61,7 @@ export const products = [
     id: 4,
     name: "Acme Baby Cap",
     price: 10000.00,
-    category: "clothing",
+    category: "mobile phones",
     subcategory: "accessories",
     description: "A soft and comfortable cap for your little one.",
     longDescription: "Keep your baby comfortable and stylish with this soft cotton cap. Designed with care for sensitive skin and featuring an adjustable fit for growing babies.",
@@ -80,7 +80,7 @@ export const products = [
     id: 5,
     name: "Acme Baby Onesie",
     price: 25000.00,
-    category: "clothing",
+    category: "mobile phones",
     subcategory: "baby",
     description: "Ultra-soft onesie for maximum comfort.",
     longDescription: "Made from premium organic cotton, this onesie provides ultimate comfort for your baby. Features easy snap closures and is machine washable for convenience.",
@@ -100,7 +100,7 @@ export const products = [
     name: "Acme Hoodie",
     price: 50000.00,
     originalPrice: 60000.00,
-    category: "clothing",
+    category: "mobile phones",
     subcategory: "hoodies",
     description: "A cozy hoodie perfect for casual wear.",
     longDescription: "Stay warm and comfortable in this premium hoodie. Made from a soft cotton blend with a spacious front pocket and adjustable drawstring hood. Perfect for layering or wearing on its own.",
@@ -137,7 +137,7 @@ export const products = [
     id: 8,
     name: "Acme Mug",
     price: 18000.00,
-    category: "accessories",
+    category: "laptops",
     subcategory: "drinkware",
     description: "A classic ceramic mug for your favorite beverages.",
     longDescription: "Enjoy your favorite hot beverages in this classic ceramic mug. Features a comfortable handle and smooth finish. Perfect size for coffee, tea, or hot chocolate.",
@@ -155,9 +155,9 @@ export const products = [
 
 export const categories = [
   {
-    id: "clothing",
-    name: "Clothing",
-    description: "Premium apparel for every occasion",
+    id: "mobile phones",
+    name: "Mobile Phones",
+    description: "Latest smartphones and mobile devices",
     image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=800",
     subcategories: ["t-shirts", "hoodies", "baby", "accessories"]
   },
@@ -167,5 +167,12 @@ export const categories = [
     description: "Complete your look with our accessories",
     image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=800",
     subcategories: ["bags", "drinkware", "stickers"]
+  },
+  {
+    id: "laptops",
+    name: "Laptops",
+    description: "High-performance laptops for work and play",
+    image: "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800",
+    subcategories: ["bags", "drinkware"]
   }
 ]
