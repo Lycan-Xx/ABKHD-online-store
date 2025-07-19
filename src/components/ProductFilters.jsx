@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { categories } from '../data/products'
 
 const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
-  const [priceRange, setPriceRange] = useState(filters.priceRange || [0, 100])
+  const [priceRange, setPriceRange] = useState(filters.priceRange || [0, 100000])
 
   const handlePriceChange = (value, index) => {
     const newRange = [...priceRange]
@@ -71,7 +71,7 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
                 onChange={(e) => handlePriceChange(e.target.value, 0)}
                 className="w-full p-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 min="0"
-                max="100"
+                max="100000"
               />
             </div>
             <div className="flex-1">
@@ -82,7 +82,7 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
                 onChange={(e) => handlePriceChange(e.target.value, 1)}
                 className="w-full p-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 min="0"
-                max="100"
+                max="100000"
               />
             </div>
           </div>

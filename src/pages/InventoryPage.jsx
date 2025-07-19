@@ -18,10 +18,14 @@ const InventoryPage = () => {
 
   const [searchParams] = useSearchParams()
   const [filteredProducts, setFilteredProducts] = useState(products)
+  
+  // Debug: Log products on component mount
+  console.log('All products:', products)
+  console.log('Filtered products:', filteredProducts)
   const [filters, setFilters] = useState({
     search: searchParams.get('search') || '',
     categories: [],
-    priceRange: [0, 100],
+    priceRange: [0, 100000],
     sort: ''
   })
   const [showFilters, setShowFilters] = useState(false)
@@ -83,7 +87,7 @@ const InventoryPage = () => {
     setFilters({
       search: '',
       categories: [],
-      priceRange: [0, 100],
+      priceRange: [0, 100000],
       sort: ''
     })
   }
