@@ -51,11 +51,12 @@ const ProductDetailPage = () => {
 
   return (
     <div className="container py-8">
-      {/* Breadcrumb */}
+      {/* Navigation */}
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
-        <Link to="/" className="hover:text-foreground">Home</Link>
-        <i className="bi bi-chevron-right"></i>
-        <Link to="/inventory" className="hover:text-foreground">Inventory</Link>
+        <Link to="/inventory" className="flex items-center hover:text-foreground">
+          <i className="bi bi-arrow-left-short text-xl mr-1"></i>
+          <span>Inventory</span>
+        </Link>
         <i className="bi bi-chevron-right"></i>
         <span className="text-foreground">{product.name}</span>
       </nav>

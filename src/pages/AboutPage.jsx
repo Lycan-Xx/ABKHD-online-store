@@ -5,6 +5,17 @@ const AboutPage = () => {
   return (
     <div className="container py-16">
       <div className="max-w-4xl mx-auto">
+        {/* Navigation */}
+        <div className="flex items-center mb-8">
+          <Link
+            to="/"
+            className="flex items-center text-muted-foreground hover:text-foreground transition-colors mr-4"
+          >
+            <i className="bi bi-arrow-left-short text-xl mr-1"></i>
+            <span className="text-sm">Home</span>
+          </Link>
+        </div>
+        
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">About ABKHD Store</h1>

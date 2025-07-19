@@ -100,7 +100,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 <span className="font-semibold">Total: {formatPrice(getCartTotal())}</span>
               </div>
               <Link
-                to="/checkout"
+                to="/payment-options"
                 onClick={onClose}
                 className="w-full btn-primary block text-center border-2 border-accent shadow-lg hover:scale-105 transition-transform duration-200 dark:border-accent/80 focus:ring-2 focus:ring-accent/60"
               >

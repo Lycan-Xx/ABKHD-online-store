@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { products } from '../data/products'
 import ProductGrid from '../components/ProductGrid'
 import ProductFilters from '../components/ProductFilters'
@@ -98,6 +98,16 @@ const InventoryPage = () => {
 
   return (
     <div className="container py-8">
+      <div className="flex items-center mb-4">
+        <Link
+          to="/"
+          className="flex items-center text-muted-foreground hover:text-foreground transition-colors mr-4"
+        >
+          <i className="bi bi-arrow-left-short text-xl mr-1"></i>
+          <span className="text-sm">Home</span>
+        </Link>
+      </div>
+      
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Inventory</h1>
