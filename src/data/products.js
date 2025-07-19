@@ -2,8 +2,8 @@ export const products = [
   {
     id: 1,
     name: "Acme Circles T-Shirt",
-    price: 20.00,
-    originalPrice: 25.00,
+    price: 20000.00,
+    originalPrice: 25000.00,
     category: "clothing",
     subcategory: "t-shirts",
     description: "A comfortable cotton t-shirt featuring our signature circles design. Perfect for everyday wear.",
@@ -14,7 +14,6 @@ export const products = [
       "https://images.pexels.com/photos/8532617/pexels-photo-8532617.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Black", "White", "Gray"],
     stock: 50,
     rating: 4.5,
     reviews: 128,
@@ -24,7 +23,7 @@ export const products = [
   {
     id: 2,
     name: "Acme Cup",
-    price: 15.00,
+    price: 15000.00,
     category: "accessories",
     subcategory: "drinkware",
     description: "A sleek ceramic cup perfect for your morning coffee or tea.",
@@ -34,7 +33,6 @@ export const products = [
       "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800",
       "https://images.pexels.com/photos/302900/pexels-photo-302900.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    colors: ["White", "Black", "Blue"],
     stock: 75,
     rating: 4.8,
     reviews: 89,
@@ -44,7 +42,7 @@ export const products = [
   {
     id: 3,
     name: "Acme Drawstring Bag",
-    price: 12.00,
+    price: 12000.00,
     category: "accessories",
     subcategory: "bags",
     description: "A versatile drawstring bag for all your essentials.",
@@ -53,7 +51,6 @@ export const products = [
     images: [
       "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    colors: ["Black", "Navy", "Gray"],
     stock: 30,
     rating: 4.3,
     reviews: 45,
@@ -63,7 +60,7 @@ export const products = [
   {
     id: 4,
     name: "Acme Baby Cap",
-    price: 10.00,
+    price: 10000.00,
     category: "clothing",
     subcategory: "accessories",
     description: "A soft and comfortable cap for your little one.",
@@ -73,7 +70,6 @@ export const products = [
       "https://images.pexels.com/photos/1620760/pexels-photo-1620760.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
     sizes: ["0-6M", "6-12M", "12-18M"],
-    colors: ["Pink", "Blue", "White"],
     stock: 25,
     rating: 4.7,
     reviews: 67,
@@ -83,7 +79,7 @@ export const products = [
   {
     id: 5,
     name: "Acme Baby Onesie",
-    price: 25.00,
+    price: 25000.00,
     category: "clothing",
     subcategory: "baby",
     description: "Ultra-soft onesie for maximum comfort.",
@@ -93,7 +89,6 @@ export const products = [
       "https://images.pexels.com/photos/1648377/pexels-photo-1648377.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
     sizes: ["0-3M", "3-6M", "6-9M", "9-12M"],
-    colors: ["White", "Pink", "Blue", "Yellow"],
     stock: 40,
     rating: 4.9,
     reviews: 156,
@@ -103,8 +98,8 @@ export const products = [
   {
     id: 6,
     name: "Acme Hoodie",
-    price: 50.00,
-    originalPrice: 60.00,
+    price: 50000.00,
+    originalPrice: 60000.00,
     category: "clothing",
     subcategory: "hoodies",
     description: "A cozy hoodie perfect for casual wear.",
@@ -114,7 +109,6 @@ export const products = [
       "https://images.pexels.com/photos/8532619/pexels-photo-8532619.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
     sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black", "Gray", "Navy", "Maroon"],
     stock: 35,
     rating: 4.6,
     reviews: 92,
@@ -124,7 +118,7 @@ export const products = [
   {
     id: 7,
     name: "Acme Sticker",
-    price: 5.00,
+    price: 5000.00,
     category: "accessories",
     subcategory: "stickers",
     description: "High-quality vinyl sticker with our logo.",
@@ -133,7 +127,6 @@ export const products = [
     images: [
       "https://images.pexels.com/photos/6069112/pexels-photo-6069112.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    colors: ["Multi"],
     stock: 100,
     rating: 4.4,
     reviews: 234,
@@ -143,7 +136,7 @@ export const products = [
   {
     id: 8,
     name: "Acme Mug",
-    price: 18.00,
+    price: 18000.00,
     category: "accessories",
     subcategory: "drinkware",
     description: "A classic ceramic mug for your favorite beverages.",
@@ -152,7 +145,6 @@ export const products = [
     images: [
       "https://images.pexels.com/photos/324028/pexels-photo-324028.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    colors: ["White", "Black", "Blue", "Red"],
     stock: 60,
     rating: 4.5,
     reviews: 78,

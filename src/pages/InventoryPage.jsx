@@ -7,6 +7,15 @@ import ProductFilters from '../components/ProductFilters'
 import SearchBar from '../components/SearchBar'
 
 const InventoryPage = () => {
+  useEffect(() => {
+    // Immediate scroll to top
+    window.scrollTo(0, 0)
+    // Also try smooth scroll after a small delay
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, 100)
+  }, [])
+
   const [searchParams] = useSearchParams()
   const [filteredProducts, setFilteredProducts] = useState(products)
   const [filters, setFilters] = useState({

@@ -4,7 +4,6 @@ import { CartProvider } from './contexts/CartContext'
 import { ToastProvider } from './contexts/ToastContext'
 import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
-import ProductsPage from './pages/ProductsPage'
 import InventoryPage from './pages/InventoryPage'
 import CategoryPage from './pages/CategoryPage'
 import ProductDetailPage from './pages/ProductDetailPage'
@@ -20,7 +19,6 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/products" element={<ProductsPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/category/:category" element={<CategoryPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />

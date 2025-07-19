@@ -32,14 +32,14 @@ const ProductDetailPage = () => {
   }
 
   const handleAddToCart = () => {
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      addToast('Please select a size', 'error')
-      return
-    }
-    if (product.colors && product.colors.length > 0 && !selectedColor) {
-      addToast('Please select a color', 'error')
-      return
-    }
+    // if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+    //   addToast('Please select a size', 'error')
+    //   return
+    // }
+    // if (product.colors && product.colors.length > 0 && !selectedColor) {
+    //   addToast('Please select a color', 'error')
+    //   return
+    // }
 
     addItem(product, quantity, selectedSize, selectedColor)
     addToast('Added to cart successfully!')
@@ -55,7 +55,7 @@ const ProductDetailPage = () => {
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
         <Link to="/" className="hover:text-foreground">Home</Link>
         <i className="bi bi-chevron-right"></i>
-        <Link to="/products" className="hover:text-foreground">Products</Link>
+        <Link to="/inventory" className="hover:text-foreground">Inventory</Link>
         <i className="bi bi-chevron-right"></i>
         <span className="text-foreground">{product.name}</span>
       </nav>

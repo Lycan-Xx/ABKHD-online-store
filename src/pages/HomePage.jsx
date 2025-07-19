@@ -20,14 +20,7 @@ const HomePage = () => {
             <p className="text-xl md:text-2xl text-gray-300 mb-8">
               Discover our curated collection of premium products designed for modern living.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/products" className="btn-primary px-8 py-3 text-base">
-                Shop Now
-              </Link>
-              <Link to="/category/clothing" className="btn-secondary px-8 py-3 text-base">
-                View Collection
-              </Link>
-            </div>
+
           </div>
         </div>
         <div className="absolute inset-0 bg-black/20"></div>
@@ -94,21 +87,21 @@ const HomePage = () => {
       <section className="bg-muted/50">
         <div className="container py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
+            <div className="text-center border-2 border-muted rounded-lg p-6">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="bi bi-truck text-primary-foreground text-2xl"></i>
               </div>
               <h3 className="text-xl font-semibold mb-2">Free Shipping</h3>
               <p className="text-muted-foreground">Free shipping only for residents around Jimeta and Yola</p>
             </div>
-            <div className="text-center">
+            <div className="text-center border-2 border-muted rounded-lg p-6">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="bi bi-arrow-clockwise text-primary-foreground text-2xl"></i>
               </div>
               <h3 className="text-xl font-semibold mb-2">Easy Returns</h3>
               <p className="text-muted-foreground">7-days money back guarantee if you are not satisfied</p>
             </div>
-            <div className="text-center">
+            <div className="text-center border-2 border-muted rounded-lg p-6">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="bi bi-shield-check text-primary-foreground text-2xl"></i>
               </div>
