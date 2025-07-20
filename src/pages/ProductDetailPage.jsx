@@ -1,14 +1,41 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { products } from '../data/products'
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom'
+import { useProducts } from '../contexts/ProductContext'
 import { useCart } from '../contexts/CartContext'
 import { useToast } from '../contexts/ToastContext'
 import { formatPrice } from '../lib/utils'
 
 const ProductDetailPage = () => {
   const { id } = useParams()
-  const product = products.find(p => p.id === parseInt(id))
+  const { products, loading } = useProducts()
+  const product = products.find(p => p.id === parseInt(id) || p.id === id || p.documentId === id)
   const { addItem } = useCart()
+  const navigate = useNavigate()
+  const location = useLocation()
+  
+  const handleBack = () => {
+    if (location.state?.from === '/') {
+      navigate('/')
+    } else {
+      navigate('/inventory')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="container py-16 text-center">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-1/3 mx-auto mb-4"></div>
+          <div className="h-4 bg-muted rounded w-1/4 mx-auto"></div>
+        </div>
+      </div>
+    )
+  }
+  
+  // Debug logging
+  console.log('ProductDetailPage - products:', products)
+  console.log('ProductDetailPage - product:', product)
+  console.log('ProductDetailPage - product tags:', product?.tags)
   const { addToast } = useToast()
   
   const [selectedImage, setSelectedImage] = useState(0)
@@ -20,13 +47,13 @@ const ProductDetailPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // Add fallback UI for missing product
   if (!product) {
     return (
       <div className="container py-16 text-center">
-        <h1 className="text-2xl font-bold mb-4">Product not found</h1>
-        <Link to="/products" className="btn-primary">
-          Back to Products
-        </Link>
+        <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
+        <p className="text-muted-foreground mb-8">The product you are looking for does not exist or has been removed.</p>
+        <Link to="/" className="btn-primary">Back to Home</Link>
       </div>
     )
   }
@@ -46,17 +73,25 @@ const ProductDetailPage = () => {
   }
 
   const relatedProducts = products
-    .filter(p => p.id !== product.id && p.category === product.category)
+    .filter(p => {
+      const productCategory = typeof product.category === 'object' 
+        ? product.category?.data?.attributes?.name 
+        : product.category
+      const pCategory = typeof p.category === 'object'
+        ? p.category?.data?.attributes?.name
+        : p.category
+      return (p.id !== product.id && pCategory === productCategory)
+    })
     .slice(0, 4)
 
   return (
     <div className="container py-8">
       {/* Navigation */}
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
-        <Link to="/inventory" className="flex items-center hover:text-foreground">
+        <button onClick={handleBack} className="flex items-center hover:text-foreground">
           <i className="bi bi-arrow-left-short text-xl mr-1"></i>
-          <span>Inventory</span>
-        </Link>
+          <span>{location.state?.from === '/' ? 'Home' : 'Inventory'}</span>
+        </button>
         <i className="bi bi-chevron-right"></i>
         <span className="text-foreground">{product.name}</span>
       </nav>
@@ -123,7 +158,11 @@ const ProductDetailPage = () => {
                 </div>
               )} */}
             </div>
-            <p className="text-muted-foreground">{product.longDescription}</p>
+            <p className="text-muted-foreground">
+              {typeof product.longDescription === 'string' 
+                ? product.longDescription 
+                : product.longDescription?.children?.[0]?.text || product.description}
+            </p>
           </div>
 
           {/* Size Selection */}
@@ -219,7 +258,13 @@ const ProductDetailPage = () => {
               {product.tags && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tags:</span>
-                  <span className="capitalize">{product.tags.join(', ')}</span>
+                  <span className="capitalize">
+                    {Array.isArray(product.tags) 
+                      ? product.tags.join(', ') 
+                      : typeof product.tags === 'object' 
+                        ? Object.values(product.tags).join(', ')
+                        : product.tags}
+                  </span>
                 </div>
               )}
             </div>

@@ -1,155 +1,112 @@
 export const products = [
+  // Mobile Phones
   {
     id: 1,
-    name: "Acme Circles T-Shirt",
-    price: 20000.00,
-    originalPrice: 25000.00,
+    name: "Acme X1 Mobile Phone",
+    price: 120000.00,
+    originalPrice: 135000.00,
     category: "mobile phones",
-    subcategory: "t-shirts",
-    description: "A comfortable cotton t-shirt featuring our signature circles design. Perfect for everyday wear.",
-    longDescription: "This premium cotton t-shirt features our iconic circles design, crafted with attention to detail and comfort. Made from 100% organic cotton, it's soft, breathable, and built to last. The minimalist design makes it perfect for any occasion.",
-    image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=800",
+    description: "A powerful smartphone with a stunning display and long battery life.",
+    longDescription: "The Acme X1 features a 6.5-inch AMOLED display, 128GB storage, and a 5000mAh battery. Enjoy fast performance and a premium camera experience.",
+    image: "https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=800",
     images: [
-      "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/8532617/pexels-photo-8532617.jpeg?auto=compress&cs=tinysrgb&w=800"
+      "https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    sizes: ["XS", "S", "M", "L", "XL"],
-    stock: 50,
-    rating: 4.5,
-    reviews: 128,
+    stock: 30,
+    // rating: 4.7,
+    // reviews: 210,
     featured: true,
-    tags: ["cotton", "comfortable", "minimalist"]
+    tags: ["smartphone", "android", "mobile"]
   },
   {
     id: 2,
-    name: "Acme Cup",
-    price: 15000.00,
-    category: "accessories",
-    subcategory: "drinkware",
-    description: "A sleek ceramic cup perfect for your morning coffee or tea.",
-    longDescription: "Start your day right with this beautifully crafted ceramic cup. Featuring a comfortable grip and elegant design, it's perfect for coffee, tea, or any hot beverage. Dishwasher and microwave safe.",
-    image: "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800",
+    name: "Acme Mini Mobile",
+    price: 80000.00,
+    category: "mobile phones",
+    description: "A compact and reliable feature phone.",
+    longDescription: "Perfect for calls and texts, the Acme Mini offers a long-lasting battery and simple interface for everyday use.",
+    image: "https://images.pexels.com/photos/276528/pexels-photo-276528.jpeg?auto=compress&cs=tinysrgb&w=800",
     images: [
-      "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/302900/pexels-photo-302900.jpeg?auto=compress&cs=tinysrgb&w=800"
+      "https://images.pexels.com/photos/276528/pexels-photo-276528.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    stock: 75,
-    rating: 4.8,
-    reviews: 89,
-    featured: true,
-    tags: ["ceramic", "dishwasher-safe", "elegant"]
+    stock: 50,
+    // rating: 4.2,
+    // reviews: 98,
+    featured: false,
+    tags: ["feature phone", "mobile", "compact"]
   },
+  // Laptops
   {
     id: 3,
-    name: "Acme Drawstring Bag",
-    price: 12000.00,
+    name: "AcmeBook Pro 15",
+    price: 250000.00,
+    originalPrice: 270000.00,
     category: "laptops",
-    subcategory: "bags",
-    description: "A versatile drawstring bag for all your essentials.",
-    longDescription: "This durable drawstring bag is perfect for gym sessions, day trips, or everyday use. Made from high-quality materials with reinforced stitching for long-lasting durability.",
+    description: "A high-performance laptop for professionals.",
+    longDescription: "AcmeBook Pro 15 features a 15-inch Retina display, 16GB RAM, 512GB SSD, and a powerful processor for demanding tasks.",
+    image: "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800",
+    images: [
+      "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800",
+      "https://unsplash.com/photos/silver-macbook-iCxPxfBlvlg"
+    ],
+    stock: 20,
+    // rating: 4.8,
+    // reviews: 150,
+    featured: true,
+    tags: ["laptop", "ultrabook", "professional"]
+  },
+  {
+    id: 4,
+    name: "AcmeBook Air 13",
+    price: 180000.00,
+    category: "laptops",
+    description: "Lightweight and portable laptop for everyday use.",
+    longDescription: "The AcmeBook Air 13 is perfect for students and travelers, featuring a slim design, 8GB RAM, and 256GB SSD.",
+    image: "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800",
+    images: [
+      "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800"
+    ],
+    stock: 25,
+    // rating: 4.5,
+    // reviews: 110,
+    featured: false,
+    tags: ["laptop", "portable", "student"]
+  },
+  // Accessories
+  {
+    id: 5,
+    name: "Acme Wireless Mouse",
+    price: 10000.00,
+    category: "accessories",
+    description: "Ergonomic wireless mouse with long battery life.",
+    longDescription: "Enjoy smooth and precise control with the Acme Wireless Mouse, featuring a comfortable grip and up to 12 months of battery life.",
+    image: "https://images.pexels.com/photos/1580896/pexels-photo-1580896.jpeg?auto=compress&cs=tinysrgb&w=800",
+    images: [
+      "https://images.pexels.com/photos/1580896/pexels-photo-1580896.jpeg?auto=compress&cs=tinysrgb&w=800"
+    ],
+    stock: 60,
+    // rating: 4.6,
+    // reviews: 80,
+    featured: true,
+    tags: ["accessory", "mouse", "wireless"]
+  },
+  {
+    id: 6,
+    name: "Acme Laptop Sleeve",
+    price: 15000.00,
+    category: "accessories",
+    description: "Protective sleeve for laptops up to 15 inches.",
+    longDescription: "Keep your laptop safe from scratches and bumps with this stylish and durable sleeve.",
     image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=800",
     images: [
       "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    stock: 30,
-    rating: 4.3,
-    reviews: 45,
-    featured: false,
-    tags: ["durable", "versatile", "lightweight"]
-  },
-  {
-    id: 4,
-    name: "Acme Baby Cap",
-    price: 10000.00,
-    category: "mobile phones",
-    subcategory: "accessories",
-    description: "A soft and comfortable cap for your little one.",
-    longDescription: "Keep your baby comfortable and stylish with this soft cotton cap. Designed with care for sensitive skin and featuring an adjustable fit for growing babies.",
-    image: "https://images.pexels.com/photos/1620760/pexels-photo-1620760.jpeg?auto=compress&cs=tinysrgb&w=800",
-    images: [
-      "https://images.pexels.com/photos/1620760/pexels-photo-1620760.jpeg?auto=compress&cs=tinysrgb&w=800"
-    ],
-    sizes: ["0-6M", "6-12M", "12-18M"],
-    stock: 25,
-    rating: 4.7,
-    reviews: 67,
-    featured: false,
-    tags: ["baby", "soft", "adjustable"]
-  },
-  {
-    id: 5,
-    name: "Acme Baby Onesie",
-    price: 25000.00,
-    category: "mobile phones",
-    subcategory: "baby",
-    description: "Ultra-soft onesie for maximum comfort.",
-    longDescription: "Made from premium organic cotton, this onesie provides ultimate comfort for your baby. Features easy snap closures and is machine washable for convenience.",
-    image: "https://images.pexels.com/photos/1648377/pexels-photo-1648377.jpeg?auto=compress&cs=tinysrgb&w=800",
-    images: [
-      "https://images.pexels.com/photos/1648377/pexels-photo-1648377.jpeg?auto=compress&cs=tinysrgb&w=800"
-    ],
-    sizes: ["0-3M", "3-6M", "6-9M", "9-12M"],
     stock: 40,
-    rating: 4.9,
-    reviews: 156,
-    featured: true,
-    tags: ["organic", "comfortable", "easy-care"]
-  },
-  {
-    id: 6,
-    name: "Acme Hoodie",
-    price: 50000.00,
-    originalPrice: 60000.00,
-    category: "mobile phones",
-    subcategory: "hoodies",
-    description: "A cozy hoodie perfect for casual wear.",
-    longDescription: "Stay warm and comfortable in this premium hoodie. Made from a soft cotton blend with a spacious front pocket and adjustable drawstring hood. Perfect for layering or wearing on its own.",
-    image: "https://images.pexels.com/photos/8532619/pexels-photo-8532619.jpeg?auto=compress&cs=tinysrgb&w=800",
-    images: [
-      "https://images.pexels.com/photos/8532619/pexels-photo-8532619.jpeg?auto=compress&cs=tinysrgb&w=800"
-    ],
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    stock: 35,
-    rating: 4.6,
-    reviews: 92,
-    featured: true,
-    tags: ["cozy", "cotton-blend", "adjustable"]
-  },
-  {
-    id: 7,
-    name: "Acme Sticker",
-    price: 5000.00,
-    category: "accessories",
-    subcategory: "stickers",
-    description: "High-quality vinyl sticker with our logo.",
-    longDescription: "Show your style with this durable vinyl sticker. Weather-resistant and perfect for laptops, water bottles, or any smooth surface. Easy to apply and remove without residue.",
-    image: "https://images.pexels.com/photos/6069112/pexels-photo-6069112.jpeg?auto=compress&cs=tinysrgb&w=800",
-    images: [
-      "https://images.pexels.com/photos/6069112/pexels-photo-6069112.jpeg?auto=compress&cs=tinysrgb&w=800"
-    ],
-    stock: 100,
-    rating: 4.4,
-    reviews: 234,
+    // rating: 4.4,
+    // reviews: 60,
     featured: false,
-    tags: ["vinyl", "weather-resistant", "removable"]
-  },
-  {
-    id: 8,
-    name: "Acme Mug",
-    price: 18000.00,
-    category: "laptops",
-    subcategory: "drinkware",
-    description: "A classic ceramic mug for your favorite beverages.",
-    longDescription: "Enjoy your favorite hot beverages in this classic ceramic mug. Features a comfortable handle and smooth finish. Perfect size for coffee, tea, or hot chocolate.",
-    image: "https://images.pexels.com/photos/324028/pexels-photo-324028.jpeg?auto=compress&cs=tinysrgb&w=800",
-    images: [
-      "https://images.pexels.com/photos/324028/pexels-photo-324028.jpeg?auto=compress&cs=tinysrgb&w=800"
-    ],
-    stock: 60,
-    rating: 4.5,
-    reviews: 78,
-    featured: false,
-    tags: ["ceramic", "classic", "comfortable-handle"]
+    tags: ["accessory", "laptop", "sleeve"]
   }
 ]
 

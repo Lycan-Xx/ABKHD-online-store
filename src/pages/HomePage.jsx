@@ -1,9 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { products } from '../data/products'
+import { useProducts } from '../contexts/ProductContext'
 import ProductGrid from '../components/ProductGrid'
 
 const HomePage = () => {
+  const { products } = useProducts()
   const featuredProducts = products.filter(product => product.featured)
 
   return (

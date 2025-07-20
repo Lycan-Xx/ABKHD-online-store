@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { products } from '../data/products'
+import { useProducts } from '../contexts/ProductContext'
 import ProductGrid from '../components/ProductGrid'
 import ProductFilters from '../components/ProductFilters'
 import SearchBar from '../components/SearchBar'
@@ -16,8 +15,9 @@ const InventoryPage = () => {
     }, 100)
   }, [])
 
+  const { products } = useProducts()
   const [searchParams] = useSearchParams()
-  const [filteredProducts, setFilteredProducts] = useState(products)
+  const [filteredProducts, setFilteredProducts] = useState([])
   
   // Debug: Log products on component mount
   console.log('All products:', products)
@@ -31,6 +31,7 @@ const InventoryPage = () => {
   const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
+    console.log('Filtering products...', { products, filters })
     let filtered = [...products]
 
     // Search filter
@@ -38,7 +39,7 @@ const InventoryPage = () => {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
         product.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-        product.tags?.some(tag => tag.toLowerCase().includes(filters.search.toLowerCase()))
+        (product.tags && product.tags.some(tag => tag.toLowerCase().includes(filters.search.toLowerCase())))
       )
     }
 
@@ -76,8 +77,15 @@ const InventoryPage = () => {
       }
     }
 
+    console.log('Filtered result:', filtered)
     setFilteredProducts(filtered)
-  }, [filters])
+  }, [products, filters])
+
+  // Right after getting products from useProducts
+  useEffect(() => {
+    // Initially set filtered products to all products
+    setFilteredProducts(products);
+  }, [products]);
 
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters)
@@ -95,6 +103,18 @@ const InventoryPage = () => {
   const handleSearch = (query) => {
     setFilters(prev => ({ ...prev, search: query }))
   }
+
+  const handleCategoryChange = (category) => {
+    const categoryName = typeof category === 'object' ? category.name : category;
+    const updatedCategories = filters.categories.includes(categoryName)
+      ? filters.categories.filter(c => c !== categoryName)
+      : [...filters.categories, categoryName];
+    
+    setFilters({
+      ...filters,
+      categories: updatedCategories
+    });
+  };
 
   return (
     <div className="container py-8">
@@ -143,7 +163,7 @@ const InventoryPage = () => {
 
         {/* Products Grid */}
         <div className="flex-1 min-w-0">
-          <ProductGrid products={filteredProducts} />
+          <ProductGrid products={filteredProducts.length > 0 ? filteredProducts : products} />
         </div>
       </div>
     </div>

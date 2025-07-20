@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { products, categories } from '../data/products'
+import { useProducts } from '../contexts/ProductContext'
 import ProductGrid from '../components/ProductGrid'
 import ProductFilters from '../components/ProductFilters'
 
 const CategoryPage = () => {
   const { category } = useParams()
+  const { products, categories } = useProducts()
   const categoryData = categories.find(c => c.id === category)
   const [filteredProducts, setFilteredProducts] = useState([])
   const [filters, setFilters] = useState({
@@ -17,14 +18,20 @@ const CategoryPage = () => {
   const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
-    let filtered = products.filter(product => product.category === category)
+    // Handle Strapi's data structure for category comparison
+    let filtered = products.filter(product => {
+      const productCategory = product.category?.data?.attributes?.name || product.category
+      return productCategory === categoryData?.attributes?.name
+    })
 
     // Search filter
     if (filters.search) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
         product.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-        product.tags?.some(tag => tag.toLowerCase().includes(filters.search.toLowerCase()))
+        (product.attributes?.tags || product.tags)?.some(tag => 
+          (tag.name || tag).toLowerCase().includes(filters.search.toLowerCase())
+        )
       )
     }
 

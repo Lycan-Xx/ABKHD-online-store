@@ -1,8 +1,12 @@
 import React, { useState } from 'react'
-import { categories } from '../data/products'
+import { useProducts } from '../contexts/ProductContext'
 
 const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
+  const { categories } = useProducts()
   const [priceRange, setPriceRange] = useState(filters.priceRange || [0, 100000])
+  
+  // Debug logging
+  console.log('ProductFilters - categories:', categories)
 
   const handlePriceChange = (value, index) => {
     const newRange = [...priceRange]
@@ -12,10 +16,11 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
   }
 
   const handleCategoryChange = (category) => {
-    const newCategories = filters.categories?.includes(category)
-      ? filters.categories.filter(c => c !== category)
-      : [...(filters.categories || []), category]
-    onFiltersChange({ ...filters, categories: newCategories })
+    const categoryName = typeof category === 'object' ? category.name : category;
+    const newCategories = filters.categories?.includes(categoryName)
+      ? filters.categories.filter(c => c !== categoryName)
+      : [...(filters.categories || []), categoryName];
+    onFiltersChange({ ...filters, categories: newCategories });
   }
 
   const handleSortChange = (sort) => {
@@ -48,8 +53,8 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
             <label key={category.id} className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={filters.categories?.includes(category.id) || false}
-                onChange={() => handleCategoryChange(category.id)}
+                checked={filters.categories?.includes(category.name) || false}
+                onChange={() => handleCategoryChange(category.name)}
                 className="rounded border-input"
               />
               <span className="text-sm">{category.name}</span>
