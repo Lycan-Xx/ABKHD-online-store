@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { fetchProducts, fetchCategories } from '../services/strapi';
+import strapiAPI from '../services/strapi';
 
 const ProductContext = createContext();
 
@@ -32,10 +33,21 @@ export const ProductProvider = ({ children }) => {
         console.log('Fetched products:', productsData);
         console.log('Fetched categories:', categoriesData);
         
+        // Debug: Log full API response
+        const productsResponse = await strapiAPI.get('/products?populate=*');
+        console.log('Full products API response:', productsResponse);
+        
         setProducts(productsData);
         setCategories(categoriesData);
       } catch (err) {
         console.error('Error fetching data:', err);
+        if (err.response) {
+          console.error('API response error:', err.response.status, err.response.data);
+        } else if (err.request) {
+          console.error('No response received:', err.request);
+        } else {
+          console.error('Request setup error:', err.message);
+        }
         setError(err);
       } finally {
         setLoading(false);
