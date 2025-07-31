@@ -81,11 +81,6 @@ const InventoryPage = () => {
     setFilteredProducts(filtered)
   }, [products, filters])
 
-  // Right after getting products from useProducts
-  useEffect(() => {
-    // Initially set filtered products to all products
-    setFilteredProducts(products);
-  }, [products]);
 
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters)

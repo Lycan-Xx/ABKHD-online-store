@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:replit": "vite --config vite.config.replit.js",
+    "dev:no-hmr": "vite --host 0.0.0.0 --port 5173",
     "build": "vite build",
     "preview": "vite preview"
   },

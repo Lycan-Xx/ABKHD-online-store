@@ -43,6 +43,11 @@ export const ProductProvider = ({ children }) => {
     };
 
     fetchData();
+    
+    // Refetch data every 30 seconds to keep inventory updated
+    const interval = setInterval(fetchData, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const refetchProducts = async () => {

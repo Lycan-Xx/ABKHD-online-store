@@ -74,13 +74,10 @@ const ProductDetailPage = () => {
 
   const relatedProducts = products
     .filter(p => {
-      const productCategory = typeof product.category === 'object' 
-        ? product.category?.data?.attributes?.name 
-        : product.category
-      const pCategory = typeof p.category === 'object'
-        ? p.category?.data?.attributes?.name
-        : p.category
-      return (p.id !== product.id && pCategory === productCategory)
+      return (
+        p.id !== product.id &&
+        p.category === product.category
+      )
     })
     .slice(0, 4)
 

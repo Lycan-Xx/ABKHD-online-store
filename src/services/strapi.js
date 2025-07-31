@@ -43,13 +43,19 @@ export const fetchProducts = async () => {
     const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL || 'http://localhost:1337';
 
     return response.data.data.map(item => {
-      const attributes = item?.attributes || {};
+      // Strapi v4 structure: item has id and attributes
+      if (!item || !item.attributes) {
+        console.warn('Invalid product item structure:', item);
+        return null;
+      }
+      
+      const { id, attributes } = item;
       
       // Ensure category is properly extracted
-      const categoryData = attributes.category?.data?.attributes || {};
+      const categoryData = attributes?.category?.data?.attributes || {};
       
       return {
-        id: item.id,
+        id: id,
         name: attributes.name || '',
         price: attributes.price || 0,
         originalPrice: attributes.originalPrice,
@@ -83,13 +89,13 @@ export const fetchCategories = async () => {
     const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL || 'http://localhost:1337';
     
     return response.data.data.map(item => {
-      if (!item) {
+      if (!item || !item.attributes) {
         console.warn('Invalid category item structure:', item);
         return null;
       }
 
       // Check if item has attributes (Strapi v4) or direct properties (your structure)
-      const itemData = item.attributes || item;
+      const itemData = item.attributes;
       
       if (!itemData) {
         console.warn('No data found in category item:', item);
@@ -121,16 +127,23 @@ export const fetchProduct = async (id) => {
     const item = response.data.data;
     const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL || 'http://localhost:1337';
 
-    // Check if item has attributes (Strapi v4) or direct properties (your structure)
-    const itemData = item.attributes || item;
+    // Properly extract attributes from Strapi v4 response
+    const { id, attributes } = item;
 
     return {
-      id: item.id,
-      ...itemData,
-      image: getImageUrl(itemData.image, mediaUrl),
-      images: getImageUrls(itemData.images, mediaUrl),
-      category: itemData.category?.data?.attributes?.name || 
-               itemData.category || 'Uncategorized'
+      id: id,
+      name: attributes.name || '',
+      price: attributes.price || 0,
+      originalPrice: attributes.originalPrice,
+      description: attributes.description || '',
+      longDescription: attributes.longDescription || '',
+      stock: attributes.stock || 0,
+      featured: attributes.featured || false,
+      tags: attributes.tags || [],
+      image: getImageUrl(attributes.image, mediaUrl),
+      images: getImageUrls(attributes.images, mediaUrl),
+      category: attributes.category?.data?.attributes?.name ||
+               attributes.category || 'Uncategorized'
     };
   } catch (error) {
     console.error('Error fetching product:', error);
