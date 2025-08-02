@@ -1,8 +1,11 @@
 import axios from 'axios';
 
 const strapiAPI = axios.create({
-  baseURL: import.meta.env.VITE_STRAPI_API_URL || 'http://localhost:1337/api',
+  baseURL: import.meta.env.VITE_STRAPI_API_URL,
 });
+
+console.log('Strapi API Base URL:', import.meta.env.VITE_STRAPI_API_URL);
+console.log('Strapi Media URL:', import.meta.env.VITE_STRAPI_MEDIA_URL);
 
 // Ensure getImageUrl handles null or undefined imageData
 const getImageUrl = (imageData, mediaUrl) => {
@@ -40,7 +43,8 @@ export const fetchProducts = async () => {
       return [];
     }
 
-    const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL || 'http://localhost:1337';
+    const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL;
+    console.log('Using Media URL:', mediaUrl);
 
     return response.data.data.map(item => {
       // Strapi v4 structure: item has id and attributes
@@ -86,7 +90,8 @@ export const fetchCategories = async () => {
       return [];
     }
 
-    const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL || 'http://localhost:1337';
+    const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL;
+    console.log('Using Media URL:', mediaUrl);
     
     return response.data.data.map(item => {
       if (!item || !item.attributes) {
@@ -125,7 +130,8 @@ export const fetchProduct = async (id) => {
     }
 
     const item = response.data.data;
-    const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL || 'http://localhost:1337';
+    const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL;
+    console.log('Using Media URL:', mediaUrl);
 
     // Properly extract attributes from Strapi v4 response
     const { id, attributes } = item;

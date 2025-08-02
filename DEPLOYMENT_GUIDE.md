@@ -40,23 +40,34 @@ npm install
 ```
 
 ### Step 2: Environment Configuration
-1. Copy the environment file:
+1. For production configuration, copy the environment file:
 ```bash
 cp .env.example .env
 ```
 
-2. Update the `.env` file with your specific values:
-```env
-# Generate secure keys for production
-APP_KEYS=your-secure-app-keys-here
-API_TOKEN_SALT=your-secure-api-token-salt
-ADMIN_JWT_SECRET=your-secure-admin-jwt-secret
-TRANSFER_TOKEN_SALT=your-secure-transfer-token-salt
-JWT_SECRET=your-secure-jwt-secret
+2. For local development, create a `.env.local` file:
+```bash
+cp .env.example .env.local
+```
 
-# Update frontend URLs
-FRONTEND_URL=http://localhost:5173
-FRONTEND_URL_PROD=https://your-frontend-domain.com
+3. Configure your environment files:
+- `.env` - Contains production values (committed to repo)
+- `.env.local` - Contains local development values (ignored by git)
+
+Example `.env.local` configuration:
+```env
+# Local development configuration
+VITE_STRAPI_API_URL=http://localhost:1337/api
+VITE_STRAPI_MEDIA_URL=http://localhost:1337
+NODE_ENV=development
+```
+
+Example `.env` configuration (production):
+```env
+# Production configuration
+VITE_STRAPI_API_URL=https://your-production-domain.com/api
+VITE_STRAPI_MEDIA_URL=https://your-production-domain.com
+NODE_ENV=production
 ```
 
 ### Step 3: Start Development Server
@@ -157,11 +168,19 @@ STRAPI_ADMIN_BACKEND_URL=https://your-backend-domain.onrender.com
 3. Save the configuration
 
 ### Step 3: Update Frontend Configuration
-Update your frontend's `.env` file:
+For production, update your frontend's `.env` file:
 ```env
 VITE_STRAPI_API_URL=https://your-backend-domain.onrender.com/api
 VITE_STRAPI_MEDIA_URL=https://your-backend-domain.onrender.com
 ```
+
+For local development, create/update `.env.local`:
+```env
+VITE_STRAPI_API_URL=http://localhost:1337/api
+VITE_STRAPI_MEDIA_URL=http://localhost:1337
+```
+
+Note: `.env.local` is automatically git-ignored, so local development settings won't affect production.
 
 ### Step 4: Test Integration
 1. Verify API endpoints:

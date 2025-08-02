@@ -19,9 +19,11 @@ export default defineConfig({
     watch: {
       usePolling: true,
     },
-    allowedHosts: [
-      "812990ae-ebbc-42fa-a1b5-ae0ab4cb4cd3-00-3fju6ixrrhc6k.spock.replit.dev",
-    ],
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization']
+    }
   },
   darkMode: "class",
 });
