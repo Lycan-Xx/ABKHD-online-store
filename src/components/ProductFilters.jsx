@@ -4,7 +4,7 @@ import { useProducts } from '../contexts/ProductContext';
 
 const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
   const { categories } = useProducts();
-  const [priceRange, setPriceRange] = useState(filters.priceRange || [0, 100000]);
+  const [priceRange, setPriceRange] = useState([0, 100000]);
   const [expandedSections, setExpandedSections] = useState({
     sort: true,
     categories: true,
@@ -18,9 +18,7 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
     }));
   };
 
-  const handlePriceChange = (value, index) => {
-    const newRange = [...priceRange];
-    newRange[index] = parseInt(value) || 0;
+  const handlePriceChange = (newRange) => {
     setPriceRange(newRange);
     onFiltersChange({ ...filters, priceRange: newRange });
   };
@@ -42,7 +40,7 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
 
   const activeFiltersCount = (filters.categories?.length || 0) + 
     (filters.sort && filters.sort !== '' ? 1 : 0) + 
-    (priceRange[0] > 0 || priceRange[1] < 100000 ? 1 : 0);
+    (priceRange[0] !== 0 || priceRange[1] !== 100000 ? 1 : 0);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-NG', {
@@ -147,46 +145,6 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
               {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
             </span>
           </div>
-          
-          {/* Price Inputs */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                Minimum
-              </label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="number"
-                  value={priceRange[0]}
-                  onChange={(e) => handlePriceChange(e.target.value, 0)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150"
-                  min="0"
-                  max="100000"
-                  placeholder="0"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                Maximum
-              </label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="number"
-                  value={priceRange[1]}
-                  onChange={(e) => handlePriceChange(e.target.value, 1)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150"
-                  min="0"
-                  max="100000"
-                  placeholder="100000"
-                />
-              </div>
-            </div>
-          </div>
-
           {/* Quick Price Presets */}
           <div className="grid grid-cols-2 gap-2">
             {[
