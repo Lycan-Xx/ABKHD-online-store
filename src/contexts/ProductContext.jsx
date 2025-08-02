@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchProducts, fetchCategories } from '../services/strapi';
-import strapiAPI from '../services/strapi';
-
+import { fetchProducts, fetchCategories, fetchProduct } from '../services/strapi';
 const ProductContext = createContext();
 
 export const useProducts = () => {
