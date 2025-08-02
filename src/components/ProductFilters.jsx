@@ -1,54 +1,54 @@
 import React, { useState } from 'react'
-import { Filter, X, ChevronDown, ChevronUp, DollarSign, ArrowUpDown } from 'lucide-react';
-import { useProducts } from '../contexts/ProductContext';
+import { Filter, X, ChevronDown, ChevronUp, DollarSign, ArrowUpDown } from 'lucide-react'
+import { useProducts } from '../contexts/ProductContext'
 
 const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
-  const { categories } = useProducts();
-  const [priceRange, setPriceRange] = useState([0, 100000]);
+  const { categories } = useProducts()
+  const [priceRange, setPriceRange] = useState(filters.priceRange || [0, 100000])
   const [expandedSections, setExpandedSections] = useState({
     sort: true,
     categories: true,
     price: true
-  });
+  })
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section]
-    }));
-  };
+    }))
+  }
 
   const handlePriceChange = (newRange) => {
-    setPriceRange(newRange);
-    onFiltersChange({ ...filters, priceRange: newRange });
-  };
+    setPriceRange(newRange)
+    onFiltersChange({ ...filters, priceRange: newRange })
+  }
 
   const handleCategoryChange = (category) => {
-    const categoryName = typeof category === 'object' ? category.name : category;
+    const categoryName = typeof category === 'object' ? category.name : category
     const newCategories = filters.categories?.includes(categoryName)
       ? filters.categories.filter(c => c !== categoryName)
-      : [...(filters.categories || []), categoryName];
-    onFiltersChange({ ...filters, categories: newCategories });
-  };
+      : [...(filters.categories || []), categoryName]
+    onFiltersChange({ ...filters, categories: newCategories })
+  }
 
   const handleSortChange = (sort) => {
-    onFiltersChange({ ...filters, sort });
-  };
+    onFiltersChange({ ...filters, sort })
+  }
 
-  // Debug logging
-  console.log('ProductFilters - categories:', categories);
+  // Safe categories array
+  const safeCategories = Array.isArray(categories) ? categories : []
 
   const activeFiltersCount = (filters.categories?.length || 0) + 
     (filters.sort && filters.sort !== '' ? 1 : 0) + 
-    (priceRange[0] !== 0 || priceRange[1] !== 100000 ? 1 : 0);
+    (priceRange[0] !== 0 || priceRange[1] !== 100000 ? 1 : 0)
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
       currency: 'NGN',
       minimumFractionDigits: 0
-    }).format(price);
-  };
+    }).format(price)
+  }
 
   const CollapsibleSection = ({ title, icon: Icon, isExpanded, onToggle, children }) => (
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-sm">
@@ -73,7 +73,7 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
         </div>
       </div>
     </div>
-  );
+  )
 
   return (
     <div className="space-y-4">
@@ -91,15 +91,18 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
           </div>
         </div>
         
-        {activeFiltersCount > 0 && (
+        {/* {activeFiltersCount > 0 && (
           <button
-            onClick={onClearFilters}
+            onClick={() => {
+              onClearFilters();
+              setPriceRange([0, 1000000]);
+            }}
             className="flex items-center space-x-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors duration-150"
           >
             <X className="w-4 h-4" />
             <span>Clear All</span>
           </button>
-        )}
+        )} */}
       </div>
 
       {/* Sort Section */}
@@ -110,20 +113,20 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
         onToggle={() => toggleSection('sort')}
       >
         <div className="space-y-2">
-          {categories.map((category) => (
-            <label key={category.id} className="flex items-center space-x-3 cursor-pointer group">
+          {safeCategories.map((category) => (
+            <label key={category.id || category.name} className="flex items-center space-x-3 cursor-pointer group">
               <div className="relative">
                 <input
                   type="checkbox"
-                  checked={filters.categories?.includes(category.name) || false}
+                  checked={filters.categories?.includes(category.name || category.Name) || false}
                   onChange={() => handleCategoryChange(category.name)}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 transition-colors"
                 />
               </div>
               <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors flex-1">
-                {category.name}
+                {category.name || category.Name || 'Unknown Category'}
               </span>
-              {filters.categories?.includes(category.name) && (
+              {filters.categories?.includes(category.name || category.Name) && (
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               )}
             </label>
@@ -151,7 +154,7 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
               { label: 'Under ₦10K', range: [0, 10000] },
               { label: 'Under ₦25K', range: [0, 25000] },
               { label: '₦25K - ₦50K', range: [25000, 50000] },
-              { label: 'Over ₦50K', range: [50000, 100000] }
+              { label: 'Over ₦100K', range: [50000, 1000000] }
             ].map((preset, index) => (
               <button
                 key={index}
@@ -181,6 +184,20 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
               {activeFiltersCount}
             </span>
           </div>
+          {/* All Products Button */}
+          <button
+            onClick={() => {
+              setPriceRange([0, 1000000]);
+              onFiltersChange({ ...filters, priceRange: [0, 1000000] });
+            }}
+            className={`w-full mt-2 py-2 text-sm rounded-md border transition-all duration-150 ${
+              priceRange[0] === 0 && priceRange[1] === 1000000
+                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+            }`}
+          >
+            Show All Products
+          </button>
           <div className="flex flex-wrap gap-2">
             {filters.categories?.map(category => (
               <span
@@ -227,7 +244,7 @@ const ProductFilters = ({ filters, onFiltersChange, onClearFilters }) => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ProductFilters;
+export default ProductFilters

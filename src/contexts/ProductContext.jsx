@@ -1,73 +1,85 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchProducts, fetchCategories, fetchProduct } from '../services/strapi';
-const ProductContext = createContext();
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import { fetchProducts, fetchCategories } from '../services/strapi'
+
+const ProductContext = createContext()
 
 export const useProducts = () => {
-  const context = useContext(ProductContext);
+  const context = useContext(ProductContext)
   if (!context) {
-    throw new Error('useProducts must be used within a ProductProvider');
+    throw new Error('useProducts must be used within a ProductProvider')
   }
-  return context;
-};
+  return context
+}
 
 export const ProductProvider = ({ children }) => {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
-        console.log('Fetching data from Strapi...');
+        setLoading(true)
+        setError(null)
+        console.log('Fetching data from Strapi...')
         
         // Fetch products and categories in parallel
         const [productsData, categoriesData] = await Promise.all([
           fetchProducts(),
           fetchCategories()
-        ]);
+        ])
         
-        console.log('Fetched products:', productsData);
-        console.log('Fetched categories:', categoriesData);
+        console.log('Fetched products:', productsData)
+        console.log('Fetched categories:', categoriesData)
         
-        // Debug: Log full API response
-        // const productsResponse = await strapiAPI.get('/products?populate=*');
-        // console.log('Full products API response:', productsResponse);
-        
-        setProducts(productsData);
-        setCategories(categoriesData);
+        setProducts(Array.isArray(productsData) ? productsData : [])
+        setCategories(Array.isArray(categoriesData) ? categoriesData : [])
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('Error fetching data:', err)
         if (err.response) {
-          console.error('API response error:', err.response.status, err.response.data);
+          console.error('API response error:', err.response.status, err.response.data)
         } else if (err.request) {
-          console.error('No response received:', err.request);
+          console.error('No response received:', err.request)
         } else {
-          console.error('Request setup error:', err.message);
+          console.error('Request setup error:', err.message)
         }
-        setError(err);
+        setError(err)
+        
+        // Fallback to local data if API fails
+        console.log('Falling back to local data...')
+        try {
+          const { products: localProducts, categories: localCategories } = await import('../data/products.js')
+          setProducts(Array.isArray(localProducts) ? localProducts : [])
+          setCategories(Array.isArray(localCategories) ? localCategories : [])
+        } catch (importError) {
+          console.error('Failed to load local data:', importError)
+          setProducts([])
+          setCategories([])
+        }
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchData();
+    fetchData()
     
-    // Refetch data every 30 seconds to keep inventory updated
-    const interval = setInterval(fetchData, 30000);
+    // Refetch data every 5 minutes to keep inventory updated
+    const interval = setInterval(fetchData, 300000)
     
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(interval)
+  }, [])
 
   const refetchProducts = async () => {
     try {
-      const productsData = await fetchProducts();
-      setProducts(productsData);
+      setError(null)
+      const productsData = await fetchProducts()
+      setProducts(Array.isArray(productsData) ? productsData : [])
     } catch (err) {
-      setError('Failed to refetch products');
+      console.error('Error refetching products:', err)
+      setError('Failed to refetch products')
     }
-  };
+  }
 
   return (
     <ProductContext.Provider 
@@ -81,5 +93,5 @@ export const ProductProvider = ({ children }) => {
     >
       {children}
     </ProductContext.Provider>
-  );
-};
+  )
+}

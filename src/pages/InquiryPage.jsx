@@ -2,14 +2,16 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
+import { useToast } from '../contexts/ToastContext'
 import { formatPrice } from '../lib/utils'
 
 const InquiryPage = () => {
   const navigate = useNavigate()
   const { items, getCartTotal } = useCart()
+  const { addToast } = useToast()
   
-  // Replace this with your actual WhatsApp number (with country code, no + sign)
-  const WHATSAPP_NUMBER = "2348123456789" // Example: Nigerian number
+  // Get WhatsApp number from environment variables
+  const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -23,6 +25,12 @@ const InquiryPage = () => {
   }, [items, navigate])
 
   const generateWhatsAppMessage = () => {
+    if (!WHATSAPP_NUMBER) {
+      console.error('WhatsApp phone number not configured')
+      addToast('WhatsApp contact not available. Please contact us directly.', 'error')
+      return null
+    }
+
     let message = "Hi, I'm interested in these items:\n\n"
     
     items.forEach((item, index) => {
@@ -40,9 +48,24 @@ const InquiryPage = () => {
   }
 
   const handleWhatsAppRedirect = () => {
+    if (!WHATSAPP_NUMBER) {
+      addToast('WhatsApp contact not available. Please contact us directly.', 'error')
+      return
+    }
+
     const message = generateWhatsAppMessage()
+    if (!message) {
+      return
+    }
+    
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`
-    window.open(whatsappUrl, '_blank')
+    
+    try {
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
+    } catch (error) {
+      console.error('Failed to open WhatsApp:', error)
+      addToast('Failed to open WhatsApp. Please try again.', 'error')
+    }
   }
 
   return (

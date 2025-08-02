@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom'
 import { formatPrice } from '../lib/utils'
 
 const ProductCard = ({ product }) => {
+  // Use documentId if available, otherwise fall back to id
+  const productId = product.documentId || product.id;
+  
   return (
-    <Link to={`/products/${product.id}`} className="product-card block">
+    <Link to={`/products/${productId}`} className="product-card block">
       <div className="aspect-square overflow-hidden rounded-lg bg-muted">
         <img
-          src={product.image}
+          src={product.image || 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=800'}
           alt={product.name}
           className="product-image"
           crossOrigin="anonymous"
@@ -24,21 +27,6 @@ const ProductCard = ({ product }) => {
             </span>
           )}
         </div>
-        {/* {product.rating && (
-          <div className="flex items-center space-x-1">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <i
-                  key={i}
-                  className={`bi bi-star${i < Math.floor(product.rating) ? '-fill' : ''} text-xs ${
-                    i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-muted-foreground'
-                  }`}
-                ></i>
-              ))}
-            </div>
-            <span className="text-xs text-muted-foreground">({product.reviews})</span>
-          </div>
-        )} */}
       </div>
     </Link>
   )

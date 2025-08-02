@@ -11,18 +11,28 @@ const CategoryPage = () => {
   const [filteredProducts, setFilteredProducts] = useState([])
   const [filters, setFilters] = useState({
     search: '',
-    categories: [category],
-    priceRange: [0, 100],
+    categories: [],
+    priceRange: [0, 100000],
     sort: ''
   })
   const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
     // Handle Strapi's data structure for category comparison
-    let filtered = products.filter(product => {
-      const productCategory = product.category?.data?.attributes?.name || product.category
-      return productCategory === categoryData?.attributes?.name
-    })
+    let filtered = products
+    // Only filter by category if categories array is not empty
+    if (filters.categories?.length > 0) {
+      filtered = filtered.filter(product => {
+        const productCategory = product.category?.data?.attributes?.name || product.category
+        return filters.categories.includes(productCategory)
+      })
+    } else {
+      // Show all products in current category when no filters are selected
+      filtered = filtered.filter(product => {
+        const productCategory = product.category?.data?.attributes?.name || product.category
+        return productCategory === categoryData?.attributes?.name
+      })
+    }
 
     // Search filter
     if (filters.search) {
@@ -35,8 +45,9 @@ const CategoryPage = () => {
       )
     }
 
-    // Price filter
-    if (filters.priceRange) {
+    // Price filter - only apply if not default range
+    if (filters.priceRange &&
+        (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 100000)) {
       filtered = filtered.filter(product =>
         product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
       )
@@ -72,8 +83,8 @@ const CategoryPage = () => {
   const handleClearFilters = () => {
     setFilters({
       search: '',
-      categories: [category],
-      priceRange: [0, 100],
+      categories: [],
+      priceRange: [0, 100000],
       sort: ''
     })
   }

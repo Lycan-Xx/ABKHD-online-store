@@ -8,7 +8,11 @@ import { formatPrice } from '../lib/utils'
 const ProductDetailPage = () => {
   const { id } = useParams()
   const { products, loading } = useProducts()
-  const product = products.find(p => p.id === parseInt(id) || p.id === id || p.documentId === id)
+  const product = products.find(p => 
+    p.id == id || 
+    p.documentId === id || 
+    p.id === parseInt(id)
+  )
   const { addItem } = useCart()
   const navigate = useNavigate()
   const location = useLocation()
