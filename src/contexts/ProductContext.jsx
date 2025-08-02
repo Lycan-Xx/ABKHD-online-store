@@ -32,8 +32,8 @@ export const ProductProvider = ({ children }) => {
         console.log('Fetched categories:', categoriesData);
         
         // Debug: Log full API response
-        const productsResponse = await strapiAPI.get('/products?populate=*');
-        console.log('Full products API response:', productsResponse);
+        // const productsResponse = await strapiAPI.get('/products?populate=*');
+        // console.log('Full products API response:', productsResponse);
         
         setProducts(productsData);
         setCategories(categoriesData);
