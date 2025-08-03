@@ -27,6 +27,12 @@
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.27",
     "tailwindcss": "^3.3.3",
+<<<<<<< HEAD
     "vite": "^4.4.5"
   }
 }
+=======
+    "vite": "^7.0.6"
+  }
+}
+>>>>>>> refs/heads/main

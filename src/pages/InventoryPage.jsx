@@ -24,6 +24,7 @@ const InventoryPage = () => {
   console.log('Filtered products:', filteredProducts)
   const [filters, setFilters] = useState({
     search: searchParams.get('search') || '',
+<<<<<<< HEAD
     categories: [],
     priceRange: [0, 100000],
     sort: ''
@@ -92,6 +93,46 @@ const InventoryPage = () => {
       categories: [],
       priceRange: [0, 100000],
       sort: ''
+=======
+    categories: []
+  })
+  const [showFilters, setShowFilters] = useState(false)
+
+  useEffect(() => {
+    console.log('Filtering products...', { products, filters })
+    let filtered = [...products]
+
+    // Search filter
+    if (filters.search) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+        product.description.toLowerCase().includes(filters.search.toLowerCase())
+      )
+    }
+
+    // Category filter - if no categories selected, show all products
+    if (filters.categories && filters.categories.length > 0) {
+      filtered = filtered.filter(product => {
+        // Handle Strapi data structure
+        const productCategory = product.category?.data?.attributes?.name || product.category
+        return filters.categories.includes(productCategory)
+      })
+    }
+
+    console.log('Filtered result:', filtered)
+    setFilteredProducts(filtered)
+  }, [products, filters])
+
+
+  const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters)
+  }
+
+  const handleClearFilters = () => {
+    setFilters({
+      search: '',
+      categories: []
+>>>>>>> refs/heads/main
     })
   }
 
