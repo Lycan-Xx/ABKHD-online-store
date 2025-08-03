@@ -1,7 +1,8 @@
 import axios from 'axios';
 
+// Use the environment variable directly for the baseURL
 const strapiAPI = axios.create({
-  baseURL: import.meta.env.VITE_STRAPI_API_URL || '/api',
+  baseURL: import.meta.env.VITE_STRAPI_API_URL || 'https://grounded-triumph-14beb219e4.strapiapp.com/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -14,7 +15,7 @@ console.log('Strapi Media URL:', import.meta.env.VITE_STRAPI_MEDIA_URL)
 // Add request interceptor for debugging
 strapiAPI.interceptors.request.use(
   (config) => {
-    console.log('Making request to:', config.url)
+    console.log('Making request to:', config.baseURL + config.url)
     return config
   },
   (error) => {
@@ -35,46 +36,95 @@ strapiAPI.interceptors.response.use(
   }
 )
 
-// Handle Strapi v4 media URLs
-const getImageUrl = (imageData, mediaUrl) => {
+// Simplified image URL handling - Strapi returns complete URLs
+const getImageUrl = (imageData) => {
   if (!imageData) return null
   
-  // Handle direct URL string
+  console.log('Processing image data:', imageData)
+  
+  // Handle direct URL string (shouldn't happen with Strapi v4, but just in case)
   if (typeof imageData === 'string') {
-    return imageData.startsWith('http') ? imageData : `${mediaUrl}${imageData}`
+    console.log('Direct string URL:', imageData)
+    return imageData
   }
 
-  // Get the URL from various possible structures
-  const url = imageData?.data?.attributes?.url ||
-              imageData?.attributes?.url ||
-              imageData?.url
+  // Handle Strapi v4 structure
+  const url = imageData?.data?.attributes?.url
   
-  if (!url) return null
-  
-  // If it's already a complete URL, return as-is
-  if (url.startsWith('http')) {
-    return url
+  if (!url) {
+    console.log('No URL found in image data')
+    return null
   }
   
-  // Otherwise, construct the full URL
-  return `${mediaUrl}${url.startsWith('/') ? url : `/${url}`}`
+  // Strapi Cloud returns complete URLs, use them directly
+  console.log('Found complete image URL:', url)
+  return url
+}
+
+// Handle multiple images - Strapi returns complete URLs
+const getImageUrls = (imagesData) => {
+  console.log('Raw images data received:', imagesData)
+  
+  if (!imagesData?.data || !Array.isArray(imagesData.data)) {
+    console.log('No images data found - structure check failed')
+    return []
+  }
+  
+  console.log('Processing images data:', imagesData.data.length, 'images')
+  
+  return imagesData.data.map((item, index) => {
+    console.log(`Processing image ${index}:`, item)
+    const url = item?.attributes?.url
+    if (!url) {
+      console.log('No URL found for image item:', item)
+      return null
+    }
+    
+    console.log('Found image URL:', url)
+    return url
+  }).filter(Boolean)
+}
+
+// Get the best image size for display
+const getBestImageUrl = (imageData, preferredSize = 'medium') => {
+  if (!imageData) return null
+  
+  const attributes = imageData?.data?.attributes
+  if (!attributes) return null
+  
+  // Try to get the preferred size from formats
+  const formats = attributes.formats
+  if (formats && formats[preferredSize]) {
+    console.log(`Using ${preferredSize} format:`, formats[preferredSize].url)
+    return formats[preferredSize].url
+  }
+  
+  // Fallback to original URL
+  console.log('Using original image URL:', attributes.url)
+  return attributes.url
 }
 
 // Fetch all products with populated fields
 export const fetchProducts = async () => {
   try {
-    const response = await strapiAPI.get('/products?populate=deep')
+    const response = await strapiAPI.get('/products?populate=*')
     console.log('Raw Strapi response:', response)
+    
+    // Debug: Log the exact structure we receive
+    if (response.data?.data?.[0]) {
+      const firstProduct = response.data.data[0]
+      console.log('First product structure:', firstProduct)
+      console.log('First product attributes:', firstProduct.attributes)
+      console.log('First product image field:', firstProduct.attributes?.image)
+      console.log('First product images field:', firstProduct.attributes?.images)
+    }
     
     if (!response.data?.data || !Array.isArray(response.data.data)) {
       console.warn('No products data found in response')
       return []
     }
 
-    const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL
-    console.log('Using Media URL:', mediaUrl)
-
-    return response.data.data.map(item => {
+    const products = response.data.data.map(item => {
       // Strapi v4 structure: item has id and attributes
       if (!item || !item.attributes) {
         console.warn('Invalid product item structure:', item)
@@ -84,11 +134,9 @@ export const fetchProducts = async () => {
       const { id, attributes } = item
       
       // Ensure category is properly extracted
-      const categoryData = attributes?.category?.data?.attributes || 
-                          attributes?.category?.attributes || 
-                          attributes?.category || {}
+      const categoryData = attributes?.category?.data?.attributes || {}
       
-      return {
+      const product = {
         id: id,
         documentId: attributes.documentId || id,
         name: attributes.name || '',
@@ -99,11 +147,34 @@ export const fetchProducts = async () => {
         stock: attributes.stock || 0,
         featured: attributes.featured || false,
         tags: attributes.tags || [],
-        image: getImageUrl(attributes.image, mediaUrl),
-        images: getImageUrls(attributes.images, mediaUrl),
-        category: categoryData.name || categoryData.Name || 'Uncategorized'
+        // Debug the raw image data first
+        image: (() => {
+          console.log('Raw image data for', attributes.name, ':', attributes.image)
+          const mainImage = getBestImageUrl(attributes.image, 'medium') || getImageUrl(attributes.image)
+          console.log('Processed main image URL:', mainImage)
+          return mainImage
+        })(),
+        // Get all image URLs with debugging
+        images: (() => {
+          console.log('Raw images data for', attributes.name, ':', attributes.images)
+          const allImages = getImageUrls(attributes.images)
+          console.log('Processed all images:', allImages)
+          return allImages
+        })(),
+        category: categoryData.name || 'Uncategorized'
       }
+      
+      console.log('Processed product:', {
+        name: product.name,
+        image: product.image,
+        imageCount: product.images.length
+      })
+      
+      return product
     }).filter(Boolean)
+    
+    console.log('Final products processed:', products.length)
+    return products
   } catch (error) {
     console.error('Error fetching products:', error)
     if (error.response?.status === 404) {
@@ -116,16 +187,13 @@ export const fetchProducts = async () => {
 // Fetch all categories
 export const fetchCategories = async () => {
   try {
-    const response = await strapiAPI.get('/categories?populate=deep')
+    const response = await strapiAPI.get('/categories?populate=*')
     console.log('Strapi categories response:', response.data)
     
-    if (!response.data.data || !Array.isArray(response.data.data)) {
+    if (!response.data?.data || !Array.isArray(response.data.data)) {
       console.warn('No categories data found in response')
       return []
     }
-
-    const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL
-    console.log('Using Media URL:', mediaUrl)
     
     return response.data.data.map(item => {
       if (!item || !item.attributes) {
@@ -133,23 +201,23 @@ export const fetchCategories = async () => {
         return null
       }
 
-      // Check if item has attributes (Strapi v4) or direct properties (your structure)
       const itemData = item.attributes
       
-      if (!itemData) {
-        console.warn('No data found in category item:', item)
-        return null
-      }
-
-      return {
+      const category = {
         id: item.id,
         documentId: itemData.documentId || item.id,
-        name: itemData.name || itemData.Name,
-        description: itemData.description || itemData.Description,
-        ...itemData,
-        image: getImageUrl(itemData.image, mediaUrl)
+        name: itemData.name,
+        description: itemData.description,
+        image: getImageUrl(itemData.image)
       }
-    }).filter(Boolean) // Remove null items
+      
+      console.log('Processed category:', {
+        name: category.name,
+        image: category.image
+      })
+      
+      return category
+    }).filter(Boolean)
   } catch (error) {
     console.error('Error fetching categories:', error)
     if (error.response?.status === 404) {
@@ -162,21 +230,17 @@ export const fetchCategories = async () => {
 // Fetch single product
 export const fetchProduct = async (id) => {
   try {
-    const response = await strapiAPI.get(`/products/${id}?populate=deep`)
+    const response = await strapiAPI.get(`/products/${id}?populate=*`)
     console.log('Strapi single product response:', response.data)
     
-    if (!response.data.data) {
+    if (!response.data?.data) {
       throw new Error('Product not found')
     }
 
     const item = response.data.data
-    const mediaUrl = import.meta.env.VITE_STRAPI_MEDIA_URL
-    console.log('Using Media URL:', mediaUrl)
-
-    // Properly extract attributes from Strapi v4 response
     const { id: itemId, attributes } = item
 
-    return {
+    const product = {
       id: itemId,
       documentId: attributes.documentId || itemId,
       name: attributes.name || '',
@@ -187,12 +251,18 @@ export const fetchProduct = async (id) => {
       stock: attributes.stock || 0,
       featured: attributes.featured || false,
       tags: attributes.tags || [],
-      image: getImageUrl(attributes.image, mediaUrl),
-      images: getImageUrls(attributes.images, mediaUrl),
-      category: attributes.category?.data?.attributes?.name ||
-               attributes.category?.attributes?.name ||
-               attributes.category || 'Uncategorized'
+      image: getBestImageUrl(attributes.image, 'medium') || getImageUrl(attributes.image),
+      images: getImageUrls(attributes.images),
+      category: attributes.category?.data?.attributes?.name || 'Uncategorized'
     }
+    
+    console.log('Fetched single product:', {
+      name: product.name,
+      image: product.image,
+      imageCount: product.images.length
+    })
+    
+    return product
   } catch (error) {
     console.error('Error fetching product:', error)
     throw error
