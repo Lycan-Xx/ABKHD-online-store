@@ -1,0 +1,107 @@
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 84% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+    --primary: hsl(173, 96%, 29%);
+    --primary-foreground: hsl(0, 0%, 100%);
+    --secondary: 214 31% 91%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 46%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: hsl(0, 84%, 60%);
+    --destructive-foreground: hsl(210, 40%, 98%);
+    --border: 214 31% 91%;
+    --input: 214 31% 91%;
+    --ring: hsl(173, 96%, 29%);
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222 84% 4%;
+    --foreground: 210 40% 98%;
+    --card: 222 84% 6%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 84% 4%;
+    --popover-foreground: 210 40% 98%;
+    --primary: hsl(173, 96%, 29%);
+    --primary-foreground: hsl(0, 0%, 100%);
+    --secondary: 217 32% 12%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 32% 12%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 32% 12%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: hsl(0, 62%, 30%);
+    --destructive-foreground: hsl(210, 40%, 98%);
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: hsl(173, 96%, 35%);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+@layer components {
+  .product-card {
+    @apply relative overflow-hidden rounded-lg border bg-card transition-all duration-300 hover:shadow-lg;
+  }
+  
+  .product-image {
+    @apply aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105;
+  }
+  
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .slider-thumb::-webkit-slider-thumb {
+    @apply appearance-none w-5 h-5 bg-primary border-2 border-accent rounded-full cursor-pointer shadow-lg transition-all duration-200 hover:scale-110;
+    -webkit-appearance: none;
+  }
+  .slider-thumb::-moz-range-thumb {
+    @apply w-5 h-5 bg-primary border-2 border-accent rounded-full cursor-pointer shadow-lg transition-all duration-200 hover:scale-110;
+    -moz-appearance: none;
+  }
+  .slider-thumb::-webkit-slider-track {
+    @apply bg-accent h-2 rounded-lg;
+    -webkit-appearance: none;
+  }
+  .slider-thumb::-moz-range-track {
+    @apply bg-accent h-2 rounded-lg;
+  }
+  .dark .slider-thumb::-webkit-slider-thumb {
+    @apply bg-primary border-primary shadow-lg;
+  }
+  .dark .slider-thumb::-moz-range-thumb {
+    @apply bg-primary border-primary shadow-lg;
+  }
+  .dark .slider-thumb::-webkit-slider-track {
+    @apply bg-accent;
+  }
+  .dark .slider-thumb::-moz-range-track {
+    @apply bg-accent;
+  }
+}

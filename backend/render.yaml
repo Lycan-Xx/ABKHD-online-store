@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: abkhd-store-backend
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /_health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_CLIENT
+        value: postgres
+      - key: DATABASE_SSL
+        value: true
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
+    autoDeploy: false
+
+databases:
+  - name: abkhd-store-db
+    plan: starter
+    databaseName: abkhd_store
+    user: abkhd_store_user

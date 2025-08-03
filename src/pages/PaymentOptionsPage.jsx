@@ -1,0 +1,91 @@
+
+import React, { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useCart } from '../contexts/CartContext'
+
+const PaymentOptionsPage = () => {
+  const navigate = useNavigate()
+  const { items } = useCart()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  // Redirect to home if cart is empty
+  useEffect(() => {
+    if (items.length === 0) {
+      navigate('/')
+    }
+  }, [items, navigate])
+
+  const handleOnlinePayment = () => {
+    navigate('/checkout')
+  }
+
+  const handleLocalInquiry = () => {
+    navigate('/inquiry')
+  }
+
+  return (
+    <div className="container py-16">
+      <div className="max-w-md mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-8">Payment Options</h1>
+        <p className="text-muted-foreground text-center mb-12">
+          Choose your preferred payment method to continue
+        </p>
+        
+        <div className="space-y-4">
+          {/* Online Payment Option */}
+          <button
+            onClick={handleOnlinePayment}
+            className="w-full p-6 border-2 border-input hover:border-primary rounded-lg text-left transition-all duration-200 hover:shadow-lg group bg-card"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <i className="bi bi-credit-card-2-front text-primary text-xl"></i>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg">Online Payment</h3>
+                <p className="text-muted-foreground text-sm">
+                  Pay securely with your credit or debit card
+                </p>
+              </div>
+              <i className="bi bi-chevron-right text-muted-foreground group-hover:text-foreground transition-colors"></i>
+            </div>
+          </button>
+
+          {/* Local Inquiry Option */}
+          <button
+            onClick={handleLocalInquiry}
+            className="w-full p-6 border-2 border-input hover:border-primary rounded-lg text-left transition-all duration-200 hover:shadow-lg group bg-card"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors">
+                <i className="bi bi-whatsapp text-green-600 dark:text-green-400 text-xl"></i>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg">Local Inquiry</h3>
+                <p className="text-muted-foreground text-sm">
+                  Contact us via WhatsApp for local payment options
+                </p>
+              </div>
+              <i className="bi bi-chevron-right text-muted-foreground group-hover:text-foreground transition-colors"></i>
+            </div>
+          </button>
+        </div>
+
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => navigate('/')}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <i className="bi bi-arrow-left-short text-xl mr-1"></i>
+            Back to Home
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default PaymentOptionsPage
