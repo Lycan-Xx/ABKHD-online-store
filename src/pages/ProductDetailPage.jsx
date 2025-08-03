@@ -8,15 +8,33 @@ import { formatPrice } from '../lib/utils'
 const ProductDetailPage = () => {
   const { id } = useParams()
   const { products, loading } = useProducts()
+  const { addItem } = useCart()
+  const { addToast } = useToast()
+  const navigate = useNavigate()
+  const location = useLocation()
+  
+  // State hooks - these must be called before any early returns
+  const [selectedImage, setSelectedImage] = useState(0)
+  const [selectedSize, setSelectedSize] = useState('')
+  const [selectedColor, setSelectedColor] = useState('')
+  const [quantity, setQuantity] = useState(1)
+
+  // Find product after hooks are declared
   const product = products.find(p => 
     p.id == id || 
     p.documentId === id || 
     p.id === parseInt(id)
   )
-  const { addItem } = useCart()
-  const navigate = useNavigate()
-  const location = useLocation()
-  
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  // Debug logging
+  console.log('ProductDetailPage - products:', products)
+  console.log('ProductDetailPage - product:', product)
+  console.log('ProductDetailPage - product tags:', product?.tags)
+
   const handleBack = () => {
     if (location.state?.from === '/') {
       navigate('/')
@@ -25,6 +43,18 @@ const ProductDetailPage = () => {
     }
   }
 
+  const handleAddToCart = () => {
+    if (!product) {
+      addToast('Product not found', 'error')
+      return
+    }
+
+    // Removed size and color validation since you want individual unique items
+    addItem(product, quantity, selectedSize, selectedColor)
+    addToast('Added to cart successfully!')
+  }
+
+  // Loading state
   if (loading) {
     return (
       <div className="container py-16 text-center">
@@ -36,22 +66,7 @@ const ProductDetailPage = () => {
     )
   }
   
-  // Debug logging
-  console.log('ProductDetailPage - products:', products)
-  console.log('ProductDetailPage - product:', product)
-  console.log('ProductDetailPage - product tags:', product?.tags)
-  const { addToast } = useToast()
-  
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [selectedSize, setSelectedSize] = useState('')
-  const [selectedColor, setSelectedColor] = useState('')
-  const [quantity, setQuantity] = useState(1)
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-
-  // Add fallback UI for missing product
+  // Product not found state
   if (!product) {
     return (
       <div className="container py-16 text-center">
@@ -60,20 +75,6 @@ const ProductDetailPage = () => {
         <Link to="/" className="btn-primary">Back to Home</Link>
       </div>
     )
-  }
-
-  const handleAddToCart = () => {
-    // if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-    //   addToast('Please select a size', 'error')
-    //   return
-    // }
-    // if (product.colors && product.colors.length > 0 && !selectedColor) {
-    //   addToast('Please select a color', 'error')
-    //   return
-    // }
-
-    addItem(product, quantity, selectedSize, selectedColor)
-    addToast('Added to cart successfully!')
   }
 
   const relatedProducts = products
@@ -143,6 +144,7 @@ const ProductDetailPage = () => {
                   </span>
                 )}
               </div>
+              {/* Rating section commented out as it's not in your data model */}
               {/* {product.rating && (
                 <div className="flex items-center space-x-1">
                   <div className="flex">
@@ -166,7 +168,7 @@ const ProductDetailPage = () => {
             </p>
           </div>
 
-          {/* Size Selection */}
+          {/* Size Selection - Commented out for individual unique items */}
           {/* {product.sizes && product.sizes.length > 0 && (
             <div>
               <h3 className="font-semibold mb-3">Size</h3>
@@ -188,7 +190,7 @@ const ProductDetailPage = () => {
             </div>
           )} */}
 
-          {/* Color Selection */}
+          {/* Color Selection - Commented out for individual unique items */}
           {/* {product.colors && product.colors.length > 0 && (
             <div>
               <h3 className="font-semibold mb-3">Color</h3>
@@ -210,8 +212,8 @@ const ProductDetailPage = () => {
             </div>
           )} */}
 
-          {/* Quantity */}
-          <div>
+          {/* Quantity - Commented out for individual unique items */}
+          {/* <div>
             <h3 className="font-semibold mb-3">Quantity</h3>
             <div className="flex items-center space-x-4">
               <div className="flex items-center border rounded-md">
@@ -233,15 +235,16 @@ const ProductDetailPage = () => {
                 {product.stock} in stock
               </span>
             </div>
-          </div>
+          </div> */}
 
-          {/* Add to Cart */}
+          {/* Add to Cart - Made functional and removed stock check */}
           <button
             onClick={handleAddToCart}
             className="w-full btn-primary py-3 text-base border-2 border-primary shadow-md hover:scale-105 transition-transform duration-200 dark:border-primary/80 focus:ring-2 focus:ring-primary/60"
-            disabled={product.stock === 0}
+            // Removed stock check for individual unique items
+            // disabled={product.stock === 0}
           >
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+            Add to Cart
           </button>
 
           {/* Product Details */}
@@ -252,11 +255,13 @@ const ProductDetailPage = () => {
                 <span className="text-muted-foreground">Category:</span>
                 <span className="capitalize">{product.category}</span>
               </div>
-              <div className="flex justify-between">
+              {/* Stock info commented out for individual unique items */}
+              {/* <div className="flex justify-between">
                 <span className="text-muted-foreground">Stock:</span>
                 <span>{product.stock} available</span>
-              </div>
-              {product.tags && (
+              </div> */}
+              {/* Tags commented out as requested */}
+              {/* {product.tags && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tags:</span>
                   <span className="capitalize">
@@ -267,7 +272,7 @@ const ProductDetailPage = () => {
                         : product.tags}
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>
