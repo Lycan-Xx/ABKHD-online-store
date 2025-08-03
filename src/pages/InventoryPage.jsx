@@ -24,76 +24,6 @@ const InventoryPage = () => {
   console.log('Filtered products:', filteredProducts)
   const [filters, setFilters] = useState({
     search: searchParams.get('search') || '',
-<<<<<<< HEAD
-    categories: [],
-    priceRange: [0, 100000],
-    sort: ''
-  })
-  const [showFilters, setShowFilters] = useState(false)
-
-  useEffect(() => {
-    console.log('Filtering products...', { products, filters })
-    let filtered = [...products]
-
-    // Search filter
-    if (filters.search) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        product.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-        (product.tags && product.tags.some(tag => tag.toLowerCase().includes(filters.search.toLowerCase())))
-      )
-    }
-
-    // Category filter
-    if (filters.categories && filters.categories.length > 0) {
-      filtered = filtered.filter(product =>
-        filters.categories.includes(product.category)
-      )
-    }
-
-    // Price filter
-    if (filters.priceRange) {
-      filtered = filtered.filter(product =>
-        product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
-      )
-    }
-
-    // Sort
-    if (filters.sort) {
-      switch (filters.sort) {
-        case 'price-asc':
-          filtered.sort((a, b) => a.price - b.price)
-          break
-        case 'price-desc':
-          filtered.sort((a, b) => b.price - a.price)
-          break
-        case 'name-asc':
-          filtered.sort((a, b) => a.name.localeCompare(b.name))
-          break
-        case 'rating-desc':
-          filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0))
-          break
-        default:
-          break
-      }
-    }
-
-    console.log('Filtered result:', filtered)
-    setFilteredProducts(filtered)
-  }, [products, filters])
-
-
-  const handleFiltersChange = (newFilters) => {
-    setFilters(newFilters)
-  }
-
-  const handleClearFilters = () => {
-    setFilters({
-      search: '',
-      categories: [],
-      priceRange: [0, 100000],
-      sort: ''
-=======
     categories: []
   })
   const [showFilters, setShowFilters] = useState(false)
@@ -132,7 +62,6 @@ const InventoryPage = () => {
     setFilters({
       search: '',
       categories: []
->>>>>>> refs/heads/main
     })
   }
 

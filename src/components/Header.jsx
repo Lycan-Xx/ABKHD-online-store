@@ -1,62 +1,4 @@
 import React, { useState, useEffect } from 'react'
-<<<<<<< HEAD
-import { Link } from 'react-router-dom'
-import { useCart } from '../contexts/CartContext'
-import { toggleDarkMode } from '../lib/utils'
-import CartDrawer from './CartDrawer'
-import MobileMenu from './MobileMenu'
-
-const Header = () => {
-  const { getCartCount } = useCart()
-  const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(false)
-
-  useEffect(() => {
-    const isDark = localStorage.getItem('darkMode') === 'true' ||
-      (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)
-    
-    if (isDark) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-    
-    setIsDarkMode(isDark)
-  }, [])
-
-  return (
-    <>
-      <header className="sticky top-0 z-40 w-full border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background/95 transition-colors duration-300">
-        <div className="container flex h-16 items-center justify-between">
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsMobileMenuOpen(true)}
-            aria-label="Open menu"
-          >
-            <i className="bi bi-list text-xl"></i>
-          </button>
-
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-                <i className="bi bi-triangle text-black text-sm"></i>
-              </div>
-              <span className="font-bold text-xl">ABKHD STORE</span>
-            </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/inventory" className="text-sm font-medium hover:text-primary transition-colors">
-              Inventory
-            </Link>
-            <Link to="/about" className="text-sm font-medium hover:text-primary transition-colors">
-              About Us
-            </Link>
-            <Link to="/contact" className="text-sm font-medium hover:text-primary transition-colors">
-              Contact
-=======
 import { Link, useLocation } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { toggleDarkMode } from '../lib/utils'
@@ -144,7 +86,6 @@ const Header = () => {
               {location.pathname === '/contact' && (
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 rounded-md -z-10"></div>
               )}
->>>>>>> refs/heads/main
             </Link>
           </nav>
 
