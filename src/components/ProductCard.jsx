@@ -5,7 +5,7 @@ import { formatPrice } from '../lib/utils'
 const ProductCard = ({ product }) => {
   // Use documentId if available, otherwise fall back to id
   const productId = product.documentId || product.id;
-  
+
   return (
     <Link to={`/products/${productId}`} className="product-card block">
       <div className="aspect-square overflow-hidden rounded-lg bg-muted">

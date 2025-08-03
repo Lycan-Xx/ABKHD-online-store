@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 const MobileMenu = ({ isOpen, onClose, isDarkMode, onToggleDarkMode }) => {
   const [visible, setVisible] = useState(isOpen)
   const [shouldRender, setShouldRender] = useState(isOpen)
   const firstRender = useRef(true)
+  const location = useLocation();
 
   useEffect(() => {
     if (isOpen) {
@@ -41,22 +42,34 @@ const MobileMenu = ({ isOpen, onClose, isDarkMode, onToggleDarkMode }) => {
             <div className="space-y-4">
               <Link
                 to="/inventory"
+                className={`block py-3 px-4 text-lg font-medium transition-all duration-200 rounded-md ${
+                  location.pathname === '/inventory' 
+                    ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
+                    : 'text-muted-foreground hover:text-primary hover:bg-accent'
+                }`}
                 onClick={onClose}
-                className="block py-2 text-sm font-medium hover:text-primary transition-colors"
               >
                 Inventory
               </Link>
               <Link
                 to="/about"
+                className={`block py-3 px-4 text-lg font-medium transition-all duration-200 rounded-md ${
+                  location.pathname === '/about' 
+                    ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
+                    : 'text-muted-foreground hover:text-primary hover:bg-accent'
+                }`}
                 onClick={onClose}
-                className="block py-2 text-sm font-medium hover:text-primary transition-colors"
               >
                 About Us
               </Link>
               <Link
                 to="/contact"
+                className={`block py-3 px-4 text-lg font-medium transition-all duration-200 rounded-md ${
+                  location.pathname === '/contact' 
+                    ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
+                    : 'text-muted-foreground hover:text-primary hover:bg-accent'
+                }`}
                 onClick={onClose}
-                className="block py-2 text-sm font-medium hover:text-primary transition-colors"
               >
                 Contact
               </Link>

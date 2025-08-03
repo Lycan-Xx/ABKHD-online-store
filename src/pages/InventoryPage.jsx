@@ -24,9 +24,7 @@ const InventoryPage = () => {
   console.log('Filtered products:', filteredProducts)
   const [filters, setFilters] = useState({
     search: searchParams.get('search') || '',
-    categories: [],
-    priceRange: [0, 100000],
-    sort: ''
+    categories: []
   })
   const [showFilters, setShowFilters] = useState(false)
 
@@ -38,43 +36,17 @@ const InventoryPage = () => {
     if (filters.search) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        product.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-        (product.tags && product.tags.some(tag => tag.toLowerCase().includes(filters.search.toLowerCase())))
+        product.description.toLowerCase().includes(filters.search.toLowerCase())
       )
     }
 
-    // Category filter
+    // Category filter - if no categories selected, show all products
     if (filters.categories && filters.categories.length > 0) {
-      filtered = filtered.filter(product =>
-        filters.categories.includes(product.category)
-      )
-    }
-
-    // Price filter
-    if (filters.priceRange) {
-      filtered = filtered.filter(product =>
-        product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
-      )
-    }
-
-    // Sort
-    if (filters.sort) {
-      switch (filters.sort) {
-        case 'price-asc':
-          filtered.sort((a, b) => a.price - b.price)
-          break
-        case 'price-desc':
-          filtered.sort((a, b) => b.price - a.price)
-          break
-        case 'name-asc':
-          filtered.sort((a, b) => a.name.localeCompare(b.name))
-          break
-        case 'rating-desc':
-          filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0))
-          break
-        default:
-          break
-      }
+      filtered = filtered.filter(product => {
+        // Handle Strapi data structure
+        const productCategory = product.category?.data?.attributes?.name || product.category
+        return filters.categories.includes(productCategory)
+      })
     }
 
     console.log('Filtered result:', filtered)
@@ -89,9 +61,7 @@ const InventoryPage = () => {
   const handleClearFilters = () => {
     setFilters({
       search: '',
-      categories: [],
-      priceRange: [0, 100000],
-      sort: ''
+      categories: []
     })
   }
 

@@ -1,3 +1,4 @@
+
 {
   "kind": "collectionType",
   "collectionName": "products",
@@ -33,18 +34,9 @@
       "type": "decimal",
       "min": 0
     },
-    "stock": {
-      "type": "integer",
-      "required": true,
-      "min": 0,
-      "default": 0
-    },
     "featured": {
       "type": "boolean",
       "default": false
-    },
-    "tags": {
-      "type": "json"
     },
     "image": {
       "type": "media",

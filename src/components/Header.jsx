@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { toggleDarkMode } from '../lib/utils'
 import CartDrawer from './CartDrawer'
@@ -7,6 +7,7 @@ import MobileMenu from './MobileMenu'
 
 const Header = () => {
   const { getCartCount } = useCart()
+  const location = useLocation()
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -46,15 +47,45 @@ const Header = () => {
             </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/inventory" className="text-sm font-medium hover:text-primary transition-colors">
+          <nav className="hidden md:flex items-center space-x-1">
+            <Link 
+              to="/inventory" 
+              className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md ${
+                location.pathname === '/inventory' 
+                  ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
+                  : 'text-muted-foreground hover:text-primary hover:bg-accent'
+              }`}
+            >
               Inventory
+              {location.pathname === '/inventory' && (
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 rounded-md -z-10"></div>
+              )}
             </Link>
-            <Link to="/about" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link 
+              to="/about" 
+              className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md ${
+                location.pathname === '/about' 
+                  ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
+                  : 'text-muted-foreground hover:text-primary hover:bg-accent'
+              }`}
+            >
               About Us
+              {location.pathname === '/about' && (
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 rounded-md -z-10"></div>
+              )}
             </Link>
-            <Link to="/contact" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link 
+              to="/contact" 
+              className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md ${
+                location.pathname === '/contact' 
+                  ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
+                  : 'text-muted-foreground hover:text-primary hover:bg-accent'
+              }`}
+            >
               Contact
+              {location.pathname === '/contact' && (
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 rounded-md -z-10"></div>
+              )}
             </Link>
           </nav>
 
