@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const strapiAPI = axios.create({
-  baseURL: import.meta.env.VITE_STRAPI_API_URL,
+  baseURL: import.meta.env.VITE_STRAPI_API_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -35,43 +35,29 @@ strapiAPI.interceptors.response.use(
   }
 )
 
-// Ensure getImageUrl handles null or undefined imageData
+// Handle Strapi v4 media URLs
 const getImageUrl = (imageData, mediaUrl) => {
   if (!imageData) return null
   
   // Handle direct URL string
   if (typeof imageData === 'string') {
-    // If it's already a full URL, return as is
-    if (imageData.startsWith('http')) {
-      return imageData
-    }
-    return imageData
+    return imageData.startsWith('http') ? imageData : `${mediaUrl}${imageData}`
   }
-  
-  // Handle Strapi v4 structure
-  if (imageData.data?.attributes?.url) {
-    return `${mediaUrl}${imageData.data.attributes.url}`
-  }
-  
-  // Handle single image object
-  if (imageData.attributes?.url) {
-    return `${mediaUrl}${imageData.attributes.url}`
-  }
-  
-  // Handle direct url property
-  if (imageData.url) {
-    return `${mediaUrl}${imageData.url}`
-  }
-  
-  return null
-}
 
-// Helper function to safely get multiple image URLs
-const getImageUrls = (imagesData, mediaUrl) => {
-  if (!imagesData?.data || !Array.isArray(imagesData.data)) return []
-  return imagesData.data.map(img => 
-    img?.attributes?.url ? `${mediaUrl}${img.attributes.url}` : null
-  ).filter(Boolean)
+  // Get the URL from various possible structures
+  const url = imageData?.data?.attributes?.url ||
+              imageData?.attributes?.url ||
+              imageData?.url
+  
+  if (!url) return null
+  
+  // If it's already a complete URL, return as-is
+  if (url.startsWith('http')) {
+    return url
+  }
+  
+  // Otherwise, construct the full URL
+  return `${mediaUrl}${url.startsWith('/') ? url : `/${url}`}`
 }
 
 // Fetch all products with populated fields
