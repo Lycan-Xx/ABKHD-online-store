@@ -20,7 +20,7 @@ const AboutPage = () => {
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">The ABKHD Standard</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Premium Tech, Smarter Prices — why pay full retail when you can own the best for less?
+            Premium Tech, Smarter Prices. Why pay full retail when you can own the best for less?
           </p>
         </div>
 
@@ -30,10 +30,10 @@ const AboutPage = () => {
             <h2 className="text-3xl font-bold">Our Story</h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                We're putting ourselves on the line to assure you what you get is the best out there. Since 2020, we've specialized in sourcing premium, high-performance UK-used laptops, mobile phones, and tablets — delivering the quality of a new device at a fraction of the cost.
+                We're putting ourselves on the line to assure you what you get is the best. Since 2020, we've specialized in sourcing premium, high-performance UK and China-used laptops, mobile phones, and tablets. Delivering the quality of a new device at a fraction of the cost.
               </p>
               <p>
-                We want to distance ourselves from the uncertainty of buying used tech — where you're unsure of the warranty, the quality, or whether it will even work. This is who we are, and we give you our word for it.
+                We want to distance ourselves from the uncertainty of buying used tech where you're unsure of the warranty, the quality, or whether it will even work. This is who we are, and we give you our word for it.
               </p>
             </div>
           </div>
@@ -60,6 +60,12 @@ const AboutPage = () => {
             <p className="text-lg leading-relaxed text-center max-w-3xl mx-auto">
               Every device in our collection undergoes a <span className="font-semibold text-primary">rigorous multi-point inspection process</span>. Our team of expert technicians examines everything from battery health and screen clarity to processor speed and port functionality. We don't just sell "used" tech; we sell <span className="font-semibold">certified performance</span>.
             </p>
+            <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+              <p className="text-sm text-center font-medium">
+                <i className="bi bi-shield-check text-primary mr-2"></i>
+                <strong>Complete Transparency:</strong> If any product has defects, we'll clearly disclose them in the product description so you can decide for yourself. We never hide any truth about our products.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -78,7 +84,7 @@ const AboutPage = () => {
               </div>
               <h3 className="font-semibold mb-2">Source</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Carefully selected from trusted UK suppliers
+                Carefully selected from trusted UK and China suppliers
               </p>
             </div>
             <div className="text-center">
@@ -96,7 +102,7 @@ const AboutPage = () => {
               </div>
               <h3 className="font-semibold mb-2">Certify</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Grade and verify performance standards
+                Grade and verify performance standards. If any defects are found, we disclose them transparently so you can make informed decisions.
               </p>
             </div>
             <div className="text-center">
@@ -118,10 +124,10 @@ const AboutPage = () => {
             <div className="flex items-start space-x-4">
               <i className="bi bi-globe-europe-africa text-primary text-2xl mt-1 flex-shrink-0"></i>
               <div>
-                <h3 className="font-semibold mb-2">UK-Sourced Quality</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  We exclusively source our inventory from the UK, ensuring you receive devices that have been well-maintained and meet international standards.
-                </p>
+              <h3 className="font-semibold mb-2">Global Quality Sourcing</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                We source our inventory from trusted UK and China suppliers, ensuring you receive devices that have been well-maintained and meet international standards.
+              </p>
               </div>
             </div>
             <div className="flex items-start space-x-4">
@@ -129,7 +135,7 @@ const AboutPage = () => {
               <div>
                 <h3 className="font-semibold mb-2">Rigorous Testing</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Every phone, tablet, and laptop is tested for 100% functionality. If it doesn't perform like new, it doesn't make it to our store.
+                  Every phone, tablet, and laptop is tested for 100% functionality. If it doesn't perform like new, it doesn't make it to our store. And if any defects are found, we'll disclose them transparently in the product description so you can make an informed decision.
                 </p>
               </div>
             </div>

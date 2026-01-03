@@ -14,7 +14,7 @@ const Footer = () => {
               <span className="font-bold text-xl tracking-tight">ABKHD</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Premium UK-sourced tech at smarter prices. Every device tested, certified, and guaranteed.
+              Premium UK and China-sourced tech at smarter prices. Every device tested, certified, and guaranteed.
             </p>
           </div>
 
