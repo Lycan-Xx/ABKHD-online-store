@@ -52,47 +52,42 @@ const ContactPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Information */}
+          {/* Contact Information - Minimal Design */}
           <div className="space-y-8">
             <div>
               <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className="bi bi-geo-alt text-primary-foreground text-xl"></i>
-                  </div>
+                  <i className="bi bi-geo-alt text-primary text-xl mt-1 flex-shrink-0"></i>
                   <div>
                     <h3 className="font-semibold mb-1">Address</h3>
-                    <p className="text-muted-foreground">
-                      123 Design Street<br />
-                      Creative District<br />
-                      San Francisco, CA 94102
+                    <p className="text-muted-foreground text-sm">
+                      Jimeta, Yola<br />
+                      Adamawa State<br />
+                      Nigeria
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className="bi bi-telephone text-primary-foreground text-xl"></i>
-                  </div>
+                  <i className="bi bi-whatsapp text-primary text-xl mt-1 flex-shrink-0"></i>
                   <div>
-                    <h3 className="font-semibold mb-1">Phone</h3>
-                    <p className="text-muted-foreground">
-                      <a href="tel:+1-555-123-4567" className="hover:text-primary transition-colors">
-                        +1 (555) 123-4567
+                    <h3 className="font-semibold mb-1">WhatsApp</h3>
+                    <p className="text-muted-foreground text-sm">
+                      <a href="https://wa.me/2348012345678" className="text-primary hover:underline">
+                        +234 801 234 5678
                       </a>
                     </p>
+                    <p className="text-xs text-muted-foreground mt-1">Best way to reach us</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className="bi bi-envelope text-primary-foreground text-xl"></i>
-                  </div>
+                  <i className="bi bi-envelope text-primary text-xl mt-1 flex-shrink-0"></i>
                   <div>
                     <h3 className="font-semibold mb-1">Email</h3>
-                    <p className="text-muted-foreground">
-                      <a href="mailto:hello@abkhdstore.com" className="hover:text-primary transition-colors">
+                    <p className="text-muted-foreground text-sm">
+                      <a href="mailto:hello@abkhdstore.com" className="text-primary hover:underline">
                         hello@abkhdstore.com
                       </a>
                     </p>
@@ -100,12 +95,10 @@ const ContactPage = () => {
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className="bi bi-clock text-primary-foreground text-xl"></i>
-                  </div>
+                  <i className="bi bi-clock text-primary text-xl mt-1 flex-shrink-0"></i>
                   <div>
                     <h3 className="font-semibold mb-1">Business Hours</h3>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Monday - Friday: 9:00 AM - 6:00 PM<br />
                       Saturday: 10:00 AM - 4:00 PM<br />
                       Sunday: Closed
@@ -115,28 +108,55 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Social Media */}
+            {/* Social Media - Minimal Design */}
             <div>
               <h3 className="font-semibold mb-4">Follow Us</h3>
-              <div className="flex space-x-4">
-                <a href="#" className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+              <div className="flex space-x-3">
+                <a 
+                  href="#" 
+                  className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
+                  aria-label="Twitter"
+                >
                   <i className="bi bi-twitter"></i>
                 </a>
-                <a href="#" className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                <a 
+                  href="#" 
+                  className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
+                  aria-label="Instagram"
+                >
                   <i className="bi bi-instagram"></i>
                 </a>
-                <a href="#" className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                <a 
+                  href="#" 
+                  className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
+                  aria-label="Facebook"
+                >
                   <i className="bi bi-facebook"></i>
                 </a>
-                <a href="#" className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                <a 
+                  href="#" 
+                  className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
+                  aria-label="LinkedIn"
+                >
                   <i className="bi bi-linkedin"></i>
                 </a>
+              </div>
+            </div>
+
+            {/* Response Time Badge */}
+            <div className="flex items-start space-x-3 p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <i className="bi bi-lightning-charge-fill text-primary text-lg mt-0.5"></i>
+              <div>
+                <p className="text-sm font-medium">Quick Response Time</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  We typically respond within 2 hours during business hours
+                </p>
               </div>
             </div>
           </div>
 
           {/* Contact Form */}
-          <div className="bg-card border rounded-lg p-8">
+          <div className="bg-card border border-border rounded-xl p-8">
             <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -151,7 +171,7 @@ const ContactPage = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full p-3 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
                     placeholder="Your full name"
                   />
                 </div>
@@ -166,7 +186,7 @@ const ContactPage = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="w-full p-3 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -183,7 +203,7 @@ const ContactPage = () => {
                   value={formData.subject}
                   onChange={handleInputChange}
                   required
-                  className="w-full p-3 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
                   placeholder="What's this about?"
                 />
               </div>
@@ -199,7 +219,7 @@ const ContactPage = () => {
                   onChange={handleInputChange}
                   required
                   rows={6}
-                  className="w-full p-3 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-vertical"
+                  className="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow resize-vertical"
                   placeholder="Tell us more about your inquiry..."
                 />
               </div>
@@ -207,7 +227,7 @@ const ContactPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full btn-primary py-3 text-base disabled:opacity-50"
+                className="w-full btn-primary py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center">
@@ -215,39 +235,54 @@ const ContactPage = () => {
                     Sending...
                   </span>
                 ) : (
-                  'Send Message'
+                  <span className="flex items-center justify-center">
+                    <i className="bi bi-send mr-2"></i>
+                    Send Message
+                  </span>
                 )}
               </button>
             </form>
           </div>
         </div>
 
-        {/* FAQ Section */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="font-semibold mb-2">What are your shipping options?</h3>
-              <p className="text-muted-foreground text-sm">
-                We offer free standard shipping on orders over $50. Express shipping is available for an additional fee.
+        {/* FAQ Section - Condensed */}
+        <div className="mt-20">
+          <h2 className="text-2xl font-bold text-center mb-8">Quick Questions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            <div className="space-y-2">
+              <h3 className="font-semibold flex items-start">
+                <i className="bi bi-question-circle text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>What are your shipping options?</span>
+              </h3>
+              <p className="text-muted-foreground text-sm pl-7">
+                Free delivery in Jimeta & Yola. Other locations available at competitive rates.
               </p>
             </div>
-            <div>
-              <h3 className="font-semibold mb-2">What is your return policy?</h3>
-              <p className="text-muted-foreground text-sm">
-                We accept returns within 30 days of purchase. Items must be in original condition with tags attached.
+            <div className="space-y-2">
+              <h3 className="font-semibold flex items-start">
+                <i className="bi bi-question-circle text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>What is your return policy?</span>
+              </h3>
+              <p className="text-muted-foreground text-sm pl-7">
+                7-day return guarantee. Items must be in original condition.
               </p>
             </div>
-            <div>
-              <h3 className="font-semibold mb-2">Do you offer international shipping?</h3>
-              <p className="text-muted-foreground text-sm">
-                Currently, we ship within the United States only. International shipping will be available soon.
+            <div className="space-y-2">
+              <h3 className="font-semibold flex items-start">
+                <i className="bi bi-question-circle text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>Do you offer warranties?</span>
+              </h3>
+              <p className="text-muted-foreground text-sm pl-7">
+                Yes, all devices come with our quality guarantee and testing certification.
               </p>
             </div>
-            <div>
-              <h3 className="font-semibold mb-2">How can I track my order?</h3>
-              <p className="text-muted-foreground text-sm">
-                Once your order ships, you'll receive a tracking number via email to monitor your package's progress.
+            <div className="space-y-2">
+              <h3 className="font-semibold flex items-start">
+                <i className="bi bi-question-circle text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>How can I track my order?</span>
+              </h3>
+              <p className="text-muted-foreground text-sm pl-7">
+                We'll send you tracking information via WhatsApp or email once your order ships.
               </p>
             </div>
           </div>
