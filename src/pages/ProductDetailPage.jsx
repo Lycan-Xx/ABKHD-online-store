@@ -5,6 +5,132 @@ import { useCart } from '../contexts/CartContext'
 import { useToast } from '../contexts/ToastContext'
 import { formatPrice } from '../lib/utils'
 
+// Component to render content as a list format
+const RichTextRenderer = ({ content }) => {
+  if (!content) return null
+
+  // If content is a string, convert to list items
+  if (typeof content === 'string') {
+    // Split by common list separators (newlines, semicolons, etc.)
+    const items = content.split(/[;\n]+/).filter(item => item.trim().length > 0)
+
+    return (
+      <ul className="text-muted-foreground list-disc list-inside space-y-2">
+        {items.map((item, index) => (
+          <li key={index} className="leading-relaxed">
+            {item.trim()}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  // If content has children (Strapi rich text format)
+  if (content.children && Array.isArray(content.children)) {
+    return (
+      <div className="text-muted-foreground space-y-4">
+        {content.children.map((block, index) => {
+          // Handle different block types
+          if (block.type === 'list') {
+            const isOrdered = block.format === 'ordered'
+            const ListTag = isOrdered ? 'ol' : 'ul'
+
+            return (
+              <ListTag
+                key={index}
+                className={isOrdered ? 'list-decimal list-inside space-y-1' : 'list-disc list-inside space-y-1'}
+              >
+                {block.children.map((listItem, itemIndex) => (
+                  <li key={itemIndex} className="text-muted-foreground">
+                    {listItem.children?.map((textNode, textIndex) => {
+                      if (textNode.type === 'text') {
+                        return (
+                          <span
+                            key={textIndex}
+                            className={textNode.bold ? 'font-semibold' : ''}
+                            style={{
+                              fontStyle: textNode.italic ? 'italic' : 'normal',
+                              textDecoration: textNode.underline ? 'underline' : 'none'
+                            }}
+                          >
+                            {textNode.text}
+                          </span>
+                        )
+                      }
+                      return null
+                    })}
+                  </li>
+                ))}
+              </ListTag>
+            )
+          }
+
+          // Handle paragraph blocks - convert to list items
+          if (block.type === 'paragraph' || !block.type) {
+            const textContent = block.children?.map(textNode => {
+              if (textNode.type === 'text') {
+                return textNode.text
+              }
+              return ''
+            }).join('').trim()
+
+            if (textContent) {
+              // Split paragraph text into list items
+              const items = textContent.split(/[;\n]+/).filter(item => item.trim().length > 0)
+
+              return (
+                <ul key={index} className="list-disc list-inside space-y-1">
+                  {items.map((item, itemIndex) => (
+                    <li key={itemIndex} className="text-muted-foreground">
+                      {item.trim()}
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+            return null
+          }
+
+          // Handle other block types (headings, etc.)
+          if (block.type === 'heading') {
+            const HeadingTag = `h${block.level || 3}`
+            return (
+              <HeadingTag key={index} className="font-semibold text-foreground">
+                {block.children?.map((textNode, textIndex) => {
+                  if (textNode.type === 'text') {
+                    return (
+                      <span
+                        key={textIndex}
+                        className={textNode.bold ? 'font-bold' : ''}
+                        style={{
+                          fontStyle: textNode.italic ? 'italic' : 'normal',
+                          textDecoration: textNode.underline ? 'underline' : 'none'
+                        }}
+                      >
+                        {textNode.text}
+                      </span>
+                    )
+                  }
+                  return null
+                })}
+              </HeadingTag>
+            )
+          }
+
+          return null
+        })}
+      </div>
+    )
+  }
+
+  // Fallback for other formats - convert to list
+  return (
+    <ul className="text-muted-foreground list-disc list-inside space-y-2">
+      <li>{String(content)}</li>
+    </ul>
+  )
+}
+
 const ProductDetailPage = () => {
   const { id } = useParams()
   const { products, loading } = useProducts()
@@ -52,6 +178,20 @@ const ProductDetailPage = () => {
     // Removed size and color validation since you want individual unique items
     addItem(product, quantity, selectedSize, selectedColor)
     addToast('Added to cart successfully!')
+  }
+
+  const handleBuyNow = () => {
+    if (!product) {
+      addToast('Product not found', 'error')
+      return
+    }
+
+    // Add product to cart
+    addItem(product, quantity, selectedSize, selectedColor)
+    addToast('Added to cart successfully!')
+
+    // Navigate to payment options
+    navigate('/payment-options')
   }
 
   // Loading state
@@ -161,11 +301,7 @@ const ProductDetailPage = () => {
                 </div>
               )} */}
             </div>
-            <p className="text-muted-foreground">
-              {typeof product.longDescription === 'string' 
-                ? product.longDescription 
-                : product.longDescription?.children?.[0]?.text || product.description}
-            </p>
+            <RichTextRenderer content={product.longDescription || product.description} />
           </div>
 
           {/* Size Selection - Commented out for individual unique items */}
@@ -237,15 +373,21 @@ const ProductDetailPage = () => {
             </div>
           </div> */}
 
-          {/* Add to Cart - Made functional and removed stock check */}
-          <button
-            onClick={handleAddToCart}
-            className="w-full btn-primary py-3 text-base border-2 border-primary shadow-md hover:scale-105 transition-transform duration-200 dark:border-primary/80 focus:ring-2 focus:ring-primary/60"
-            // Removed stock check for individual unique items
-            // disabled={product.stock === 0}
-          >
-            Add to Cart
-          </button>
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={handleAddToCart}
+              className="btn-secondary py-3 text-base border-2 border-muted-foreground/20 hover:border-muted-foreground/40 shadow-md hover:scale-105 transition-transform duration-200 focus:ring-2 focus:ring-muted-foreground/60"
+            >
+              Add to Cart
+            </button>
+            <button
+              onClick={handleBuyNow}
+              className="btn-primary py-3 text-base border-2 border-primary shadow-md hover:scale-105 transition-transform duration-200 dark:border-primary/80 focus:ring-2 focus:ring-primary/60"
+            >
+              Buy Now
+            </button>
+          </div>
 
           {/* Product Details */}
           <div className="border-t pt-6">
