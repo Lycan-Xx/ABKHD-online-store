@@ -25,13 +25,15 @@ const Header = () => {
     setIsDarkMode(isDark)
   }, [])
 
+  const isActive = (path) => location.pathname === path
+
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background/95 transition-colors duration-300">
+      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="container flex h-16 items-center justify-between">
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2"
+            className="md:hidden p-2 -ml-2 hover:bg-accent rounded-lg transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Open menu"
           >
@@ -39,78 +41,67 @@ const Header = () => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-                <i className="bi bi-triangle text-black text-sm"></i>
-              </div>
-              <span className="font-bold text-xl">ABKHD STORE</span>
-            </Link>
+          <Link to="/" className="flex items-center gap-2">
+            <span className="font-bold text-xl tracking-tight">ABKHD</span>
+          </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center gap-1">
             <Link 
               to="/inventory" 
-              className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md ${
-                location.pathname === '/inventory' 
-                  ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
-                  : 'text-muted-foreground hover:text-primary hover:bg-accent'
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                isActive('/inventory') 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
             >
-              Inventory
-              {location.pathname === '/inventory' && (
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 rounded-md -z-10"></div>
-              )}
+              Shop
             </Link>
             <Link 
               to="/about" 
-              className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md ${
-                location.pathname === '/about' 
-                  ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
-                  : 'text-muted-foreground hover:text-primary hover:bg-accent'
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                isActive('/about') 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
             >
-              About Us
-              {location.pathname === '/about' && (
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 rounded-md -z-10"></div>
-              )}
+              About
             </Link>
             <Link 
               to="/contact" 
-              className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md ${
-                location.pathname === '/contact' 
-                  ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
-                  : 'text-muted-foreground hover:text-primary hover:bg-accent'
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                isActive('/contact') 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
             >
               Contact
-              {location.pathname === '/contact' && (
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 rounded-md -z-10"></div>
-              )}
             </Link>
           </nav>
 
-          {/* Dark Mode and Cart */}
-          <div className="flex items-center space-x-4">
-            {/* Dark Mode Toggle - Visible on desktop */}
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            {/* Dark Mode Toggle */}
             <button
               onClick={() => {
                 const newDarkMode = toggleDarkMode()
                 setIsDarkMode(newDarkMode)
               }}
-              className="hidden md:flex p-2 hover:bg-accent rounded-md transition-colors duration-200"
+              className="hidden md:flex p-2 hover:bg-accent rounded-lg transition-colors"
               aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              <i className={`bi ${isDarkMode ? 'bi-sun-fill' : 'bi-moon-fill'} text-xl transition-transform duration-200 ${isDarkMode ? 'rotate-180' : 'rotate-0'}`}></i>
+              <i className={`bi ${isDarkMode ? 'bi-sun' : 'bi-moon'} text-lg`}></i>
             </button>
 
+            {/* Cart */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 hover:bg-accent rounded-md transition-colors"
+              className="relative p-2 hover:bg-accent rounded-lg transition-colors"
               aria-label="Open cart"
             >
-              <i className="bi bi-bag text-xl"></i>
+              <i className="bi bi-bag text-lg"></i>
               {getCartCount() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
                   {getCartCount()}
                 </span>
               )}

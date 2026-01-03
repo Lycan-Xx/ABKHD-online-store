@@ -3,131 +3,180 @@ import { Link } from 'react-router-dom'
 
 const AboutPage = () => {
   return (
-    <div className="container py-16">
+    <div className="container py-12">
       <div className="max-w-4xl mx-auto">
         {/* Navigation */}
-        <div className="flex items-center mb-8">
+        <div className="mb-8">
           <Link
             to="/"
-            className="flex items-center text-muted-foreground hover:text-foreground transition-colors mr-4"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            <i className="bi bi-arrow-left-short text-xl mr-1"></i>
-            <span className="text-sm">Home</span>
+            <i className="bi bi-arrow-left mr-2"></i>
+            Back to Home
           </Link>
         </div>
         
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">About ABKHD Store</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">The ABKHD Standard</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            We're passionate about creating premium quality products that enhance modern living through thoughtful design and exceptional craftsmanship.
+            Premium Tech, Smarter Prices — why pay full retail when you can own the best for less?
           </p>
         </div>
 
-        {/* Company Story */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-          <div>
-            <h2 className="text-3xl font-bold mb-6">Our Story</h2>
+        {/* Our Story */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold">Our Story</h2>
             <div className="space-y-4 text-muted-foreground">
               <p>
-                Founded in 2020, ABKHD Store began with a simple mission: to create products that seamlessly blend functionality with aesthetic appeal. What started as a small team of designers and craftspeople has grown into a trusted brand known for quality and innovation.
+                We want to sell phones, computers and accessories at very affordable prices. We're trying to distance ourselves from the regular way it was done before — you buy a phone but are not sure of the warranty, if the quality is great, a lot of uncertainties.
               </p>
               <p>
-                We believe that everyday items should be both beautiful and practical. From our signature t-shirts to our carefully curated accessories, every product is designed with attention to detail and built to last.
+                We're putting ourselves on the line to assure you what you get is the best out there. This is who we are and we can give you our word for it.
               </p>
               <p>
-                Our commitment to sustainability drives us to use eco-friendly materials and ethical manufacturing processes, ensuring that our products are good for both you and the planet.
+                Since 2020, we've specialized in sourcing premium, high-performance UK-used laptops, mobile phones, and tablets — delivering the quality of a new device at a fraction of the cost.
               </p>
             </div>
           </div>
           <div className="relative">
-            <img
-              src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt="ABKHD Store team"
-              className="w-full h-96 object-cover rounded-lg shadow-lg"
-              crossOrigin="anonymous"
-            />
-          </div>
-        </div>
-
-        {/* Values */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center mb-12">Our Values</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="bi bi-heart text-primary-foreground text-2xl"></i>
+            <div className="aspect-[4/3] rounded-xl border bg-muted flex items-center justify-center">
+              <div className="text-center p-8">
+                <i className="bi bi-patch-check-fill text-primary text-5xl mb-4"></i>
+                <p className="text-lg font-medium">Certified Performance</p>
+                <p className="text-sm text-muted-foreground mt-2">Every device tested & verified</p>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Quality First</h3>
-              <p className="text-muted-foreground">
-                We never compromise on quality. Every product undergoes rigorous testing to ensure it meets our high standards.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="bi bi-leaf text-primary-foreground text-2xl"></i>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Sustainability</h3>
-              <p className="text-muted-foreground">
-                Environmental responsibility is at the core of our business. We use sustainable materials and ethical practices.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="bi bi-people text-primary-foreground text-2xl"></i>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Community</h3>
-              <p className="text-muted-foreground">
-                We believe in building strong relationships with our customers and supporting the communities we serve.
-              </p>
             </div>
           </div>
         </div>
 
-        {/* Team */}
-        <div className="mb-16">
+        {/* Quality You Can Trust */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Quality You Can Trust</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Buying used electronics often feels like a gamble. We're here to change that.
+            </p>
+          </div>
+          <div className="p-8 rounded-xl border bg-card">
+            <p className="text-lg leading-relaxed text-center max-w-3xl mx-auto">
+              Every device in our collection undergoes a <span className="font-semibold text-primary">rigorous multi-point inspection process</span>. Our team of expert technicians examines everything from battery health and screen clarity to processor speed and port functionality. We don't just sell "used" tech; we sell <span className="font-semibold">certified performance</span>.
+            </p>
+          </div>
+        </div>
+
+        {/* Why Choose ABKHD */}
+        <div className="mb-20">
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose ABKHD</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 rounded-xl border bg-card">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <i className="bi bi-globe-europe-africa text-primary text-xl"></i>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">UK-Sourced Quality</h3>
+              <p className="text-muted-foreground text-sm">
+                We exclusively source our inventory from the UK, ensuring you receive devices that have been well-maintained and meet international standards.
+              </p>
+            </div>
+            <div className="p-6 rounded-xl border bg-card">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <i className="bi bi-clipboard-check text-primary text-xl"></i>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Rigorous Testing</h3>
+              <p className="text-muted-foreground text-sm">
+                Every phone, tablet, and laptop is tested for 100% functionality. If it doesn't perform like new, it doesn't make it to our store.
+              </p>
+            </div>
+            <div className="p-6 rounded-xl border bg-card">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <i className="bi bi-tags text-primary text-xl"></i>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Exceptional Value</h3>
+              <p className="text-muted-foreground text-sm">
+                Get the brands you love — Apple, Samsung, HP, Dell, and more — without the "brand new" price tag.
+              </p>
+            </div>
+            <div className="p-6 rounded-xl border bg-card">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <i className="bi bi-recycle text-primary text-xl"></i>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Sustainable Tech</h3>
+              <p className="text-muted-foreground text-sm">
+                By choosing a high-quality used device, you are helping reduce e-waste and promoting a more sustainable, circular economy.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Testing Process */}
+        <div className="mb-20">
+          <h2 className="text-3xl font-bold text-center mb-12">Our Testing Process</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 rounded-xl border bg-card">
+              <i className="bi bi-battery-charging text-primary text-2xl mb-3"></i>
+              <p className="text-sm font-medium">Battery Health</p>
+            </div>
+            <div className="text-center p-4 rounded-xl border bg-card">
+              <i className="bi bi-display text-primary text-2xl mb-3"></i>
+              <p className="text-sm font-medium">Screen Clarity</p>
+            </div>
+            <div className="text-center p-4 rounded-xl border bg-card">
+              <i className="bi bi-cpu text-primary text-2xl mb-3"></i>
+              <p className="text-sm font-medium">Processor Speed</p>
+            </div>
+            <div className="text-center p-4 rounded-xl border bg-card">
+              <i className="bi bi-plug text-primary text-2xl mb-3"></i>
+              <p className="text-sm font-medium">Port Function</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Team Section - Placeholder for real team */}
+        <div className="mb-20">
           <h2 className="text-3xl font-bold text-center mb-12">Meet Our Team</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="text-center">
-              <img
-                src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400"
-                alt="Sarah Johnson"
-                className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                crossOrigin="anonymous"
-              />
-              <h3 className="text-lg font-semibold">Sarah Johnson</h3>
-              <p className="text-muted-foreground text-sm">Founder & CEO</p>
+          <p className="text-center text-muted-foreground mb-8">
+            The people behind ABKHD who ensure you get the best.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Team Member 1 - Replace with real data */}
+            <div className="text-center p-6 rounded-xl border bg-card">
+              <div className="w-24 h-24 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                <i className="bi bi-person text-3xl text-muted-foreground"></i>
+              </div>
+              <h3 className="font-semibold">Team Member</h3>
+              <p className="text-sm text-muted-foreground">Role / Position</p>
             </div>
-            <div className="text-center">
-              <img
-                src="https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=400"
-                alt="Michael Chen"
-                className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                crossOrigin="anonymous"
-              />
-              <h3 className="text-lg font-semibold">Michael Chen</h3>
-              <p className="text-muted-foreground text-sm">Head of Design</p>
+            {/* Team Member 2 - Replace with real data */}
+            <div className="text-center p-6 rounded-xl border bg-card">
+              <div className="w-24 h-24 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                <i className="bi bi-person text-3xl text-muted-foreground"></i>
+              </div>
+              <h3 className="font-semibold">Team Member</h3>
+              <p className="text-sm text-muted-foreground">Role / Position</p>
             </div>
-            <div className="text-center">
-              <img
-                src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400"
-                alt="Emily Rodriguez"
-                className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                crossOrigin="anonymous"
-              />
-              <h3 className="text-lg font-semibold">Emily Rodriguez</h3>
-              <p className="text-muted-foreground text-sm">Operations Manager</p>
+            {/* Team Member 3 - Replace with real data */}
+            <div className="text-center p-6 rounded-xl border bg-card">
+              <div className="w-24 h-24 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                <i className="bi bi-person text-3xl text-muted-foreground"></i>
+              </div>
+              <h3 className="font-semibold">Team Member</h3>
+              <p className="text-sm text-muted-foreground">Role / Position</p>
             </div>
           </div>
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            <i className="bi bi-info-circle mr-1"></i>
+            Add your real team members' photos and info here
+          </p>
         </div>
 
         {/* CTA */}
-        <div className="text-center bg-muted/50 rounded-lg p-8">
-          <h2 className="text-2xl font-bold mb-4">Ready to Experience ABKHD Quality?</h2>
-          <p className="text-muted-foreground mb-6">
-            Discover our curated collection of premium products designed for modern living.
+        <div className="text-center p-10 rounded-xl border bg-card">
+          <h2 className="text-2xl font-bold mb-3">Upgrade Your Tech Today</h2>
+          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+            Experience the perfect blend of functionality and affordability. Join customers who have discovered a smarter way to buy technology.
           </p>
-          <Link to="/products" className="btn-primary px-8 py-3">
+          <Link to="/inventory" className="btn-primary px-8 py-3">
             Shop Now
           </Link>
         </div>
