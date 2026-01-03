@@ -301,7 +301,11 @@ const ProductDetailPage = () => {
                 </div>
               )} */}
             </div>
-            <RichTextRenderer content={product.longDescription || product.description} />
+            {/* Product Description */}
+            <div className="border-t pt-6">
+              <h3 className="font-semibold mb-3">Description</h3>
+              <RichTextRenderer content={product.longDescription || product.description} />
+            </div>
           </div>
 
           {/* Size Selection - Commented out for individual unique items */}
