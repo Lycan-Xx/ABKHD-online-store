@@ -7,63 +7,22 @@ const Footer = () => {
   return (
     <footer className="border-t bg-background">
       <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="flex flex-col md:flex-row md:justify-between gap-8">
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="inline-block">
               <span className="font-bold text-xl tracking-tight">ABKHD</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Premium UK and China-sourced tech at smarter prices. Every device tested, certified, and guaranteed.
+              Premium tech at smarter prices. Every device tested & certified.
             </p>
           </div>
 
-          {/* Products */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Products</h3>
-            <div className="space-y-2 text-sm">
-              <Link to="/inventory" className="block text-muted-foreground hover:text-foreground transition-colors">
-                All Products
-              </Link>
-              <Link to="/category/mobile-phones" className="block text-muted-foreground hover:text-foreground transition-colors">
-                Mobile Phones
-              </Link>
-              <Link to="/category/laptops" className="block text-muted-foreground hover:text-foreground transition-colors">
-                Laptops
-              </Link>
-              <Link to="/category/accessories" className="block text-muted-foreground hover:text-foreground transition-colors">
-                Accessories
-              </Link>
-            </div>
-          </div>
-
-          {/* Support */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Support</h3>
-            <div className="space-y-2 text-sm">
-              <Link to="/contact" className="block text-muted-foreground hover:text-foreground transition-colors">
-                Contact Us
-              </Link>
-              <Link to="/about" className="block text-muted-foreground hover:text-foreground transition-colors">
-                About ABKHD
-              </Link>
-              <a 
-                href={`https://wa.me/${whatsappNumber}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <i className="bi bi-whatsapp"></i>
-                WhatsApp
-              </a>
-            </div>
-          </div>
-
-          {/* Connect */}
+          {/* Connect - Moved to far right */}
           <div className="space-y-4">
             <h3 className="font-semibold">Connect</h3>
             <div className="flex gap-4">
-              <a 
+              <a
                 href={`https://wa.me/${whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
