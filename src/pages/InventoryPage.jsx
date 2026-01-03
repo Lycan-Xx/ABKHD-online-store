@@ -79,6 +79,8 @@ const InventoryPage = () => {
             <div className="space-y-3">
               {categories.map((category) => {
                 const isSelected = selectedCategories.includes(category.value)
+
+                
                 return (
                   <button
                     key={category.value}
@@ -89,6 +91,7 @@ const InventoryPage = () => {
                         : 'border-border bg-card hover:border-primary/50'
                     }`}
                   >
+
                     <div className="flex items-center space-x-3">
                       <i className={`${category.icon} text-lg ${
                         isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
@@ -97,6 +100,8 @@ const InventoryPage = () => {
                         isSelected ? 'text-primary' : ''
                       }`}>
                         {category.name}
+
+
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
