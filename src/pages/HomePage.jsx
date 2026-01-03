@@ -74,7 +74,7 @@ const HomePage = () => {
           </p>
         </div>
         <ProductGrid products={featuredProducts} />
-        <div className="text-center mt-10">
+        <div className="text-center mt-10 pb-5">
           <Link to="/inventory" className="btn-secondary px-8 py-3">
             View All Products
           </Link>
