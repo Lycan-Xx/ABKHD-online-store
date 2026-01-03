@@ -1,135 +1,158 @@
 import React, { useState, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useProducts } from '../contexts/ProductContext'
 import ProductGrid from '../components/ProductGrid'
-import ProductFilters from '../components/ProductFilters'
-import SearchBar from '../components/SearchBar'
 
 const InventoryPage = () => {
+  const { products, loading } = useProducts()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [selectedCategories, setSelectedCategories] = useState([])
+
+  // Categories with icons
+  const categories = [
+    { name: 'Mobile Phones', icon: 'bi-phone', value: 'Mobile Phones' },
+    { name: 'Laptops', icon: 'bi-laptop', value: 'Computer' },
+    { name: 'Accessories', icon: 'bi-headphones', value: 'Accessories' }
+  ]
+
   useEffect(() => {
-    // Immediate scroll to top
-    window.scrollTo(0, 0)
-    // Also try smooth scroll after a small delay
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }, 100)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
-  const { products } = useProducts()
-  const [searchParams] = useSearchParams()
-  const [filteredProducts, setFilteredProducts] = useState([])
-  
-  // Debug: Log products on component mount
-  console.log('All products:', products)
-  console.log('Filtered products:', filteredProducts)
-  const [filters, setFilters] = useState({
-    search: searchParams.get('search') || '',
-    categories: []
-  })
-  const [showFilters, setShowFilters] = useState(false)
-
-  useEffect(() => {
-    console.log('Filtering products...', { products, filters })
-    let filtered = [...products]
-
-    // Search filter
-    if (filters.search) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        product.description.toLowerCase().includes(filters.search.toLowerCase())
-      )
-    }
-
-    // Category filter - if no categories selected, show all products
-    if (filters.categories && filters.categories.length > 0) {
-      filtered = filtered.filter(product => {
-        // Handle Strapi data structure
-        const productCategory = product.category?.data?.attributes?.name || product.category
-        return filters.categories.includes(productCategory)
-      })
-    }
-
-    console.log('Filtered result:', filtered)
-    setFilteredProducts(filtered)
-  }, [products, filters])
-
-
-  const handleFiltersChange = (newFilters) => {
-    setFilters(newFilters)
-  }
-
-  const handleClearFilters = () => {
-    setFilters({
-      search: '',
-      categories: []
+  // Handle category filtering
+  const toggleCategory = (categoryValue) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(categoryValue)) {
+        return prev.filter(c => c !== categoryValue)
+      } else {
+        return [...prev, categoryValue]
+      }
     })
   }
 
-  const handleSearch = (query) => {
-    setFilters(prev => ({ ...prev, search: query }))
+  const clearFilters = () => {
+    setSelectedCategories([])
   }
 
-  const handleCategoryChange = (category) => {
-    const categoryName = typeof category === 'object' ? category.name : category;
-    const updatedCategories = filters.categories.includes(categoryName)
-      ? filters.categories.filter(c => c !== categoryName)
-      : [...filters.categories, categoryName];
-    
-    setFilters({
-      ...filters,
-      categories: updatedCategories
-    });
-  };
+  // Filter products
+  const filteredProducts = selectedCategories.length > 0
+    ? products.filter(product => selectedCategories.includes(product.category))
+    : products
 
   return (
-    <div className="container py-8">
-      <div className="flex items-center mb-4">
+    <div className="container py-12">
+      <div className="mb-8">
         <Link
           to="/"
-          className="flex items-center text-muted-foreground hover:text-foreground transition-colors mr-4"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
-          <i className="bi bi-arrow-left-short text-xl mr-1"></i>
-          <span className="text-sm">Home</span>
+          <i className="bi bi-arrow-left mr-2"></i>
+          Back to Home
         </Link>
-      </div>
-      
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Inventory</h1>
-          <p className="text-muted-foreground">
-            {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
-          </p>
-        </div>
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="md:hidden btn-secondary"
-        >
-          <i className="bi bi-funnel mr-2"></i>
-          Filters
-        </button>
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">Inventory</h1>
+        <p className="text-muted-foreground">
+          {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
+        </p>
       </div>
 
-      {/* Search Bar */}
-      {/* <div className="mb-6">
-        <SearchBar onSearch={handleSearch} />
-      </div> */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Sidebar - Minimal Categories */}
+        <aside className="lg:col-span-1">
+          <div className="lg:sticky lg:top-24 space-y-6">
+            {/* Categories Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-sm font-medium">
+                <i className="bi bi-funnel text-primary"></i>
+                <span>Filter by Category</span>
+              </div>
+              {selectedCategories.length > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Filters Sidebar */}
-        <div className={`md:w-72 md:flex-shrink-0 ${showFilters ? 'block' : 'hidden md:block'}`}>
-          <div className="sticky top-24">
-            <ProductFilters
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-              onClearFilters={handleClearFilters}
-            />
+            {/* Category Buttons */}
+            <div className="space-y-3">
+              {categories.map((category) => {
+                const isSelected = selectedCategories.includes(category.value)
+
+                
+                return (
+                  <button
+                    key={category.value}
+                    onClick={() => toggleCategory(category.value)}
+                    className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group ${
+                      isSelected
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border bg-card hover:border-primary/50'
+                    }`}
+                  >
+
+                    <div className="flex items-center space-x-3">
+                      <i className={`${category.icon} text-lg ${
+                        isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                      } transition-colors`}></i>
+                      <span className={`font-medium ${
+                        isSelected ? 'text-primary' : ''
+                      }`}>
+                        {category.name}
+
+
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {isSelected && (
+                        <i className="bi bi-check-circle-fill text-primary text-sm"></i>
+                      )}
+                      <i className={`bi bi-chevron-right text-sm ${
+                        isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                      } transition-colors`}></i>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Show All Products Button */}
+            {selectedCategories.length === 0 && (
+              <div className="pt-4 border-t">
+                <p className="text-xs text-muted-foreground text-center">
+                  Showing all products
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        </aside>
 
         {/* Products Grid */}
-        <div className="flex-1 min-w-0">
-          <ProductGrid products={filteredProducts.length > 0 ? filteredProducts : products} />
-        </div>
+        <main className="lg:col-span-3">
+          {loading ? (
+            <div className="text-center py-12">
+              <i className="bi bi-arrow-clockwise animate-spin text-3xl text-primary"></i>
+              <p className="text-muted-foreground mt-4">Loading products...</p>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-12 border border-dashed rounded-xl">
+              <i className="bi bi-inbox text-4xl text-muted-foreground mb-4"></i>
+              <p className="text-lg font-medium mb-2">No products found</p>
+              <p className="text-sm text-muted-foreground mb-6">
+                Try adjusting your filters
+              </p>
+              <button
+                onClick={clearFilters}
+                className="btn-secondary px-6 py-2"
+              >
+                Clear Filters
+              </button>
+            </div>
+          ) : (
+            <ProductGrid products={filteredProducts} />
+          )}
+        </main>
       </div>
     </div>
   )
