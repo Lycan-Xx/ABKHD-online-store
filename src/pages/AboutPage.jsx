@@ -1,18 +1,21 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
+import Breadcrumb from '../components/ui/Breadcrumb'
 
 const AboutPage = () => {
   return (
     <div className="container py-8 md:py-12">
-      <div className="max-w-4xl mx-auto">
-        {/* Navigation */}
-        <div className="mb-12">
-          <BackButton to="/" text="Back to Home" variant="prominent" />
-        </div>
-        
+      {/* Navigation */}
+      <div className="mb-12">
+        <Breadcrumb className="mb-4" />
+        <BackButton to="/" text="Back to Home" variant="prominent" />
+      </div>
+      
+      {/* Content Container */}
+      <div className="max-w-6xl mx-auto">
         {/* SECTION 1: HERO - Emotional Hook */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
             We've Been Cheated Too.
           </h1>
@@ -27,7 +30,7 @@ const AboutPage = () => {
         </div>
 
         {/* SECTION 2: OUR STORY - Single Condensed Card */}
-        <div className="mb-20">
+        <div className="mb-20 max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-8">How Distrust Built Trust</h2>
           
           <div className="p-8 rounded-xl border border-border bg-card/50">
@@ -66,7 +69,7 @@ const AboutPage = () => {
         </div>
 
         {/* SECTION 3: TOP 2 NON-NEGOTIABLES */}
-        <div className="mb-20">
+        <div className="mb-20 max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-4">Our Non-Negotiables</h2>
           <p className="text-center text-muted-foreground mb-10">
             These aren't just values. They're commitments we make to every customer.
@@ -104,7 +107,7 @@ const AboutPage = () => {
         </div>
 
         {/* SECTION 4: COMPARISON TABLE */}
-        <div className="mb-20">
+        <div className="mb-20 max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-4">How We're Different</h2>
           <p className="text-center text-muted-foreground mb-10">
             The contrast is clear. You decide who to trust.
@@ -185,7 +188,7 @@ const AboutPage = () => {
         </div>
 
         {/* SECTION 5: CERTIFICATION PROCESS */}
-        <div className="mb-20">
+        <div className="mb-20 max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-3">How We Certify Every Device</h2>
           <p className="text-center text-muted-foreground mb-10">
             Our multi-point inspection ensures you get certified performance
@@ -235,7 +238,7 @@ const AboutPage = () => {
         </div>
 
         {/* SECTION 6: TESTING GRID */}
-        <div className="mb-20">
+        <div className="mb-20 max-w-5xl mx-auto">
           <h3 className="text-2xl font-bold text-center mb-8">What We Test</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
@@ -262,7 +265,7 @@ const AboutPage = () => {
         </div>
 
         {/* SECTION 7: TEAM */}
-<div className="mb-20">
+<div className="mb-20 max-w-5xl mx-auto">
   <div className="text-center mb-12">
     <span className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
       <i className="bi bi-people-fill mr-2"></i>
@@ -332,7 +335,7 @@ const AboutPage = () => {
 </div>
 
         {/* SECTION 8: FINAL CTA */}
-        <div className="text-center p-10 rounded-xl border-2 border-primary/30 bg-card/50">
+        <div className="text-center p-10 rounded-xl border-2 border-primary/30 bg-card/50 max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold mb-3">Ready to Buy Tech Without the Fear?</h2>
           <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
             Join customers who've discovered what honest selling looks like. No games. No tricks. Just quality devices and real transparency.

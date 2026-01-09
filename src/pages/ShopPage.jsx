@@ -92,13 +92,16 @@ const ShopPage = () => {
 
   return (
     <div className="container py-8 md:py-12">
+      {/* Navigation */}
       <div className="mb-12">
         <Breadcrumb className="mb-4" />
         <BackButton to="/" text="Back to Home" variant="prominent" />
       </div>
       
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+      {/* Content Container */}
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Shop</h1>
             <p className="text-muted-foreground">
@@ -249,6 +252,7 @@ const ShopPage = () => {
             <ProductGrid products={filteredProducts} />
           )}
         </main>
+      </div>
       </div>
     </div>
   )

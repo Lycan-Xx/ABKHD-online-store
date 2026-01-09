@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import BackButton from '../components/ui/BackButton'
+import Breadcrumb from '../components/ui/Breadcrumb'
 import { useToast } from '../contexts/ToastContext'
 
 const ContactPage = () => {
@@ -31,15 +32,17 @@ const ContactPage = () => {
   }
 
   return (
-    <div className="container py-8 md:py-16">
-      <div className="max-w-2xl mx-auto">
-        {/* Navigation */}
-        <div className="mb-12">
-          <BackButton to="/" text="Back to Home" variant="prominent" />
-        </div>
-        
+    <div className="container py-8 md:py-12">
+      {/* Navigation */}
+      <div className="mb-12">
+        <Breadcrumb className="mb-4" />
+        <BackButton to="/" text="Back to Home" variant="prominent" />
+      </div>
+      
+      {/* Content Container */}
+      <div className="max-w-6xl mx-auto">
         {/* Header - Minimal */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 max-w-2xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Get in Touch</h1>
           <p className="text-lg text-muted-foreground">
             Questions about a product? Need help? We're here.
@@ -47,7 +50,7 @@ const ContactPage = () => {
         </div>
 
         {/* Primary Contact - WhatsApp Hero */}
-        <div className="mb-16">
+        <div className="mb-16 max-w-2xl mx-auto">
           <div className="text-center p-10 rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
               <i className="bi bi-whatsapp text-primary text-4xl"></i>
@@ -67,7 +70,7 @@ const ContactPage = () => {
         </div>
 
         {/* Alternative Contact Methods */}
-        <div className="mb-16">
+        <div className="mb-16 max-w-2xl mx-auto">
           <h3 className="text-sm font-medium text-muted-foreground text-center mb-6">
             Or reach us via
           </h3>
@@ -102,7 +105,7 @@ const ContactPage = () => {
 
         {/* Contact Form - Collapsible */}
         {showForm && (
-          <div className="mb-16 p-8 rounded-xl border border-border bg-card/50">
+          <div className="mb-16 p-8 rounded-xl border border-border bg-card/50 max-w-2xl mx-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">Send us a Message</h2>
               <button
@@ -201,7 +204,7 @@ const ContactPage = () => {
         )}
 
         {/* Response Time Note */}
-        <div className="text-center">
+        <div className="text-center max-w-2xl mx-auto">
           <p className="text-sm text-muted-foreground">
             <i className="bi bi-clock text-primary mr-2"></i>
             We typically respond within 2 hours during business hours
