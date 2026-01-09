@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import BackButton from '../components/ui/BackButton'
 
 const AboutPage = () => {
   return (
@@ -7,13 +7,7 @@ const AboutPage = () => {
       <div className="max-w-4xl mx-auto">
         {/* Navigation */}
         <div className="mb-8">
-          <Link
-            to="/"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <i className="bi bi-arrow-left mr-2"></i>
-            Back to Home
-          </Link>
+          <BackButton to="/" text="Back to Home" variant="prominent" />
         </div>
         
         {/* SECTION 1: HERO - Emotional Hook */}
@@ -267,52 +261,74 @@ const AboutPage = () => {
         </div>
 
         {/* SECTION 7: TEAM */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-center mb-4">Meet Our Team</h2>
-          <p className="text-center text-muted-foreground mb-8">
-            Real people with real stakes in doing this right.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Team Member 1 */}
-            <div className="text-center p-6 rounded-xl border border-border bg-card/50">
-              <div className="relative w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
-                <img src="/src/assets/team/team1.jpg" alt="Team Member 1" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                  <h3 className="font-semibold text-white">Alex Johnson</h3>
-                </div>
-              </div>
-              <p className="text-sm italic text-primary">
-                "I bought a fake device in 2019. Never again."
-              </p>
-            </div>
+<div className="mb-20">
+  <div className="text-center mb-12">
+    <span className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+      <i className="bi bi-people-fill mr-2"></i>
+      Who We Are
+    </span>
+    <h2 className="text-3xl md:text-4xl font-bold mb-4">Meet the Founders</h2>
+    <p className="text-muted-foreground max-w-xl mx-auto">
+      Real people with real stakes in doing this right.
+    </p>
+  </div>
+  
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+    {/* Team Member 1 */}
+    <div className="group">
+      <div className="relative rounded-2xl overflow-hidden mb-6 aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200">
+        <img 
+          src="/src/assets/team/team1.jpg" 
+          alt="Alex Johnson" 
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+        />
+      </div>
+      <div className="text-center">
+        <h3 className="text-xl font-bold mb-1">Abubakar-Sadieq Abdulazeez</h3>
+        {/* <p className="text-sm text-muted-foreground mb-3">Founder & CEO</p> */}
+        <p className="text-sm italic text-primary">
+          "I have the connections and know the products."
+        </p>
+      </div>
+    </div>
 
-            {/* Team Member 2 */}
-            <div className="text-center p-6 rounded-xl border border-border bg-card/50">
-              <div className="relative w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
-                <img src="/src/assets/team/team2.jpg" alt="Team Member 2" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                  <h3 className="font-semibold text-white">Maria Garcia</h3>
-                </div>
-              </div>
-              <p className="text-sm italic text-primary">
-                "My job is to catch what dishonest sellers hide."
-              </p>
-            </div>
+    {/* Team Member 2 */}
+    <div className="group">
+      <div className="relative rounded-2xl overflow-hidden mb-6 aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200">
+        <img 
+          src="/src/assets/team/team2.jpg" 
+          alt="Maria Garcia" 
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+        />
+      </div>
+      <div className="text-center">
+        <h3 className="text-xl font-bold mb-1">Abduljalal Muhammad</h3>
+        {/* <p className="text-sm text-muted-foreground mb-3">Quality Control Lead</p> */}
+        <p className="text-sm italic text-primary">
+          "My job is to catch what dishonest sellers hide."
+        </p>
+      </div>
+    </div>
 
-            {/* Team Member 3 */}
-            <div className="text-center p-6 rounded-xl border border-border bg-card/50">
-              <div className="relative w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
-                <img src="/src/assets/team/team3.jpg" alt="Team Member 3" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                  <h3 className="font-semibold text-white">David Chen</h3>
-                </div>
-              </div>
-              <p className="text-sm italic text-primary">
-                "I handle complaints so you don't become one."
-              </p>
-            </div>
-          </div>
-        </div>
+    {/* Team Member 3 */}
+    <div className="group">
+      <div className="relative rounded-2xl overflow-hidden mb-6 aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200">
+        <img 
+          src="/src/assets/team/team3.jpg" 
+          alt="David Chen" 
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+        />
+      </div>
+      <div className="text-center">
+        <h3 className="text-xl font-bold mb-1">Mohammad (Sani) Bello</h3>
+        {/* <p className="text-sm text-muted-foreground mb-3">Operations Manager</p> */}
+        <p className="text-sm italic text-primary">
+          "I am your typical tech. guy."
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 
         {/* SECTION 8: FINAL CTA */}
         <div className="text-center p-10 rounded-xl border-2 border-primary/30 bg-card/50">

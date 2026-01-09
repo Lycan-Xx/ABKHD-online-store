@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useToast } from '../contexts/ToastContext'
 import { formatPrice } from '../lib/utils'
+import BackButton from '../components/ui/BackButton'
+import Breadcrumb from '../components/ui/Breadcrumb'
 
 const InquiryPage = () => {
   const navigate = useNavigate()
@@ -71,15 +73,12 @@ const InquiryPage = () => {
   return (
     <div className="container py-16">
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center mb-8">
-          <button
-            onClick={() => navigate('/payment-options')}
-            className="flex items-center text-muted-foreground hover:text-foreground transition-colors mr-4"
-          >
-            <i className="bi bi-arrow-left-short text-xl mr-1"></i>
-            <span className="text-sm">Back</span>
-          </button>
-          <h1 className="text-3xl font-bold">Local Inquiry</h1>
+        <div className="mb-8">
+          <Breadcrumb className="mb-4" />
+          <div className="flex items-center">
+            <BackButton to="/payment-options" text="Back to Payment Options" variant="prominent" className="mr-4" />
+            <h1 className="text-3xl font-bold">Local Inquiry</h1>
+          </div>
         </div>
         
         <div className="bg-card border rounded-lg p-6 mb-8">

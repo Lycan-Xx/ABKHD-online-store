@@ -8,82 +8,109 @@ const HomePage = () => {
   const featuredProducts = products.filter(product => product.featured)
 
   return (
-    <div className="space-y-16">
-      {/* Hero Section */}
-      <section className="container pt-12 md:pt-20">
+    <div className="space-y-20">
+      {/* Hero Section - Clean & Minimal */}
+      <section className="container pt-16 md:pt-24">
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
             Premium Tech.
             <br />
             <span className="text-primary">Smarter Prices.</span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            UK and China-sourced laptops, phones, tablets and accessories rigorously tested and certified.
-            Get the quality of new at a fraction of the cost.
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            UK and China-sourced devices, rigorously tested and transparently disclosed. 
+            Quality you can trust at prices that make sense.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Link to="/inventory" className="btn-primary px-8 py-3 text-base">
+          {/* <div className="pt-4">
+            <Link to="/inventory" className="btn-primary px-10 py-4 text-lg">
               Browse Products
             </Link>
-            <Link to="/about" className="btn-secondary px-8 py-3 text-base">
-              How We Certify
-            </Link>
-          </div>
+          </div> */}
         </div>
       </section>
 
-      {/* Trust Pillars */}
-      <section className="container">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="flex items-start space-x-4 p-6 rounded-xl border border-border bg-card/50">
-            <i className="bi bi-globe-europe-africa text-primary text-2xl mt-1 flex-shrink-0"></i>
-            <div>
-              <h3 className="font-semibold mb-2">Global Quality Sourcing</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Sourced from trusted UK and China suppliers, ensuring well-maintained devices meeting your standards.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start space-x-4 p-6 rounded-xl border border-border bg-card/50">
-            <i className="bi bi-clipboard-check text-primary text-2xl mt-1 flex-shrink-0"></i>
-            <div>
-              <h3 className="font-semibold mb-2">Rigorous Testing</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Every device undergoes multi-point inspection; battery, screen, performance, and all ports are checked.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start space-x-4 p-6 rounded-xl border border-border bg-card/50">
-            <i className="bi bi-recycle text-primary text-2xl mt-1 flex-shrink-0"></i>
-            <div>
-              <h3 className="font-semibold mb-2">Sustainable Choice</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Reduce e-waste and support a circular economy by choosing certified pre-owned tech. instead of buying new.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Featured Products */}
+      {/* Featured Products - THE MAIN FOCUS */}
       <section className="container">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">This Week's Featured Picks</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Hand-picked devices, tested and ready for you{' '}
-            <span className="inline-block bg-primary text-primary-foreground font-bold px-3 py-1 rounded-full text-sm uppercase tracking-wide animate-pulse">
-              ONLY AVAILABLE THIS WEEK
-            </span>
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            This Week Only
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">Featured Products</h2>
+          <p className="text-muted-foreground">
+            Hand-picked, tested, and ready to ship
           </p>
         </div>
+        
         <ProductGrid products={featuredProducts} />
-        <div className="text-center mt-10 pb-5">
-          <Link to="/inventory" className="btn-secondary px-8 py-3">
-            View All Products
+        
+      </section>
+
+      <section className="container pb-16">
+        <div className="max-w-2xl mx-auto text-center p-10 rounded-xl border border-border bg-card/50">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Ready to Upgrade?
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            Browse our full inventory of tested devices
+          </p>
+          <Link to="/inventory" className="btn-primary px-8 py-3">
+            View our products 
           </Link>
         </div>
       </section>
 
+
+
+      {/* Trust Pillars - Concise */}
+      <section className="container">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="text-center">
+            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <i className="bi bi-shield-check text-primary text-2xl"></i>
+            </div>
+            <h3 className="font-semibold mb-2">Rigorously Tested</h3>
+            <p className="text-sm text-muted-foreground">
+              Every device passes multi-point inspection before sale
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <i className="bi bi-eye text-primary text-2xl"></i>
+            </div>
+            <h3 className="font-semibold mb-2">Fully Transparent</h3>
+            <p className="text-sm text-muted-foreground">
+              All defects disclosed upfront with photos and details
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <i className="bi bi-patch-check text-primary text-2xl"></i>
+            </div>
+            <h3 className="font-semibold mb-2">Real Warranties</h3>
+            <p className="text-sm text-muted-foreground">
+              Enforceable guarantees with responsive support
+            </p>
+          </div>
+        </div>
+      </section>
+
+
+      {/* How We Certify - Simple Visual */}
+      <section className="container">
+      
+        
+        <div className="text-center mb-8">
+          <Link to="/about" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Learn more about our process
+            <i className="bi bi-arrow-right ml-2"></i>
+          </Link>
+        </div>
+      </section>
+
+      {/* Final CTA - Clean */}
 
     </div>
   )

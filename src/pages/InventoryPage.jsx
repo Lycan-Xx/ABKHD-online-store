@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useProducts } from '../contexts/ProductContext'
 import ProductGrid from '../components/ProductGrid'
+import BackButton from '../components/ui/BackButton'
+import Breadcrumb from '../components/ui/Breadcrumb'
 
 const InventoryPage = () => {
   const { products, loading } = useProducts()
@@ -91,13 +93,8 @@ const InventoryPage = () => {
   return (
     <div className="container py-12">
       <div className="mb-8">
-        <Link
-          to="/"
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-        >
-          <i className="bi bi-arrow-left mr-2"></i>
-          Back to Home
-        </Link>
+        <Breadcrumb className="mb-4" />
+        <BackButton to="/" text="Back to Home" variant="prominent" className="mb-6" />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Inventory</h1>
