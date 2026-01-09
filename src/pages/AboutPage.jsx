@@ -23,7 +23,8 @@ const AboutPage = () => {
             That's exactly why ABKHD exists.
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            I once bought a used mobile phone at our local gadget market. The phone looked good, but unbeknownst to me, it had a bad battery, overheated when connected to the internet, had been worked on by an inexperienced technician, and had many more issues. Long story short, the phone died just 2 days after I bought it.
+            I'm sure must people might have a similar story, i personally once bought a used mobile phone at our local gadget market. The phone looked good, but unbeknownst to me, it had a bad battery, overheated when connected to the internet, had been worked on by an inexperienced technician, and had many more issues. Long story short, the phone died just 2 days after I bought it.
+            <br />
             <br />
             We built <span className="text-primary font-semibold">ABKHD</span> to be the store we wish existed when we were buyers.
           </p>
@@ -327,7 +328,7 @@ const AboutPage = () => {
         <h3 className="text-xl font-bold mb-1">Mohammad (Sani) Bello</h3>
         {/* <p className="text-sm text-muted-foreground mb-3">Operations Manager</p> */}
         <p className="text-sm italic text-primary">
-          "I am your typical tech. guy."
+          "I am your typical tech. guy that bought the faulty phone."
         </p>
       </div>
     </div>
