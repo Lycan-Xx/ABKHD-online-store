@@ -5,7 +5,7 @@ import ProductGrid from '../components/ProductGrid'
 import BackButton from '../components/ui/BackButton'
 import Breadcrumb from '../components/ui/Breadcrumb'
 
-const InventoryPage = () => {
+const ShopPage = () => {
   const { products, loading } = useProducts()
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedCategories, setSelectedCategories] = useState([])
@@ -97,7 +97,7 @@ const InventoryPage = () => {
         <BackButton to="/" text="Back to Home" variant="prominent" className="mb-6" />
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Inventory</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Shop</h1>
             <p className="text-muted-foreground">
               {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
             </p>
@@ -251,4 +251,4 @@ const InventoryPage = () => {
   )
 }
 
-export default InventoryPage
+export default ShopPage

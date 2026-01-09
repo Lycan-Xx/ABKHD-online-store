@@ -1,13 +1,14 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 
 const AboutPage = () => {
   return (
-    <div className="container py-12">
+    <div className="container py-8 md:py-12">
       <div className="max-w-4xl mx-auto">
         {/* Navigation */}
         <div className="mb-8">
-          <BackButton to="/" text="Back to Home" variant="prominent" />
+          <BackButton to="/" text="Back to Home" variant="prominent" className="mb-6" />
         </div>
         
         {/* SECTION 1: HERO - Emotional Hook */}
@@ -337,7 +338,7 @@ const AboutPage = () => {
             Join customers who've discovered what honest selling looks like. No games. No tricks. Just quality devices and real transparency.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/inventory" className="btn-primary px-8 py-3">
+            <Link to="/shop" className="btn-primary px-8 py-3">
               Browse Products
             </Link>
             <a 

@@ -71,14 +71,12 @@ const InquiryPage = () => {
   }
 
   return (
-    <div className="container py-16">
+    <div className="container py-8 md:py-16">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <Breadcrumb className="mb-4" />
-          <div className="flex items-center">
-            <BackButton to="/payment-options" text="Back to Payment Options" variant="prominent" className="mr-4" />
-            <h1 className="text-3xl font-bold">Local Inquiry</h1>
-          </div>
+          <BackButton to="/payment-options" text="Back to Payment Options" variant="prominent" className="mb-6" />
+          <h1 className="text-3xl md:text-4xl font-bold">Local Inquiry</h1>
         </div>
         
         <div className="bg-card border rounded-lg p-6 mb-8">

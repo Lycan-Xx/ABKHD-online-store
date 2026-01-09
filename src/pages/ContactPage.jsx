@@ -31,11 +31,11 @@ const ContactPage = () => {
   }
 
   return (
-    <div className="container py-16">
+    <div className="container py-8 md:py-16">
       <div className="max-w-2xl mx-auto">
         {/* Navigation */}
         <div className="mb-8">
-          <BackButton to="/" text="Back to Home" variant="prominent" />
+          <BackButton to="/" text="Back to Home" variant="prominent" className="mb-6" />
         </div>
         
         {/* Header - Minimal */}

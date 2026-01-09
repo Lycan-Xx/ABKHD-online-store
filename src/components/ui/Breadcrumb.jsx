@@ -7,7 +7,7 @@ const Breadcrumb = ({ className = '' }) => {
   // Define breadcrumb paths
   const breadcrumbMap = {
     '/': 'Home',
-    '/inventory': 'Shop',
+    '/shop': 'Shop',
     '/about': 'About',
     '/contact': 'Contact',
     '/payment-options': 'Payment Options',

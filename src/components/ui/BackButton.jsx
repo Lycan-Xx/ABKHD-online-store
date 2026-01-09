@@ -29,7 +29,7 @@ const BackButton = ({
   const variantStyles = {
     default: 'text-muted-foreground hover:text-foreground',
     subtle: 'text-muted-foreground hover:text-foreground opacity-75 hover:opacity-100',
-    prominent: 'text-foreground hover:text-primary bg-accent/50 hover:bg-accent px-3 py-2 rounded-lg'
+    prominent: 'text-foreground hover:text-primary bg-accent/50 hover:bg-accent px-4 py-2.5 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200'
   }
 
   return (

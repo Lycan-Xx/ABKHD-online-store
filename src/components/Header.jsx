@@ -48,9 +48,9 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             <Link 
-              to="/inventory" 
+              to="/shop" 
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                isActive('/inventory') 
+                isActive('/shop') 
                   ? 'text-primary bg-primary/10' 
                   : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}

@@ -54,7 +54,7 @@ const HomePage = () => {
           <p className="text-muted-foreground mb-6">
             Browse our full inventory of tested devices
           </p>
-          <Link to="/inventory" className="btn-primary px-8 py-3">
+          <Link to="/shop" className="btn-primary px-8 py-3">
             View our products 
           </Link>
         </div>

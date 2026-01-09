@@ -89,7 +89,7 @@ const CheckoutPage = () => {
         <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
         <p className="text-muted-foreground mb-8">Add some products to your cart to continue</p>
         <button
-          onClick={() => navigate('/products')}
+          onClick={() => navigate('/shop')}
           className="btn-primary"
         >
           Continue Shopping
@@ -102,10 +102,8 @@ const CheckoutPage = () => {
     <div className="container py-8">
       <div className="mb-8">
         <Breadcrumb className="mb-4" />
-        <div className="flex items-center">
-          <BackButton to="/payment-options" text="Back to Payment Options" variant="prominent" className="mr-4" />
-          <h1 className="text-3xl font-bold">Checkout</h1>
-        </div>
+        <BackButton to="/payment-options" text="Back to Payment Options" variant="prominent" className="mb-6" />
+        <h1 className="text-3xl md:text-4xl font-bold">Checkout</h1>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

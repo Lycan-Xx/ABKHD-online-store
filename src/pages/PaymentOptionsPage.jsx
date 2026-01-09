@@ -2,6 +2,8 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
+import BackButton from '../components/ui/BackButton'
+import Breadcrumb from '../components/ui/Breadcrumb'
 
 const PaymentOptionsPage = () => {
   const navigate = useNavigate()
@@ -27,9 +29,14 @@ const PaymentOptionsPage = () => {
   }
 
   return (
-    <div className="container py-16">
+    <div className="container py-8 md:py-16">
       <div className="max-w-md mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">Payment Options</h1>
+        <div className="mb-8">
+          <Breadcrumb className="mb-4" />
+          <BackButton to="/" text="Back to Home" variant="prominent" className="mb-6" />
+        </div>
+        
+        <h1 className="text-3xl font-bold text-center mb-4">Payment Options</h1>
         <p className="text-muted-foreground text-center mb-12">
           Choose your preferred payment method to continue
         </p>
@@ -71,16 +78,6 @@ const PaymentOptionsPage = () => {
               </div>
               <i className="bi bi-chevron-right text-muted-foreground group-hover:text-foreground transition-colors"></i>
             </div>
-          </button>
-        </div>
-
-        <div className="mt-8 text-center">
-          <button
-            onClick={() => navigate('/')}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <i className="bi bi-arrow-left-short text-xl mr-1"></i>
-            Back to Home
           </button>
         </div>
       </div>
