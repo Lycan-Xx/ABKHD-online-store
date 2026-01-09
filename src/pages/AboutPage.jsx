@@ -7,8 +7,8 @@ const AboutPage = () => {
     <div className="container py-8 md:py-12">
       <div className="max-w-4xl mx-auto">
         {/* Navigation */}
-        <div className="mb-8">
-          <BackButton to="/" text="Back to Home" variant="prominent" className="mb-6" />
+        <div className="mb-12">
+          <BackButton to="/" text="Back to Home" variant="prominent" />
         </div>
         
         {/* SECTION 1: HERO - Emotional Hook */}

@@ -34,8 +34,8 @@ const ContactPage = () => {
     <div className="container py-8 md:py-16">
       <div className="max-w-2xl mx-auto">
         {/* Navigation */}
-        <div className="mb-8">
-          <BackButton to="/" text="Back to Home" variant="prominent" className="mb-6" />
+        <div className="mb-12">
+          <BackButton to="/" text="Back to Home" variant="prominent" />
         </div>
         
         {/* Header - Minimal */}

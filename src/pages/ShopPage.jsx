@@ -91,10 +91,13 @@ const ShopPage = () => {
   )
 
   return (
-    <div className="container py-12">
-      <div className="mb-8">
+    <div className="container py-8 md:py-12">
+      <div className="mb-12">
         <Breadcrumb className="mb-4" />
-        <BackButton to="/" text="Back to Home" variant="prominent" className="mb-6" />
+        <BackButton to="/" text="Back to Home" variant="prominent" />
+      </div>
+      
+      <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Shop</h1>

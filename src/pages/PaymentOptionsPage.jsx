@@ -31,15 +31,17 @@ const PaymentOptionsPage = () => {
   return (
     <div className="container py-8 md:py-16">
       <div className="max-w-md mx-auto">
-        <div className="mb-8">
+        <div className="mb-12">
           <Breadcrumb className="mb-4" />
-          <BackButton to="/" text="Back to Home" variant="prominent" className="mb-6" />
+          <BackButton to="/" text="Back to Home" variant="prominent" />
         </div>
         
-        <h1 className="text-3xl font-bold text-center mb-4">Payment Options</h1>
-        <p className="text-muted-foreground text-center mb-12">
-          Choose your preferred payment method to continue
-        </p>
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Payment Options</h1>
+          <p className="text-muted-foreground">
+            Choose your preferred payment method to continue
+          </p>
+        </div>
         
         <div className="space-y-4">
           {/* Online Payment Option */}
