@@ -71,18 +71,21 @@ const InquiryPage = () => {
   }
 
   return (
-    <div className="container py-8 md:py-16">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-12">
-          <Breadcrumb className="mb-4" />
-          <BackButton to="/payment-options" text="Back to Payment Options" variant="prominent" />
-        </div>
-        
+    <div className="container py-8 md:py-12">
+      {/* Navigation */}
+      <div className="mb-12">
+        <Breadcrumb className="mb-4" />
+        <BackButton to="/payment-options" text="Back to Payment Options" variant="prominent" />
+      </div>
+      
+      {/* Content Container */}
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold">Local Inquiry</h1>
         </div>
         
-        <div className="bg-card border rounded-lg p-6 mb-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-card border rounded-lg p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
           
           {/* Cart Items */}
@@ -140,9 +143,8 @@ const InquiryPage = () => {
             <i className="bi bi-whatsapp text-xl"></i>
             <span>Send Inquiry via WhatsApp</span>
           </button>
-
-          
         </div>
+      </div>
       </div>
     </div>
   )

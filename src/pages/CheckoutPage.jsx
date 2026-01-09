@@ -100,18 +100,21 @@ const CheckoutPage = () => {
 
   return (
     <div className="container py-8 md:py-12">
+      {/* Navigation */}
       <div className="mb-12">
         <Breadcrumb className="mb-4" />
         <BackButton to="/payment-options" text="Back to Payment Options" variant="prominent" />
       </div>
       
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold">Checkout</h1>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Checkout Form */}
-        <div className="space-y-8">
+      {/* Content Container */}
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold">Checkout</h1>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Checkout Form */}
+          <div className="space-y-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Contact Information */}
             <div>
@@ -355,6 +358,7 @@ const CheckoutPage = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )
