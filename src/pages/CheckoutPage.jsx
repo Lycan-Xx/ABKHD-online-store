@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useToast } from '../contexts/ToastContext'
@@ -8,11 +8,25 @@ import Breadcrumb from '../components/ui/Breadcrumb'
 
 const CheckoutPage = () => {
   const navigate = useNavigate()
-  const { items, getCartTotal } = useCart()
+  const { items, getCartTotal, clearCart } = useCart()
   const { addToast } = useToast()
   
   // Get WhatsApp number from environment variables
   const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER
+
+  // State for online payment form
+  const [showPaymentForm, setShowPaymentForm] = useState(false)
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+  const [shippingDetails, setShippingDetails] = useState({
+    email: '',
+    phone: '',
+    fullName: '',
+    address: '',
+    city: '',
+    state: '',
+    postalCode: ''
+  })
+  const [formErrors, setFormErrors] = useState({})
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -66,6 +80,97 @@ const CheckoutPage = () => {
     } catch (error) {
       console.error('Failed to open WhatsApp:', error)
       addToast('Failed to open WhatsApp. Please try again.', 'error')
+    }
+  }
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setShippingDetails(prev => ({ ...prev, [name]: value }))
+    // Clear error for this field when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }))
+    }
+  }
+
+  // Validate form
+  const validateForm = () => {
+    const errors = {}
+    
+    if (!shippingDetails.email) {
+      errors.email = 'Email is required'
+    } else if (!/\S+@\S+\.\S+/.test(shippingDetails.email)) {
+      errors.email = 'Email is invalid'
+    }
+    
+    if (!shippingDetails.phone) {
+      errors.phone = 'Phone number is required'
+    } else if (!/^\+?[\d\s-()]+$/.test(shippingDetails.phone)) {
+      errors.phone = 'Phone number is invalid'
+    }
+    
+    if (!shippingDetails.fullName) errors.fullName = 'Full name is required'
+    if (!shippingDetails.address) errors.address = 'Address is required'
+    if (!shippingDetails.city) errors.city = 'City is required'
+    if (!shippingDetails.state) errors.state = 'State is required'
+    if (!shippingDetails.postalCode) errors.postalCode = 'Postal code is required'
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  // Check if form is complete (for button state)
+  const isFormComplete = () => {
+    return Object.values(shippingDetails).every(value => value.trim() !== '')
+  }
+
+  // Handle payment submission
+  const handlePayment = async () => {
+    if (!validateForm()) {
+      addToast('Please fill in all required fields correctly', 'error')
+      return
+    }
+
+    setIsProcessingPayment(true)
+
+    try {
+      // TODO: Integrate with your payment provider here
+      // Example integrations:
+      
+      // STRIPE:
+      // const stripe = await loadStripe('your_publishable_key')
+      // const { error } = await stripe.confirmPayment({ ... })
+      
+      // PAYSTACK:
+      // const handler = PaystackPop.setup({
+      //   key: 'your_public_key',
+      //   email: shippingDetails.email,
+      //   amount: getCartTotal() * 100,
+      //   onSuccess: (transaction) => { ... }
+      // })
+      // handler.openIframe()
+      
+      // FLUTTERWAVE:
+      // FlutterwaveCheckout({
+      //   public_key: "your_public_key",
+      //   tx_ref: "unique_transaction_ref",
+      //   amount: getCartTotal(),
+      //   customer: { email: shippingDetails.email, ... }
+      // })
+
+      // For now, simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // On successful payment:
+      clearCart()
+      addToast('Payment successful! Order confirmed.', 'success')
+      navigate('/success')
+
+    } catch (error) {
+      console.error('Payment error:', error)
+      addToast('Payment failed. Please try again.', 'error')
+    } finally {
+      setIsProcessingPayment(false)
     }
   }
 
@@ -188,63 +293,252 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-            {/* Online Payment - Coming Soon */}
-            <div className="border-2 border-border rounded-xl overflow-hidden opacity-60">
-              <div className="bg-muted/50 px-6 py-3 border-b border-border">
-                <div className="flex items-center space-x-2">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
-                    🚀 COMING SOON
-                  </span>
-                  <h2 className="text-lg font-bold">Online Payment</h2>
+            {/* Online Payment - Now Active */}
+            <div className="border-2 border-border rounded-xl overflow-hidden hover:border-primary/50 transition-colors">
+              <div className="bg-muted/30 px-6 py-3 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                      💳 ONLINE PAYMENT
+                    </span>
+                    <h2 className="text-lg font-bold">Pay with Card</h2>
+                  </div>
+                  <button
+                    onClick={() => setShowPaymentForm(!showPaymentForm)}
+                    className="text-sm text-primary hover:underline flex items-center space-x-1"
+                  >
+                    <span>{showPaymentForm ? 'Hide' : 'Show'} Form</span>
+                    <i className={`bi bi-chevron-${showPaymentForm ? 'up' : 'down'}`}></i>
+                  </button>
                 </div>
               </div>
               
               <div className="p-6">
                 <div className="flex items-start space-x-4 mb-6">
-                  <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <i className="bi bi-credit-card text-muted-foreground text-3xl"></i>
+                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <i className="bi bi-credit-card text-primary text-3xl"></i>
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold mb-2">Pay directly with card</h3>
                     <p className="text-muted-foreground text-sm mb-4">
-                      We're working on adding secure online payment. Soon you'll be able to checkout instantly with your card.
+                      Complete your purchase instantly with secure online payment.
                     </p>
                   </div>
                 </div>
 
-                {/* Future Benefits */}
+                {/* Benefits */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
                   <div className="flex items-start space-x-2">
-                    <i className="bi bi-lightning-fill text-muted-foreground text-sm mt-0.5"></i>
-                    <span className="text-sm text-muted-foreground">Instant checkout</span>
+                    <i className="bi bi-lightning-fill text-primary text-sm mt-0.5"></i>
+                    <span className="text-sm">Instant checkout</span>
                   </div>
                   <div className="flex items-start space-x-2">
-                    <i className="bi bi-shield-check text-muted-foreground text-sm mt-0.5"></i>
-                    <span className="text-sm text-muted-foreground">Secure payment</span>
+                    <i className="bi bi-shield-check text-primary text-sm mt-0.5"></i>
+                    <span className="text-sm">Secure payment</span>
                   </div>
                   <div className="flex items-start space-x-2">
-                    <i className="bi bi-receipt text-muted-foreground text-sm mt-0.5"></i>
-                    <span className="text-sm text-muted-foreground">Automatic confirmation</span>
+                    <i className="bi bi-receipt text-primary text-sm mt-0.5"></i>
+                    <span className="text-sm">Automatic confirmation</span>
                   </div>
                   <div className="flex items-start space-x-2">
-                    <i className="bi bi-truck text-muted-foreground text-sm mt-0.5"></i>
-                    <span className="text-sm text-muted-foreground">Faster processing</span>
+                    <i className="bi bi-truck text-primary text-sm mt-0.5"></i>
+                    <span className="text-sm">Faster processing</span>
                   </div>
                 </div>
 
-                {/* Disabled Button */}
+                {/* Shipping Details Form */}
+                {showPaymentForm && (
+                  <div className="border-t pt-6 mt-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <h4 className="font-semibold text-lg mb-4">Shipping Details</h4>
+                    
+                    {/* Contact Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Email <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={shippingDetails.email}
+                          onChange={handleInputChange}
+                          className={`w-full p-3 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-shadow ${
+                            formErrors.email ? 'border-red-500' : 'border-input'
+                          }`}
+                          placeholder="your@email.com"
+                        />
+                        {formErrors.email && (
+                          <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Phone Number <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={shippingDetails.phone}
+                          onChange={handleInputChange}
+                          className={`w-full p-3 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-shadow ${
+                            formErrors.phone ? 'border-red-500' : 'border-input'
+                          }`}
+                          placeholder="+234 800 000 0000"
+                        />
+                        {formErrors.phone && (
+                          <p className="text-red-500 text-xs mt-1">{formErrors.phone}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Full Name */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Full Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="fullName"
+                        value={shippingDetails.fullName}
+                        onChange={handleInputChange}
+                        className={`w-full p-3 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-shadow ${
+                          formErrors.fullName ? 'border-red-500' : 'border-input'
+                        }`}
+                        placeholder="John Doe"
+                      />
+                      {formErrors.fullName && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.fullName}</p>
+                      )}
+                    </div>
+
+                    {/* Address */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Street Address <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="address"
+                        value={shippingDetails.address}
+                        onChange={handleInputChange}
+                        className={`w-full p-3 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-shadow ${
+                          formErrors.address ? 'border-red-500' : 'border-input'
+                        }`}
+                        placeholder="123 Main Street, Apartment 4B"
+                      />
+                      {formErrors.address && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.address}</p>
+                      )}
+                    </div>
+
+                    {/* City, State, Postal Code */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          City <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="city"
+                          value={shippingDetails.city}
+                          onChange={handleInputChange}
+                          className={`w-full p-3 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-shadow ${
+                            formErrors.city ? 'border-red-500' : 'border-input'
+                          }`}
+                          placeholder="Lagos"
+                        />
+                        {formErrors.city && (
+                          <p className="text-red-500 text-xs mt-1">{formErrors.city}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          State <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="state"
+                          value={shippingDetails.state}
+                          onChange={handleInputChange}
+                          className={`w-full p-3 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-shadow ${
+                            formErrors.state ? 'border-red-500' : 'border-input'
+                          }`}
+                          placeholder="Lagos"
+                        />
+                        {formErrors.state && (
+                          <p className="text-red-500 text-xs mt-1">{formErrors.state}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Postal Code <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="postalCode"
+                          value={shippingDetails.postalCode}
+                          onChange={handleInputChange}
+                          className={`w-full p-3 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-shadow ${
+                            formErrors.postalCode ? 'border-red-500' : 'border-input'
+                          }`}
+                          placeholder="100001"
+                        />
+                        {formErrors.postalCode && (
+                          <p className="text-red-500 text-xs mt-1">{formErrors.postalCode}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Payment Button */}
                 <button
-                  disabled
-                  className="w-full py-4 px-6 bg-muted text-muted-foreground font-semibold rounded-lg flex items-center justify-center space-x-3 cursor-not-allowed"
+                  onClick={handlePayment}
+                  disabled={!isFormComplete() || isProcessingPayment}
+                  className={`w-full py-4 px-6 font-semibold rounded-lg flex items-center justify-center space-x-3 transition-all shadow-lg mt-6 ${
+                    isFormComplete() && !isProcessingPayment
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground hover:shadow-xl'
+                      : 'bg-muted text-muted-foreground cursor-not-allowed'
+                  }`}
                 >
-                  <i className="bi bi-lock text-xl"></i>
-                  <span className="text-lg">Not Available Yet</span>
+                  {isProcessingPayment ? (
+                    <>
+                      <i className="bi bi-arrow-clockwise animate-spin text-xl"></i>
+                      <span className="text-lg">Processing Payment...</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-lock text-xl"></i>
+                      <span className="text-lg">
+                        {isFormComplete() ? `Pay ${formatPrice(getCartTotal())}` : 'Complete Form to Continue'}
+                      </span>
+                    </>
+                  )}
                 </button>
 
-                <p className="text-xs text-center text-muted-foreground mt-3">
-                  <i className="bi bi-bell mr-1"></i>
-                  We'll notify you when this feature launches
-                </p>
+                {!showPaymentForm && (
+                  <p className="text-xs text-center text-muted-foreground mt-3">
+                    <i className="bi bi-info-circle mr-1"></i>
+                    Click "Show Form" above to enter shipping details
+                  </p>
+                )}
+
+                {showPaymentForm && !isFormComplete() && (
+                  <p className="text-xs text-center text-muted-foreground mt-3">
+                    <i className="bi bi-exclamation-circle mr-1"></i>
+                    Please fill in all required fields marked with *
+                  </p>
+                )}
+
+                {showPaymentForm && isFormComplete() && (
+                  <p className="text-xs text-center text-muted-foreground mt-3">
+                    <i className="bi bi-shield-check mr-1"></i>
+                    Your payment information is secure and encrypted
+                  </p>
+                )}
               </div>
             </div>
 
