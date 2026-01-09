@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { fetchProducts, fetchCategories } from '../services/strapi'
+import { fetchProducts, fetchCategories } from '../services/prismic'
 
 const ProductContext = createContext()
 
@@ -23,10 +23,10 @@ export const ProductProvider = ({ children }) => {
       try {
         setLoading(true)
         setError(null)
-        console.log('Fetching data from Strapi...')
+        console.log('Fetching data from Prismic...')
         console.log('Environment variables:', {
-          STRAPI_API: import.meta.env.VITE_STRAPI_API_URL,
-          STRAPI_MEDIA: import.meta.env.VITE_STRAPI_MEDIA_URL
+          PRISMIC_REPO: import.meta.env.VITE_PRISMIC_REPO_NAME,
+          PRISMIC_TOKEN: import.meta.env.VITE_PRISMIC_ACCESS_TOKEN ? '***' : 'none'
         })
        
         // Fetch products and categories in parallel
@@ -35,7 +35,7 @@ export const ProductProvider = ({ children }) => {
           fetchCategories()
         ])
        
-        console.log('✅ SUCCESS - Fetched from Strapi API')
+        console.log('✅ SUCCESS - Fetched from Prismic API')
         console.log('Fetched products:', productsData)
         console.log('Fetched categories:', categoriesData)
         
@@ -49,9 +49,9 @@ export const ProductProvider = ({ children }) => {
        
         setProducts(Array.isArray(productsData) ? productsData : [])
         setCategories(Array.isArray(categoriesData) ? categoriesData : [])
-        setDataSource('strapi')
+        setDataSource('prismic')
       } catch (err) {
-        console.error('❌ FAILED - Error fetching from Strapi:', err)
+        console.error('❌ FAILED - Error fetching from Prismic:', err)
         if (err.response) {
           console.error('API response error:', err.response.status, err.response.data)
         } else if (err.request) {
