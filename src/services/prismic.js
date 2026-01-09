@@ -24,8 +24,17 @@ const getImageUrl = (imageField) => {
 // Helper to get multiple image URLs
 const getImageUrls = (imagesGroup) => {
   if (!imagesGroup || !Array.isArray(imagesGroup)) return []
+
+  // Handle the case where images are in image1, image2, etc. fields
   return imagesGroup
-    .map(item => item.image?.url)
+    .map(item => {
+      // Check for image1, image2, etc. fields
+      if (item.image1) return item.image1.url
+      if (item.image2) return item.image2.url
+      if (item.image3) return item.image3.url
+      if (item.image) return item.image.url
+      return null
+    })
     .filter(Boolean)
 }
 
@@ -56,14 +65,16 @@ const mapProduct = (doc) => {
   if (!doc || !doc.data) return null
 
   const data = doc.data
-  
+
   // Log the raw data to see what we're getting
   console.log('Raw product data:', {
     name: data.name,
     description: data.description,
-    long_description: data.long_description
+    long_description: data.long_description,
+    image: data.image,
+    images: data.images
   })
-  
+
   return {
     id: doc.id,
     documentId: doc.uid,
@@ -75,8 +86,8 @@ const mapProduct = (doc) => {
     stock: data.stock || 0,
     featured: data.featured || false,
     tags: data.tags?.map(t => t.tag).filter(Boolean) || [],
-    image: getImageUrl(data.main_image),
-    images: getImageUrls(data.additional_images) || [],
+    image: getImageUrl(data.image),
+    images: getImageUrls(data.images) || [],
     category: data.category?.data?.name || 'Uncategorized'
   }
 }
