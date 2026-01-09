@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import Breadcrumb from '../components/ui/Breadcrumb'
+import CertificationFlow from '../components/CertificationFlow'
 
 const AboutPage = () => {
   return (
@@ -187,53 +188,15 @@ const AboutPage = () => {
           </div>
         </div>
 
-        {/* SECTION 5: CERTIFICATION PROCESS */}
+        {/* SECTION 5: CERTIFICATION PROCESS - Interactive Animation */}
         <div className="mb-20 max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-3">How We Certify Every Device</h2>
-          <p className="text-center text-muted-foreground mb-10">
+          <p className="text-center text-muted-foreground mb-6">
             Our multi-point inspection ensures you get certified performance
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-              <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                1
-              </div>
-              <h3 className="font-semibold mb-2">Source</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Carefully selected from trusted UK and China suppliers
-              </p>
-            </div>
-            
-            <div className="text-center p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-              <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                2
-              </div>
-              <h3 className="font-semibold mb-2">Test</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Multi-point inspection of all components
-              </p>
-            </div>
-            
-            <div className="text-center p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-              <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                3
-              </div>
-              <h3 className="font-semibold mb-2">Disclose</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Document every defect with photos and descriptions
-              </p>
-            </div>
-            
-            <div className="text-center p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-              <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                4
-              </div>
-              <h3 className="font-semibold mb-2">Deliver</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Ready for you with our quality guarantee
-              </p>
-            </div>
+          <div className="p-6 md:p-8 rounded-xl border border-border bg-card/50">
+            <CertificationFlow />
           </div>
         </div>
 
