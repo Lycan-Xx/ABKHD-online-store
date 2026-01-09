@@ -190,8 +190,8 @@ const ProductDetailPage = () => {
     addItem(product, quantity, selectedSize, selectedColor)
     addToast('Added to cart successfully!')
 
-    // Navigate to payment options
-    navigate('/payment-options')
+    // Navigate to checkout
+    navigate('/checkout')
   }
 
   // Loading state

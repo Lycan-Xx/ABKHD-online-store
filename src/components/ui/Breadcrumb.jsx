@@ -10,9 +10,7 @@ const Breadcrumb = ({ className = '' }) => {
     '/shop': 'Shop',
     '/about': 'About',
     '/contact': 'Contact',
-    '/payment-options': 'Payment Options',
-    '/checkout': 'Checkout',
-    '/inquiry': 'Local Inquiry'
+    '/checkout': 'Checkout'
   }
 
   // Generate breadcrumb items based on current path

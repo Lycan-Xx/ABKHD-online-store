@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useToast } from '../contexts/ToastContext'
@@ -7,95 +7,66 @@ import BackButton from '../components/ui/BackButton'
 import Breadcrumb from '../components/ui/Breadcrumb'
 
 const CheckoutPage = () => {
+  const navigate = useNavigate()
+  const { items, getCartTotal } = useCart()
+  const { addToast } = useToast()
+  
+  // Get WhatsApp number from environment variables
+  const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
-  const { items, getCartTotal, clearCart } = useCart()
-  const { addToast } = useToast()
-  const navigate = useNavigate()
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    firstName: '',
-    lastName: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: 'United States',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    nameOnCard: ''
-  })
-  
-  const [errors, setErrors] = useState({})
-  const [isProcessing, setIsProcessing] = useState(false)
 
-  const subtotal = getCartTotal()
-  const shipping = subtotal > 50 ? 0 : 10
-  const tax = subtotal * 0.08
-  const total = subtotal + shipping + tax
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
+  // Redirect to home if cart is empty
+  useEffect(() => {
+    if (items.length === 0) {
+      navigate('/')
     }
+  }, [items, navigate])
+
+  const generateWhatsAppMessage = () => {
+    if (!WHATSAPP_NUMBER) {
+      console.error('WhatsApp phone number not configured')
+      addToast('WhatsApp contact not available. Please contact us directly.', 'error')
+      return null
+    }
+
+    let message = "Hi, I'm interested in completing my order:\n\n"
+    
+    items.forEach((item, index) => {
+      message += `${index + 1}. ${item.name}\n`
+      if (item.size) message += `   Size: ${item.size}\n`
+      if (item.color) message += `   Color: ${item.color}\n`
+      message += `   Quantity: ${item.quantity}\n`
+      message += `   Price: ${formatPrice(item.price * item.quantity)}\n\n`
+    })
+    
+    message += `Total: ${formatPrice(getCartTotal())}\n\n`
+    message += "Please let me know about payment and delivery options."
+    
+    return encodeURIComponent(message)
   }
 
-  const validateForm = () => {
-    const newErrors = {}
-    
-    if (!formData.email) newErrors.email = 'Email is required'
-    if (!formData.firstName) newErrors.firstName = 'First name is required'
-    if (!formData.lastName) newErrors.lastName = 'Last name is required'
-    if (!formData.address) newErrors.address = 'Address is required'
-    if (!formData.city) newErrors.city = 'City is required'
-    if (!formData.state) newErrors.state = 'State is required'
-    if (!formData.zipCode) newErrors.zipCode = 'ZIP code is required'
-    if (!formData.cardNumber) newErrors.cardNumber = 'Card number is required'
-    if (!formData.expiryDate) newErrors.expiryDate = 'Expiry date is required'
-    if (!formData.cvv) newErrors.cvv = 'CVV is required'
-    if (!formData.nameOnCard) newErrors.nameOnCard = 'Name on card is required'
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!validateForm()) {
-      addToast('Please fill in all required fields', 'error')
+  const handleWhatsAppCheckout = () => {
+    if (!WHATSAPP_NUMBER) {
+      addToast('WhatsApp contact not available. Please contact us directly.', 'error')
       return
     }
 
-    setIsProcessing(true)
+    const message = generateWhatsAppMessage()
+    if (!message) {
+      return
+    }
     
-    // Simulate payment processing
-    await new Promise(resolve => window.setTimeout(resolve, 2000))
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`
     
-    clearCart()
-    addToast('Order placed successfully!')
-    navigate('/success')
-  }
-
-  if (items.length === 0) {
-    return (
-      <div className="container py-16 text-center">
-        <i className="bi bi-bag text-4xl text-muted-foreground mb-4"></i>
-        <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-        <p className="text-muted-foreground mb-8">Add some products to your cart to continue</p>
-        <button
-          onClick={() => navigate('/shop')}
-          className="btn-primary"
-        >
-          Continue Shopping
-        </button>
-      </div>
-    )
+    try {
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
+    } catch (error) {
+      console.error('Failed to open WhatsApp:', error)
+      addToast('Failed to open WhatsApp. Please try again.', 'error')
+    }
   }
 
   return (
@@ -103,262 +74,182 @@ const CheckoutPage = () => {
       {/* Navigation */}
       <div className="mb-12">
         <Breadcrumb className="mb-4" />
-        <BackButton to="/payment-options" text="Back to Payment Options" variant="prominent" />
+        <BackButton to="/" text="Back to Home" variant="prominent" />
       </div>
       
       {/* Content Container */}
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold">Checkout</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Complete Your Order</h1>
+          <p className="text-muted-foreground">Choose your preferred checkout method</p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Checkout Form */}
-          <div className="space-y-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Contact Information */}
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className={`w-full p-3 border rounded-md bg-background ${
-                      errors.email ? 'border-red-500' : 'border-input'
-                    } focus:outline-none focus:ring-2 focus:ring-ring`}
-                    placeholder="your@email.com"
-                  />
-                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                </div>
-              </div>
-            </div>
-
-            {/* Shipping Address */}
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">First Name</label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    className={`w-full p-3 border rounded-md bg-background ${
-                      errors.firstName ? 'border-red-500' : 'border-input'
-                    } focus:outline-none focus:ring-2 focus:ring-ring`}
-                  />
-                  {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Last Name</label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    className={`w-full p-3 border rounded-md bg-background ${
-                      errors.lastName ? 'border-red-500' : 'border-input'
-                    } focus:outline-none focus:ring-2 focus:ring-ring`}
-                  />
-                  {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
-                </div>
-              </div>
-              <div className="space-y-4 mt-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Address</label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    className={`w-full p-3 border rounded-md bg-background ${
-                      errors.address ? 'border-red-500' : 'border-input'
-                    } focus:outline-none focus:ring-2 focus:ring-ring`}
-                  />
-                  {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">City</label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      className={`w-full p-3 border rounded-md bg-background ${
-                        errors.city ? 'border-red-500' : 'border-input'
-                      } focus:outline-none focus:ring-2 focus:ring-ring`}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Order Summary - Left Column */}
+          <div className="lg:col-span-1">
+            <div className="bg-card border rounded-xl p-6 lg:sticky lg:top-24">
+              <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+              
+              {/* Cart Items */}
+              <div className="space-y-4 mb-6">
+                {items.map((item) => (
+                  <div key={item.cartId} className="flex items-center space-x-3">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded"
+                      crossOrigin="anonymous"
                     />
-                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">State</label>
-                    <input
-                      type="text"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      className={`w-full p-3 border rounded-md bg-background ${
-                        errors.state ? 'border-red-500' : 'border-input'
-                      } focus:outline-none focus:ring-2 focus:ring-ring`}
-                    />
-                    {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">ZIP Code</label>
-                    <input
-                      type="text"
-                      name="zipCode"
-                      value={formData.zipCode}
-                      onChange={handleInputChange}
-                      className={`w-full p-3 border rounded-md bg-background ${
-                        errors.zipCode ? 'border-red-500' : 'border-input'
-                      } focus:outline-none focus:ring-2 focus:ring-ring`}
-                    />
-                    {errors.zipCode && <p className="text-red-500 text-sm mt-1">{errors.zipCode}</p>}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Information */}
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Payment Information</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Card Number</label>
-                  <input
-                    type="text"
-                    name="cardNumber"
-                    value={formData.cardNumber}
-                    onChange={handleInputChange}
-                    className={`w-full p-3 border rounded-md bg-background ${
-                      errors.cardNumber ? 'border-red-500' : 'border-input'
-                    } focus:outline-none focus:ring-2 focus:ring-ring`}
-                    placeholder="1234 5678 9012 3456"
-                  />
-                  {errors.cardNumber && <p className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>}
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Expiry Date</label>
-                    <input
-                      type="text"
-                      name="expiryDate"
-                      value={formData.expiryDate}
-                      onChange={handleInputChange}
-                      className={`w-full p-3 border rounded-md bg-background ${
-                        errors.expiryDate ? 'border-red-500' : 'border-input'
-                      } focus:outline-none focus:ring-2 focus:ring-ring`}
-                      placeholder="MM/YY"
-                    />
-                    {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">CVV</label>
-                    <input
-                      type="text"
-                      name="cvv"
-                      value={formData.cvv}
-                      onChange={handleInputChange}
-                      className={`w-full p-3 border rounded-md bg-background ${
-                        errors.cvv ? 'border-red-500' : 'border-input'
-                      } focus:outline-none focus:ring-2 focus:ring-ring`}
-                      placeholder="123"
-                    />
-                    {errors.cvv && <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Name on Card</label>
-                  <input
-                    type="text"
-                    name="nameOnCard"
-                    value={formData.nameOnCard}
-                    onChange={handleInputChange}
-                    className={`w-full p-3 border rounded-md bg-background ${
-                      errors.nameOnCard ? 'border-red-500' : 'border-input'
-                    } focus:outline-none focus:ring-2 focus:ring-ring`}
-                  />
-                  {errors.nameOnCard && <p className="text-red-500 text-sm mt-1">{errors.nameOnCard}</p>}
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isProcessing}
-              className="w-full btn-primary py-3 text-base border-2 border-primary shadow-lg hover:scale-105 transition-transform duration-200 dark:border-primary/80 focus:ring-2 focus:ring-primary/60 disabled:opacity-50"
-            >
-              {isProcessing ? (
-                <span className="flex items-center justify-center">
-                  <i className="bi bi-arrow-clockwise animate-spin mr-2"></i>
-                  Processing...
-                </span>
-              ) : (
-                `Complete Order - ${formatPrice(total)}`
-              )}
-            </button>
-          </form>
-        </div>
-
-        {/* Order Summary */}
-        <div className="lg:sticky lg:top-24 lg:h-fit">
-          <div className="bg-muted/50 rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-            
-            {/* Cart Items */}
-            <div className="space-y-4 mb-6">
-              {items.map((item) => (
-                <div key={item.cartId} className="flex items-center space-x-4">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-16 h-16 object-cover rounded"
-                    crossOrigin="anonymous"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-sm">{item.name}</h3>
-                    <div className="text-xs text-muted-foreground">
-                      {item.size && <span>Size: {item.size} </span>}
-                      {item.color && <span>Color: {item.color}</span>}
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-sm">Qty: {item.quantity}</span>
-                      <span className="font-medium text-sm">{formatPrice(item.price * item.quantity)}</span>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm truncate">{item.name}</h3>
+                      <div className="text-xs text-muted-foreground">
+                        {item.size && <span>Size: {item.size} </span>}
+                        {item.color && <span>Color: {item.color}</span>}
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-xs">Qty: {item.quantity}</span>
+                        <span className="font-medium text-sm">{formatPrice(item.price * item.quantity)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            {/* Totals */}
-            <div className="space-y-2 border-t pt-4">
-              <div className="flex justify-between text-sm">
-                <span>Subtotal</span>
-                <span>{formatPrice(subtotal)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Shipping</span>
-                <span>{shipping === 0 ? 'Free' : formatPrice(shipping)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Tax</span>
-                <span>{formatPrice(tax)}</span>
-              </div>
-              <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                <span>Total</span>
-                <span>{formatPrice(total)}</span>
+              {/* Total */}
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center font-semibold text-lg">
+                  <span>Total</span>
+                  <span className="text-primary">{formatPrice(getCartTotal())}</span>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Checkout Options - Right Column */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* WhatsApp Checkout - Available Now */}
+            <div className="border-2 border-primary rounded-xl overflow-hidden">
+              <div className="bg-primary/5 px-6 py-3 border-b border-primary/20">
+                <div className="flex items-center space-x-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                    ✓ AVAILABLE NOW
+                  </span>
+                  <h2 className="text-lg font-bold">WhatsApp Checkout</h2>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="flex items-start space-x-4 mb-6">
+                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <i className="bi bi-whatsapp text-green-600 dark:text-green-400 text-3xl"></i>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold mb-2">Complete order via WhatsApp</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      Chat with us directly to finalize your purchase. We'll guide you through payment and delivery.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Benefits */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                  <div className="flex items-start space-x-2">
+                    <i className="bi bi-check-circle-fill text-green-600 dark:text-green-400 text-sm mt-0.5"></i>
+                    <span className="text-sm">Flexible payment options</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <i className="bi bi-check-circle-fill text-green-600 dark:text-green-400 text-sm mt-0.5"></i>
+                    <span className="text-sm">Personalized service</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <i className="bi bi-check-circle-fill text-green-600 dark:text-green-400 text-sm mt-0.5"></i>
+                    <span className="text-sm">Delivery arrangements</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <i className="bi bi-check-circle-fill text-green-600 dark:text-green-400 text-sm mt-0.5"></i>
+                    <span className="text-sm">Product verification</span>
+                  </div>
+                </div>
+
+                {/* WhatsApp Button */}
+                <button
+                  onClick={handleWhatsAppCheckout}
+                  className="w-full py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg flex items-center justify-center space-x-3 transition-colors shadow-lg hover:shadow-xl"
+                >
+                  <i className="bi bi-whatsapp text-2xl"></i>
+                  <span className="text-lg">Continue on WhatsApp</span>
+                </button>
+
+                <p className="text-xs text-center text-muted-foreground mt-3">
+                  <i className="bi bi-clock mr-1"></i>
+                  We typically respond within minutes
+                </p>
+              </div>
+            </div>
+
+            {/* Online Payment - Coming Soon */}
+            <div className="border-2 border-border rounded-xl overflow-hidden opacity-60">
+              <div className="bg-muted/50 px-6 py-3 border-b border-border">
+                <div className="flex items-center space-x-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
+                    🚀 COMING SOON
+                  </span>
+                  <h2 className="text-lg font-bold">Online Payment</h2>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="flex items-start space-x-4 mb-6">
+                  <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <i className="bi bi-credit-card text-muted-foreground text-3xl"></i>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold mb-2">Pay directly with card</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      We're working on adding secure online payment. Soon you'll be able to checkout instantly with your card.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Future Benefits */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                  <div className="flex items-start space-x-2">
+                    <i className="bi bi-lightning-fill text-muted-foreground text-sm mt-0.5"></i>
+                    <span className="text-sm text-muted-foreground">Instant checkout</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <i className="bi bi-shield-check text-muted-foreground text-sm mt-0.5"></i>
+                    <span className="text-sm text-muted-foreground">Secure payment</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <i className="bi bi-receipt text-muted-foreground text-sm mt-0.5"></i>
+                    <span className="text-sm text-muted-foreground">Automatic confirmation</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <i className="bi bi-truck text-muted-foreground text-sm mt-0.5"></i>
+                    <span className="text-sm text-muted-foreground">Faster processing</span>
+                  </div>
+                </div>
+
+                {/* Disabled Button */}
+                <button
+                  disabled
+                  className="w-full py-4 px-6 bg-muted text-muted-foreground font-semibold rounded-lg flex items-center justify-center space-x-3 cursor-not-allowed"
+                >
+                  <i className="bi bi-lock text-xl"></i>
+                  <span className="text-lg">Not Available Yet</span>
+                </button>
+
+                <p className="text-xs text-center text-muted-foreground mt-3">
+                  <i className="bi bi-bell mr-1"></i>
+                  We'll notify you when this feature launches
+                </p>
+              </div>
+            </div>
+
+          </div>
         </div>
-      </div>
       </div>
     </div>
   )
