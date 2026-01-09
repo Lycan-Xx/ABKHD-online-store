@@ -165,7 +165,7 @@ const ProductDetailPage = () => {
     if (location.state?.from === '/') {
       navigate('/')
     } else {
-      navigate('/inventory')
+      navigate('/shop')
     }
   }
 
@@ -190,8 +190,8 @@ const ProductDetailPage = () => {
     addItem(product, quantity, selectedSize, selectedColor)
     addToast('Added to cart successfully!')
 
-    // Navigate to payment options
-    navigate('/payment-options')
+    // Navigate to checkout
+    navigate('/checkout')
   }
 
   // Loading state
@@ -217,7 +217,7 @@ const ProductDetailPage = () => {
     )
   }
 
-  // Category data matching InventoryPage
+  // Category data matching ShopPage
   const getCategoryData = (categoryName) => {
     const categories = [
       { name: 'Mobile Phones', icon: 'bi-phone', value: 'Mobile Phones' },
@@ -230,8 +230,8 @@ const ProductDetailPage = () => {
   const categoryData = getCategoryData(product.category)
 
   const handleCategoryClick = () => {
-    // Navigate to inventory page with category filter
-    navigate(`/inventory?category=${encodeURIComponent(categoryData.value)}`)
+    // Navigate to shop page with category filter
+    navigate(`/shop?category=${encodeURIComponent(categoryData.value)}`)
   }
 
   const relatedProducts = products
@@ -249,7 +249,7 @@ const ProductDetailPage = () => {
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
         <button onClick={handleBack} className="flex items-center hover:text-foreground">
           <i className="bi bi-arrow-left-short text-xl mr-1"></i>
-          <span>{location.state?.from === '/' ? 'Home' : 'Inventory'}</span>
+          <span>{location.state?.from === '/' ? 'Home' : 'Shop'}</span>
         </button>
         <i className="bi bi-chevron-right"></i>
         <span className="text-foreground">{product.name}</span>

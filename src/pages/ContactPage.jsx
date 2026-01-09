@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import BackButton from '../components/ui/BackButton'
+import Breadcrumb from '../components/ui/Breadcrumb'
 import { useToast } from '../contexts/ToastContext'
 
 const ContactPage = () => {
@@ -11,6 +12,7 @@ const ContactPage = () => {
     message: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showForm, setShowForm] = useState(false)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -30,139 +32,95 @@ const ContactPage = () => {
   }
 
   return (
-    <div className="container py-16">
-      <div className="max-w-4xl mx-auto">
-        {/* Navigation */}
-        <div className="flex items-center mb-8">
-          <Link
-            to="/"
-            className="flex items-center text-muted-foreground hover:text-foreground transition-colors mr-4"
-          >
-            <i className="bi bi-arrow-left-short text-xl mr-1"></i>
-            <span className="text-sm">Home</span>
-          </Link>
-        </div>
-        
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Us</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Have a question or need assistance? We'd love to hear from you. Get in touch with our team.
+    <div className="container py-8 md:py-12">
+      {/* Navigation */}
+      <div className="mb-12">
+        <Breadcrumb className="mb-4" />
+        <BackButton to="/" text="Back to Home" variant="prominent" />
+      </div>
+      
+      {/* Content Container */}
+      <div className="max-w-6xl mx-auto">
+        {/* Header - Minimal */}
+        <div className="text-center mb-16 max-w-2xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Get in Touch</h1>
+          <p className="text-lg text-muted-foreground">
+            Questions about a product? Need help? We're here.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Information - Minimal Design */}
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <i className="bi bi-geo-alt text-primary text-xl mt-1 flex-shrink-0"></i>
-                  <div>
-                    <h3 className="font-semibold mb-1">Address</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Jimeta, Yola<br />
-                      Adamawa State<br />
-                      Nigeria
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <i className="bi bi-whatsapp text-primary text-xl mt-1 flex-shrink-0"></i>
-                  <div>
-                    <h3 className="font-semibold mb-1">WhatsApp</h3>
-                    <p className="text-muted-foreground text-sm">
-                      <a href="https://wa.me/2348012345678" className="text-primary hover:underline">
-                        +234 801 234 5678
-                      </a>
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Best way to reach us</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <i className="bi bi-envelope text-primary text-xl mt-1 flex-shrink-0"></i>
-                  <div>
-                    <h3 className="font-semibold mb-1">Email</h3>
-                    <p className="text-muted-foreground text-sm">
-                      <a href="mailto:hello@abkhdstore.com" className="text-primary hover:underline">
-                        hello@abkhdstore.com
-                      </a>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <i className="bi bi-clock text-primary text-xl mt-1 flex-shrink-0"></i>
-                  <div>
-                    <h3 className="font-semibold mb-1">Business Hours</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Monday - Friday: 9:00 AM - 6:00 PM<br />
-                      Saturday: 10:00 AM - 4:00 PM<br />
-                      Sunday: Closed
-                    </p>
-                  </div>
-                </div>
-              </div>
+        {/* Primary Contact - WhatsApp Hero */}
+        <div className="mb-16 max-w-2xl mx-auto">
+          <div className="text-center p-10 rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <i className="bi bi-whatsapp text-primary text-4xl"></i>
             </div>
-
-            {/* Social Media - Minimal Design */}
-            <div>
-              <h3 className="font-semibold mb-4">Follow Us</h3>
-              <div className="flex space-x-3">
-                <a 
-                  href="#" 
-                  className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
-                  aria-label="Twitter"
-                >
-                  <i className="bi bi-twitter"></i>
-                </a>
-                <a 
-                  href="#" 
-                  className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
-                  aria-label="Instagram"
-                >
-                  <i className="bi bi-instagram"></i>
-                </a>
-                <a 
-                  href="#" 
-                  className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
-                  aria-label="Facebook"
-                >
-                  <i className="bi bi-facebook"></i>
-                </a>
-                <a 
-                  href="#" 
-                  className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
-                  aria-label="LinkedIn"
-                >
-                  <i className="bi bi-linkedin"></i>
-                </a>
-              </div>
-            </div>
-
-            {/* Response Time Badge */}
-            <div className="flex items-start space-x-3 p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <i className="bi bi-lightning-charge-fill text-primary text-lg mt-0.5"></i>
-              <div>
-                <p className="text-sm font-medium">Quick Response Time</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  We typically respond within 2 hours during business hours
-                </p>
-              </div>
-            </div>
+            <h2 className="text-2xl font-bold mb-3">Chat with us on WhatsApp</h2>
+            <p className="text-muted-foreground mb-6">
+              The fastest way to get answers. We typically respond within minutes.
+            </p>
+            <a 
+              href="https://wa.me/2348012345678" 
+              className="inline-flex items-center justify-center px-10 py-4 text-lg font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <i className="bi bi-whatsapp mr-2 text-xl"></i>
+              Start Conversation
+            </a>
           </div>
+        </div>
 
-          {/* Contact Form */}
-          <div className="bg-card border border-border rounded-xl p-8">
-            <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Alternative Contact Methods */}
+        <div className="mb-16 max-w-2xl mx-auto">
+          <h3 className="text-sm font-medium text-muted-foreground text-center mb-6">
+            Or reach us via
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a 
+              href="mailto:hello@abkhdstore.com"
+              className="flex items-center space-x-4 p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                <i className="bi bi-envelope text-primary text-xl"></i>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Email</h3>
+                <p className="text-sm text-muted-foreground">hello@abkhdstore.com</p>
+              </div>
+            </a>
+
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="flex items-center space-x-4 p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors group text-left"
+            >
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                <i className="bi bi-pencil-square text-primary text-xl"></i>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Contact Form</h3>
+                <p className="text-sm text-muted-foreground">Send us a message</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Contact Form - Collapsible */}
+        {showForm && (
+          <div className="mb-16 p-8 rounded-xl border border-border bg-card/50 max-w-2xl mx-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">Send us a Message</h2>
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-2">
-                    Name *
+                    Name
                   </label>
                   <input
                     type="text"
@@ -172,12 +130,12 @@ const ContactPage = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
-                    placeholder="Your full name"
+                    placeholder="Your name"
                   />
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium mb-2">
-                    Email *
+                    Email
                   </label>
                   <input
                     type="email"
@@ -194,7 +152,7 @@ const ContactPage = () => {
 
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium mb-2">
-                  Subject *
+                  Subject
                 </label>
                 <input
                   type="text"
@@ -210,7 +168,7 @@ const ContactPage = () => {
 
               <div>
                 <label htmlFor="message" className="block text-sm font-medium mb-2">
-                  Message *
+                  Message
                 </label>
                 <textarea
                   id="message"
@@ -218,16 +176,16 @@ const ContactPage = () => {
                   value={formData.message}
                   onChange={handleInputChange}
                   required
-                  rows={6}
+                  rows={5}
                   className="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow resize-vertical"
-                  placeholder="Tell us more about your inquiry..."
+                  placeholder="Tell us more..."
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full btn-primary py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn-primary py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center">
@@ -243,49 +201,14 @@ const ContactPage = () => {
               </button>
             </form>
           </div>
-        </div>
+        )}
 
-        {/* FAQ Section - Condensed */}
-        <div className="mt-20">
-          <h2 className="text-2xl font-bold text-center mb-8">Quick Questions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            <div className="space-y-2">
-              <h3 className="font-semibold flex items-start">
-                <i className="bi bi-question-circle text-primary mr-2 mt-1 flex-shrink-0"></i>
-                <span>What are your shipping options?</span>
-              </h3>
-              <p className="text-muted-foreground text-sm pl-7">
-                Free delivery in Jimeta & Yola. Other locations available at competitive rates.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold flex items-start">
-                <i className="bi bi-question-circle text-primary mr-2 mt-1 flex-shrink-0"></i>
-                <span>What is your return policy?</span>
-              </h3>
-              <p className="text-muted-foreground text-sm pl-7">
-                7-day return guarantee. Items must be in original condition.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold flex items-start">
-                <i className="bi bi-question-circle text-primary mr-2 mt-1 flex-shrink-0"></i>
-                <span>Do you offer warranties?</span>
-              </h3>
-              <p className="text-muted-foreground text-sm pl-7">
-                Yes, all devices come with our quality guarantee and testing certification.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold flex items-start">
-                <i className="bi bi-question-circle text-primary mr-2 mt-1 flex-shrink-0"></i>
-                <span>How can I track my order?</span>
-              </h3>
-              <p className="text-muted-foreground text-sm pl-7">
-                We'll send you tracking information via WhatsApp or email once your order ships.
-              </p>
-            </div>
-          </div>
+        {/* Response Time Note */}
+        <div className="text-center max-w-2xl mx-auto">
+          <p className="text-sm text-muted-foreground">
+            <i className="bi bi-clock text-primary mr-2"></i>
+            We typically respond within 2 hours during business hours
+          </p>
         </div>
       </div>
     </div>
