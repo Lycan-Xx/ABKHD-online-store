@@ -13,6 +13,7 @@ export default defineConfig({
     exclude: ["lucide-react"],
   },
   server: {
+    port: 8080,
     hmr: {
       overlay: false,
     },
@@ -33,5 +34,4 @@ export default defineConfig({
       allowedHeaders: ['Content-Type', 'Authorization']
     }
   },
-  darkMode: "class",
 });
