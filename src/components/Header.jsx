@@ -26,6 +26,7 @@ const Header = () => {
   }, [])
 
   const isActive = (path) => location.pathname === path
+  const isHome = location.pathname === '/'
 
   return (
     <>
@@ -40,39 +41,49 @@ const Header = () => {
             <i className="bi bi-list text-xl"></i>
           </button>
 
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <span className="font-bold text-xl tracking-tight">ABKHD</span>
+          {/* Logo - styled differently when on homepage */}
+          <Link 
+            to="/" 
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
+              isHome 
+                ? 'bg-primary/10 ring-1 ring-primary/30' 
+                : 'hover:bg-accent'
+            }`}
+          >
+            <span className={`font-bold text-xl tracking-tight transition-colors ${isHome ? 'text-primary' : ''}`}>
+              ABKHD
+            </span>
+            {isHome && <i className="bi bi-house-fill text-primary text-sm"></i>}
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             <Link 
-              to="/inventory" 
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                isActive('/inventory') 
-                  ? 'text-primary bg-primary/10' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+              to="/shop" 
+              className={`px-4 py-2 text-sm rounded-lg transition-all ${
+                isActive('/shop') 
+                  ? 'text-primary bg-primary/15 font-semibold border-b-2 border-primary' 
+                  : 'text-muted-foreground font-medium hover:text-foreground hover:bg-accent'
               }`}
             >
               Shop
             </Link>
             <Link 
               to="/about" 
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-4 py-2 text-sm rounded-lg transition-all ${
                 isActive('/about') 
-                  ? 'text-primary bg-primary/10' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  ? 'text-primary bg-primary/15 font-semibold border-b-2 border-primary' 
+                  : 'text-muted-foreground font-medium hover:text-foreground hover:bg-accent'
               }`}
             >
               About
             </Link>
             <Link 
               to="/contact" 
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-4 py-2 text-sm rounded-lg transition-all ${
                 isActive('/contact') 
-                  ? 'text-primary bg-primary/10' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  ? 'text-primary bg-primary/15 font-semibold border-b-2 border-primary' 
+                  : 'text-muted-foreground font-medium hover:text-foreground hover:bg-accent'
               }`}
             >
               Contact

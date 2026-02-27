@@ -41,22 +41,22 @@ const MobileMenu = ({ isOpen, onClose, isDarkMode, onToggleDarkMode }) => {
           <nav className="flex-1 p-4">
             <div className="space-y-4">
               <Link
-                to="/inventory"
-                className={`block py-3 px-4 text-lg font-medium transition-all duration-200 rounded-md ${
-                  location.pathname === '/inventory' 
-                    ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
-                    : 'text-muted-foreground hover:text-primary hover:bg-accent'
+                to="/shop"
+                className={`block py-3 px-4 text-lg transition-all duration-200 rounded-md ${
+                  location.pathname === '/shop' 
+                    ? 'text-primary bg-primary/15 font-semibold shadow-md ring-1 ring-primary/30 border-l-4 border-primary' 
+                    : 'text-muted-foreground font-medium hover:text-primary hover:bg-accent'
                 }`}
                 onClick={onClose}
               >
-                Inventory
+                Shop
               </Link>
               <Link
                 to="/about"
-                className={`block py-3 px-4 text-lg font-medium transition-all duration-200 rounded-md ${
+                className={`block py-3 px-4 text-lg transition-all duration-200 rounded-md ${
                   location.pathname === '/about' 
-                    ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
-                    : 'text-muted-foreground hover:text-primary hover:bg-accent'
+                    ? 'text-primary bg-primary/15 font-semibold shadow-md ring-1 ring-primary/30 border-l-4 border-primary' 
+                    : 'text-muted-foreground font-medium hover:text-primary hover:bg-accent'
                 }`}
                 onClick={onClose}
               >
@@ -64,10 +64,10 @@ const MobileMenu = ({ isOpen, onClose, isDarkMode, onToggleDarkMode }) => {
               </Link>
               <Link
                 to="/contact"
-                className={`block py-3 px-4 text-lg font-medium transition-all duration-200 rounded-md ${
+                className={`block py-3 px-4 text-lg transition-all duration-200 rounded-md ${
                   location.pathname === '/contact' 
-                    ? 'text-primary bg-primary/10 shadow-md ring-1 ring-primary/20' 
-                    : 'text-muted-foreground hover:text-primary hover:bg-accent'
+                    ? 'text-primary bg-primary/15 font-semibold shadow-md ring-1 ring-primary/30 border-l-4 border-primary' 
+                    : 'text-muted-foreground font-medium hover:text-primary hover:bg-accent'
                 }`}
                 onClick={onClose}
               >

@@ -165,7 +165,7 @@ const ProductDetailPage = () => {
     if (location.state?.from === '/') {
       navigate('/')
     } else {
-      navigate('/inventory')
+      navigate('/shop')
     }
   }
 
@@ -190,8 +190,8 @@ const ProductDetailPage = () => {
     addItem(product, quantity, selectedSize, selectedColor)
     addToast('Added to cart successfully!')
 
-    // Navigate to payment options
-    navigate('/payment-options')
+    // Navigate to checkout
+    navigate('/checkout')
   }
 
   // Loading state
@@ -217,6 +217,23 @@ const ProductDetailPage = () => {
     )
   }
 
+  // Category data matching ShopPage
+  const getCategoryData = (categoryName) => {
+    const categories = [
+      { name: 'Mobile Phones', icon: 'bi-phone', value: 'Mobile Phones' },
+      { name: 'Laptops', icon: 'bi-laptop', value: 'Computer' },
+      { name: 'Accessories', icon: 'bi-headphones', value: 'Accessories' }
+    ]
+    return categories.find(cat => cat.value === categoryName) || categories[0]
+  }
+
+  const categoryData = getCategoryData(product.category)
+
+  const handleCategoryClick = () => {
+    // Navigate to shop page with category filter
+    navigate(`/shop?category=${encodeURIComponent(categoryData.value)}`)
+  }
+
   const relatedProducts = products
     .filter(p => {
       return (
@@ -232,7 +249,7 @@ const ProductDetailPage = () => {
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
         <button onClick={handleBack} className="flex items-center hover:text-foreground">
           <i className="bi bi-arrow-left-short text-xl mr-1"></i>
-          <span>{location.state?.from === '/' ? 'Home' : 'Inventory'}</span>
+          <span>{location.state?.from === '/' ? 'Home' : 'Shop'}</span>
         </button>
         <i className="bi bi-chevron-right"></i>
         <span className="text-foreground">{product.name}</span>
@@ -301,7 +318,11 @@ const ProductDetailPage = () => {
                 </div>
               )} */}
             </div>
-            <RichTextRenderer content={product.longDescription || product.description} />
+            {/* Product Description */}
+            <div className="border-t pt-6">
+              <h3 className="font-semibold mb-3">Description</h3>
+              <RichTextRenderer content={product.longDescription || product.description} />
+            </div>
           </div>
 
           {/* Size Selection - Commented out for individual unique items */}
@@ -391,25 +412,35 @@ const ProductDetailPage = () => {
 
           {/* Product Details */}
           <div className="border-t pt-6">
-            <h3 className="font-semibold mb-3">Product Details</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Category:</span>
-                <span className="capitalize">{product.category}</span>
+            <div className="space-y-3">
+              {/* Category Tag */}
+              <div className="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-card">
+                <div className="flex items-center space-x-3">
+                  <i className={`${categoryData.icon} text-lg text-muted-foreground`}></i>
+                  <span className="font-medium text-muted-foreground">
+                    {categoryData.name}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                    Category
+                  </span>
+                </div>
               </div>
+
               {/* Stock info commented out for individual unique items */}
-              {/* <div className="flex justify-between">
+              {/* <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Stock:</span>
                 <span>{product.stock} available</span>
               </div> */}
               {/* Tags commented out as requested */}
               {/* {product.tags && (
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Tags:</span>
                   <span className="capitalize">
-                    {Array.isArray(product.tags) 
-                      ? product.tags.join(', ') 
-                      : typeof product.tags === 'object' 
+                    {Array.isArray(product.tags)
+                      ? product.tags.join(', ')
+                      : typeof product.tags === 'object'
                         ? Object.values(product.tags).join(', ')
                         : product.tags}
                   </span>

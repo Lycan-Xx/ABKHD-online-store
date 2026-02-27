@@ -117,4 +117,60 @@
   .slider-thumb::-moz-range-track {
     @apply bg-muted h-2 rounded-lg;
   }
+
+  /* Certification Flow Animations */
+  .certification-line {
+    stroke-dashoffset: 16;
+    animation: flow-line 8s linear infinite;
+  }
+
+  .certification-line-vertical {
+    transform: scaleY(0);
+    transform-origin: top;
+    animation: flow-vertical 8s ease-in-out infinite;
+  }
+
+  .certification-node {
+    animation: node-pulse 8s ease-in-out infinite;
+  }
+
+  .certification-pulse {
+    opacity: 0;
+    animation: pulse-ring 8s ease-in-out infinite;
+  }
+
+  .certification-label {
+    opacity: 0.6;
+    animation: label-highlight 8s ease-in-out infinite;
+  }
+
+  @keyframes flow-line {
+    0%, 100% { stroke-dashoffset: 16; opacity: 0.3; }
+    12.5% { stroke-dashoffset: 0; opacity: 1; }
+    25% { stroke-dashoffset: -16; opacity: 0.3; }
+  }
+
+  @keyframes flow-vertical {
+    0%, 100% { transform: scaleY(0); opacity: 0.3; }
+    12.5% { transform: scaleY(1); opacity: 1; }
+    25% { transform: scaleY(0); opacity: 0.3; }
+  }
+
+  @keyframes node-pulse {
+    0%, 100% { stroke: hsl(var(--border)); }
+    12.5% { stroke: hsl(var(--primary)); }
+    25% { stroke: hsl(var(--border)); }
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 0; r: 40; }
+    6.25% { opacity: 0.5; r: 40; }
+    12.5% { opacity: 0; r: 50; }
+  }
+
+  @keyframes label-highlight {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    12.5% { opacity: 1; transform: scale(1.02); }
+    25% { opacity: 0.6; transform: scale(1); }
+  }
 }

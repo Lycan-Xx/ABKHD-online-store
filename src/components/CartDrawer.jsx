@@ -64,6 +64,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                         {item.color && <p>Color: {item.color}</p>}
                         <p>{formatPrice(item.price)}</p>
                       </div>
+                      {/*
                       <div className="flex items-center space-x-2 mt-2">
                         <button
                           onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
@@ -78,7 +79,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                         >
                           <i className="bi bi-plus text-xs"></i>
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                     <button
                       onClick={() => removeItem(item.cartId)}
@@ -100,7 +101,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 <span className="font-semibold">Total: {formatPrice(getCartTotal())}</span>
               </div>
               <Link
-                to="/payment-options"
+                to="/checkout"
                 onClick={onClose}
                 className="w-full btn-primary block text-center border-2 border-accent shadow-lg hover:scale-105 transition-transform duration-200 dark:border-accent/80 focus:ring-2 focus:ring-accent/60"
               >
