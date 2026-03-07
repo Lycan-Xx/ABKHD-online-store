@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { fetchProducts, fetchCategories } from '../services/prismic'
 
 const ProductContext = createContext()
 
@@ -23,69 +22,31 @@ export const ProductProvider = ({ children }) => {
       try {
         setLoading(true)
         setError(null)
-        console.log('Fetching data from Prismic...')
-        console.log('Environment variables:', {
-          PRISMIC_REPO: import.meta.env.VITE_PRISMIC_REPO_NAME,
-          PRISMIC_TOKEN: import.meta.env.VITE_PRISMIC_ACCESS_TOKEN ? '***' : 'none'
-        })
-       
-        // Fetch products and categories in parallel
-        const [productsData, categoriesData] = await Promise.all([
-          fetchProducts(),
-          fetchCategories()
-        ])
-       
-        console.log('✅ SUCCESS - Fetched from Prismic API')
-        console.log('Fetched products:', productsData)
-        console.log('Fetched categories:', categoriesData)
+        console.log('Loading local data...')
         
-        // Log image URLs for debugging
-        if (productsData.length > 0) {
-          console.log('Sample product images:')
-          productsData.slice(0, 3).forEach(product => {
+        // Load from local data
+        const { products: localProducts, categories: localCategories } = await import('../data/products.js')
+        console.log('✅ SUCCESS - Loaded local data')
+        console.log('Local products:', localProducts)
+        console.log('Local categories:', localCategories)
+        
+        // Log local image URLs for debugging
+        if (localProducts && localProducts.length > 0) {
+          console.log('Sample local product images:')
+          localProducts.slice(0, 3).forEach(product => {
             console.log(`${product.name}: ${product.image}`)
           })
         }
-       
-        setProducts(Array.isArray(productsData) ? productsData : [])
-        setCategories(Array.isArray(categoriesData) ? categoriesData : [])
-        setDataSource('prismic')
+        
+        setProducts(Array.isArray(localProducts) ? localProducts : [])
+        setCategories(Array.isArray(localCategories) ? localCategories : [])
+        setDataSource('local')
       } catch (err) {
-        console.error('❌ FAILED - Error fetching from Prismic:', err)
-        if (err.response) {
-          console.error('API response error:', err.response.status, err.response.data)
-        } else if (err.request) {
-          console.error('No response received:', err.request)
-        } else {
-          console.error('Request setup error:', err.message)
-        }
+        console.error('❌ FAILED - Error loading local data:', err)
         setError(err)
-       
-        // Fallback to local data if API fails
-        console.log('🔄 FALLBACK - Loading local data...')
-        try {
-          const { products: localProducts, categories: localCategories } = await import('../data/products.js')
-          console.log('✅ SUCCESS - Loaded local data')
-          console.log('Local products:', localProducts)
-          console.log('Local categories:', localCategories)
-          
-          // Log local image URLs for debugging
-          if (localProducts && localProducts.length > 0) {
-            console.log('Sample local product images:')
-            localProducts.slice(0, 3).forEach(product => {
-              console.log(`${product.name}: ${product.image}`)
-            })
-          }
-          
-          setProducts(Array.isArray(localProducts) ? localProducts : [])
-          setCategories(Array.isArray(localCategories) ? localCategories : [])
-          setDataSource('local')
-        } catch (importError) {
-          console.error('❌ FAILED - Error loading local data:', importError)
-          setProducts([])
-          setCategories([])
-          setDataSource('none')
-        }
+        setProducts([])
+        setCategories([])
+        setDataSource('none')
       } finally {
         setLoading(false)
       }
@@ -93,7 +54,7 @@ export const ProductProvider = ({ children }) => {
     
     fetchData()
    
-    // Refetch data every 5 minutes to keep inventory updated
+    // Refresh data every 5 minutes
     const interval = setInterval(fetchData, 300000)
    
     return () => clearInterval(interval)
@@ -103,8 +64,8 @@ export const ProductProvider = ({ children }) => {
     try {
       setError(null)
       console.log('🔄 Refetching products...')
-      const productsData = await fetchProducts()
-      setProducts(Array.isArray(productsData) ? productsData : [])
+      const { products: localProducts } = await import('../data/products.js')
+      setProducts(Array.isArray(localProducts) ? localProducts : [])
       console.log('✅ Products refetched successfully')
     } catch (err) {
       console.error('❌ Error refetching products:', err)
