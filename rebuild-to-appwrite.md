@@ -1,400 +1,320 @@
-# Technical Implementation Plan: Appwrite + Flutterwave for Your E-Commerce Store
+📱 Project ABKHD: Rebuild Master Plan
+Stack: Astro (Frontend) + Appwrite Cloud (Backend/DB/Functions) + Flutterwave (Payments)
 
-## Architecture Overview
+🚀 Phase 0: The "Safe" Migration (React/Vite → Astro)
+Goal: Move your existing React work into Astro without rewriting logic or breaking the UI.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     REACT FRONTEND                           │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
-│  │   Product   │  │    Cart     │  │   OG Meta Tags      │ │
-│  │   Pages     │  │   Context   │  │   (react-helmet)    │ │
-│  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘ │
-│         │                │                     │            │
-│         └────────────────┼─────────────────────┘            │
-│                          ▼                                  │
-│              ┌───────────────────────┐                      │
-│              │   Appwrite REST API   │                      │
-│              │   (src/lib/appwrite.ts)│                     │
-│              └───────────┬───────────┘                      │
-└──────────────────────────┼──────────────────────────────────┘
-                           │
-        ┌──────────────────┼──────────────────┐
-        ▼                  ▼                  ▼
-┌───────────────┐  ┌───────────────┐  ┌───────────────┐
-│  Database     │  │   Storage    │  │    Auth       │
-│  Collections  │  │  (Images)    │  │  (Users)      │
-└───────────────┘  └───────────────┘  └───────────────┘
+The Strategy: "Islands Architecture"
+Think of Astro as the Container (HTML shell) and your existing React components as Islands inside it.
 
-        │                                          │
-        ▼                                          ▼
-┌─────────────────────────────┐    ┌─────────────────────────────┐
-│   FLUTTERWAVE SERVER       │    │    APPWRITE CLOUD          │
-│   (Node.js/Express)        │    │    (or Self-hosted)        │
-│   - Payment initiation     │    │    - Database              │
-│   - Webhook handling      │    │    - Storage               │
-│   - Verify payments       │    │    - Auth                  │
-└─────────────────────────────┘    └─────────────────────────────┘
-```
+Static Content (Header, Footer, Hero): Rendered by Astro (Zero JavaScript sent to browser).
 
+Interactive Content (Cart, Product Filters, Admin Forms): Rendered by React (Hydrated on the client).
+
+Step-by-Step Migration Guide
+Initialize Astro:
+Do not delete your old project yet. Create a new folder next to it.
+
+Bash
+npm create astro@latest abkhd-store
+cd abkhd-store
+npx astro add react tailwindcss
+Move Assets:
+
+Copy your src/assets (images, fonts) from the Vite project to src/assets in Astro.
+
+Copy your global CSS (if any) to src/styles.
+
+Migrate Components (The "Lift & Shift"):
+
+Copy your entire components folder from the Vite project to src/components in Astro.
+
+Note: You do not need to change the React code (JSX hooks, state) inside these files. They will work "as is".
+
+Rebuild Pages (The Router):
+Astro uses file-based routing (like Next.js).
+
+Create src/pages/index.astro.
+
+Import your React Home component and wrap it.
+
+Code snippet
+---
+// src/pages/index.astro
+import Navbar from '../components/Navbar.jsx';
+import HeroSection from '../components/HeroSection.jsx';
+import FeaturedGadgets from '../components/FeaturedGadgets.jsx';
+import Footer from '../components/Footer.jsx';
 ---
 
-## 1. Appwrite Database Schema
+<html lang="en">
+  <head>
+    <title>ABKHD Gadgets</title>
+  </head>
+  <body>
+    <Navbar />
 
-### Collections
+    <HeroSection />
 
-```javascript
-// products collection
-{
-  id: "unique",
-  name: "Vintage Band T-Shirt",
-  description: "Limited edition...",
-  price: 5000, // in kobo (Flutterwave format)
-  images: ["file-id-1", "file-id-2"], // Appwrite file IDs
-  category_id: "category-document-id",
-  stock: 1, // Important: 1 = unique item
-  is_unique: true, // boolean flag
-  sizes: [], // empty for unique items
-  colors: [], // empty for unique items
-  created_at: "2024-01-15T10:00:00Z"
+    <FeaturedGadgets client:visible />
+
+    <Footer />
+  </body>
+</html>
+Fixing Global State (Context API):
+If you used useContext for your Cart:
+
+Create a wrapper component (e.g., AppWrapper.jsx) that contains your Providers.
+
+Wrap the specific islands in Astro that need access to that context.
+
+Pro Tip: For Astro, it is often easier to switch simple state (like a Cart) to Nano Stores (super lightweight, works across framework boundaries), but standard React Context works if you wrap the entire "Page Content" island.
+
+🏃 Phase 1: Foundation & Database (Appwrite Setup)
+Goal: Establish the data structure for Gadgets and secure Admin access.
+
+1. Database Schema
+Create a Database named abkhd_db and the following Collections:
+
+A. Products (products)
+
+name (String, 128)
+
+brand (String, 64) - Index this for filtering
+
+category (Enum: "laptop", "phone", "accessory")
+
+condition (Enum: "new", "open_box", "used")
+
+price (Integer) - Store in Kobo (e.g., 5000000 for ₦50,000.00)
+
+specs (String) - Store specific details as a stringified JSON object (RAM, Storage, Processor)
+
+images (String Array) - Array of File IDs
+
+is_unique (Boolean) - True for specific used items
+
+stock (Integer)
+
+Permissions: Read: Any, Write: Admin Team.
+
+B. Orders (orders)
+
+customer_name (String)
+
+customer_email (String)
+
+customer_phone (String)
+
+delivery_method (Enum: "pickup", "delivery")
+
+delivery_address (String, nullable)
+
+items (String) - JSON string of cart items
+
+total_amount (Integer)
+
+payment_status (Enum: "pending", "paid", "failed")
+
+payment_ref (String) - Flutterwave Transaction Ref
+
+Permissions: Create: Any, Read/Update: Admin Team.
+
+2. Admin Authentication
+Enable Google OAuth in Appwrite Console.
+
+Security Rule: In your Admin Panel code (React), check the user's email after login.
+
+JavaScript
+const allowedAdmins = ['ceo@abkhd.com', 'manager@abkhd.com'];
+if (!allowedAdmins.includes(user.email)) {
+   // Force logout or show "Access Denied"
 }
+💻 Phase 2: Frontend Implementation (REST API)
+Goal: Connect Astro to Appwrite using raw fetch (No SDK headaches).
 
-// categories collection
-{
-  id: "unique",
-  name: "T-Shirts",
-  slug: "t-shirts",
-  image: "file-id" // for category OG tags
-}
+1. The Helper Function
+Create src/lib/api.js to handle your calls securely.
 
-// orders collection
-{
-  id: "unique",
-  user_id: "appwrite-user-id",
-  items: [{ product_id, quantity, price }],
-  total: 5000,
-  status: "pending|paid|completed",
-  flutterwave_ref: "FLW-xxxxx",
-  delivery_method: "pickup|delivery",
-  delivery_address: "Hostel Room 204",
-  customer_phone: "+2348123456789",
-  created_at: "2024-01-15T10:00:00Z"
-}
+JavaScript
+// src/lib/api.js
+const PROJECT_ID = import.meta.env.PUBLIC_APPWRITE_PROJECT_ID;
+const ENDPOINT = 'https://cloud.appwrite.io/v1';
 
-// users (built-in Appwrite auth)
-// Appwrite handles this
-```
+export const dbFetch = async (path, options = {}) => {
+  const headers = {
+    'X-Appwrite-Project': PROJECT_ID,
+    'Content-Type': 'application/json',
+    ...options.headers
+  };
 
----
+  const response = await fetch(`${ENDPOINT}${path}`, {
+    ...options,
+    headers
+  });
 
-## 2. Unique Products Accommodation
-
-```javascript
-// In your product display component
-const ProductCard = ({ product }) => {
-  // If stock is 1 and is_unique is true, show "One of a Kind"
-  const isUnique = product.is_unique && product.stock === 1;
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`);
+  }
   
-  return (
-    <div className="product-card">
-      <img src={previewUrl} alt={product.name} />
-      <h3>{product.name}</h3>
-      <p>₦{product.price.toLocaleString()}</p>
-      
-      {isUnique && (
-        <span className="badge-unique">✨ One of a Kind</span>
-      )}
-      
-      {product.stock === 0 && (
-        <span className="badge-sold-out">Sold Out</span>
-      )}
-    </div>
-  );
+  return await response.json();
 };
 
-// In admin panel - unique item input
-const ProductEditor = () => {
-  const [isUnique, setIsUnique] = useState(false);
-  
-  return (
-    <div>
-      <label>
-        <input 
-          type="checkbox" 
-          checked={isUnique}
-          onChange={(e) => setIsUnique(e.target.checked)}
-        />
-        This is a unique/one-of-a-kind item
-      </label>
-      
-      {isUnique && (
-        <p className="text-sm text-gray-500">
-          Stock will automatically be set to 1
-        </p>
-      )}
-    </div>
-  );
+// Example: Fetch Gadgets
+export const getGadgets = async () => {
+  return await dbFetch(`/databases/${DB_ID}/collections/products/documents`);
 };
-```
+2. Product Pages (SEO Optimized)
+Use Astro's dynamic routing (src/pages/gadgets/[id].astro).
 
+Server-Side Fetching: Astro fetches the gadget data at build time (or request time) to generate the HTML.
+
+Meta Tags: Inject the data directly into the <head>.
+
+Code snippet
+---
+// src/pages/gadgets/[id].astro
+import { getGadgetById } from '../../lib/api';
+const { id } = Astro.params;
+const gadget = await getGadgetById(id);
+
+const imageUrl = `https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${gadget.images[0]}/view?project=${PROJECT_ID}`;
 ---
 
-## 3. Flutterwave Integration
+<head>
+  <title>{gadget.name} | ABKHD</title>
+  <meta property="og:title" content={gadget.name} />
+  <meta property="og:description" content={`Buy this ${gadget.condition} ${gadget.name} for ₦${gadget.price/100}`} />
+  <meta property="og:image" content={imageUrl} />
+</head>
+💳 Phase 3: The Payment "Backend" (Appwrite Functions)
+Goal: Secure server-side logic for Flutterwave without managing a VPS.
 
-### Server-Side (Node.js/Express)
+1. Setup
+In Appwrite Console > Functions > Create Function.
 
-```javascript
-// server/index.js
-const express = require('express');
-const axios = require('axios');
-const crypto = require('crypto');
+Name: payment-handler.
 
-const app = express();
-app.use(express.json());
+Runtime: Node.js (latest).
 
-const FLUTTERWAVE_SECRET = process.env.FLUTTERWAVE_SECRET_KEY;
+Environment Variables:
 
-// 1. Initialize Payment
-app.post('/api/payment/initiate', async (req, res) => {
-  const { amount, email, phone, orderId, items } = req.body;
-  
-  const txRef = `JALO-${Date.now()}-${orderId}`;
-  
-  const payload = {
-    tx_ref: txRef,
-    amount: amount, // in Naira (multiply kobo by 100)
-    currency: 'NGN',
-    redirect_url: 'https://your-site.com/success',
-    customer: {
-      email,
-      phone_number: phone,
-    },
-    customizations: {
-      title: 'Jalo Links Campus Market',
-      logo: 'https://your-site.com/logo.png',
-    },
-    meta: {
-      order_id: orderId,
-      items: JSON.stringify(items),
+FLW_SECRET_KEY: Your Flutterwave Secret Key.
+
+FLW_SECRET_HASH: A random string you create (e.g., "abkhd_secure_hash_123").
+
+2. Function Logic (src/main.js)
+This function handles both initialization and webhooks to save resources.
+
+JavaScript
+const sdk = require("node-appwrite");
+const axios = require("axios");
+
+module.exports = async ({ req, res, log, error }) => {
+  const client = new sdk.Client();
+  // Initialize Appwrite SDK (Admin Mode)
+  client
+    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+    .setKey(process.env.APPWRITE_API_KEY);
+
+  const db = new sdk.Databases(client);
+
+  // ROUTE 1: INITIATE PAYMENT (Called by your Frontend)
+  if (req.path === '/initiate' && req.method === 'POST') {
+    const { email, amount, cartItems } = JSON.parse(req.body);
+    
+    // 1. Create "Pending" Order in DB
+    const order = await db.createDocument('DB_ID', 'orders', sdk.ID.unique(), {
+        customer_email: email,
+        total_amount: amount,
+        items: JSON.stringify(cartItems),
+        payment_status: 'pending'
+    });
+
+    // 2. Call Flutterwave
+    const flwResponse = await axios.post('https://api.flutterwave.com/v3/payments', {
+        tx_ref: order.$id, // Use Order ID as Ref
+        amount: amount,
+        currency: "NGN",
+        redirect_url: "https://abkhd.com/success",
+        customer: { email },
+        meta: { consumer_id: order.$id }
+    }, { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` }});
+
+    return res.json({ link: flwResponse.data.data.link });
+  }
+
+  // ROUTE 2: WEBHOOK (Called by Flutterwave)
+  if (req.path === '/webhook' && req.method === 'POST') {
+    // 1. Verify Hash Security
+    const signature = req.headers['verif-hash'];
+    if (!signature || signature !== process.env.FLW_SECRET_HASH) {
+      return res.json({ status: "error", message: "Invalid Signature" }, 401);
     }
+
+    const payload = JSON.parse(req.body);
+    
+    if (payload.status === "successful") {
+      // 2. Update Order to "Paid"
+      await db.updateDocument('DB_ID', 'orders', payload.txRef, {
+        payment_status: 'paid',
+        payment_ref: payload.id.toString()
+      });
+      
+      // 3. Decrease Stock (Optional Logic here)
+    }
+    return res.json({ status: "success" });
+  }
+
+  return res.json({ error: "Invalid Route" }, 404);
+};
+🛠 Phase 4: Admin Panel & Optimization
+Goal: A fast, secure dashboard for managing gadget inventory.
+
+1. Image Compression (Client-Side)
+In your Admin "Add Product" form (React component):
+
+JavaScript
+import imageCompression from 'browser-image-compression';
+
+async function handleImageUpload(event) {
+  const imageFile = event.target.files[0];
+  
+  const options = {
+    maxSizeMB: 0.5, // Compress to ~500KB
+    maxWidthOrHeight: 1200, // Resize if huge
+    useWebWorker: true,
   };
 
   try {
-    const response = await axios.post(
-      'https://api.flutterwave.com/v3/payments',
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${FLUTTERWAVE_SECRET}`
-        }
-      }
-    );
-    
-    res.json({ 
-      link: response.data.data.link,
-      tx_ref: txRef 
-    });
+    const compressedFile = await imageCompression(imageFile, options);
+    // Now upload `compressedFile` to Appwrite Storage using REST
+    uploadToAppwrite(compressedFile);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
   }
-});
+}
+2. Order Management UI
+Create a protected route /admin/orders.
 
-// 2. Verify Payment (Webhook)
-app.post('/api/payment/verify', async (req, res) => {
-  const { transaction_id, tx_ref } = req.body;
-  
-  try {
-    const response = await axios.get(
-      `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
-      {
-        headers: {
-          Authorization: `Bearer ${FLUTTERWAVE_SECRET}`
-        }
-      }
-    );
-    
-    const { status, amount, meta } = response.data.data;
-    
-    if (status === 'successful') {
-      // Update order in Appwrite
-      await updateOrderInAppwrite(tx_ref, 'paid', transaction_id);
-      
-      // Decrement stock for each item
-      for (const item of JSON.parse(meta.items)) {
-        await decrementStock(item.product_id);
-      }
-    }
-    
-    res.json({ received: true });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-```
+Fetch orders sorted by $createdAt (descending).
 
-### Frontend Checkout Flow
+Add a visual badge for status:
 
-```javascript
-// src/services/flutterwave.js
-export const initiatePayment = async (orderData) => {
-  const response = await fetch('/api/payment/initiate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(orderData)
-  });
-  
-  const { link, tx_ref } = await response.json();
-  
-  // Redirect to Flutterwave
-  window.location.href = link;
-};
+Pending: Yellow (Wait for payment).
 
-// In CheckoutPage.jsx - handle success return
-useEffect(() => {
-  const query = new URLSearchParams(window.location.search);
-  const tx_ref = query.get('tx_ref');
-  const status = query.get('status');
-  
-  if (status === 'successful' && tx_ref) {
-    // Verify with your server
-    verifyPayment(tx_ref);
-  }
-}, []);
-```
+Paid: Green (Ready to ship).
 
----
+Shipped: Blue.
 
-## 4. OG Meta Tags for Social Sharing
+🏁 Summary of Agile Sprints
+Sprint 1 (Migration): Initialize Astro, move React components, ensure the site loads locally with static data.
 
-### Using react-helmet-async
+Sprint 2 (Data): Set up Appwrite Cloud, write the API helper, connect the Product Listing page to real data.
 
-```bash
-yarn add react-helmet-async
-```
+Sprint 3 (Admin): Build the Admin "Add Gadget" form with Image Compression and Google OAuth.
 
-### Product Detail Page
+Sprint 4 (Checkout): Build the Cart, Guest Checkout Form, and Appwrite Function for Flutterwave.
 
-```javascript
-// src/pages/ProductDetailPage.jsx
-import { Helmet } from 'react-helmet-async';
-
-const ProductDetailPage = ({ product }) => {
-  // Get first image URL from Appwrite
-  const ogImage = product.images?.[0] 
-    ? `${import.meta.env.VITE_APPWRITE_ENDPOINT}/storage/buckets/${import.meta.env.VITE_APPWRITE_BUCKET_ID}/files/${product.images[0]}/view?project=${import.meta.env.VITE_APPWRITE_PROJECT_ID}`
-    : 'https://your-site.com/default-og-image.jpg';
-
-  const ogDescription = product.description?.slice(0, 160) + '...';
-  const ogPrice = `₦${product.price.toLocaleString()}`;
-  
-  const canonicalUrl = `https://your-site.com/products/${product.$id}`;
-
-  return (
-    <>
-      <Helmet>
-        {/* Primary Meta Tags */}
-        <title>{product.name} | Jalo Links</title>
-        <meta name="title" content={`${product.name} | Jalo Links Campus Market`} />
-        <meta name="description" content={ogDescription} />
-        
-        {/* Canonical URL */}
-        <link rel="canonical" href={canonicalUrl} />
-        
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content="product" />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:title" content={product.name} />
-        <meta property="og:description" content={ogDescription} />
-        <meta property="og:image" content={ogImage} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:price:amount" content={product.price} />
-        <meta property="og:price:currency" content="NGN" />
-        <meta property="product:price:amount" content={product.price} />
-        <meta property="product:price:currency" content="NGN" />
-        
-        {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content={canonicalUrl} />
-        <meta property="twitter:title" content={product.name} />
-        <meta property="twitter:description" content={ogDescription} />
-        <meta property="twitter:image" content={ogImage} />
-        
-        {/* WhatsApp / Messaging Apps */}
-        <meta property="og:site_name" content="Jalo Links Campus Market" />
-      </Helmet>
-      
-      {/* Rest of your product page */}
-    </>
-  );
-};
-```
-
-### Dynamic Meta Tags for Different Categories
-
-```javascript
-// For category pages
-const CategoryPage = ({ category, products }) => {
-  const ogImage = category.image 
-    ? getAppwriteFileUrl(category.image)
-    : 'https://your-site.com/default-category.jpg';
-
-  return (
-    <Helmet>
-      <title>{category.name} | Jalo Links Campus Market</title>
-      <meta property="og:title" content={`Shop ${category.name} | Jalo Links`} />
-      <meta property="og:description" content={`Explore our collection of ${category.name}. ${products.length} items available.`} />
-      <meta property="og:image" content={ogImage} />
-      <meta property="og:type" content="website" />
-    </Helmet>
-  );
-};
-```
-
----
-
-## 5. Environment Variables Needed
-
-```env
-# Appwrite (Frontend)
-VITE_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
-VITE_APPWRITE_PROJECT_ID=your-project-id
-VITE_APPWRITE_BUCKET_ID=your-bucket-id
-VITE_APPWRITE_DATABASE_ID=your-database-id
-
-# Flutterwave (Server)
-FLUTTERWAVE_SECRET_KEY=FLW_SECRET_KEY
-FLUTTERWAVE_PUBLIC_KEY=FLW_PUBLIC_KEY
-
-# Your Server
-SERVER_URL=https://your-server.onrender.com  # or localhost for dev
-```
-
----
-
-## 6. Key Differences from Your Current Stack
-
-| Feature | Current (Strapi/Prismic/Amplify) | New (Appwrite/Flutterwave) |
-|---------|----------------------------------|----------------------------|
-| Database | Strapi | Appwrite |
-| CMS | Prismic | Appwrite + Static pages |
-| Auth | AWS Cognito | Appwrite Auth |
-| Storage | AWS S3 | Appwrite Storage |
-| Payments | OPay | Flutterwave |
-| Deployment | Vercel + AWS | Vercel + (Render/Railway for server) |
-
----
-
-## 7. Migration Checklist
-
-- [ ] Set up Appwrite Cloud account
-- [ ] Create database and collections
-- [ ] Configure storage bucket for product images
-- [ ] Set up authentication methods
-- [ ] Create Node.js server for Flutterwave
-- [ ] Migrate products from Strapi to Appwrite
-- [ ] Migrate categories from Strapi to Appwrite
-- [ ] Update frontend to use Appwrite REST API
-- [ ] Implement Flutterwave checkout flow
-- [ ] Add OG meta tags to product pages
-- [ ] Test payment flow end-to-end
-- [ ] Deploy payment server to production
+Sprint 5 (Deploy): Connect to GitHub, Deploy Frontend to Vercel/Netlify, Deploy Functions to Appwrite.
