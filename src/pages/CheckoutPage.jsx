@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useToast } from '../contexts/ToastContext'
+import { useOrders } from '../contexts/OrderContext'
 import { formatPrice } from '../lib/utils'
 import BackButton from '../components/ui/BackButton'
 import Breadcrumb from '../components/ui/Breadcrumb'
@@ -10,6 +11,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate()
   const { items, getCartTotal, clearCart } = useCart()
   const { addToast } = useToast()
+  const { createOrder } = useOrders()
   
   // Get WhatsApp number from environment variables
   const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER
@@ -158,10 +160,29 @@ const CheckoutPage = () => {
       //   customer: { email: shippingDetails.email, ... }
       // })
 
-      // For now, simulate payment processing
+      // Simulate successful payment and create order
       await new Promise(resolve => setTimeout(resolve, 2000))
 
-      // On successful payment:
+      // Create order record
+      const order = createOrder({
+        items: items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+          image: item.image
+        })),
+        customer: shippingDetails,
+        subtotal: getCartTotal(),
+        shipping: 0,
+        total: getCartTotal()
+      })
+
+      console.log('Order created:', order)
+
+      // Clear cart and navigate to success
       clearCart()
       addToast('Payment successful! Order confirmed.', 'success')
       navigate('/success')
