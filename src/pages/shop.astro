@@ -45,7 +45,7 @@ const categoryFilters = [
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-3xl md:text-4xl font-bold mb-2">Shop</h1>
-            <p class="text-muted-foreground">
+            <p class="text-muted-foreground products-count-text">
               {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
             </p>
           </div>
@@ -71,45 +71,49 @@ const categoryFilters = [
                 <i class="bi bi-funnel text-primary"></i>
                 <span>Filter by Category</span>
               </div>
-              {selectedCategory && (
-                <a
-                  href="/shop"
-                  class="text-xs text-primary hover:underline"
-                >
-                  Clear
-                </a>
-              )}
+              <button
+                id="clear-filters"
+                class="text-xs text-primary hover:underline hidden"
+              >
+                Clear
+              </button>
             </div>
 
             <div class="space-y-3">
+              <!-- All Products Button -->
+              <button
+                data-category="all"
+                class="category-btn w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group All Products"
+              >
+                <div class="flex items-center space-x-3">
+                  <i class="bi bi-grid text-lg text-muted-foreground group-hover:text-primary transition-colors"></i>
+                  <span class="font-medium">All Products</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs text-muted-foreground">{products.length}</span>
+                </div>
+              </button>
+
               {categoryFilters.map((category) => {
-                const isSelected = selectedCategory === category.value;
+                const count = products.filter(p => p.category === category.value).length;
                 return (
-                  <a
-                    href={isSelected ? '/shop' : `/shop?category=${encodeURIComponent(category.value)}`}
-                    class={`w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group ${
-                      isSelected
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border bg-card hover:border-primary/50'
+                  <button
+                    data-category={category.value}
+                    data-count={count}
+                    class={`category-btn w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group ${
+                      ''
                     }`}
                   >
                     <div class="flex items-center space-x-3">
-                      <i class={`${category.icon} text-lg ${
-                        isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
-                      } transition-colors`}></i>
-                      <span class={`font-medium ${isSelected ? 'text-primary' : ''}`}>
+                      <i class={`${category.icon} text-lg text-muted-foreground group-hover:text-primary transition-colors`}></i>
+                      <span class="font-medium">
                         {category.name}
                       </span>
                     </div>
                     <div class="flex items-center space-x-2">
-                      {isSelected && (
-                        <i class="bi bi-check-circle-fill text-primary text-sm"></i>
-                      )}
-                      <i class={`bi bi-chevron-right text-sm ${
-                        isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
-                      } transition-colors`}></i>
+                      <span class="text-xs text-muted-foreground">{count}</span>
                     </div>
-                  </a>
+                  </button>
                 );
               })}
             </div>
@@ -126,25 +130,27 @@ const categoryFilters = [
         </aside>
 
         <!-- Products Grid -->
-        <main class="lg:col-span-3">
-          {filteredProducts.length === 0 ? (
-            <div class="text-center py-12 border border-dashed rounded-xl">
-              <i class="bi bi-inbox text-4xl text-muted-foreground mb-4"></i>
-              <p class="text-lg font-medium mb-2">No products found</p>
-              <p class="text-sm text-muted-foreground mb-6">
-                Try adjusting your filters
-              </p>
-              <a
-                href="/shop"
-                class="btn-secondary px-6 py-2"
-              >
-                Clear Filters
-              </a>
+          <main class="lg:col-span-3">
+            <div id="products-container">
+              {filteredProducts.length === 0 ? (
+                <div class="text-center py-12 border border-dashed rounded-xl">
+                  <i class="bi bi-inbox text-4xl text-muted-foreground mb-4"></i>
+                  <p class="text-lg font-medium mb-2">No products found</p>
+                  <p class="text-sm text-muted-foreground mb-6">
+                    Try adjusting your filters
+                  </p>
+                  <button
+                    id="clear-filters-btn"
+                    class="btn-secondary px-6 py-2"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              ) : (
+                <ProductGrid id="products-grid" products={filteredProducts} />
+              )}
             </div>
-          ) : (
-            <ProductGrid products={filteredProducts} />
-          )}
-        </main>
+          </main>
       </div>
     </div>
   </div>
@@ -156,8 +162,166 @@ const categoryFilters = [
 <div id="mobile-filter-drawer"></div>
 
 <script>
+  // Client-side filtering
+  const products = [
+    { id: 1, name: "ProBook 15 Laptop", category: "computers", price: 350000, originalPrice: 400000, image: "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800", description: "High-performance laptop with 15.6-inch display, 16GB RAM, 512GB SSD." },
+    { id: 2, name: "UltraSlim Desktop", category: "computers", price: 280000, image: "https://images.pexels.com/photos/442579/pexels-photo-442579.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Compact desktop computer for home and office use." },
+    { id: 3, name: "Galaxy X Pro Smartphone", category: "mobile phones", price: 250000, originalPrice: 280000, image: "https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Flagship smartphone with 6.7-inch AMOLED display, 256GB storage." },
+    { id: 4, name: "Budget Phone A12", category: "mobile phones", price: 85000, image: "https://images.pexels.com/photos/276528/pexels-photo-276528.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Affordable smartphone with great features." },
+    { id: 5, name: "Wireless Earbuds Pro", category: "accessories", price: 25000, originalPrice: 35000, image: "https://images.pexels.com/photos/1580896/pexels-photo-1580896.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Premium wireless earbuds with active noise cancellation." },
+    { id: 6, name: "Fast Charger 65W", category: "accessories", price: 12000, image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Universal fast charger compatible with all devices." },
+    { id: 7, name: "Premium Phone Case", category: "accessories", price: 5000, image: "https://images.pexels.com/photos/2332522/pexels-photo-2332522.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Protective phone case with premium finish." },
+    { id: 8, name: "Wireless Mouse", category: "accessories", price: 8000, image: "https://images.pexels.com/photos/163204/pexels-photo-163204.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Ergonomic wireless mouse for computers." }
+  ];
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0
+    }).format(price);
+  };
+
+  // Get elements
+  const categoryButtons = document.querySelectorAll('.category-btn');
+  const clearFiltersBtn = document.getElementById('clear-filters');
+  const clearFiltersBtn2 = document.getElementById('clear-filters-btn');
+  const productsContainer = document.getElementById('products-container');
+  const productsCountEl = document.querySelector('.products-count');
+
+  // Track selected category
+  let selectedCategory = 'all';
+
+  // Format currency
+  function formatNaira(amount) {
+    return '₦' + amount.toLocaleString();
+  }
+
+  // Render products grid
+  function renderProducts(productsToRender) {
+    if (productsToRender.length === 0) {
+      productsContainer.innerHTML = `
+        <div class="text-center py-12 border border-dashed rounded-xl">
+          <i class="bi bi-inbox text-4xl text-muted-foreground mb-4"></i>
+          <p class="text-lg font-medium mb-2">No products found</p>
+          <p class="text-sm text-muted-foreground mb-6">
+            Try adjusting your filters
+          </p>
+          <button id="clear-filters-btn2" class="btn-secondary px-6 py-2">
+            Clear Filters
+          </button>
+        </div>
+      `;
+      document.getElementById('clear-filters-btn2')?.addEventListener('click', () => filterProducts('all'));
+      return;
+    }
+
+    const productsHTML = productsToRender.map(product => `
+      <a href="/products/${product.id}" class="group">
+        <div class="rounded-xl border bg-card overflow-hidden transition-all hover:shadow-lg hover:border-primary/50">
+          <div class="aspect-square overflow-hidden bg-muted">
+            <img 
+              src="${product.image}" 
+              alt="${product.name}" 
+              class="w-full h-full object-cover transition-transform group-hover:scale-105"
+              loading="lazy"
+            />
+          </div>
+          <div class="p-4">
+            <h3 class="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">${product.name}</h3>
+            <p class="text-sm text-muted-foreground line-clamp-2 mb-3">${product.description}</p>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-bold">${formatNaira(product.price)}</span>
+              ${product.originalPrice ? `<span class="text-sm text-muted-foreground line-through">${formatNaira(product.originalPrice)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      </a>
+    `).join('');
+
+    productsContainer.innerHTML = `
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        ${productsHTML}
+      </div>
+    `;
+  }
+
+  // Update button states
+  function updateButtonStates() {
+    categoryButtons.forEach(btn => {
+      const category = btn.dataset.category;
+      const isSelected = category === selectedCategory;
+      
+      if (isSelected) {
+        btn.classList.add('border-primary', 'bg-primary/5');
+        btn.classList.remove('border-border', 'bg-card', 'hover:border-primary/50');
+        btn.querySelector('i.bi').classList.add('text-primary');
+        btn.querySelector('i.bi').classList.remove('text-muted-foreground');
+        btn.querySelector('span.font-medium').classList.add('text-primary');
+      } else {
+        btn.classList.remove('border-primary', 'bg-primary/5');
+        btn.classList.add('border-border', 'bg-card', 'hover:border-primary/50');
+        btn.querySelector('i.bi').classList.remove('text-primary');
+        btn.querySelector('i.bi').classList.add('text-muted-foreground');
+        btn.querySelector('span.font-medium').classList.remove('text-primary');
+      }
+    });
+
+    // Show/hide clear button
+    if (clearFiltersBtn) {
+      if (selectedCategory === 'all') {
+        clearFiltersBtn.classList.add('hidden');
+      } else {
+        clearFiltersBtn.classList.remove('hidden');
+      }
+    }
+  }
+
+  // Filter products
+  function filterProducts(category) {
+    selectedCategory = category;
+    
+    const filtered = category === 'all' 
+      ? products 
+      : products.filter(p => p.category === category);
+    
+    // Update URL without reload
+    if (category === 'all') {
+      window.history.pushState({}, '', '/shop');
+    } else {
+      window.history.pushState({}, '', `/shop?category=${encodeURIComponent(category)}`);
+    }
+    
+    // Update products count
+    const countEl = document.querySelector('.products-count-text');
+    if (countEl) {
+      countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'product' : 'products'} found`;
+    }
+    
+    renderProducts(filtered);
+    updateButtonStates();
+  }
+
+  // Add click handlers to category buttons
+  categoryButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.dataset.category;
+      filterProducts(category);
+    });
+  });
+
+  // Clear filters button
+  clearFiltersBtn?.addEventListener('click', () => filterProducts('all'));
+  clearFiltersBtn2?.addEventListener('click', () => filterProducts('all'));
+
+  // Check URL for category on load
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlCategory = urlParams.get('category');
+  if (urlCategory) {
+    filterProducts(urlCategory);
+  }
+
   // Basic mobile filter button functionality
-  // This will be enhanced with React components later
   const mobileFilterBtn = document.getElementById('mobile-filter-btn');
   if (mobileFilterBtn) {
     mobileFilterBtn.addEventListener('click', () => {
