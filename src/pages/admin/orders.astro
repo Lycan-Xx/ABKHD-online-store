@@ -1,0 +1,77 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { formatPrice } from '../../lib/utils';
+
+// Since we don't have real orders data, we'll show empty state
+// In a real app, this would fetch from your backend
+---
+
+<AdminLayout title="Orders - ABKHD Admin">
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">Orders</h1>
+        <p class="text-muted-foreground mt-1">Manage customer orders</p>
+      </div>
+    </div>
+
+    <!-- Orders Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="rounded-xl border bg-card p-5 transition-all hover:shadow-md">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-sm font-medium text-muted-foreground">Total Revenue</p>
+            <p class="text-3xl font-bold mt-2">₦0</p>
+            <p class="text-xs text-muted-foreground mt-1">From all orders</p>
+          </div>
+          <div class="p-3 rounded-lg bg-green-500/10">
+            <i class="bi bi-currency-naira text-xl text-green-500"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border bg-card p-5 transition-all hover:shadow-md">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-sm font-medium text-muted-foreground">Completed Orders</p>
+            <p class="text-3xl font-bold mt-2">0</p>
+            <p class="text-xs text-muted-foreground mt-1">Total orders</p>
+          </div>
+          <div class="p-3 rounded-lg bg-blue-500/10">
+            <i class="bi bi-bag-check text-xl text-blue-500"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border bg-card p-5 transition-all hover:shadow-md">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-sm font-medium text-muted-foreground">Average Order Value</p>
+            <p class="text-3xl font-bold mt-2">₦0</p>
+            <p class="text-xs text-muted-foreground mt-1">Per order</p>
+          </div>
+          <div class="p-3 rounded-lg bg-yellow-500/10">
+            <i class="bi bi-graph-up text-xl text-yellow-500"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders List -->
+    <div class="rounded-xl border bg-card overflow-hidden">
+      <div class="p-6 border-b">
+        <h2 class="text-lg font-semibold">All Completed Orders</h2>
+        <p class="text-sm text-muted-foreground">View order details and copy receipts</p>
+      </div>
+      
+      <div class="p-12 text-center">
+        <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="bi bi-bag-x text-3xl text-muted-foreground"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">No orders yet</h3>
+        <p class="text-muted-foreground">Completed orders will appear here</p>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

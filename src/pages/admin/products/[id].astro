@@ -235,6 +235,27 @@ if (!product) {
       <div class="rounded-xl border bg-card p-6 space-y-4">
         <h2 class="text-lg font-semibold">Status</h2>
         
+        <!-- Listed (Active) Toggle -->
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            id="isActive"
+            class="toggle-btn relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-primary"
+            data-current-status={(product.isActive !== false) ? 'active' : 'inactive'}
+          >
+            <span class="toggle-indicator inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform translate-x-6"></span>
+          </button>
+          <div>
+            <label for="isActive" class="text-sm font-medium cursor-pointer">
+              List product in shop
+            </label>
+            <p class="text-xs text-muted-foreground">
+              If OFF, product will not be shown in the shop
+            </p>
+          </div>
+        </div>
+
+        <!-- Featured -->
         <div class="flex items-center gap-3">
           <input
             type="checkbox"
@@ -279,6 +300,22 @@ if (!product) {
   
   .btn-secondary {
     @apply inline-flex items-center justify-center px-6 py-2.5 rounded-lg border bg-background font-medium transition-colors hover:bg-muted;
+  }
+
+  .toggle-btn.active {
+    @apply bg-primary;
+  }
+  
+  .toggle-btn.inactive {
+    @apply bg-muted;
+  }
+  
+  .toggle-btn.active .toggle-indicator {
+    @apply translate-x-6;
+  }
+  
+  .toggle-btn.inactive .toggle-indicator {
+    @apply translate-x-1;
   }
 </style>
 
@@ -526,6 +563,41 @@ if (!product) {
 
   // Form submission
   const form = document.getElementById('product-form') as HTMLFormElement;
+  const isActiveToggle = document.getElementById('isActive') as HTMLButtonElement;
+  
+  // Initialize toggle button visual state
+  const initToggle = () => {
+    if (isActiveToggle) {
+      const isActive = isActiveToggle.dataset.currentStatus === 'active';
+      if (!isActive) {
+        isActiveToggle.classList.remove('bg-primary');
+        isActiveToggle.classList.add('bg-muted');
+        isActiveToggle.querySelector('.toggle-indicator')?.classList.remove('translate-x-6');
+        isActiveToggle.querySelector('.toggle-indicator')?.classList.add('translate-x-1');
+      }
+    }
+  };
+  initToggle();
+  
+  // Toggle button click handler
+  isActiveToggle?.addEventListener('click', () => {
+    const isActive = isActiveToggle.dataset.currentStatus === 'active';
+    const newStatus = !isActive;
+    
+    if (newStatus) {
+      isActiveToggle.classList.add('bg-primary');
+      isActiveToggle.classList.remove('bg-muted');
+      isActiveToggle.querySelector('.toggle-indicator')?.classList.add('translate-x-6');
+      isActiveToggle.querySelector('.toggle-indicator')?.classList.remove('translate-x-1');
+      isActiveToggle.dataset.currentStatus = 'active';
+    } else {
+      isActiveToggle.classList.add('bg-muted');
+      isActiveToggle.classList.remove('bg-primary');
+      isActiveToggle.querySelector('.toggle-indicator')?.classList.add('translate-x-1');
+      isActiveToggle.querySelector('.toggle-indicator')?.classList.remove('translate-x-6');
+      isActiveToggle.dataset.currentStatus = 'inactive';
+    }
+  });
   
   if (form) {
     form.addEventListener('submit', (e) => {
@@ -545,7 +617,8 @@ if (!product) {
         image: mediaFiles.find(f => f.type === 'image' && f.isPrimary)?.data || null,
         images: mediaFiles.filter(f => f.type === 'image').map(f => f.data),
         videos: mediaFiles.filter(f => f.type === 'video').map(f => f.data),
-        featured: formData.has('featured')
+        featured: formData.has('featured'),
+        isActive: isActiveToggle?.dataset.currentStatus === 'active'
       };
       
       console.log('Product data:', productData);

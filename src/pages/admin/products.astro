@@ -1,7 +1,7 @@
 ---
-import AdminLayout from '../../layouts/AdminLayout.astro';
-import { products } from '../../data/products';
-import { formatPrice } from '../../lib/utils';
+import AdminLayout from '../layouts/AdminLayout.astro';
+import { products } from '../data/products';
+import { formatPrice } from '../lib/utils';
 
 // Get query parameters
 const url = Astro.url;
@@ -105,6 +105,9 @@ const categories = [...new Set(products.map(p => p.category))];
               <th class="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
                 Featured
               </th>
+              <th class="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
+                Listed
+              </th>
               <th class="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
                 Actions
               </th>
@@ -112,7 +115,7 @@ const categories = [...new Set(products.map(p => p.category))];
           </thead>
           <tbody class="divide-y">
             {filteredProducts.map(product => (
-              <tr class="hover:bg-muted/30 transition-colors">
+              <tr class="hover:bg-muted/30 transition-colors" data-product-id={product.id}>
                 <!-- Product -->
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-3">
@@ -169,6 +172,17 @@ const categories = [...new Set(products.map(p => p.category))];
                   )}
                 </td>
 
+                <!-- Listed (Active Toggle) -->
+                <td class="px-4 py-3 text-center">
+                  <button 
+                    class="toggle-btn relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    data-product-id={product.id}
+                    data-current-status={product.isActive !== false ? 'active' : 'inactive'}
+                  >
+                    <span class="toggle-indicator inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform"></span>
+                  </button>
+                </td>
+
                 <!-- Actions -->
                 <td class="px-4 py-3">
                   <div class="flex items-center justify-end gap-2">
@@ -190,7 +204,7 @@ const categories = [...new Set(products.map(p => p.category))];
       <!-- Mobile Cards -->
       <div class="md:hidden divide-y">
         {filteredProducts.map(product => (
-          <div class="p-4">
+          <div class="p-4" data-product-id={product.id}>
             <div class="flex items-start gap-3">
               <div class="w-16 h-16 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                 <img 
@@ -222,12 +236,22 @@ const categories = [...new Set(products.map(p => p.category))];
                   <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted capitalize">
                     {product.category}
                   </span>
-                  <a
-                    href={`/admin/products/${product.id}`}
-                    class="p-2 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    <i class="bi bi-pencil"></i>
-                  </a>
+                  <div class="flex items-center gap-3">
+                    <!-- Mobile Toggle -->
+                    <button 
+                      class="toggle-btn-mobile relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      data-product-id={product.id}
+                      data-current-status={product.isActive !== false ? 'active' : 'inactive'}
+                    >
+                      <span class="toggle-indicator inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform"></span>
+                    </button>
+                    <a
+                      href={`/admin/products/${product.id}`}
+                      class="p-2 rounded-lg hover:bg-muted transition-colors"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -250,4 +274,100 @@ const categories = [...new Set(products.map(p => p.category))];
       )}
     </div>
   </div>
-</ AdminLayout>
+</AdminLayout>
+
+<style>
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium transition-colors hover:bg-primary/90;
+  }
+  
+  .toggle-btn.active {
+    @apply bg-primary;
+  }
+  
+  .toggle-btn.inactive {
+    @apply bg-muted;
+  }
+  
+  .toggle-btn.active .toggle-indicator {
+    @apply translate-x-6;
+  }
+  
+  .toggle-btn.inactive .toggle-indicator {
+    @apply translate-x-1;
+  }
+  
+  .toggle-btn-mobile.active {
+    @apply bg-primary;
+  }
+  
+  .toggle-btn-mobile.inactive {
+    @apply bg-muted;
+  }
+  
+  .toggle-btn-mobile.active .toggle-indicator {
+    @apply translate-x-6;
+  }
+  
+  .toggle-btn-mobile.inactive .toggle-indicator {
+    @apply translate-x-1;
+  }
+</style>
+
+<script>
+  // Initialize toggle buttons with correct state
+  const initializeToggles = () => {
+    document.querySelectorAll('.toggle-btn, .toggle-btn-mobile').forEach((btn) => {
+      const button = btn as HTMLButtonElement;
+      const isActive = button.dataset.currentStatus === 'active';
+      
+      if (isActive) {
+        button.classList.add('active');
+        button.classList.remove('inactive');
+      } else {
+        button.classList.add('inactive');
+        button.classList.remove('active');
+      }
+      
+      // Add click handler
+      button.addEventListener('click', () => {
+        const productId = button.dataset.productId;
+        const currentlyActive = button.classList.contains('active');
+        const newStatus = !currentlyActive;
+        
+        // Toggle visual state
+        if (newStatus) {
+          button.classList.add('active');
+          button.classList.remove('inactive');
+          button.dataset.currentStatus = 'active';
+        } else {
+          button.classList.add('inactive');
+          button.classList.remove('active');
+          button.dataset.currentStatus = 'inactive';
+        }
+        
+        // Sync all toggle buttons for this product
+        document.querySelectorAll(`[data-product-id="${productId}"]`).forEach((toggleBtn) => {
+          const tb = toggleBtn as HTMLButtonElement;
+          if (tb !== button) {
+            if (newStatus) {
+              tb.classList.add('active');
+              tb.classList.remove('inactive');
+              tb.dataset.currentStatus = 'active';
+            } else {
+              tb.classList.add('inactive');
+              tb.classList.remove('active');
+              tb.dataset.currentStatus = 'inactive';
+            }
+          }
+        });
+        
+        // In a real app, this would make an API call to update the product status
+        console.log(`Product ${productId} toggled to: ${newStatus ? 'active' : 'inactive'}`);
+      });
+    });
+  };
+
+  // Initialize on page load
+  initializeToggles();
+</script>
