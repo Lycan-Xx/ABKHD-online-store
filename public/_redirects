@@ -1,1 +1,5 @@
-/* /index.html 200
+# Cloudflare Pages Redirects
+
+# SPA fallback - uncomment if using client-side routing
+# /_next/static/:path /_next/static/:path 200
+# /admin/* /index.html 200

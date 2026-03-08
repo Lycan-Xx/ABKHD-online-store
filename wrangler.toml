@@ -1,0 +1,19 @@
+name = "abkhd-store-astro"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "./dist"
+
+# Uncomment if you want to use Cloudflare KV for data storage
+# [[kv_namespaces]]
+# binding = "MY_KV"
+# id = "your-kv-namespace-id"
+
+# Uncomment if you want to use Cloudflare D1 for database
+# [[d1_databases]]
+# binding = "MY_DB"
+# database_name = "my-database"
+# database_id = "your-d1-database-id"
+
+# Uncomment if you want to use Cloudflare R2 for object storage
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"
