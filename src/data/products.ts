@@ -15,8 +15,12 @@ export interface Product {
   longDescription?: string
   image: string
   images?: string[]
+  videos?: string[]
   stock: number
   featured: boolean
+  isActive?: boolean
+  isArchived?: boolean
+  brand?: string
   tags: string[]
 }
 

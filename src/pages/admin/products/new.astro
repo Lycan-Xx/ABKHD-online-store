@@ -7,8 +7,8 @@ const url = Astro.url;
 const productId = url.searchParams.get('id');
 const isEditing = !!productId;
 
-// Find existing product if editing
-const product = isEditing ? products.find(p => p.id === productId) : null;
+// Find existing product if editing (convert productId to number for comparison)
+const product = isEditing ? products.find(p => p.id === Number(productId)) : null;
 
 // Get unique categories
 const categories = [...new Set(products.map(p => p.category))];
