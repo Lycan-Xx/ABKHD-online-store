@@ -1,0 +1,51 @@
+---
+import { formatPrice } from '../lib/utils';
+import type { Product } from '../data/products';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+---
+
+<a href={`/products/${product.id}`} class="product-card group block">
+  <div class="relative aspect-square overflow-hidden rounded-t-xl bg-muted">
+    <img
+      src={product.image || 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=800'}
+      alt={product.name}
+      class="product-image group-hover:scale-105"
+      crossorigin="anonymous"
+    />
+    <!-- Verified Badge -->
+    <div class="absolute top-3 right-3">
+      <span class="verified-badge">
+        <i class="bi bi-patch-check-fill"></i>
+        Verified
+      </span>
+    </div>
+  </div>
+  <div class="p-4 space-y-2">
+    <h3 class="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+      {product.name}
+    </h3>
+    <p class="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
+    <div class="flex items-center gap-2 pt-1">
+      <span class="font-semibold">{formatPrice(product.price)}</span>
+      {product.originalPrice && (
+        <span class="text-sm text-muted-foreground line-through">
+          {formatPrice(product.originalPrice)}
+        </span>
+      )}
+    </div>
+  </div>
+</a>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

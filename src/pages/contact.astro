@@ -1,0 +1,234 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Contact Us - ABKHD Store">
+  <Header slot="header" />
+  
+  <div class="container py-8 md:py-12">
+    <!-- Navigation -->
+    <div class="mb-12">
+      <nav class="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
+        <a href="/" class="hover:text-foreground">Home</a>
+        <i class="bi bi-chevron-right"></i>
+        <span class="text-foreground">Contact</span>
+      </nav>
+      <a href="/" class="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors">
+        <i class="bi bi-arrow-left text-lg"></i>
+        <span class="text-sm font-medium">Back to Home</span>
+      </a>
+    </div>
+    
+    <!-- Content Container -->
+    <div class="max-w-6xl mx-auto">
+      <!-- Header - Minimal -->
+      <div class="text-center mb-16 max-w-2xl mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Get in Touch</h1>
+        <p class="text-lg text-muted-foreground">
+          Questions about a product? Need help? We're here.
+        </p>
+      </div>
+
+      <!-- Primary Contact - WhatsApp Hero -->
+      <div class="mb-16 max-w-2xl mx-auto">
+        <div class="text-center p-10 rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+          <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+            <i class="bi bi-whatsapp text-primary text-4xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold mb-3">Chat with us on WhatsApp</h2>
+          <p class="text-muted-foreground mb-6">
+            The fastest way to get answers. We typically respond within minutes.
+          </p>
+          <a 
+            href="https://wa.me/2348012345678" 
+            class="inline-flex items-center justify-center px-10 py-4 text-lg font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <i class="bi bi-whatsapp mr-2 text-xl"></i>
+            Start Conversation
+          </a>
+        </div>
+      </div>
+
+      <!-- Alternative Contact Methods -->
+      <div class="mb-16 max-w-2xl mx-auto">
+        <h3 class="text-sm font-medium text-muted-foreground text-center mb-6">
+          Or reach us via
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a 
+            href="mailto:hello@abkhdstore.com"
+            class="flex items-center space-x-4 p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors group"
+          >
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+              <i class="bi bi-envelope text-primary text-xl"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-1">Email</h3>
+              <p class="text-sm text-muted-foreground">hello@abkhdstore.com</p>
+            </div>
+          </a>
+
+          <button
+            id="contact-form-toggle"
+            class="flex items-center space-x-4 p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors group text-left"
+          >
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+              <i class="bi bi-pencil-square text-primary text-xl"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-1">Contact Form</h3>
+              <p class="text-sm text-muted-foreground">Send us a message</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contact Form - Collapsible -->
+      <div id="contact-form" class="mb-16 p-8 rounded-xl border border-border bg-card/50 max-w-2xl mx-auto hidden">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold">Send us a Message</h2>
+          <button
+            id="contact-form-close"
+            class="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        
+        <form id="contact-form-element" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="name" class="block text-sm font-medium mb-2">
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
+                placeholder="Your name"
+              />
+            </div>
+            <div>
+              <label for="email" class="block text-sm font-medium mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
+                placeholder="your@email.com"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="subject" class="block text-sm font-medium mb-2">
+              Subject
+            </label>
+            <input
+              type="text"
+              id="subject"
+              name="subject"
+              required
+              class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
+              placeholder="What's this about?"
+            />
+          </div>
+
+          <div>
+            <label for="message" class="block text-sm font-medium mb-2">
+              Message
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              required
+              rows="5"
+              class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow resize-vertical"
+              placeholder="Tell us more..."
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full btn-primary py-3"
+          >
+            <span class="flex items-center justify-center">
+              <i class="bi bi-send mr-2"></i>
+              Send Message
+            </span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Response Time Note -->
+      <div class="text-center max-w-2xl mx-auto">
+        <p class="text-sm text-muted-foreground">
+          <i class="bi bi-clock text-primary mr-2"></i>
+          We typically respond within 2 hours during business hours
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</Layout>
+
+<script>
+  // Contact form toggle functionality
+  const formToggle = document.getElementById('contact-form-toggle');
+  const contactForm = document.getElementById('contact-form');
+  const formClose = document.getElementById('contact-form-close');
+  const formElement = document.getElementById('contact-form-element');
+
+  if (formToggle && contactForm) {
+    formToggle.addEventListener('click', () => {
+      contactForm.classList.toggle('hidden');
+    });
+  }
+
+  if (formClose && contactForm) {
+    formClose.addEventListener('click', () => {
+      contactForm.classList.add('hidden');
+    });
+  }
+
+  // Form submission
+  if (formElement) {
+    formElement.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = formElement.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      
+      // Show loading state
+      submitBtn.innerHTML = `
+        <span class="flex items-center justify-center">
+          <i class="bi bi-arrow-clockwise animate-spin mr-2"></i>
+          Sending...
+        </span>
+      `;
+      submitBtn.disabled = true;
+      
+      // Simulate form submission
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Show success message
+      alert('Message sent successfully! We\'ll get back to you soon.');
+      
+      // Reset form
+      formElement.reset();
+      contactForm.classList.add('hidden');
+      
+      // Reset button
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    });
+  }
+</script>

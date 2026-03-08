@@ -1,0 +1,160 @@
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 20% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+    --primary: 173 58% 39%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 20% 10%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 46%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 20% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 14% 90%;
+    --input: 220 14% 90%;
+    --ring: 173 58% 39%;
+    --radius: 0.75rem;
+    
+    /* Custom tokens */
+    --verified: 142 71% 45%;
+    --verified-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 220 20% 7%;
+    --foreground: 220 14% 96%;
+    --card: 220 20% 10%;
+    --card-foreground: 220 14% 96%;
+    --popover: 220 20% 7%;
+    --popover-foreground: 220 14% 96%;
+    --primary: 173 58% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 14%;
+    --secondary-foreground: 220 14% 96%;
+    --muted: 220 20% 14%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 220 20% 14%;
+    --accent-foreground: 220 14% 96%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 173 58% 45%;
+    
+    /* Custom tokens */
+    --verified: 142 71% 45%;
+    --verified-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .product-card {
+    @apply relative overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:border-primary/30;
+  }
+  
+  .product-image {
+    @apply aspect-square w-full object-cover transition-transform duration-300;
+  }
+  
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border border-border bg-background px-5 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .verified-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full;
+    background-color: hsl(var(--verified) / 0.1);
+    color: hsl(var(--verified));
+  }
+
+  .section-heading {
+    @apply text-3xl md:text-4xl font-bold tracking-tight;
+  }
+
+  .section-subheading {
+    @apply text-lg text-muted-foreground max-w-2xl;
+  }
+
+  /* Certification Flow Animations */
+  .certification-line {
+    stroke-dashoffset: 16;
+    animation: flow-line 8s linear infinite;
+  }
+
+  .certification-line-vertical {
+    transform: scaleY(0);
+    transform-origin: top;
+    animation: flow-vertical 8s ease-in-out infinite;
+  }
+
+  .certification-node {
+    animation: node-pulse 8s ease-in-out infinite;
+  }
+
+  .certification-pulse {
+    opacity: 0;
+    animation: pulse-ring 8s ease-in-out infinite;
+  }
+
+  .certification-label {
+    opacity: 0.6;
+    animation: label-highlight 8s ease-in-out infinite;
+  }
+
+  @keyframes flow-line {
+    0%, 100% { stroke-dashoffset: 16; opacity: 0.3; }
+    12.5% { stroke-dashoffset: 0; opacity: 1; }
+    25% { stroke-dashoffset: -16; opacity: 0.3; }
+  }
+
+  @keyframes flow-vertical {
+    0%, 100% { transform: scaleY(0); opacity: 0.3; }
+    12.5% { transform: scaleY(1); opacity: 1; }
+    25% { transform: scaleY(0); opacity: 0.3; }
+  }
+
+  @keyframes node-pulse {
+    0%, 100% { stroke: hsl(var(--border)); }
+    12.5% { stroke: hsl(var(--primary)); }
+    25% { stroke: hsl(var(--border)); }
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 0; r: 40; }
+    6.25% { opacity: 0.5; r: 40; }
+    12.5% { opacity: 0; r: 50; }
+  }
+
+  @keyframes label-highlight {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    12.5% { opacity: 1; transform: scale(1.02); }
+    25% { opacity: 0.6; transform: scale(1); }
+  }
+}

@@ -1,0 +1,124 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = "ABKHD Admin", 
+  description = "Admin panel for ABKHD store" 
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+
+const navItems = [
+  { path: '/admin', label: 'Dashboard', icon: 'bi-grid-1x2-fill', exact: true },
+  { path: '/admin/products', label: 'Products', icon: 'bi-box-seam-fill' }
+];
+
+const isActive = (path: string, exact = false) => {
+  if (exact) {
+    return currentPath === path;
+  }
+  return currentPath.startsWith(path);
+};
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="min-h-screen bg-background">
+      <!-- Admin Header -->
+      <header class="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+        <div class="container flex h-16 items-center justify-between">
+          <div class="flex items-center gap-6">
+            <a href="/admin" class="flex items-center gap-2">
+              <span class="text-xl font-bold text-primary">ABKHD</span>
+              <span class="text-sm font-medium text-muted-foreground">Admin</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-1">
+              {navItems.map(item => (
+                <a
+                  href={item.path}
+                  class={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive(item.path, item.exact)
+                      ? 'text-primary bg-primary/10' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  }`}
+                >
+                  <i class={item.icon}></i>
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+
+          <a 
+            href="/" 
+            class="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <i class="bi bi-arrow-left"></i>
+            Back to Store
+          </a>
+        </div>
+      </header>
+
+      <!-- Mobile Navigation -->
+      <nav class="md:hidden sticky top-16 z-40 border-b bg-card/95 backdrop-blur">
+        <div class="container flex items-center gap-2 py-2 overflow-x-auto">
+          {navItems.map(item => (
+            <a
+              href={item.path}
+              class={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                isActive(item.path, item.exact)
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              <i class={item.icon}></i>
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="container py-6 md:py-8">
+        <slot />
+      </main>
+    </div>
+    <script>
+      // Initialize dark mode
+      const initializeDarkMode = () => {
+        const savedTheme = localStorage.getItem('darkMode')
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        
+        const isDark = savedTheme !== null 
+          ? savedTheme === 'true' 
+          : systemPrefersDark
+
+        if (isDark) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+
+        return isDark
+      }
+
+      // Initialize on page load
+      initializeDarkMode()
+    </script>
+  </body>
+</html>

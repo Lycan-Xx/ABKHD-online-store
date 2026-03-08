@@ -1,0 +1,150 @@
+---
+const currentPath = Astro.url.pathname;
+const isActive = (path: string) => currentPath === path;
+const isHome = currentPath === '/';
+---
+
+<header class="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+  <div class="container flex h-16 items-center justify-between">
+    <!-- Mobile menu button -->
+    <button
+      id="mobile-menu-btn"
+      class="md:hidden p-2 -ml-2 hover:bg-accent rounded-lg transition-colors"
+      aria-label="Open menu"
+    >
+      <i class="bi bi-list text-xl"></i>
+    </button>
+
+    <!-- Logo -->
+    <a 
+      href="/" 
+      class={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
+        isHome 
+          ? 'bg-primary/10 ring-1 ring-primary/30' 
+          : 'hover:bg-accent'
+      }`}
+    >
+      <span class={`font-bold text-xl tracking-tight transition-colors ${isHome ? 'text-primary' : ''}`}>
+        ABKHD
+      </span>
+      {isHome && <i class="bi bi-house-fill text-primary text-sm"></i>}
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:flex items-center gap-1">
+      <a 
+        href="/shop" 
+        class={`px-4 py-2 text-sm rounded-lg transition-all ${
+          isActive('/shop') 
+            ? 'text-primary bg-primary/15 font-semibold border-b-2 border-primary' 
+            : 'text-muted-foreground font-medium hover:text-foreground hover:bg-accent'
+        }`}
+      >
+        Shop
+      </a>
+      <a 
+        href="/about" 
+        class={`px-4 py-2 text-sm rounded-lg transition-all ${
+          isActive('/about') 
+            ? 'text-primary bg-primary/15 font-semibold border-b-2 border-primary' 
+            : 'text-muted-foreground font-medium hover:text-foreground hover:bg-accent'
+        }`}
+      >
+        About
+      </a>
+      <a 
+        href="/contact" 
+        class={`px-4 py-2 text-sm rounded-lg transition-all ${
+          isActive('/contact') 
+            ? 'text-primary bg-primary/15 font-semibold border-b-2 border-primary' 
+            : 'text-muted-foreground font-medium hover:text-foreground hover:bg-accent'
+        }`}
+      >
+        Contact
+      </a>
+    </nav>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-2">
+      <!-- Dark Mode Toggle -->
+      <button
+        id="dark-mode-toggle"
+        class="hidden md:flex p-2 hover:bg-accent rounded-lg transition-colors"
+        aria-label="Toggle dark mode"
+      >
+        <i id="dark-mode-icon" class="bi bi-moon text-lg"></i>
+      </button>
+
+      <!-- Cart -->
+      <button
+        id="cart-toggle"
+        class="relative p-2 hover:bg-accent rounded-lg transition-colors"
+        aria-label="Open cart"
+      >
+        <i class="bi bi-bag text-lg"></i>
+        <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center hidden">
+          0
+        </span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Menu (will be controlled by React component) -->
+<div id="mobile-menu-container"></div>
+
+<!-- Cart Drawer (will be controlled by React component) -->
+<div id="cart-drawer-container"></div>
+
+<!-- React Interactive Components -->
+<div id="header-interactive"></div>
+
+<script>
+  // Dark mode toggle functionality
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
+  const darkModeIcon = document.getElementById('dark-mode-icon');
+  
+  function updateDarkModeIcon() {
+    const isDark = document.documentElement.classList.contains('dark');
+    if (darkModeIcon) {
+      darkModeIcon.className = isDark ? 'bi bi-sun text-lg' : 'bi bi-moon text-lg';
+    }
+  }
+  
+  // Initialize icon
+  updateDarkModeIcon();
+  
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', () => {
+      const currentlyDark = document.documentElement.classList.contains('dark');
+      
+      if (currentlyDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('darkMode', 'false');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('darkMode', 'true');
+      }
+      
+      updateDarkModeIcon();
+    });
+  }
+
+  // Initialize React components after DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    // This will be enhanced when we add the React component mounting
+    console.log('Header interactive components ready');
+  });
+</script>
+
+<script>
+  import HeaderInteractive from '../components/react/HeaderInteractive';
+  import { createRoot } from 'react-dom/client';
+  
+  // Mount React components
+  const headerInteractiveContainer = document.getElementById('header-interactive');
+  if (headerInteractiveContainer) {
+    const root = createRoot(headerInteractiveContainer);
+    root.render(<HeaderInteractive />);
+  }
+</script>

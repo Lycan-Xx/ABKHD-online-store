@@ -1,0 +1,167 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProductGrid from '../components/ProductGrid.astro';
+import { products, categories } from '../data/products';
+
+// Get query parameters for filtering
+const url = Astro.url;
+const selectedCategory = url.searchParams.get('category');
+
+// Filter products based on category
+const filteredProducts = selectedCategory 
+  ? products.filter(product => product.category === selectedCategory)
+  : products;
+
+// Categories with icons for filtering
+const categoryFilters = [
+  { name: 'Computers', icon: 'bi-laptop', value: 'computers' },
+  { name: 'Mobile Phones', icon: 'bi-phone', value: 'mobile phones' },
+  { name: 'Accessories', icon: 'bi-headphones', value: 'accessories' }
+];
+---
+
+<Layout title="Shop - ABKHD Store">
+  <Header slot="header" />
+  
+  <div class="container py-8 md:py-12">
+    <!-- Navigation -->
+    <div class="mb-12">
+      <nav class="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
+        <a href="/" class="hover:text-foreground">Home</a>
+        <i class="bi bi-chevron-right"></i>
+        <span class="text-foreground">Shop</span>
+      </nav>
+      <a href="/" class="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors">
+        <i class="bi bi-arrow-left text-lg"></i>
+        <span class="text-sm font-medium">Back to Home</span>
+      </a>
+    </div>
+    
+    <!-- Content Container -->
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">Shop</h1>
+            <p class="text-muted-foreground">
+              {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
+            </p>
+          </div>
+          
+          <!-- Mobile Filter Button (will be enhanced with React) -->
+          <button
+            id="mobile-filter-btn"
+            class="lg:hidden flex items-center space-x-2 px-4 py-2 border border-border rounded-lg bg-card hover:border-primary/50 transition-colors"
+          >
+            <i class="bi bi-funnel text-primary"></i>
+            <span class="text-sm font-medium">Filters</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Desktop Sidebar - Hidden on mobile -->
+        <aside class="hidden lg:block lg:col-span-1">
+          <div class="lg:sticky lg:top-24 space-y-6">
+            <!-- Categories Header -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2 text-sm font-medium">
+                <i class="bi bi-funnel text-primary"></i>
+                <span>Filter by Category</span>
+              </div>
+              {selectedCategory && (
+                <a
+                  href="/shop"
+                  class="text-xs text-primary hover:underline"
+                >
+                  Clear
+                </a>
+              )}
+            </div>
+
+            <div class="space-y-3">
+              {categoryFilters.map((category) => {
+                const isSelected = selectedCategory === category.value;
+                return (
+                  <a
+                    href={isSelected ? '/shop' : `/shop?category=${encodeURIComponent(category.value)}`}
+                    class={`w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group ${
+                      isSelected
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border bg-card hover:border-primary/50'
+                    }`}
+                  >
+                    <div class="flex items-center space-x-3">
+                      <i class={`${category.icon} text-lg ${
+                        isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                      } transition-colors`}></i>
+                      <span class={`font-medium ${isSelected ? 'text-primary' : ''}`}>
+                        {category.name}
+                      </span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      {isSelected && (
+                        <i class="bi bi-check-circle-fill text-primary text-sm"></i>
+                      )}
+                      <i class={`bi bi-chevron-right text-sm ${
+                        isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                      } transition-colors`}></i>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+
+            <!-- Show All Products Button -->
+            {!selectedCategory && (
+              <div class="pt-4 border-t">
+                <p class="text-xs text-muted-foreground text-center">
+                  Showing all products
+                </p>
+              </div>
+            )}
+          </div>
+        </aside>
+
+        <!-- Products Grid -->
+        <main class="lg:col-span-3">
+          {filteredProducts.length === 0 ? (
+            <div class="text-center py-12 border border-dashed rounded-xl">
+              <i class="bi bi-inbox text-4xl text-muted-foreground mb-4"></i>
+              <p class="text-lg font-medium mb-2">No products found</p>
+              <p class="text-sm text-muted-foreground mb-6">
+                Try adjusting your filters
+              </p>
+              <a
+                href="/shop"
+                class="btn-secondary px-6 py-2"
+              >
+                Clear Filters
+              </a>
+            </div>
+          ) : (
+            <ProductGrid products={filteredProducts} />
+          )}
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</Layout>
+
+<!-- Mobile Filter Drawer Container (will be enhanced with React) -->
+<div id="mobile-filter-drawer"></div>
+
+<script>
+  // Basic mobile filter button functionality
+  // This will be enhanced with React components later
+  const mobileFilterBtn = document.getElementById('mobile-filter-btn');
+  if (mobileFilterBtn) {
+    mobileFilterBtn.addEventListener('click', () => {
+      console.log('Mobile filter clicked - will be enhanced with React');
+    });
+  }
+</script>

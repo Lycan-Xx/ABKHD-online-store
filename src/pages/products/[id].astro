@@ -1,0 +1,265 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { products } from '../../data/products';
+import { formatPrice } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  return products.map((product) => ({
+    params: { id: product.id.toString() },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+
+if (!product) {
+  return Astro.redirect('/404');
+}
+
+// Get related products (same category, excluding current product)
+const relatedProducts = products
+  .filter(p => p.id !== product.id && p.category === product.category)
+  .slice(0, 4);
+
+// Category data matching ShopPage
+const getCategoryData = (categoryName: string) => {
+  const categories = [
+    { name: 'Computers', icon: 'bi-laptop', value: 'computers' },
+    { name: 'Mobile Phones', icon: 'bi-phone', value: 'mobile phones' },
+    { name: 'Accessories', icon: 'bi-headphones', value: 'accessories' }
+  ];
+  return categories.find(cat => cat.value === categoryName) || categories[0];
+};
+
+const categoryData = getCategoryData(product.category);
+---
+
+<Layout title={`${product.name} - ABKHD Store`}>
+  <Header slot="header" />
+  
+  <div class="container py-8">
+    <!-- Navigation -->
+    <nav class="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
+      <button id="back-btn" class="flex items-center hover:text-foreground">
+        <i class="bi bi-arrow-left-short text-xl mr-1"></i>
+        <span>Shop</span>
+      </button>
+      <i class="bi bi-chevron-right"></i>
+      <span class="text-foreground">{product.name}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <!-- Product Images -->
+      <div class="space-y-4">
+        <div class="aspect-square overflow-hidden rounded-lg bg-muted">
+          <img
+            id="main-image"
+            src={product.images?.[0] || product.image}
+            alt={product.name}
+            class="w-full h-full object-cover"
+            crossorigin="anonymous"
+          />
+        </div>
+        {product.images && product.images.length > 1 && (
+          <div class="flex space-x-2">
+            {product.images.map((image, index) => (
+              <button
+                key={index}
+                class="thumbnail-btn w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent"
+                data-image={image}
+                data-index={index}
+              >
+                <img
+                  src={image}
+                  alt={`${product.name} ${index + 1}`}
+                  class="w-full h-full object-cover"
+                  crossorigin="anonymous"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <!-- Product Info -->
+      <div class="space-y-6">
+        <div>
+          <h1 class="text-3xl font-bold mb-2">{product.name}</h1>
+          <div class="flex items-center space-x-4 mb-4">
+            <div class="flex items-center space-x-2">
+              <span class="text-2xl font-bold">{formatPrice(product.price)}</span>
+              {product.originalPrice && (
+                <span class="text-lg text-muted-foreground line-through">
+                  {formatPrice(product.originalPrice)}
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <!-- Product Description -->
+          <div class="border-t pt-6">
+            <h3 class="font-semibold mb-3">Description</h3>
+            <div class="text-muted-foreground">
+              {product.longDescription ? (
+                <div class="space-y-2">
+                  {product.longDescription.split('\n').map((line, index) => (
+                    line.trim() && <p key={index} class="leading-relaxed">{line.trim()}</p>
+                  ))}
+                </div>
+              ) : (
+                <p class="leading-relaxed">{product.description}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-4">
+          <button
+            id="add-to-cart-btn"
+            class="btn-secondary py-3 text-base border-2 border-muted-foreground/20 hover:border-muted-foreground/40 shadow-md hover:scale-105 transition-transform duration-200 focus:ring-2 focus:ring-muted-foreground/60"
+            data-product-id={product.id}
+          >
+            Add to Cart
+          </button>
+          <button
+            id="buy-now-btn"
+            class="btn-primary py-3 text-base border-2 border-primary shadow-md hover:scale-105 transition-transform duration-200 dark:border-primary/80 focus:ring-2 focus:ring-primary/60"
+            data-product-id={product.id}
+          >
+            Buy Now
+          </button>
+        </div>
+
+        <!-- Product Details -->
+        <div class="border-t pt-6">
+          <div class="space-y-3">
+            <!-- Category Tag -->
+            <div class="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-card">
+              <div class="flex items-center space-x-3">
+                <i class={`${categoryData.icon} text-lg text-muted-foreground`}></i>
+                <span class="font-medium text-muted-foreground">
+                  {categoryData.name}
+                </span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span class="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  Category
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    {relatedProducts.length > 0 && (
+      <div class="mt-16">
+        <h2 class="text-2xl font-bold mb-8">Related Products</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {relatedProducts.map((relatedProduct) => (
+            <a
+              key={relatedProduct.id}
+              href={`/products/${relatedProduct.id}`}
+              class="product-card block"
+            >
+              <div class="aspect-square overflow-hidden rounded-lg bg-muted">
+                <img
+                  src={relatedProduct.image}
+                  alt={relatedProduct.name}
+                  class="product-image"
+                  crossorigin="anonymous"
+                />
+              </div>
+              <div class="p-4 space-y-2">
+                <h3 class="font-medium text-sm line-clamp-2">{relatedProduct.name}</h3>
+                <div class="flex items-center space-x-2">
+                  <span class="font-semibold text-sm">{formatPrice(relatedProduct.price)}</span>
+                  {relatedProduct.originalPrice && (
+                    <span class="text-xs text-muted-foreground line-through">
+                      {formatPrice(relatedProduct.originalPrice)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+
+  <Footer slot="footer" />
+</Layout>
+
+<script define:vars={{ product }}>
+  // Image gallery functionality
+  const mainImage = document.getElementById('main-image');
+  const thumbnailBtns = document.querySelectorAll('.thumbnail-btn');
+  
+  thumbnailBtns.forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+      const imageUrl = btn.dataset.image;
+      if (mainImage && imageUrl) {
+        mainImage.src = imageUrl;
+      }
+      
+      // Update active thumbnail
+      thumbnailBtns.forEach(b => b.classList.remove('border-primary'));
+      btn.classList.add('border-primary');
+    });
+  });
+  
+  // Set first thumbnail as active
+  if (thumbnailBtns.length > 0) {
+    thumbnailBtns[0].classList.add('border-primary');
+  }
+
+  // Back button functionality
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      // Check if we came from home page
+      if (document.referrer.includes(window.location.origin) && document.referrer.endsWith('/')) {
+        window.location.href = '/';
+      } else {
+        window.location.href = '/shop';
+      }
+    });
+  }
+
+  // Add to cart functionality (will be enhanced with React context)
+  const addToCartBtn = document.getElementById('add-to-cart-btn');
+  const buyNowBtn = document.getElementById('buy-now-btn');
+  
+  if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', () => {
+      // This will be enhanced with React cart context
+      console.log('Add to cart:', product);
+      alert('Added to cart! (This will be enhanced with React cart functionality)');
+    });
+  }
+  
+  if (buyNowBtn) {
+    buyNowBtn.addEventListener('click', () => {
+      // This will be enhanced with React cart context
+      console.log('Buy now:', product);
+      alert('Buy now clicked! (This will be enhanced with React cart functionality)');
+    });
+  }
+
+  // Scroll to top on page load
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+</script>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
