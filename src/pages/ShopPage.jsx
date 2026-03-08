@@ -14,9 +14,9 @@ const ShopPage = () => {
 
   // Categories with icons
   const categories = [
-    { name: 'Mobile Phones', icon: 'bi-phone', value: 'Mobile Phones' },
-    { name: 'Laptops', icon: 'bi-laptop', value: 'Computer' },
-    { name: 'Accessories', icon: 'bi-headphones', value: 'Accessories' }
+    { name: 'Computers', icon: 'bi-laptop', value: 'computers' },
+    { name: 'Mobile Phones', icon: 'bi-phone', value: 'mobile phones' },
+    { name: 'Accessories', icon: 'bi-headphones', value: 'accessories' }
   ]
 
   useEffect(() => {
