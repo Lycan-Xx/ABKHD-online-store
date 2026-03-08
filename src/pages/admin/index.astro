@@ -1,0 +1,170 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { products } from '../../data/products';
+import { formatPrice } from '../../lib/utils';
+
+// Get stats from products
+const totalProducts = products.length;
+const activeProducts = products.filter(p => p.featured).length;
+const categories = [...new Set(products.map(p => p.category))];
+
+// Calculate mock revenue (in real app, this would come from orders)
+const totalRevenue = products.reduce((sum, p) => sum + (p.price * 5), 0); // Mock: 5 sales per product
+
+// Get recent products (last 4)
+const recentProducts = [...products].slice(0, 4);
+---
+
+<AdminLayout title="Dashboard - ABKHD Admin">
+  <div class="space-y-8">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">Dashboard</h1>
+        <p class="text-muted-foreground mt-1">Overview of your store performance</p>
+      </div>
+      <a href="/admin/products/new" class="btn-primary">
+        <i class="bi bi-plus-lg mr-2"></i>
+        Add Product
+      </a>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Total Products -->
+      <div class="rounded-xl border bg-card p-5 transition-all hover:shadow-md">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-sm font-medium text-muted-foreground">Total Products</p>
+            <p class="text-3xl font-bold mt-2">{totalProducts}</p>
+            <p class="text-xs text-muted-foreground mt-1">All products in catalog</p>
+          </div>
+          <div class="p-3 rounded-lg bg-primary/10">
+            <i class="bi bi-box-seam text-xl text-primary"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Products -->
+      <div class="rounded-xl border bg-card p-5 transition-all hover:shadow-md">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-sm font-medium text-muted-foreground">Featured Products</p>
+            <p class="text-3xl font-bold mt-2">{activeProducts}</p>
+            <p class="text-xs text-muted-foreground mt-1">Currently featured</p>
+          </div>
+          <div class="p-3 rounded-lg bg-green-500/10">
+            <i class="bi bi-check-circle text-xl text-green-500"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Revenue -->
+      <div class="rounded-xl border bg-card p-5 transition-all hover:shadow-md">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-sm font-medium text-muted-foreground">Total Revenue</p>
+            <p class="text-3xl font-bold mt-2">{formatPrice(totalRevenue)}</p>
+            <p class="text-xs text-muted-foreground mt-1">Mock data</p>
+          </div>
+          <div class="p-3 rounded-lg bg-green-500/10">
+            <i class="bi bi-currency-naira text-xl text-green-500"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="rounded-xl border bg-card p-5 transition-all hover:shadow-md">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-sm font-medium text-muted-foreground">Categories</p>
+            <p class="text-3xl font-bold mt-2">{categories.length}</p>
+            <p class="text-xs text-muted-foreground mt-1">Product categories</p>
+          </div>
+          <div class="p-3 rounded-lg bg-yellow-500/10">
+            <i class="bi bi-tags text-xl text-yellow-500"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products by Category -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 rounded-xl border bg-card p-6">
+        <h2 class="text-lg font-semibold mb-4">Products by Category</h2>
+        <div class="space-y-4">
+          {categories.map(category => {
+            const count = products.filter(p => p.category === category).length;
+            const percentage = (count / totalProducts) * 100;
+            return (
+              <div key={category}>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-sm font-medium capitalize">{category}</span>
+                  <span class="text-sm text-muted-foreground">{count} products</span>
+                </div>
+                <div class="w-full bg-muted rounded-full h-2">
+                  <div 
+                    class="bg-primary h-2 rounded-full transition-all" 
+                    style={`width: ${percentage}%`}
+                  ></div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <!-- Recent Products -->
+      <div class="rounded-xl border bg-card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Recent Products</h2>
+          <a href="/admin/products" class="text-sm text-primary hover:underline">
+            View all
+          </a>
+        </div>
+        <div class="space-y-3">
+          {recentProducts.map(product => (
+            <a 
+              href={`/admin/products/${product.id}`}
+              class="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
+            >
+              <div class="w-10 h-10 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                <img 
+                  src={product.image} 
+                  alt={product.name}
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate">{product.name}</p>
+                <p class="text-xs text-muted-foreground">
+                  {formatPrice(product.price)}
+                </p>
+              </div>
+              {product.featured && (
+                <span class="text-yellow-500 text-xs">
+                  <i class="bi bi-star-fill"></i>
+                </span>
+              )}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="rounded-xl border bg-card overflow-hidden">
+      <div class="p-6 border-b">
+        <h2 class="text-lg font-semibold">Recent Orders</h2>
+        <p class="text-sm text-muted-foreground">Orders will appear here when customers complete purchases</p>
+      </div>
+      <div class="p-12 text-center">
+        <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="bi bi-bag-x text-3xl text-muted-foreground"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">No orders yet</h3>
+        <p class="text-muted-foreground">Completed orders will appear here</p>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

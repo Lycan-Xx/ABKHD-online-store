@@ -1,0 +1,253 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { products } from '../../data/products';
+import { formatPrice } from '../../lib/utils';
+
+// Get query parameters
+const url = Astro.url;
+const searchQuery = url.searchParams.get('search') || '';
+const filterCategory = url.searchParams.get('category') || 'all';
+const filterStatus = url.searchParams.get('status') || 'all';
+
+// Filter products
+let filteredProducts = [...products];
+
+if (searchQuery) {
+  const query = searchQuery.toLowerCase();
+  filteredProducts = filteredProducts.filter(p => 
+    p.name.toLowerCase().includes(query) || 
+    p.description?.toLowerCase().includes(query)
+  );
+}
+
+if (filterCategory !== 'all') {
+  filteredProducts = filteredProducts.filter(p => p.category === filterCategory);
+}
+
+// Get unique categories
+const categories = [...new Set(products.map(p => p.category))];
+---
+
+<AdminLayout title="Products - ABKHD Admin">
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">Products</h1>
+        <p class="text-muted-foreground mt-1">
+          {filteredProducts.length} products found
+        </p>
+      </div>
+      <a href="/admin/products/new" class="btn-primary">
+        <i class="bi bi-plus-lg mr-2"></i>
+        Add New
+      </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <!-- Search -->
+      <div class="relative flex-1">
+        <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
+        <form method="get">
+          <input
+            type="text"
+            name="search"
+            value={searchQuery}
+            placeholder="Search products..."
+            class="w-full pl-10 pr-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          {filterCategory !== 'all' && (
+            <input type="hidden" name="category" value={filterCategory} />
+          )}
+          {filterStatus !== 'all' && (
+            <input type="hidden" name="status" value={filterStatus} />
+          )}
+        </form>
+      </div>
+
+      <!-- Category Filter -->
+      <form method="get">
+        <select
+          name="category"
+          onchange="this.form.submit()"
+          class="px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <option value="all">All Categories</option>
+          {categories.map(cat => (
+            <option value={cat} selected={filterCategory === cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        {searchQuery && (
+          <input type="hidden" name="search" value={searchQuery} />
+        )}
+      </form>
+    </div>
+
+    <!-- Products Table -->
+    <div class="rounded-xl border bg-card overflow-hidden">
+      <!-- Desktop Table -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b bg-muted/50">
+              <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
+                Product
+              </th>
+              <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
+                Price
+              </th>
+              <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
+                Category
+              </th>
+              <th class="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
+                Featured
+              </th>
+              <th class="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            {filteredProducts.map(product => (
+              <tr class="hover:bg-muted/30 transition-colors">
+                <!-- Product -->
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                      <img 
+                        src={product.image} 
+                        alt={product.name}
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div class="min-w-0">
+                      <a 
+                        href={`/admin/products/${product.id}`}
+                        class="font-medium hover:text-primary transition-colors truncate block"
+                      >
+                        {product.name}
+                      </a>
+                      <p class="text-xs text-muted-foreground truncate max-w-xs">
+                        {product.description}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Price -->
+                <td class="px-4 py-3">
+                  <div>
+                    <span class="font-medium">{formatPrice(product.price)}</span>
+                    {product.originalPrice && (
+                      <span class="text-xs text-muted-foreground line-through ml-2">
+                        {formatPrice(product.originalPrice)}
+                      </span>
+                    )}
+                  </div>
+                </td>
+
+                <!-- Category -->
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted capitalize">
+                    {product.category}
+                  </span>
+                </td>
+
+                <!-- Featured -->
+                <td class="px-4 py-3 text-center">
+                  {product.featured ? (
+                    <span class="text-yellow-500">
+                      <i class="bi bi-star-fill"></i>
+                    </span>
+                  ) : (
+                    <span class="text-muted-foreground/30">
+                      <i class="bi bi-star"></i>
+                    </span>
+                  )}
+                </td>
+
+                <!-- Actions -->
+                <td class="px-4 py-3">
+                  <div class="flex items-center justify-end gap-2">
+                    <a
+                      href={`/admin/products/${product.id}`}
+                      class="p-2 rounded-lg hover:bg-muted transition-colors"
+                      title="Edit"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="md:hidden divide-y">
+        {filteredProducts.map(product => (
+          <div class="p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-16 h-16 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                <img 
+                  src={product.image} 
+                  alt={product.name}
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <a 
+                      href={`/admin/products/${product.id}`}
+                      class="font-medium hover:text-primary transition-colors"
+                    >
+                      {product.name}
+                    </a>
+                    <p class="text-sm text-muted-foreground mt-0.5">
+                      {formatPrice(product.price)}
+                    </p>
+                  </div>
+                  {product.featured && (
+                    <span class="text-yellow-500">
+                      <i class="bi bi-star-fill"></i>
+                    </span>
+                  )}
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted capitalize">
+                    {product.category}
+                  </span>
+                  <a
+                    href={`/admin/products/${product.id}`}
+                    class="p-2 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filteredProducts.length === 0 && (
+        <div class="p-12 text-center">
+          <div class="text-muted-foreground">
+            <i class="bi bi-box-seam text-4xl mb-4 block"></i>
+            <p class="text-lg font-medium">No products found</p>
+            <p class="text-sm mt-1">Try adjusting your filters or add a new product</p>
+          </div>
+          <a href="/admin/products/new" class="btn-primary mt-4 inline-flex">
+            <i class="bi bi-plus-lg mr-2"></i>
+            Add Product
+          </a>
+        </div>
+      )}
+    </div>
+  </div>
+</ AdminLayout>
