@@ -67,15 +67,6 @@ const isHome = currentPath === '/';
 
     <!-- Actions -->
     <div class="flex items-center gap-2">
-      <!-- Dark Mode Toggle -->
-      <button
-        id="dark-mode-toggle"
-        class="hidden md:flex p-2 hover:bg-accent rounded-lg transition-colors"
-        aria-label="Toggle dark mode"
-      >
-        <i id="dark-mode-icon" class="bi bi-moon text-lg"></i>
-      </button>
-
       <!-- Cart -->
       <button
         id="cart-toggle"
@@ -91,46 +82,5 @@ const isHome = currentPath === '/';
   </div>
 </header>
 
-<!-- Mobile Menu (will be controlled by React component) -->
-<div id="mobile-menu-container"></div>
-
-<!-- Cart Drawer (will be controlled by React component) -->
-<div id="cart-drawer-container"></div>
-
-<script>
-  // Dark mode toggle functionality
-  const darkModeToggle = document.getElementById('dark-mode-toggle');
-  const darkModeIcon = document.getElementById('dark-mode-icon');
-  
-  function updateDarkModeIcon() {
-    const isDark = document.documentElement.classList.contains('dark');
-    if (darkModeIcon) {
-      darkModeIcon.className = isDark ? 'bi bi-sun text-lg' : 'bi bi-moon text-lg';
-    }
-  }
-  
-  // Initialize icon
-  updateDarkModeIcon();
-  
-  if (darkModeToggle) {
-    darkModeToggle.addEventListener('click', () => {
-      const currentlyDark = document.documentElement.classList.contains('dark');
-      
-      if (currentlyDark) {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('darkMode', 'false');
-      } else {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('darkMode', 'true');
-      }
-      
-      updateDarkModeIcon();
-    });
-  }
-
-  // Initialize React components after DOM is loaded
-  document.addEventListener('DOMContentLoaded', () => {
-    // This will be enhanced when we add the React component mounting
-    console.log('Header interactive components ready');
-  });
-</script>
+<!-- Mount React interactive components (handles cart, mobile menu, dark mode) -->
+<HeaderInteractive client:load />

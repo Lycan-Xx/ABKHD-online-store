@@ -231,23 +231,34 @@ const categoryData = getCategoryData(product.category);
     });
   }
 
-  // Add to cart functionality (will be enhanced with React context)
+  // Add to cart functionality - dispatch event to React cart
   const addToCartBtn = document.getElementById('add-to-cart-btn');
   const buyNowBtn = document.getElementById('buy-now-btn');
   
   if (addToCartBtn) {
     addToCartBtn.addEventListener('click', () => {
-      // This will be enhanced with React cart context
-      console.log('Add to cart:', product);
-      alert('Added to cart! (This will be enhanced with React cart functionality)');
+      // Dispatch custom event for React cart
+      window.dispatchEvent(new CustomEvent('add-to-cart', {
+        detail: { product, quantity: 1 }
+      }));
+      // Show feedback
+      const originalText = addToCartBtn.textContent;
+      addToCartBtn.textContent = 'Added! ✓';
+      addToCartBtn.classList.add('bg-green-500', 'border-green-500');
+      setTimeout(() => {
+        addToCartBtn.textContent = originalText;
+        addToCartBtn.classList.remove('bg-green-500', 'border-green-500');
+      }, 1500);
     });
   }
   
   if (buyNowBtn) {
     buyNowBtn.addEventListener('click', () => {
-      // This will be enhanced with React cart context
-      console.log('Buy now:', product);
-      alert('Buy now clicked! (This will be enhanced with React cart functionality)');
+      // Add to cart and navigate to checkout
+      window.dispatchEvent(new CustomEvent('add-to-cart', {
+        detail: { product, quantity: 1 }
+      }));
+      window.location.href = '/checkout';
     });
   }
 

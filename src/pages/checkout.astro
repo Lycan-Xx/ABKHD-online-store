@@ -1,0 +1,409 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { formatPrice } from '../lib/utils';
+---
+
+<Layout title="Checkout - ABKHD Store">
+  <Header slot="header" />
+  
+  <div class="container py-8 md:py-12">
+    <!-- Navigation -->
+    <div class="mb-8">
+      <nav class="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
+        <a href="/" class="hover:text-foreground">Home</a>
+        <i class="bi bi-chevron-right"></i>
+        <span class="text-foreground">Checkout</span>
+      </nav>
+      <a href="/shop" class="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors">
+        <i class="bi bi-arrow-left text-lg"></i>
+        <span class="text-sm font-medium">Continue Shopping</span>
+      </a>
+    </div>
+    
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-3xl md:text-4xl font-bold mb-8">Checkout</h1>
+      
+      <div id="checkout-content">
+        <!-- Empty Cart State -->
+        <div id="empty-cart" class="hidden text-center py-12">
+          <i class="bi bi-bag-x text-5xl text-muted-foreground mb-4"></i>
+          <h2 class="text-xl font-semibold mb-2">Your cart is empty</h2>
+          <p class="text-muted-foreground mb-6">Add some products to your cart first</p>
+          <a href="/shop" class="btn-primary px-6 py-2">Browse Products</a>
+        </div>
+        
+        <!-- Cart Items -->
+        <div id="cart-section" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Items List -->
+          <div class="lg:col-span-2">
+            <div id="cart-items" class="space-y-4">
+              <!-- Cart items will be rendered here -->
+            </div>
+          </div>
+          
+          <!-- Order Summary -->
+          <div class="lg:col-span-1">
+            <div class="sticky top-24 p-6 rounded-xl border border-border bg-card">
+              <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
+              
+              <div class="space-y-3 mb-6">
+                <div class="flex justify-between">
+                  <span class="text-muted-foreground">Subtotal</span>
+                  <span id="subtotal">₦0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-muted-foreground">Shipping</span>
+                  <span>Calculated at next step</span>
+                </div>
+                <div class="border-t pt-3 flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span id="total">₦0</span>
+                </div>
+              </div>
+              
+              <!-- Checkout Methods -->
+              <div class="space-y-4">
+                <h3 class="font-medium">Choose Payment Method</h3>
+                
+                <!-- WhatsApp Checkout -->
+                <button
+                  id="whatsapp-checkout"
+                  class="w-full flex items-center justify-center space-x-3 p-4 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
+                >
+                  <i class="bi bi-whatsapp text-xl"></i>
+                  <span>Checkout via WhatsApp</span>
+                </button>
+                
+                <!-- Card Payment Toggle -->
+                <button
+                  id="card-checkout-toggle"
+                  class="w-full flex items-center justify-center space-x-3 p-4 rounded-lg border-2 border-primary bg-primary/5 hover:bg-primary/10 font-medium transition-colors"
+                >
+                  <i class="bi bi-credit-card text-xl"></i>
+                  <span>Pay with Card</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card Payment Form (Hidden by default) -->
+        <div id="card-payment-section" class="hidden mt-8 max-w-2xl">
+          <div class="p-6 rounded-xl border border-border bg-card">
+            <h2 class="text-xl font-semibold mb-6">Shipping Details</h2>
+            
+            <form id="checkout-form" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="email" class="block text-sm font-medium mb-2">Email *</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="your@email.com"
+                  />
+                </div>
+                <div>
+                  <label for="phone" class="block text-sm font-medium mb-2">Phone *</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    required
+                    class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="+2348012345678"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label for="fullName" class="block text-sm font-medium mb-2">Full Name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="John Doe"
+                />
+              </div>
+              
+              <div>
+                <label for="address" class="block text-sm font-medium mb-2">Address *</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  required
+                  class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="123 Street Name"
+                />
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label for="city" class="block text-sm font-medium mb-2">City *</label>
+                  <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    required
+                    class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Lagos"
+                  />
+                </div>
+                <div>
+                  <label for="state" class="block text-sm font-medium mb-2">State *</label>
+                  <input
+                    type="text"
+                    id="state"
+                    name="state"
+                    required
+                    class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Lagos"
+                  />
+                </div>
+                <div>
+                  <label for="postalCode" class="block text-sm font-medium mb-2">Postal Code</label>
+                  <input
+                    type="text"
+                    id="postalCode"
+                    name="postalCode"
+                    class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="101001"
+                  />
+                </div>
+              </div>
+              
+              <div class="pt-4">
+                <button
+                  type="submit"
+                  id="pay-button"
+                  class="w-full btn-primary py-4 text-lg font-medium"
+                >
+                  Pay <span id="pay-amount">₦0</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</Layout>
+
+<script>
+  // Cart data interface
+  interface CartItem {
+    cartId: string;
+    id: number;
+    name: string;
+    price: number;
+    image: string;
+    quantity: number;
+    size?: string | null;
+    color?: string | null;
+  }
+
+  // Format price helper
+  function formatPrice(price: number): string {
+    return '₦' + price.toLocaleString();
+  }
+
+  // Load cart from localStorage
+  function getCart(): CartItem[] {
+    try {
+      const cartData = localStorage.getItem('cart');
+      return cartData ? JSON.parse(cartData) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  // Calculate total
+  function getCartTotal(items: CartItem[]): number {
+    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  }
+
+  // Render cart items
+  function renderCart() {
+    const items = getCart();
+    const cartItemsEl = document.getElementById('cart-items');
+    const emptyCartEl = document.getElementById('empty-cart');
+    const cartSection = document.getElementById('cart-section');
+    
+    if (!cartItemsEl || !emptyCartEl || !cartSection) return;
+    
+    if (items.length === 0) {
+      emptyCartEl.classList.remove('hidden');
+      cartSection.classList.add('hidden');
+      return;
+    }
+    
+    emptyCartEl.classList.add('hidden');
+    cartSection.classList.remove('hidden');
+    
+    const total = getCartTotal(items);
+    
+    // Update totals
+    const subtotalEl = document.getElementById('subtotal');
+    const totalEl = document.getElementById('total');
+    const payAmountEl = document.getElementById('pay-amount');
+    
+    if (subtotalEl) subtotalEl.textContent = formatPrice(total);
+    if (totalEl) totalEl.textContent = formatPrice(total);
+    if (payAmountEl) payAmountEl.textContent = formatPrice(total);
+    
+    // Render items
+    cartItemsEl.innerHTML = items.map(item => `
+      <div class="flex items-center space-x-4 p-4 border border-border rounded-lg bg-card">
+        <img
+          src="${item.image}"
+          alt="${item.name}"
+          class="w-20 h-20 object-cover rounded-lg"
+          crossorigin="anonymous"
+        />
+        <div class="flex-1">
+          <h3 class="font-medium">${item.name}</h3>
+          <div class="text-sm text-muted-foreground">
+            ${item.size ? `<p>Size: ${item.size}</p>` : ''}
+            ${item.color ? `<p>Color: ${item.color}</p>` : ''}
+            <p>Qty: ${item.quantity}</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="font-semibold">${formatPrice(item.price * item.quantity)}</p>
+          <button
+            class="text-red-500 text-sm hover:underline mt-1 remove-item"
+            data-cart-id="${item.cartId}"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    `).join('');
+    
+    // Add remove event listeners
+    document.querySelectorAll('.remove-item').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const cartId = (e.target as HTMLElement).dataset.cartId;
+        removeFromCart(cartId!);
+      });
+    });
+  }
+
+  // Remove item from cart
+  function removeFromCart(cartId: string) {
+    const items = getCart();
+    const newItems = items.filter(item => item.cartId !== cartId);
+    localStorage.setItem('cart', JSON.stringify(newItems));
+    renderCart();
+    updateCartCount();
+  }
+
+  // Update cart count in header
+  function updateCartCount() {
+    const items = getCart();
+    const count = items.reduce((sum, item) => sum + item.quantity, 0);
+    const cartCountEl = document.getElementById('cart-count');
+    if (cartCountEl) {
+      cartCountEl.textContent = count.toString();
+      cartCountEl.classList.toggle('hidden', count === 0);
+    }
+  }
+
+  // WhatsApp checkout
+  document.getElementById('whatsapp-checkout')?.addEventListener('click', () => {
+    const items = getCart();
+    if (items.length === 0) return;
+    
+    const total = getCartTotal(items);
+    const phoneNumber = '2348012345678'; // From env or default
+    
+    let message = `Hello ABKHD, I want to order:%0A%0A`;
+    items.forEach(item => {
+      message += `- ${item.name} x${item.quantity} = ${formatPrice(item.price * item.quantity)}%0A`;
+    });
+    message += `%0ATotal: ${formatPrice(total)}%0A%0APlease confirm availability.`;
+    
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+  });
+
+  // Card payment toggle
+  document.getElementById('card-checkout-toggle')?.addEventListener('click', () => {
+    const cardSection = document.getElementById('card-payment-section');
+    if (cardSection) {
+      cardSection.classList.toggle('hidden');
+    }
+  });
+
+  // Card payment form submission
+  document.getElementById('checkout-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const items = getCart();
+    if (items.length === 0) return;
+    
+    const total = getCartTotal(items);
+    const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+    
+    // Show loading state
+    const originalText = payButton.textContent;
+    payButton.disabled = true;
+    payButton.innerHTML = '<i class="bi bi-arrow-clockwise animate-spin mr-2"></i> Processing...';
+    
+    // Simulate payment processing
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Clear cart
+    localStorage.removeItem('cart');
+    
+    // Create order in localStorage
+    const order = {
+      id: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      paymentRef: `PAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      status: 'completed',
+      createdAt: new Date().toISOString(),
+      customer: {
+        email: (document.getElementById('email') as HTMLInputElement).value,
+        phone: (document.getElementById('phone') as HTMLInputElement).value,
+        fullName: (document.getElementById('fullName') as HTMLInputElement).value,
+        address: (document.getElementById('address') as HTMLInputElement).value,
+        city: (document.getElementById('city') as HTMLInputElement).value,
+        state: (document.getElementById('state') as HTMLInputElement).value,
+        postalCode: (document.getElementById('postalCode') as HTMLInputElement).value
+      },
+      items: items.map(item => ({
+        id: item.id.toString(),
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+        image: item.image
+      })),
+      subtotal: total,
+      shipping: 0,
+      total: total,
+      paymentMethod: 'card'
+    };
+    
+    // Save order
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+    
+    // Redirect to success
+    window.location.href = '/success';
+  });
+
+  // Initialize
+  renderCart();
+  updateCartCount();
+</script>

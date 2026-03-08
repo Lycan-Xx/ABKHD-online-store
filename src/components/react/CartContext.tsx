@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react'
+import React, { createContext, useContext, useReducer, useEffect, useCallback, type ReactNode } from 'react'
 import type { Product } from '../../data/products'
 
 interface CartItem extends Product {
@@ -92,6 +92,36 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [] })
 
+  // Function to add item (exposed for external use)
+  const addItem = useCallback((product: Product, quantity = 1, size: string | null = null, color: string | null = null) => {
+    const cartId = `${product.id}-${size || 'default'}-${color || 'default'}-${Date.now()}`
+    dispatch({
+      type: 'ADD_ITEM',
+      payload: {
+        ...product,
+        cartId,
+        quantity,
+        size,
+        color
+      }
+    })
+  }, [])
+
+  // Listen for custom add-to-cart events from vanilla JS
+  useEffect(() => {
+    const handleAddToCart = (event: CustomEvent) => {
+      const { product, quantity = 1, size = null, color = null } = event.detail || {}
+      if (product) {
+        addItem(product, quantity, size, color)
+      }
+    }
+
+    window.addEventListener('add-to-cart', handleAddToCart as EventListener)
+    return () => {
+      window.removeEventListener('add-to-cart', handleAddToCart as EventListener)
+    }
+  }, [addItem])
+
   useEffect(() => {
     const savedCart = localStorage.getItem('cart')
     if (savedCart) {
@@ -111,43 +141,29 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [state.items])
 
-  const addItem = (product: Product, quantity = 1, size: string | null = null, color: string | null = null) => {
-    const cartId = `${product.id}-${size || 'default'}-${color || 'default'}-${Date.now()}`
-    dispatch({
-      type: 'ADD_ITEM',
-      payload: {
-        ...product,
-        cartId,
-        quantity,
-        size,
-        color
-      }
-    })
-  }
+  const clearCart = useCallback(() => {
+    dispatch({ type: 'CLEAR_CART' })
+  }, [])
 
-  const removeItem = (cartId: string) => {
+  const removeItem = useCallback((cartId: string) => {
     dispatch({ type: 'REMOVE_ITEM', payload: cartId })
-  }
+  }, [])
 
-  const updateQuantity = (cartId: string, quantity: number) => {
+  const updateQuantity = useCallback((cartId: string, quantity: number) => {
     if (quantity <= 0) {
       removeItem(cartId)
     } else {
       dispatch({ type: 'UPDATE_QUANTITY', payload: { cartId, quantity } })
     }
-  }
+  }, [removeItem])
 
-  const clearCart = () => {
-    dispatch({ type: 'CLEAR_CART' })
-  }
-
-  const getCartTotal = () => {
+  const getCartTotal = useCallback(() => {
     return state.items.reduce((total, item) => total + (item.price * item.quantity), 0)
-  }
+  }, [state.items])
 
-  const getCartCount = () => {
+  const getCartCount = useCallback(() => {
     return state.items.reduce((count, item) => count + item.quantity, 0)
-  }
+  }, [state.items])
 
   return (
     <CartContext.Provider value={{

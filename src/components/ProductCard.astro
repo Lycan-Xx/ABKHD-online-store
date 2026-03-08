@@ -24,6 +24,17 @@ const { product } = Astro.props;
         Verified
       </span>
     </div>
+    <!-- Quick Add Button -->
+    <button
+      class="quick-add-btn absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity"
+      data-product-id={product.id}
+      data-product-name={product.name}
+      data-product-price={product.price}
+      data-product-image={product.image}
+      aria-label={`Add ${product.name} to cart`}
+    >
+      <i class="bi bi-bag-plus"></i>
+    </button>
   </div>
   <div class="p-4 space-y-2">
     <h3 class="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
@@ -48,4 +59,40 @@ const { product } = Astro.props;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  
+  .quick-add-btn {
+    @apply w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors;
+  }
 </style>
+
+<script>
+  // Handle quick add to cart
+  document.querySelectorAll('.quick-add-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const target = e.currentTarget as HTMLButtonElement;
+      const product = {
+        id: parseInt(target.dataset.productId || '0'),
+        name: target.dataset.productName || '',
+        price: parseInt(target.dataset.productPrice || '0'),
+        image: target.dataset.productImage || ''
+      };
+      
+      // Dispatch event for React cart
+      window.dispatchEvent(new CustomEvent('add-to-cart', {
+        detail: { product, quantity: 1 }
+      }));
+      
+      // Visual feedback
+      const originalHTML = target.innerHTML;
+      target.innerHTML = '<i class="bi bi-check-lg"></i>';
+      target.classList.add('bg-green-500');
+      setTimeout(() => {
+        target.innerHTML = originalHTML;
+        target.classList.remove('bg-green-500');
+      }, 1500);
+    });
+  });
+</script>
