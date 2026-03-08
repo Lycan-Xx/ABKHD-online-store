@@ -246,14 +246,14 @@ const AboutPage = () => {
     <div className="group">
       <div className="relative rounded-2xl overflow-hidden mb-6 aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200">
         <img 
-          src="/src/assets/team/team1.jpg" 
-          alt="Alex Johnson" 
+          src="https://res.cloudinary.com/cloudinary-lycan-xx/image/upload/v1772930158/team1_skylqx.jpg" 
+          alt="Abubakar-Sadieq" 
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
         />
       </div>
       <div className="text-center">
         <h3 className="text-xl font-bold mb-1">Abubakar-Sadieq Abdulazeez</h3>
-        {/* <p className="text-sm text-muted-foreground mb-3">Founder & CEO</p> */}
+        <p className="text-sm font-medium text-primary mb-2">Founder ABKHD</p>
         <p className="text-sm italic text-primary">
           "I have the connections and know the products."
         </p>
@@ -264,8 +264,8 @@ const AboutPage = () => {
     <div className="group">
       <div className="relative rounded-2xl overflow-hidden mb-6 aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200">
         <img 
-          src="/src/assets/team/team2.jpg" 
-          alt="Maria Garcia" 
+          src="https://res.cloudinary.com/cloudinary-lycan-xx/image/upload/v1772930160/team2_ofiswe.jpg" 
+          alt="Abduljalal" 
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
         />
       </div>
@@ -273,7 +273,7 @@ const AboutPage = () => {
         <h3 className="text-xl font-bold mb-1">Abduljalal Muhammad</h3>
         {/* <p className="text-sm text-muted-foreground mb-3">Quality Control Lead</p> */}
         <p className="text-sm italic text-primary">
-          "My job is to catch what dishonest sellers hide."
+          "The watchful eye that sees what dishonest sellers hide."
         </p>
       </div>
     </div>
@@ -282,8 +282,8 @@ const AboutPage = () => {
     <div className="group">
       <div className="relative rounded-2xl overflow-hidden mb-6 aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200">
         <img 
-          src="/src/assets/team/team3.jpg" 
-          alt="David Chen" 
+          src="https://res.cloudinary.com/cloudinary-lycan-xx/image/upload/v1772930155/team3_hys08b.jpg" 
+          alt="Mohammad" 
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
         />
       </div>
