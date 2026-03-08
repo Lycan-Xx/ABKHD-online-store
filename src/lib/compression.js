@@ -1,64 +1,20 @@
-import { clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs) {
-  return twMerge(clsx(inputs))
-}
-
-export const formatPrice = (price) => {
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-  }).format(price)
-}
-
-export const initializeDarkMode = () => {
-  // Check for saved preference first, then system preference
-  const savedTheme = localStorage.getItem('darkMode')
-  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  
-  const isDark = savedTheme !== null 
-    ? savedTheme === 'true' 
-    : systemPrefersDark
-
-  if (isDark) {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-  }
-
-  return isDark
-}
-
-export const toggleDarkMode = () => {
-  const currentlyDark = document.documentElement.classList.contains('dark')
-
-  if (currentlyDark) {
-    document.documentElement.classList.remove('dark')
-    localStorage.setItem('darkMode', 'false')
-    return false
-  } else {
-    document.documentElement.classList.add('dark')
-    localStorage.setItem('darkMode', 'true')
-    return true
-  }
-}
-
-export const debounce = (func, wait) => {
-  let timeout
-  return (...args) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func.apply(this, args), wait)
-  }
-}
-
-// ============== IMAGE & VIDEO COMPRESSION ==============
+/**
+ * Image and Video Compression Utilities
+ * Uses browser-native APIs for efficient compression
+ */
 
 // Configuration for compression
 const DEFAULT_IMAGE_CONFIG = {
   maxWidth: 1920,
   maxHeight: 1920,
   quality: 0.8,
+  format: 'image/jpeg'
+}
+
+const DEFAULT_THUMBNAIL_CONFIG = {
+  maxWidth: 400,
+  maxHeight: 400,
+  quality: 0.7,
   format: 'image/jpeg'
 }
 
@@ -114,6 +70,13 @@ export const compressImage = (file, config = DEFAULT_IMAGE_CONFIG) => {
         const outputFormat = format || file.type
         const dataUrl = canvas.toDataURL(outputFormat, quality)
         
+        // Calculate compression ratio
+        const originalSize = file.size
+        const compressedSize = Math.round((dataUrl.length * 3) / 4) // Base64 to bytes
+        const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1)
+        
+        console.log(`Image compressed: ${(originalSize / 1024).toFixed(1)}KB → ${(compressedSize / 1024).toFixed(1)}KB (${compressionRatio}% reduction)`)
+        
         resolve(dataUrl)
       }
       
@@ -133,7 +96,30 @@ export const compressImage = (file, config = DEFAULT_IMAGE_CONFIG) => {
 }
 
 /**
- * Compress a video file - creates thumbnail preview
+ * Create a thumbnail from an image
+ * @param {File} file - The image file
+ * @returns {Promise<string>} - Thumbnail as base64 data URL
+ */
+export const createThumbnail = (file) => {
+  return compressImage(file, DEFAULT_THUMBNAIL_CONFIG)
+}
+
+/**
+ * Compress multiple images
+ * @param {File[]} files - Array of image files
+ * @param {Object} config - Compression configuration
+ * @returns {Promise<string[]>} - Array of compressed images
+ */
+export const compressImages = async (files, config = DEFAULT_IMAGE_CONFIG) => {
+  const results = await Promise.all(
+    files.map(file => compressImage(file, config))
+  )
+  return results
+}
+
+/**
+ * Compress a video file using FFmpeg.wasm (requires library)
+ * For browser-native approach, we'll create a thumbnail preview
  * @param {File} file - The video file
  * @returns {Promise<{thumbnail: string, duration: number}>}
  */
@@ -180,10 +166,15 @@ export const compressVideo = async (file) => {
 
       // Clean up
       video.src = ''
+      URL.revokeObjectURL(video.src)
+
+      console.log(`Video processed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(thumbnail.length * 3 / 4 / 1024).toFixed(1)}KB thumbnail`)
 
       resolve({
         thumbnail,
-        duration: Math.round(duration * 100) / 100
+        duration: Math.round(duration * 100) / 100,
+        originalSize: file.size,
+        dimensions: { width: canvas.width, height: canvas.height }
       })
     }
 
@@ -194,6 +185,35 @@ export const compressVideo = async (file) => {
     // Load video
     video.src = URL.createObjectURL(file)
   })
+}
+
+/**
+ * Get file info before compression
+ * @param {File} file 
+ * @returns {Object} File information
+ */
+export const getFileInfo = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isVideo = file.type.startsWith('video/')
+  
+  let dimensions = null
+  let duration = null
+  
+  if (isImage) {
+    const img = new Image()
+    img.src = URL.createObjectURL(file)
+    // Dimensions will be available when loaded
+  }
+  
+  return {
+    name: file.name,
+    size: file.size,
+    sizeFormatted: formatFileSize(file.size),
+    type: file.type,
+    isImage,
+    isVideo,
+    lastModified: new Date(file.lastModified).toLocaleDateString()
+  }
 }
 
 /**

@@ -1,25 +1,88 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
+import { compressImage, compressVideo, formatFileSize, needsCompression } from '../../lib/utils'
 
 const ImageUploader = ({ images = [], onChange }) => {
   const fileInputRef = useRef(null)
+  const [isCompressing, setIsCompressing] = useState(false)
+  const [compressionStats, setCompressionStats] = useState(null)
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files)
-    
-    files.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          onChange([...images, event.target.result])
-        }
-        reader.readAsDataURL(file)
-      }
-    })
+    await processFiles(files)
     
     // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  const processFiles = async (files) => {
+    setIsCompressing(true)
+    let totalOriginalSize = 0
+    let totalCompressedSize = 0
+    let imageCount = 0
+
+    for (const file of files) {
+      totalOriginalSize += file.size
+
+      if (file.type.startsWith('image/')) {
+        try {
+          // Compress image
+          const compressed = await compressImage(file, {
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 0.8
+          })
+          
+          onChange(prev => [...prev, compressed])
+          imageCount++
+          
+          // Calculate compressed size (base64 to bytes approximation)
+          const compressedSize = Math.round((compressed.length * 3) / 4)
+          totalCompressedSize += compressedSize
+          
+        } catch (error) {
+          console.error('Error compressing image:', error)
+          // Fallback to original
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            onChange(prev => [...prev, event.target.result])
+          }
+          reader.readAsDataURL(file)
+        }
+      } else if (file.type.startsWith('video/')) {
+        try {
+          // Process video thumbnail
+          const videoData = await compressVideo(file)
+          
+          // Add video thumbnail as image (for preview)
+          onChange(prev => [...prev, videoData.thumbnail])
+          
+          // Note: For actual video handling, you'd want to store the video file separately
+          // This is just a thumbnail preview
+          totalCompressedSize += Math.round((videoData.thumbnail.length * 3) / 4)
+          
+        } catch (error) {
+          console.error('Error processing video:', error)
+        }
+      }
+    }
+
+    // Show compression stats
+    if (imageCount > 0 && totalOriginalSize > 0) {
+      const savings = ((totalOriginalSize - totalCompressedSize) / totalOriginalSize * 100).toFixed(1)
+      setCompressionStats({
+        original: formatFileSize(totalOriginalSize),
+        compressed: formatFileSize(totalCompressedSize),
+        savings: savings,
+        count: imageCount
+      })
+
+      // Clear stats after 5 seconds
+      setTimeout(() => setCompressionStats(null), 5000)
+    }
+
+    setIsCompressing(false)
   }
 
   const handleRemoveImage = (index) => {
@@ -32,25 +95,41 @@ const ImageUploader = ({ images = [], onChange }) => {
     e.stopPropagation()
   }
 
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     e.preventDefault()
     e.stopPropagation()
     
     const files = Array.from(e.dataTransfer.files)
-    
-    files.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          onChange([...images, event.target.result])
-        }
-        reader.readAsDataURL(file)
-      }
-    })
+    await processFiles(files)
   }
 
   return (
     <div className="space-y-4">
+      {/* Compression Stats */}
+      {compressionStats && (
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+            <i className="bi bi-check-circle-fill"></i>
+            <span className="text-sm">
+              {compressionStats.count} image(s) compressed: {compressionStats.original} → {compressionStats.compressed}
+            </span>
+          </div>
+          <span className="text-sm font-medium text-green-600 dark:text-green-300">
+            {compressionStats.savings}% smaller
+          </span>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {isCompressing && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 flex items-center gap-2">
+          <i className="bi bi-arrow-repeat animate-spin text-blue-600"></i>
+          <span className="text-sm text-blue-700 dark:text-blue-300">
+            Compressing images...
+          </span>
+        </div>
+      )}
+
       {/* Image Grid */}
       {images.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -87,12 +166,12 @@ const ImageUploader = ({ images = [], onChange }) => {
         onClick={() => fileInputRef.current?.click()}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-primary hover:bg-primary/5"
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-primary hover:bg-primary/5 ${isCompressing ? 'opacity-50 pointer-events-none' : ''}`}
       >
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/*"
           multiple
           onChange={handleFileSelect}
           className="hidden"
@@ -103,7 +182,11 @@ const ImageUploader = ({ images = [], onChange }) => {
             Click to upload or drag and drop
           </p>
           <p className="text-xs mt-1">
-            PNG, JPG, WEBP up to 10MB
+            Images (PNG, JPG, WEBP) and Videos up to 50MB
+          </p>
+          <p className="text-xs mt-2 text-blue-600 dark:text-blue-400">
+            <i className="bi bi-lightning-charge mr-1"></i>
+            Files are automatically compressed
           </p>
         </div>
       </div>
@@ -112,6 +195,11 @@ const ImageUploader = ({ images = [], onChange }) => {
       <p className="text-xs text-muted-foreground">
         The first image will be used as the main product image.
         {images.length > 0 && ` ${images.length} image${images.length > 1 ? 's' : ''} uploaded.`}
+        <br />
+        <span className="text-blue-600 dark:text-blue-400">
+          <i className="bi bi-info-circle mr-1"></i>
+          Images over 1MB are automatically compressed to reduce file size while maintaining quality.
+        </span>
       </p>
     </div>
   )

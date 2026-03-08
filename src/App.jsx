@@ -4,6 +4,7 @@ import { CartProvider } from './contexts/CartContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { ProductProvider } from './contexts/ProductContext'
 import { AdminProductProvider } from './contexts/AdminProductContext'
+import { OrderProvider } from './contexts/OrderContext'
 import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
 import ShopPage from './pages/ShopPage'
@@ -24,27 +25,29 @@ function App() {
   return (
     <ToastProvider>
       <ProductProvider>
-        <CartProvider>
-          <Routes>
-            {/* Store Routes */}
-            <Route path="/" element={<Layout><HomePage /></Layout>} />
-            <Route path="/shop" element={<Layout><ShopPage /></Layout>} />
-            <Route path="/category/:category" element={<Layout><CategoryPage /></Layout>} />
-            <Route path="/products/:id" element={<Layout><ProductDetailPage /></Layout>} />
-            <Route path="/checkout" element={<Layout><CheckoutPage /></Layout>} />
-            <Route path="/success" element={<Layout><SuccessPage /></Layout>} />
-            <Route path="/about" element={<Layout><AboutPage /></Layout>} />
-            <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
+        <OrderProvider>
+          <CartProvider>
+            <Routes>
+              {/* Store Routes */}
+              <Route path="/" element={<Layout><HomePage /></Layout>} />
+              <Route path="/shop" element={<Layout><ShopPage /></Layout>} />
+              <Route path="/category/:category" element={<Layout><CategoryPage /></Layout>} />
+              <Route path="/products/:id" element={<Layout><ProductDetailPage /></Layout>} />
+              <Route path="/checkout" element={<Layout><CheckoutPage /></Layout>} />
+              <Route path="/success" element={<Layout><SuccessPage /></Layout>} />
+              <Route path="/about" element={<Layout><AboutPage /></Layout>} />
+              <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminProductProvider><AdminLayout /></AdminProductProvider>}>
-              <Route index element={<DashboardPage />} />
-              <Route path="products" element={<ProductsListPage />} />
-              <Route path="products/new" element={<ProductEditorPage />} />
-              <Route path="products/:id" element={<ProductEditorPage />} />
-            </Route>
-          </Routes>
-        </CartProvider>
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminProductProvider><AdminLayout /></AdminProductProvider>}>
+                <Route index element={<DashboardPage />} />
+                <Route path="products" element={<ProductsListPage />} />
+                <Route path="products/new" element={<ProductEditorPage />} />
+                <Route path="products/:id" element={<ProductEditorPage />} />
+              </Route>
+            </Routes>
+          </CartProvider>
+        </OrderProvider>
       </ProductProvider>
     </ToastProvider>
   )
