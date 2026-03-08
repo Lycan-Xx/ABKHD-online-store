@@ -73,6 +73,21 @@ export const ProductProvider = ({ children }) => {
     }
   }
 
+  // Decrease stock when order is placed
+  const decreaseStock = (orderItems) => {
+    setProducts(prev => prev.map(product => {
+      const orderedItem = orderItems.find(item => 
+        item.id === product.id || 
+        item.id === parseInt(product.id)
+      )
+      if (orderedItem) {
+        const newStock = Math.max(0, (product.stock || 0) - orderedItem.quantity)
+        return { ...product, stock: newStock }
+      }
+      return product
+    }))
+  }
+
   // Debug logging when products change
   useEffect(() => {
     console.log(`📊 Products updated - Source: ${dataSource}, Count: ${products.length}`)
@@ -92,7 +107,8 @@ export const ProductProvider = ({ children }) => {
         loading,
         error,
         refetchProducts,
-        dataSource // Add this for debugging
+        decreaseStock,
+        dataSource
       }}
     >
       {children}

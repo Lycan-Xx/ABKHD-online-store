@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useToast } from '../contexts/ToastContext'
 import { useOrders } from '../contexts/OrderContext'
+import { useProducts } from '../contexts/ProductContext'
 import { formatPrice } from '../lib/utils'
 import BackButton from '../components/ui/BackButton'
 import Breadcrumb from '../components/ui/Breadcrumb'
@@ -12,6 +13,7 @@ const CheckoutPage = () => {
   const { items, getCartTotal, clearCart } = useCart()
   const { addToast } = useToast()
   const { createOrder } = useOrders()
+  const { products, refetchProducts } = useProducts()
   
   // Get WhatsApp number from environment variables
   const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER
@@ -163,7 +165,7 @@ const CheckoutPage = () => {
       // Simulate successful payment and create order
       await new Promise(resolve => setTimeout(resolve, 2000))
 
-      // Create order record
+      // Create order record with customer data
       const order = createOrder({
         items: items.map(item => ({
           id: item.id,
@@ -174,11 +176,22 @@ const CheckoutPage = () => {
           color: item.color,
           image: item.image
         })),
-        customer: shippingDetails,
+        customer: {
+          email: shippingDetails.email,
+          phone: shippingDetails.phone,
+          fullName: shippingDetails.fullName,
+          address: shippingDetails.address,
+          city: shippingDetails.city,
+          state: shippingDetails.state,
+          postalCode: shippingDetails.postalCode
+        },
         subtotal: getCartTotal(),
         shipping: 0,
         total: getCartTotal()
       })
+
+      // Decrease product stock after successful order
+      decreaseStock(items)
 
       console.log('Order created:', order)
 

@@ -1,320 +1,579 @@
-📱 Project ABKHD: Rebuild Master Plan
-Stack: Astro (Frontend) + Appwrite Cloud (Backend/DB/Functions) + Flutterwave (Payments)
+# 📱 Project ABKHD: Complete Rebuild Master Plan
 
-🚀 Phase 0: The "Safe" Migration (React/Vite → Astro)
-Goal: Move your existing React work into Astro without rewriting logic or breaking the UI.
+**Stack: React/Vite (Current) → Astro (Migration) + Appwrite Cloud (Backend/DB/Functions) + Flutterwave (Payments)**
 
-The Strategy: "Islands Architecture"
-Think of Astro as the Container (HTML shell) and your existing React components as Islands inside it.
-
-Static Content (Header, Footer, Hero): Rendered by Astro (Zero JavaScript sent to browser).
-
-Interactive Content (Cart, Product Filters, Admin Forms): Rendered by React (Hydrated on the client).
-
-Step-by-Step Migration Guide
-Initialize Astro:
-Do not delete your old project yet. Create a new folder next to it.
-
-Bash
-npm create astro@latest abkhd-store
-cd abkhd-store
-npx astro add react tailwindcss
-Move Assets:
-
-Copy your src/assets (images, fonts) from the Vite project to src/assets in Astro.
-
-Copy your global CSS (if any) to src/styles.
-
-Migrate Components (The "Lift & Shift"):
-
-Copy your entire components folder from the Vite project to src/components in Astro.
-
-Note: You do not need to change the React code (JSX hooks, state) inside these files. They will work "as is".
-
-Rebuild Pages (The Router):
-Astro uses file-based routing (like Next.js).
-
-Create src/pages/index.astro.
-
-Import your React Home component and wrap it.
-
-Code snippet
----
-// src/pages/index.astro
-import Navbar from '../components/Navbar.jsx';
-import HeroSection from '../components/HeroSection.jsx';
-import FeaturedGadgets from '../components/FeaturedGadgets.jsx';
-import Footer from '../components/Footer.jsx';
 ---
 
-<html lang="en">
-  <head>
-    <title>ABKHD Gadgets</title>
-  </head>
-  <body>
-    <Navbar />
+## 📊 Current Codebase Analysis
 
-    <HeroSection />
+### 1. Data Model
 
-    <FeaturedGadgets client:visible />
+#### Categories (3 Total)
+```javascript
+// src/data/products.js
+export const categories = [
+  { id: "computers", name: "Computers", description: "Laptops, desktops..." },
+  { id: "mobile phones", name: "Mobile Phones", description: "Smartphones..." },
+  { id: "accessories", name: "Accessories", description: "Cases, chargers..." }
+]
+```
 
-    <Footer />
-  </body>
-</html>
-Fixing Global State (Context API):
-If you used useContext for your Cart:
-
-Create a wrapper component (e.g., AppWrapper.jsx) that contains your Providers.
-
-Wrap the specific islands in Astro that need access to that context.
-
-Pro Tip: For Astro, it is often easier to switch simple state (like a Cart) to Nano Stores (super lightweight, works across framework boundaries), but standard React Context works if you wrap the entire "Page Content" island.
-
-🏃 Phase 1: Foundation & Database (Appwrite Setup)
-Goal: Establish the data structure for Gadgets and secure Admin access.
-
-1. Database Schema
-Create a Database named abkhd_db and the following Collections:
-
-A. Products (products)
-
-name (String, 128)
-
-brand (String, 64) - Index this for filtering
-
-category (Enum: "laptop", "phone", "accessory")
-
-condition (Enum: "new", "open_box", "used")
-
-price (Integer) - Store in Kobo (e.g., 5000000 for ₦50,000.00)
-
-specs (String) - Store specific details as a stringified JSON object (RAM, Storage, Processor)
-
-images (String Array) - Array of File IDs
-
-is_unique (Boolean) - True for specific used items
-
-stock (Integer)
-
-Permissions: Read: Any, Write: Admin Team.
-
-B. Orders (orders)
-
-customer_name (String)
-
-customer_email (String)
-
-customer_phone (String)
-
-delivery_method (Enum: "pickup", "delivery")
-
-delivery_address (String, nullable)
-
-items (String) - JSON string of cart items
-
-total_amount (Integer)
-
-payment_status (Enum: "pending", "paid", "failed")
-
-payment_ref (String) - Flutterwave Transaction Ref
-
-Permissions: Create: Any, Read/Update: Admin Team.
-
-2. Admin Authentication
-Enable Google OAuth in Appwrite Console.
-
-Security Rule: In your Admin Panel code (React), check the user's email after login.
-
-JavaScript
-const allowedAdmins = ['ceo@abkhd.com', 'manager@abkhd.com'];
-if (!allowedAdmins.includes(user.email)) {
-   // Force logout or show "Access Denied"
+#### Products Schema
+```javascript
+{
+  id: number,
+  name: string,
+  price: number,
+  originalPrice: number | null,
+  category: string, // "computers" | "mobile phones" | "accessories"
+  description: string,
+  longDescription: string,
+  image: string (URL),
+  images: string[] (array of URLs),
+  stock: number,
+  featured: boolean,
+  tags: string[]
 }
-💻 Phase 2: Frontend Implementation (REST API)
-Goal: Connect Astro to Appwrite using raw fetch (No SDK headaches).
+```
 
-1. The Helper Function
-Create src/lib/api.js to handle your calls securely.
-
-JavaScript
-// src/lib/api.js
-const PROJECT_ID = import.meta.env.PUBLIC_APPWRITE_PROJECT_ID;
-const ENDPOINT = 'https://cloud.appwrite.io/v1';
-
-export const dbFetch = async (path, options = {}) => {
-  const headers = {
-    'X-Appwrite-Project': PROJECT_ID,
-    'Content-Type': 'application/json',
-    ...options.headers
-  };
-
-  const response = await fetch(`${ENDPOINT}${path}`, {
-    ...options,
-    headers
-  });
-
-  if (!response.ok) {
-    throw new Error(`API Error: ${response.statusText}`);
-  }
-  
-  return await response.json();
-};
-
-// Example: Fetch Gadgets
-export const getGadgets = async () => {
-  return await dbFetch(`/databases/${DB_ID}/collections/products/documents`);
-};
-2. Product Pages (SEO Optimized)
-Use Astro's dynamic routing (src/pages/gadgets/[id].astro).
-
-Server-Side Fetching: Astro fetches the gadget data at build time (or request time) to generate the HTML.
-
-Meta Tags: Inject the data directly into the <head>.
-
-Code snippet
----
-// src/pages/gadgets/[id].astro
-import { getGadgetById } from '../../lib/api';
-const { id } = Astro.params;
-const gadget = await getGadgetById(id);
-
-const imageUrl = `https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${gadget.images[0]}/view?project=${PROJECT_ID}`;
 ---
 
-<head>
-  <title>{gadget.name} | ABKHD</title>
-  <meta property="og:title" content={gadget.name} />
-  <meta property="og:description" content={`Buy this ${gadget.condition} ${gadget.name} for ₦${gadget.price/100}`} />
-  <meta property="og:image" content={imageUrl} />
-</head>
-💳 Phase 3: The Payment "Backend" (Appwrite Functions)
-Goal: Secure server-side logic for Flutterwave without managing a VPS.
+### 2. Context Architecture
 
-1. Setup
-In Appwrite Console > Functions > Create Function.
+#### ProductContext (`src/contexts/ProductContext.jsx`)
+- Loads products from local `src/data/products.js`
+- Manages: `products`, `categories`, `loading`, `error`, `dataSource`
+- Auto-refreshes every 5 minutes
+- Provides `refetchProducts()` function
 
-Name: payment-handler.
+#### AdminProductContext (`src/contexts/AdminProductContext.jsx`)
+- Wraps ProductContext data
+- Adds admin-specific fields: `isActive`, `isArchived`, `createdAt`, `updatedAt`
+- Methods: `addProduct()`, `updateProduct()`, `deleteProduct()`, `toggleProductActive()`, `getProduct()`, `getStats()`
+- Dashboard stats: `totalProducts`, `activeProducts`, `featuredProducts`, `archivedProducts`, `totalCategories`, `productsByCategory`
 
-Runtime: Node.js (latest).
+#### CartContext (`src/contexts/CartContext.jsx`)
+- Uses React useReducer for state management
+- Persists to localStorage (`cart` key)
+- Methods: `addItem()`, `removeItem()`, `updateQuantity()`, `clearCart()`, `getCartTotal()`, `getCartCount()`
+- Each item gets unique `cartId`: `${product.id}-${size}-${color}-${timestamp}`
 
-Environment Variables:
+#### OrderContext (`src/contexts/OrderContext.jsx`)
+- Stores orders in localStorage (`orders` key)
+- Auto-generates order IDs: `ORD-{timestamp}-{random}`
+- Auto-generates payment references: `PAY-{timestamp}-{random}`
+- Methods: `createOrder()`, `getCompletedOrders()`, `getTotalRevenue()`, `getOrderCount()`, `generateReceipt()`, `copyReceipt()`
 
-FLW_SECRET_KEY: Your Flutterwave Secret Key.
+---
 
-FLW_SECRET_HASH: A random string you create (e.g., "abkhd_secure_hash_123").
+### 3. Page Structure
 
-2. Function Logic (src/main.js)
-This function handles both initialization and webhooks to save resources.
+#### ShopPage (`src/pages/ShopPage.jsx`)
+- Displays products in grid layout
+- Category filter sidebar (desktop) / drawer (mobile)
+- 3 categories: Computers, Mobile Phones, Accessories
+- Product count display
+- Responsive design with Tailwind
 
-JavaScript
-const sdk = require("node-appwrite");
-const axios = require("axios");
+#### ProductDetailPage (`src/pages/ProductDetailPage.jsx`)
+- Image gallery with thumbnail navigation
+- Price display with original price (if discounted)
+- Description rendering (supports rich text)
+- Add to Cart / Buy Now buttons
+- Category badge display
+- Related products section (same category)
+- RichTextRenderer component for formatted descriptions
 
-module.exports = async ({ req, res, log, error }) => {
-  const client = new sdk.Client();
-  // Initialize Appwrite SDK (Admin Mode)
-  client
-    .setEndpoint('https://cloud.appwrite.io/v1')
-    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+#### CheckoutPage (`src/pages/CheckoutPage.jsx`)
+**Two Checkout Methods:**
 
-  const db = new sdk.Databases(client);
+1. **WhatsApp Checkout** (Primary)
+   - Generates pre-filled order message
+   - Opens WhatsApp with order details
+   - Configurable via `VITE_WHATSAPP_PHONE_NUMBER`
 
-  // ROUTE 1: INITIATE PAYMENT (Called by your Frontend)
-  if (req.path === '/initiate' && req.method === 'POST') {
-    const { email, amount, cartItems } = JSON.parse(req.body);
-    
-    // 1. Create "Pending" Order in DB
-    const order = await db.createDocument('DB_ID', 'orders', sdk.ID.unique(), {
-        customer_email: email,
-        total_amount: amount,
-        items: JSON.stringify(cartItems),
-        payment_status: 'pending'
-    });
+2. **Online Payment** (Card)
+   - Shipping form with validation
+   - Payment processing (simulated - ready for Flutterwave integration)
+   - Creates order record on completion
 
-    // 2. Call Flutterwave
-    const flwResponse = await axios.post('https://api.flutterwave.com/v3/payments', {
-        tx_ref: order.$id, // Use Order ID as Ref
-        amount: amount,
-        currency: "NGN",
-        redirect_url: "https://abkhd.com/success",
-        customer: { email },
-        meta: { consumer_id: order.$id }
-    }, { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` }});
+**Shipping Details Collected:**
+- Email, Phone, Full Name, Address, City, State, Postal Code
 
-    return res.json({ link: flwResponse.data.data.link });
-  }
+---
 
-  // ROUTE 2: WEBHOOK (Called by Flutterwave)
-  if (req.path === '/webhook' && req.method === 'POST') {
-    // 1. Verify Hash Security
-    const signature = req.headers['verif-hash'];
-    if (!signature || signature !== process.env.FLW_SECRET_HASH) {
-      return res.json({ status: "error", message: "Invalid Signature" }, 401);
-    }
+### 4. Admin Panel
 
-    const payload = JSON.parse(req.body);
-    
-    if (payload.status === "successful") {
-      // 2. Update Order to "Paid"
-      await db.updateDocument('DB_ID', 'orders', payload.txRef, {
-        payment_status: 'paid',
-        payment_ref: payload.id.toString()
-      });
-      
-      // 3. Decrease Stock (Optional Logic here)
-    }
-    return res.json({ status: "success" });
-  }
+#### DashboardPage (`src/pages/admin/DashboardPage.jsx`)
+**Two Tabs:**
 
-  return res.json({ error: "Invalid Route" }, 404);
-};
-🛠 Phase 4: Admin Panel & Optimization
-Goal: A fast, secure dashboard for managing gadget inventory.
+1. **Overview Tab**
+   - Stats cards: Total Products, Active Products, Total Revenue, Completed Orders
+   - Products by Category chart
+   - Recent Products list
 
-1. Image Compression (Client-Side)
-In your Admin "Add Product" form (React component):
+2. **Orders Tab**
+   - Revenue stats: Total Revenue, Order Count, Average Order Value
+   - Orders list with: Order ID, Customer Info, Items, Payment Reference, Total
+   - Copy Receipt button (copies formatted receipt to clipboard)
 
-JavaScript
-import imageCompression from 'browser-image-compression';
+#### ProductsListPage (`src/pages/admin/ProductsListPage.jsx`)
+- Search functionality
+- Category filter dropdown
+- Status filter (Active/Inactive/Archived)
+- Pagination (10 items per page)
+- Table display with toggle active/delete actions
 
-async function handleImageUpload(event) {
-  const imageFile = event.target.files[0];
-  
-  const options = {
-    maxSizeMB: 0.5, // Compress to ~500KB
-    maxWidthOrHeight: 1200, // Resize if huge
-    useWebWorker: true,
-  };
+#### ProductEditorPage (`src/pages/admin/ProductEditorPage.jsx`)
+**Features:**
+- Image upload with compression (automatic)
+- Form sections: Images, Basic Info, Description, Settings
+- Categories populated from ProductContext
+- Validation: Name, Price, Category, Description required
+- Save as Draft / Save & Publish options
+- Edit mode with delete option
 
-  try {
-    const compressedFile = await imageCompression(imageFile, options);
-    // Now upload `compressedFile` to Appwrite Storage using REST
-    uploadToAppwrite(compressedFile);
-  } catch (error) {
-    console.log(error);
+---
+
+### 5. Image Compression (`src/lib/utils.js`)
+
+```javascript
+// Exported functions:
+compressImage(file, config)     // Canvas-based image compression
+compressVideo(file)              // Video thumbnail generation
+formatFileSize(bytes)            // Human-readable file sizes
+needsCompression(file, thresholdMB) // Check if compression needed
+```
+
+**Configuration:**
+- Max dimensions: 1920x1920
+- Quality: 80% JPEG
+- High-quality image smoothing
+- Maintains aspect ratio
+
+---
+
+## 🗄️ Appwrite Database Schema
+
+### A. Products Collection (`products`)
+
+| Attribute | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | Unique ID (UUID) |
+| name | string | Yes | Product name |
+| price | integer | Yes | Price in Kobo |
+| originalPrice | integer | No | Original price for discounts |
+| category | enum | Yes | computers, mobile phones, accessories |
+| description | string | Yes | Short description |
+| longDescription | string | No | Detailed description |
+| image | string | Yes | Main image URL |
+| images | string[] | No | Additional images |
+| stock | integer | Yes | Available quantity |
+| featured | boolean | No | Featured flag |
+| tags | string[] | No | Product tags |
+| isActive | boolean | Yes | Active status |
+| isArchived | boolean | Yes | Archive flag |
+| createdAt | datetime | Yes | Creation timestamp |
+| updatedAt | datetime | Yes | Last update timestamp |
+
+**Permissions:**
+- Read: Public
+- Write: Admin only
+
+### B. Orders Collection (`orders`)
+
+| Attribute | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | Unique order ID |
+| paymentRef | string | Yes | Payment reference |
+| customer | object | Yes | Customer details |
+| items | object[] | Yes | Order items |
+| subtotal | integer | Yes | Subtotal in Kobo |
+| shipping | integer | Yes | Shipping cost |
+| total | integer | Yes | Total in Kobo |
+| status | string | Yes | completed, pending, failed |
+| paymentMethod | string | No | whatsapp, card |
+| createdAt | datetime | Yes | Order timestamp |
+
+**Customer Object:**
+```javascript
+{
+  email: string,
+  phone: string,
+  fullName: string,
+  address: string,
+  city: string,
+  state: string,
+  postalCode: string
+}
+```
+
+**Item Object:**
+```javascript
+{
+  id: string,
+  name: string,
+  price: number,
+  quantity: number,
+  size: string | null,
+  color: string | null,
+  image: string
+}
+```
+
+**Permissions:**
+- Create: Public (for guest checkout)
+- Read/Update: Admin only
+
+---
+
+## 🔄 Migration Steps
+
+### Phase 1: Appwrite Setup
+
+1. **Create Database**: `abkhd_db`
+
+2. **Create Collections**:
+   - `products` (with above schema)
+   - `orders` (with above schema)
+
+3. **Setup Storage**:
+   - Create bucket: `product-images`
+   - Set permissions: Read Public, Write Admin
+
+4. **Setup Authentication**:
+   - Enable Email/Password
+   - Optionally enable Google OAuth for admin
+
+### Phase 2: API Layer
+
+Create `src/lib/appwrite.js`:
+
+```javascript
+import { Client, Databases, Storage, ID } from 'appwrite'
+
+const client = new Client()
+  .setEndpoint('https://cloud.appwrite.io/v1')
+  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
+
+export const db = new Databases(client)
+export const storage = new Storage(client)
+
+export const DB_ID = 'abkhd_db'
+export const PRODUCTS_COLLECTION = 'products'
+export const ORDERS_COLLECTION = 'orders'
+export const IMAGES_BUCKET = 'product-images'
+```
+
+### Phase 3: Update Contexts
+
+1. **ProductContext**: Fetch from Appwrite instead of local file
+
+2. **AdminProductContext**: Save to Appwrite on add/update/delete
+
+3. **OrderContext**: Save to Appwrite with proper permissions
+
+### Phase 4: Update Admin Panel
+
+1. **ImageUploader**: Upload to Appwrite Storage instead of base64
+
+2. **ProductEditor**: Save images to storage, get URLs for product
+
+### Phase 5: Payment Integration
+
+**Flutterwave Integration:**
+
+```javascript
+// In CheckoutPage handlePayment():
+import { FlutterwaveCheckout } from 'flutterwave-button-vue'
+
+const config = {
+  public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
+  tx_ref: `ORD-${Date.now()}`,
+  amount: getCartTotal(),
+  currency: 'NGN',
+  customer: {
+    email: shippingDetails.email,
+    phone: shippingDetails.phone,
+    name: shippingDetails.fullName
+  },
+  callback: (response) => {
+    // Verify payment and create order
   }
 }
-2. Order Management UI
-Create a protected route /admin/orders.
+```
 
-Fetch orders sorted by $createdAt (descending).
+### Phase 6: Webhook Handler
 
-Add a visual badge for status:
+Create Appwrite Function for Flutterwave webhook:
 
-Pending: Yellow (Wait for payment).
+```javascript
+// Verify payment
+// Update order status to 'completed'
+// Optionally decrease stock
+```
 
-Paid: Green (Ready to ship).
+---
 
-Shipped: Blue.
+## 📁 File Structure Summary
 
-🏁 Summary of Agile Sprints
-Sprint 1 (Migration): Initialize Astro, move React components, ensure the site loads locally with static data.
+```
+src/
+├── contexts/
+│   ├── ProductContext.jsx      # Product data management
+│   ├── AdminProductContext.jsx # Admin CRUD operations
+│   ├── CartContext.jsx         # Shopping cart
+│   ├── OrderContext.jsx       # Order management
+│   └── ToastContext.jsx      # Notifications
+├── components/
+│   ├── admin/
+│   │   ├── ImageUploader.jsx  # With compression
+│   │   ├── ProductTable.jsx
+│   │   ├── ProductToggle.jsx
+│   │   ├── StatsCard.jsx
+│   │   └── SimpleChart.jsx
+│   └── ui/
+│       ├── BackButton.jsx
+│       ├── Breadcrumb.jsx
+│       └── Toast.jsx
+├── pages/
+│   ├── ShopPage.jsx           # Product listing with filters
+│   ├── ProductDetailPage.jsx  # Product details + Add to Cart
+│   ├── CheckoutPage.jsx       # WhatsApp + Card checkout
+│   ├── AboutPage.jsx          # About with team
+│   ├── ContactPage.jsx
+│   ├── HomePage.jsx
+│   ├── CategoryPage.jsx
+│   ├── SuccessPage.jsx
+│   └── admin/
+│       ├── DashboardPage.jsx  # Overview + Orders tabs
+│       ├── ProductsListPage.jsx
+│       └── ProductEditorPage.jsx
+├── data/
+│   └── products.js            # Local product data
+├── lib/
+│   ├── utils.js               # formatPrice, compression functions
+│   └── compression.js         # Standalone compression
+└── contexts/
+    └── OrderContext.jsx       # Order management
+```
 
-Sprint 2 (Data): Set up Appwrite Cloud, write the API helper, connect the Product Listing page to real data.
+---
 
-Sprint 3 (Admin): Build the Admin "Add Gadget" form with Image Compression and Google OAuth.
+## 🔑 Environment Variables (Current)
 
-Sprint 4 (Checkout): Build the Cart, Guest Checkout Form, and Appwrite Function for Flutterwave.
+```
+VITE_APP_NAME=ABKHD Store
+VITE_WHATSAPP_PHONE_NUMBER=+2347062284169
+VITE_APPWRITE_PROJECT_ID= (to be added)
+VITE_FLUTTERWAVE_PUBLIC_KEY= (to be added)
+```
 
-Sprint 5 (Deploy): Connect to GitHub, Deploy Frontend to Vercel/Netlify, Deploy Functions to Appwrite.
+---
+
+## ✅ Completed Features (Ready for Backend Integration)
+
+1. ✅ Product listing with category filters
+2. ✅ Product detail page with image gallery
+3. ✅ Shopping cart with localStorage persistence
+4. ✅ WhatsApp checkout
+5. ✅ Card checkout (simulated - needs Flutterwave)
+6. ✅ Order creation and tracking
+7. ✅ Admin dashboard with revenue stats
+8. ✅ Order management with receipts
+9. ✅ Product CRUD in admin panel
+10. ✅ Image compression on upload
+11. ✅ 3 categories: Computers, Mobile Phones, Accessories
+12. ✅ Stock management - decreases on purchase
+13. ✅ Customer data captured in orders
+
+---
+
+## 🔄 Complete Purchase Flow Scenario
+
+### Scenario: Unique Item Purchase (Used Phone)
+
+**Step 1: Admin Uploads a Unique Used Phone**
+
+1. Admin logs into `/admin`
+2. Clicks "Add Product"
+3. Fills in product details:
+   - Name: "iPhone 13 Pro - Used (Excellent Condition)"
+   - Category: "Mobile Phones"
+   - Price: ₦450,000
+   - Original Price: ₦550,000 (to show discount)
+   - Description: "Single owner, battery health 89%, no scratches"
+   - Long Description: Full condition report...
+4. Uploads product images (automatically compressed)
+5. Sets stock: **1** (unique item)
+6. Marks as "Featured"
+7. Clicks "Save & Publish"
+
+**Product saved with:**
+```javascript
+{
+  id: "unique-001",
+  name: "iPhone 13 Pro - Used (Excellent Condition)",
+  category: "mobile phones",
+  price: 450000,
+  originalPrice: 550000,
+  stock: 1,  // Only 1 available!
+  featured: true,
+  images: ["https://..."],
+  isActive: true,
+  isArchived: false
+}
+```
+
+---
+
+**Step 2: Customer Browses Shop**
+
+1. Customer visits `/shop`
+2. Sees "iPhone 13 Pro" in the Mobile Phones category (featured)
+3. Clicks on product to see details
+4. Views image gallery, description, price
+5. Clicks "Add to Cart"
+6. Item added to cart with cartId: `unique-001-null-null-1709876543210`
+
+---
+
+**Step 3: Customer Proceeds to Checkout**
+
+1. Customer goes to `/checkout`
+2. Reviews order summary:
+   - iPhone 13 Pro - Used
+   - Qty: 1
+   - Total: ₦450,000
+3. Chooses payment method:
+   - **Option A: WhatsApp** - Opens WhatsApp with order details
+   - **Option B: Card Payment** - Fills shipping form
+
+---
+
+**Step 4: Card Payment Flow**
+
+1. Customer fills shipping form:
+   - Email: john@example.com
+   - Phone: +2348012345678
+   - Full Name: John Doe
+   - Address: 123 Lagos Street
+   - City: Lagos
+   - State: Lagos
+   - Postal Code: 101001
+
+2. Clicks "Pay ₦450,000"
+3. System:
+   - Simulates payment processing (2 seconds)
+   - Creates order with customer data:
+   ```javascript
+   {
+     id: "ORD-m1709876543-ABC123",
+     paymentRef: "PAY-m1709876543-DEF456",
+     status: "completed",
+     customer: {
+       email: "john@example.com",
+       phone: "+2348012345678",
+       fullName: "John Doe",
+       address: "123 Lagos Street",
+       city: "Lagos",
+       state: "Lagos",
+       postalCode: "101001"
+     },
+     items: [{
+       id: "unique-001",
+       name: "iPhone 13 Pro - Used (Excellent Condition)",
+       price: 450000,
+       quantity: 1,
+       size: null,
+       color: null,
+       image: "https://..."
+     }],
+     subtotal: 450000,
+     shipping: 0,
+     total: 450000,
+     createdAt: "2024-03-08T04:30:00.000Z"
+   }
+   ```
+   - **Decreases product stock from 1 to 0**
+   - Clears cart
+   - Shows success message
+   - Redirects to `/success`
+
+---
+
+**Step 5: Admin Views Order**
+
+1. Admin visits `/admin`
+2. Sees new order in Orders tab:
+   - Order ID: ORD-m1709876543-ABC123
+   - Customer: John Doe
+   - Payment Ref: PAY-m1709876543-DEF456
+   - Total: ₦450,000
+   - Status: Completed (green badge)
+3. Can click "Copy Receipt" to get formatted receipt
+4. Can view customer details for shipping
+
+---
+
+**Step 6: Stock Updated**
+
+- Product stock now shows **0**
+- Product remains visible but shows "Out of Stock" (if implemented)
+- For unique items, this prevents overselling
+
+---
+
+### Order Data Structure (Complete)
+
+```javascript
+{
+  // Order Identification
+  id: string,           // "ORD-timestamp-random"
+  paymentRef: string,   // "PAY-timestamp-random" - Flutterwave reference
+  status: string,        // "completed" | "pending" | "failed"
+  createdAt: string,     // ISO timestamp
+
+  // Customer Information
+  customer: {
+    email: string,
+    phone: string,
+    fullName: string,
+    address: string,
+    city: string,
+    state: string,
+    postalCode: string
+  },
+
+  // Order Items
+  items: [{
+    id: string,
+    name: string,
+    price: number,
+    quantity: number,
+    size: string | null,
+    color: string | null,
+    image: string
+  }],
+
+  // Payment Summary
+  subtotal: number,
+  shipping: number,
+  total: number,
+
+  // Payment Method (for reference)
+  paymentMethod: string  // "whatsapp" | "card"
+}
+```
+
+---
+
+## 🚀 Next Steps for Backend Integration
+
+1. Set up Appwrite Cloud account
+2. Create database and collections
+3. Migrate product data to Appwrite
+4. Implement Appwrite authentication for admin
+5. Integrate Flutterwave for payments
+6. Set up webhook for payment verification
+7. Deploy to production
