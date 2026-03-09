@@ -93,6 +93,13 @@ const categories = [...new Set(products.map(p => p.category))];
         <table class="w-full">
           <thead>
             <tr class="border-b bg-muted/50">
+              <th class="w-10 px-4 py-3">
+                <input 
+                  type="checkbox" 
+                  id="select-all-checkbox"
+                  class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+              </th>
               <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
                 Product
               </th>
@@ -116,6 +123,14 @@ const categories = [...new Set(products.map(p => p.category))];
           <tbody class="divide-y">
             {filteredProducts.map(product => (
               <tr class="hover:bg-muted/30 transition-colors" data-product-id={product.id}>
+                <!-- Selection -->
+                <td class="px-4 py-3">
+                  <input 
+                    type="checkbox" 
+                    class="product-checkbox w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    data-product-id={product.id}
+                  />
+                </td>
                 <!-- Product -->
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-3">
@@ -274,6 +289,35 @@ const categories = [...new Set(products.map(p => p.category))];
         </div>
       )}
     </div>
+
+    <!-- Bulk Actions Bar -->
+    <div 
+      id="bulk-actions-bar"
+      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-background border shadow-2xl rounded-2xl px-6 py-4 flex items-center gap-6 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none"
+    >
+      <div class="flex items-center gap-2 border-r pr-6">
+        <span id="selected-count" class="font-bold text-primary">0</span>
+        <span class="text-sm font-medium text-muted-foreground">selected</span>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button id="bulk-export-btn" class="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Export to CSV">
+          <i class="bi bi-download"></i>
+        </button>
+        <button id="bulk-duplicate-btn" class="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Duplicate">
+          <i class="bi bi-copy"></i>
+        </button>
+        <div class="w-px h-4 bg-border mx-2"></div>
+        <button id="bulk-delete-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-destructive/10 text-destructive transition-colors font-medium text-sm" title="Delete">
+          <i class="bi bi-trash"></i>
+          Delete
+        </button>
+      </div>
+
+      <button id="cancel-selection" class="ml-4 text-xs font-medium text-muted-foreground hover:text-foreground">
+        Cancel
+      </button>
+    </div>
   </div>
 </AdminLayout>
 
@@ -315,83 +359,190 @@ const categories = [...new Set(products.map(p => p.category))];
   }
 </style>
 
-<script>
-  // Initialize toggle buttons with correct state
-  const initializeToggles = () => {
-    document.querySelectorAll('.toggle-btn, .toggle-btn-mobile').forEach((btn) => {
-      const button = btn as HTMLButtonElement;
-      const isActive = button.dataset.currentStatus === 'active';
-      
-      if (isActive) {
-        button.classList.add('active');
-        button.classList.remove('inactive');
-      } else {
-        button.classList.add('inactive');
-        button.classList.remove('active');
-      }
-      
-      // Add click handler
-      button.addEventListener('click', () => {
-        const productId = button.dataset.productId;
-        const currentlyActive = button.classList.contains('active');
-        const newStatus = !currentlyActive;
+<script define:vars={{ products }}>
+  const initProductsPage = () => {
+    // Initialize toggle buttons with correct state
+    const initializeToggles = () => {
+      document.querySelectorAll('.toggle-btn, .toggle-btn-mobile').forEach((btn) => {
+        const button = btn as HTMLButtonElement;
+        const isActive = button.dataset.currentStatus === 'active';
         
-        // Toggle visual state
-        if (newStatus) {
+        if (isActive) {
           button.classList.add('active');
           button.classList.remove('inactive');
-          button.dataset.currentStatus = 'active';
         } else {
           button.classList.add('inactive');
           button.classList.remove('active');
-          button.dataset.currentStatus = 'inactive';
         }
         
-        // Sync all toggle buttons for this product
-        document.querySelectorAll(`[data-product-id="${productId}"]`).forEach((toggleBtn) => {
-          const tb = toggleBtn as HTMLButtonElement;
-          if (tb !== button) {
-            if (newStatus) {
-              tb.classList.add('active');
-              tb.classList.remove('inactive');
-              tb.dataset.currentStatus = 'active';
-            } else {
-              tb.classList.add('inactive');
-              tb.classList.remove('active');
-              tb.dataset.currentStatus = 'inactive';
+        // Add click handler
+        button.addEventListener('click', () => {
+          const productId = button.dataset.productId;
+          const currentlyActive = button.classList.contains('active');
+          const newStatus = !currentlyActive;
+          
+          // Toggle visual state
+          if (newStatus) {
+            button.classList.add('active');
+            button.classList.remove('inactive');
+            button.dataset.currentStatus = 'active';
+          } else {
+            button.classList.add('inactive');
+            button.classList.remove('active');
+            button.dataset.currentStatus = 'inactive';
+          }
+          
+          // Sync all toggle buttons for this product
+          document.querySelectorAll(`[data-product-id="${productId}"]`).forEach((toggleBtn) => {
+            const tb = toggleBtn as HTMLButtonElement;
+            if (tb !== button) {
+              if (newStatus) {
+                tb.classList.add('active');
+                tb.classList.remove('inactive');
+                tb.dataset.currentStatus = 'active';
+              } else {
+                tb.classList.add('inactive');
+                tb.classList.remove('active');
+                tb.dataset.currentStatus = 'inactive';
+              }
             }
-          }
+          });
+          
+          console.log(`Product ${productId} toggled to: ${newStatus ? 'active' : 'inactive'}`);
         });
-        
-        // In a real app, this would make an API call to update the product status
-        console.log(`Product ${productId} toggled to: ${newStatus ? 'active' : 'inactive'}`);
       });
-    });
-  };
+    };
 
-  // Initialize featured checkboxes
-  const initializeFeaturedToggles = () => {
-    document.querySelectorAll('.featured-checkbox, .featured-checkbox-mobile').forEach((cb) => {
-      const checkbox = cb as HTMLInputElement;
+    // Initialize featured checkboxes
+    const initializeFeaturedToggles = () => {
+      document.querySelectorAll('.featured-checkbox, .featured-checkbox-mobile').forEach((cb) => {
+        const checkbox = cb as HTMLInputElement;
+        
+        checkbox.addEventListener('change', () => {
+          const productId = checkbox.dataset.productId;
+          const isFeatured = checkbox.checked;
+          
+          // Sync all featured checkboxes for this product
+          document.querySelectorAll(`[data-product-id="${productId}"].featured-checkbox, [data-product-id="${productId}"].featured-checkbox-mobile`).forEach((otherCb) => {
+            const oc = otherCb as HTMLInputElement;
+            if (oc !== checkbox) {
+              oc.checked = isFeatured;
+            }
+          });
+          
+          console.log(`Product ${productId} featured status changed to: ${isFeatured}`);
+        });
+      });
+    };
+
+    // Selection Logic
+    const selectAllCheckbox = document.getElementById('select-all-checkbox') as HTMLInputElement;
+    const productCheckboxes = document.querySelectorAll('.product-checkbox');
+    const bulkActionsBar = document.getElementById('bulk-actions-bar');
+    const selectedCountEl = document.getElementById('selected-count');
+    const cancelSelectionBtn = document.getElementById('cancel-selection');
+
+    if (!selectAllCheckbox || !bulkActionsBar) return;
+
+    const updateBulkBar = () => {
+      const selectedCount = document.querySelectorAll('.product-checkbox:checked').length;
       
-      checkbox.addEventListener('change', () => {
-        const productId = checkbox.dataset.productId;
-        const isFeatured = checkbox.checked;
-        
-        // Sync all featured checkboxes for this product
-        document.querySelectorAll(`[data-product-id="${productId}"].featured-checkbox, [data-product-id="${productId}"].featured-checkbox-mobile`).forEach((otherCb) => {
-          const oc = otherCb as HTMLInputElement;
-          if (oc !== checkbox) {
-            oc.checked = isFeatured;
-          }
+      if (selectedCount > 0) {
+        bulkActionsBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+        if (selectedCountEl) selectedCountEl.textContent = selectedCount.toString();
+      } else {
+        bulkActionsBar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+      }
+
+      const totalCheckboxes = document.querySelectorAll('.product-checkbox').length;
+      selectAllCheckbox.checked = selectedCount === totalCheckboxes && totalCheckboxes > 0;
+      selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalCheckboxes;
+    };
+
+    selectAllCheckbox.addEventListener('change', () => {
+      document.querySelectorAll('.product-checkbox').forEach((cb) => {
+        (cb as HTMLInputElement).checked = selectAllCheckbox.checked;
+      });
+      updateBulkBar();
+    });
+
+    document.querySelectorAll('.product-checkbox').forEach((cb) => {
+      cb.addEventListener('change', updateBulkBar);
+    });
+
+    cancelSelectionBtn?.addEventListener('click', () => {
+      document.querySelectorAll('.product-checkbox').forEach((cb) => {
+        (cb as HTMLInputElement).checked = false;
+      });
+      selectAllCheckbox.checked = false;
+      updateBulkBar();
+    });
+
+    // Export to CSV
+    const exportToCSV = () => {
+      const selectedIds = Array.from(document.querySelectorAll('.product-checkbox:checked'))
+        .map(cb => (cb as HTMLInputElement).dataset.productId);
+      
+      const selectedProducts = products.filter(p => selectedIds.includes(p.id.toString()));
+      
+      if (selectedProducts.length === 0) return;
+
+      const headers = ['ID', 'Name', 'Price', 'Category', 'Featured', 'Status'];
+      const rows = selectedProducts.map(p => [
+        p.id,
+        p.name,
+        p.price,
+        p.category,
+        p.featured ? 'Yes' : 'No',
+        p.isActive !== false ? 'Active' : 'Inactive'
+      ]);
+
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `products_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    // Delete Products
+    const deleteProducts = () => {
+      const selectedCheckboxes = document.querySelectorAll('.product-checkbox:checked');
+      const selectedCount = selectedCheckboxes.length;
+      
+      if (selectedCount === 0) return;
+
+      const confirmDelete = confirm(`Are you sure you want to delete ${selectedCount} product(s)? This action cannot be undone.`);
+      
+      if (confirmDelete) {
+        selectedCheckboxes.forEach(cb => {
+          const productId = (cb as HTMLInputElement).dataset.productId;
+          document.querySelectorAll(`[data-product-id="${productId}"]`).forEach(el => el.remove());
         });
         
-        console.log(`Product ${productId} featured status changed to: ${isFeatured}`);
-      });
-    });
+        updateBulkBar();
+        console.log(`${selectedCount} products deleted.`);
+      }
+    };
+
+    document.getElementById('bulk-export-btn')?.addEventListener('click', exportToCSV);
+    document.getElementById('bulk-delete-btn')?.addEventListener('click', deleteProducts);
+
+    initializeToggles();
+    initializeFeaturedToggles();
   };
 
-  // Initialize on page load
-  initializeToggles();
-  initializeFeaturedToggles();
+  // Run on initial load
+  initProductsPage();
+
+  // Run on page transitions
+  document.addEventListener('astro:after-swap', initProductsPage);
 </script>
