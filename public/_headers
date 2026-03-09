@@ -17,3 +17,11 @@
 # SPA fallback for single-page app behavior (if needed)
 /*_next/static/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Appwrite API CORS - Allow requests from production domain
+# These headers help with Cloudflare proxying
+/../v1/*
+  Access-Control-Allow-Origin: https://abkhd.pages.dev
+  Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Authorization, X-Appwrite-Project, X-Appwrite-Key, X-Appwrite-Response-Format, client-native, client-web, mode, source
+  Access-Control-Expose-Headers: Content-Type, X-Filename
