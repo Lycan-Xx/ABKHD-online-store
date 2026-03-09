@@ -22,7 +22,7 @@ export const POST: APIRoute = async ({ request }) => {
       const orders = await databases.listDocuments(
         APPWRITE_DB_ID,
         APPWRITE_ORDERS_COLLECTION_ID,
-        [Query.equal('paymentReference', transaction_ref)]
+        [Query.equal('paymentRef', transaction_ref)]
       );
 
       if (orders.documents.length > 0) {
