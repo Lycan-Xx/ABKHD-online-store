@@ -10,7 +10,6 @@ export default defineConfig({
       applyBaseStyles: false,
     })
   ],
-  output: 'hybrid',
   adapter: cloudflare({
     imageService: 'cloudflare',
   }),
