@@ -373,28 +373,21 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
           
           // Save order to Appwrite
           const orderData = {
-            customer: JSON.stringify({
-              email: email,
-              name: name,
-              phone: phone,
-              address: address,
-              city: city,
-              state: state,
-              postalCode: postalCode || ''
-            }),
+            // Required fields
+            customer: JSON.stringify({ email, name, phone }),
             customerEmail: email,
             customerName: name,
+            items: JSON.stringify(items),
+            total: total,
+            totalAmount: total,
+            paymentRef: data.transaction_ref || txRef,
+            // Optional fields
             customerPhone: phone,
             address: address,
             city: city,
             state: state,
             postalCode: postalCode || '',
-            items: JSON.stringify(items),
-            total: total,
-            totalAmount: total,
             status: 'paid',
-            paymentRef: data.transaction_ref || txRef,
-            paymentReference: data.transaction_ref || txRef,
             paymentMethod: 'card'
           };
 
