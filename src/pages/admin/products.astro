@@ -687,10 +687,16 @@ import { formatPrice } from '../../lib/utils';
     for (const file of Array.from(fileInput.files)) {
       if (file.type.startsWith('image/')) {
         const compressed = await compressImage(file, { quality: 0.8 });
+        
+        // Convert base64 to blob then to File
+        const response = await fetch(compressed);
+        const blob = await response.blob();
+        const compressedFile = new File([blob], file.name, { type: 'image/jpeg' });
+        
         mediaFiles.push({
           type: 'image',
           data: compressed,
-          file: file,
+          file: compressedFile, // Use compressed file instead of original
           isPrimary: mediaFiles.filter(m => m.type === 'image').length === 0
         });
       } else if (file.type.startsWith('video/')) {
