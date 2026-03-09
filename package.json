@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check-schema": "tsx scripts/update-products-schema.ts"
+    "check-schema": "tsx scripts/update-products-schema.ts",
+    "check-bucket": "tsx scripts/check-bucket-settings.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
