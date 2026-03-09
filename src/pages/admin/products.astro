@@ -1,48 +1,6 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../../lib/appwrite';
-import { Query } from 'appwrite';
 import { formatPrice } from '../../lib/utils';
-
-// Get query parameters
-const url = Astro.url;
-const searchQuery = url.searchParams.get('search') || '';
-const filterCategory = url.searchParams.get('category') || 'all';
-const filterStatus = url.searchParams.get('status') || 'all';
-
-// Fetch all products for filtering/stats
-let products = [];
-try {
-  const response = await databases.listDocuments(
-    APPWRITE_DB_ID,
-    APPWRITE_PRODUCTS_COLLECTION_ID,
-    [Query.limit(100), Query.orderDesc('$createdAt')]
-  );
-  products = response.documents.map(doc => ({
-    ...doc,
-    id: doc.$id
-  }));
-} catch (error) {
-  console.error('Error fetching admin products:', error);
-}
-
-// Filter products based on search and category
-let filteredProducts = products;
-
-if (searchQuery) {
-  const query = searchQuery.toLowerCase();
-  filteredProducts = filteredProducts.filter(p => 
-    p.name.toLowerCase().includes(query) || 
-    p.description?.toLowerCase().includes(query)
-  );
-}
-
-if (filterCategory !== 'all') {
-  filteredProducts = filteredProducts.filter(p => p.category === filterCategory);
-}
-
-// Get unique categories
-const categories = [...new Set(products.map(p => p.category))];
 ---
 
 <AdminLayout title="Products - ABKHD Admin">
@@ -51,289 +9,268 @@ const categories = [...new Set(products.map(p => p.category))];
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 class="text-2xl md:text-3xl font-bold">Products</h1>
-        <p class="text-muted-foreground mt-1">
-          {filteredProducts.length} products found
-        </p>
+        <p class="text-muted-foreground mt-1">Manage your product catalog</p>
       </div>
-      <a href="/admin/products/new" class="btn-primary">
+      <button id="add-new-btn" class="btn-primary">
         <i class="bi bi-plus-lg mr-2"></i>
-        Add New
-      </a>
+        Add New Product
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <p class="mt-4 text-muted-foreground">Loading products...</p>
     </div>
 
     <!-- Filters -->
-    <div class="flex flex-col sm:flex-row gap-4">
-      <!-- Search -->
+    <div id="filters-section" class="hidden flex flex-col sm:flex-row gap-4">
       <div class="relative flex-1">
         <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
-        <form method="get">
-          <input
-            type="text"
-            name="search"
-            value={searchQuery}
-            placeholder="Search products..."
-            class="w-full pl-10 pr-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          {filterCategory !== 'all' && (
-            <input type="hidden" name="category" value={filterCategory} />
-          )}
-          {filterStatus !== 'all' && (
-            <input type="hidden" name="status" value={filterStatus} />
-          )}
-        </form>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search products..."
+          class="w-full pl-10 pr-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        />
       </div>
-
-      <!-- Category Filter -->
-      <form method="get">
-        <select
-          name="category"
-          onchange="this.form.submit()"
-          class="px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-        >
-          <option value="all">All Categories</option>
-          {categories.map(cat => (
-            <option value={cat} selected={filterCategory === cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-        {searchQuery && (
-          <input type="hidden" name="search" value={searchQuery} />
-        )}
-      </form>
+      <select
+        id="category-filter"
+        class="px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option value="all">All Categories</option>
+      </select>
     </div>
 
     <!-- Products Table -->
-    <div class="rounded-xl border bg-card overflow-hidden">
-      <!-- Desktop Table -->
-      <div class="hidden md:block overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="border-b bg-muted/50">
-              <th class="w-10 px-4 py-3">
-                <input 
-                  type="checkbox" 
-                  id="select-all-checkbox"
-                  class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-              </th>
-              <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
-                Product
-              </th>
-              <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
-                Price
-              </th>
-              <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
-                Category
-              </th>
-              <th class="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
-                Featured
-              </th>
-              <th class="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
-                Listed
-              </th>
-              <th class="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y">
-            {filteredProducts.map(product => (
-              <tr class="hover:bg-muted/30 transition-colors" data-product-id={product.id}>
-                <!-- Selection -->
-                <td class="px-4 py-3">
-                  <input 
-                    type="checkbox" 
-                    class="product-checkbox w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
-                    data-product-id={product.id}
-                  />
-                </td>
-                <!-- Product -->
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        class="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div class="min-w-0">
-                      <a 
-                        href={`/admin/products/${product.id}`}
-                        class="font-medium hover:text-primary transition-colors truncate block"
-                      >
-                        {product.name}
-                      </a>
-                      <p class="text-xs text-muted-foreground truncate max-w-xs">
-                        {product.description}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-
-                <!-- Price -->
-                <td class="px-4 py-3">
-                  <div>
-                    <span class="font-medium">{formatPrice(product.price)}</span>
-                    {product.originalPrice && (
-                      <span class="text-xs text-muted-foreground line-through ml-2">
-                        {formatPrice(product.originalPrice)}
-                      </span>
-                    )}
-                  </div>
-                </td>
-
-                <!-- Category -->
-                <td class="px-4 py-3">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted capitalize">
-                    {product.category}
-                  </span>
-                </td>
-
-                <!-- Featured -->
-                <td class="px-4 py-3 text-center">
-                  <input 
-                    type="checkbox" 
-                    class="featured-checkbox w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
-                    data-product-id={product.id}
-                    checked={product.featured}
-                  />
-                </td>
-
-                <!-- Listed (Active Toggle) -->
-                <td class="px-4 py-3 text-center">
-                  <button 
-                    class="toggle-btn relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                    data-product-id={product.id}
-                    data-current-status={product.isActive !== false ? 'active' : 'inactive'}
-                  >
-                    <span class="toggle-indicator inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform"></span>
-                  </button>
-                </td>
-
-                <!-- Actions -->
-                <td class="px-4 py-3">
-                  <div class="flex items-center justify-end gap-2">
-                    <a
-                      href={`/admin/products/${product.id}`}
-                      class="p-2 rounded-lg hover:bg-muted transition-colors"
-                      title="Edit"
-                    >
-                      <i class="bi bi-pencil"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Mobile Cards -->
-      <div class="md:hidden divide-y">
-        {filteredProducts.map(product => (
-          <div class="p-4" data-product-id={product.id}>
-            <div class="flex items-start gap-3">
-              <div class="w-16 h-16 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  class="w-full h-full object-cover"
-                />
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2">
-                  <div>
-                    <a 
-                      href={`/admin/products/${product.id}`}
-                      class="font-medium hover:text-primary transition-colors"
-                    >
-                      {product.name}
-                    </a>
-                    <p class="text-sm text-muted-foreground mt-0.5">
-                      {formatPrice(product.price)}
-                    </p>
-                  </div>
-                  <div class="flex flex-col items-center gap-1">
-                    <span class="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Featured</span>
-                    <input 
-                      type="checkbox" 
-                      class="featured-checkbox-mobile w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
-                      data-product-id={product.id}
-                      checked={product.featured}
-                    />
-                  </div>
-                </div>
-                <div class="flex items-center justify-between mt-3">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted capitalize">
-                    {product.category}
-                  </span>
-                  <div class="flex items-center gap-3">
-                    <!-- Mobile Toggle -->
-                    <button 
-                      class="toggle-btn-mobile relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                      data-product-id={product.id}
-                      data-current-status={product.isActive !== false ? 'active' : 'inactive'}
-                    >
-                      <span class="toggle-indicator inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform"></span>
-                    </button>
-                    <a
-                      href={`/admin/products/${product.id}`}
-                      class="p-2 rounded-lg hover:bg-muted transition-colors"
-                    >
-                      <i class="bi bi-pencil"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredProducts.length === 0 && (
-        <div class="p-12 text-center">
-          <div class="text-muted-foreground">
-            <i class="bi bi-box-seam text-4xl mb-4 block"></i>
-            <p class="text-lg font-medium">No products found</p>
-            <p class="text-sm mt-1">Try adjusting your filters or add a new product</p>
-          </div>
-          <a href="/admin/products/new" class="btn-primary mt-4 inline-flex">
-            <i class="bi bi-plus-lg mr-2"></i>
-            Add Product
-          </a>
-        </div>
-      )}
+    <div id="products-section" class="hidden rounded-xl border bg-card overflow-hidden">
+      <div id="products-container"></div>
     </div>
 
-    <!-- Bulk Actions Bar -->
-    <div 
-      id="bulk-actions-bar"
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-background border shadow-2xl rounded-2xl px-6 py-4 flex items-center gap-6 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none"
-    >
-      <div class="flex items-center gap-2 border-r pr-6">
-        <span id="selected-count" class="font-bold text-primary">0</span>
-        <span class="text-sm font-medium text-muted-foreground">selected</span>
+
+    <!-- Product Edit/Create Slide-in Panel -->
+    <div id="product-panel" class="fixed inset-y-0 right-0 w-full max-w-3xl bg-card shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+      <div class="sticky top-0 bg-card border-b p-6 flex items-center justify-between z-10">
+        <div>
+          <h2 id="panel-title" class="text-xl font-bold">Add New Product</h2>
+          <p class="text-sm text-muted-foreground">Fill in the product details</p>
+        </div>
+        <button id="close-panel" class="p-2 hover:bg-muted rounded-lg transition-colors">
+          <i class="bi bi-x text-2xl"></i>
+        </button>
       </div>
       
-      <div class="flex items-center gap-2">
-        <button id="bulk-export-btn" class="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Export to CSV">
-          <i class="bi bi-download"></i>
-        </button>
-        <button id="bulk-duplicate-btn" class="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Duplicate">
-          <i class="bi bi-copy"></i>
-        </button>
-        <div class="w-px h-4 bg-border mx-2"></div>
-        <button id="bulk-delete-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-destructive/10 text-destructive transition-colors font-medium text-sm" title="Delete">
-          <i class="bi bi-trash"></i>
-          Delete
-        </button>
-      </div>
+      <form id="product-form" class="p-6 space-y-6">
+        <!-- Basic Info -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold">Basic Information</h3>
+          
+          <div>
+            <label for="name" class="block text-sm font-medium mb-2">
+              Product Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              placeholder="Enter product name"
+            />
+          </div>
 
-      <button id="cancel-selection" class="ml-4 text-xs font-medium text-muted-foreground hover:text-foreground">
-        Cancel
-      </button>
+          <div>
+            <label for="description" class="block text-sm font-medium mb-2">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              rows="4"
+              class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+              placeholder="Enter product description"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="category" class="block text-sm font-medium mb-2">
+                Category <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="category"
+                name="category"
+                required
+                class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Select category</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="brand" class="block text-sm font-medium mb-2">Brand</label>
+              <input
+                type="text"
+                id="brand"
+                name="brand"
+                class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Enter brand name"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold">Pricing</h3>
+          
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label for="price" class="block text-sm font-medium mb-2">
+                Price (₦) <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                id="price"
+                name="price"
+                required
+                min="0"
+                step="0.01"
+                class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="0.00"
+              />
+            </div>
+
+            <div>
+              <label for="originalPrice" class="block text-sm font-medium mb-2">Original Price (₦)</label>
+              <input
+                type="number"
+                id="originalPrice"
+                name="originalPrice"
+                min="0"
+                step="0.01"
+                class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="0.00"
+              />
+            </div>
+
+            <div>
+              <label for="stock" class="block text-sm font-medium mb-2">Stock</label>
+              <input
+                type="number"
+                id="stock"
+                name="stock"
+                min="0"
+                class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="0"
+              />
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Images & Videos -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold">Images & Videos</h3>
+          
+          <div id="compression-stats" class="hidden bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+            <div class="flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
+              <i class="bi bi-check-circle-fill"></i>
+              <span id="compression-text">Images compressed successfully</span>
+            </div>
+          </div>
+
+          <div id="upload-loading" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+            <div class="flex items-center gap-2 text-blue-700 dark:text-blue-400 text-sm">
+              <i class="bi bi-arrow-repeat animate-spin"></i>
+              <span>Processing media...</span>
+            </div>
+          </div>
+
+          <div id="media-grid" class="grid grid-cols-3 gap-4"></div>
+
+          <div
+            id="upload-area"
+            class="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-primary hover:bg-primary/5"
+          >
+            <input
+              type="file"
+              id="file-input"
+              accept="image/*,video/*"
+              multiple
+              class="hidden"
+            />
+            <div class="text-muted-foreground">
+              <i class="bi bi-cloud-arrow-up text-3xl mb-3 block"></i>
+              <p class="text-sm font-medium">Click to upload or drag and drop</p>
+              <p class="text-xs mt-1">Images (PNG, JPG, WEBP) and Videos up to 50MB</p>
+              <p class="text-xs mt-2 text-blue-600 dark:text-blue-400">
+                <i class="bi bi-lightning-charge mr-1"></i>
+                Files are automatically compressed
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold">Status</h3>
+          
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              id="isActive"
+              class="toggle-btn relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-primary"
+              data-current-status="active"
+            >
+              <span class="toggle-indicator inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform translate-x-6"></span>
+            </button>
+            <div>
+              <label for="isActive" class="text-sm font-medium cursor-pointer">List product in shop</label>
+              <p class="text-xs text-muted-foreground">If OFF, product will not be shown</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="featured"
+              name="featured"
+              class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label for="featured" class="text-sm font-medium">Featured Product</label>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex items-center gap-4 pt-4 border-t">
+          <button
+            type="submit"
+            class="btn-primary flex-1"
+          >
+            <i class="bi bi-check-lg mr-2"></i>
+            <span id="submit-text">Create Product</span>
+          </button>
+          <button
+            type="button"
+            id="cancel-btn"
+            class="btn-secondary flex-1"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Overlay for slide-in panel -->
+    <div id="panel-overlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden p-12 text-center rounded-xl border bg-card">
+      <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="bi bi-exclamation-triangle text-3xl text-red-500"></i>
+      </div>
+      <h3 class="text-lg font-semibold mb-2">Failed to load products</h3>
+      <p class="text-muted-foreground mb-4" id="error-message"></p>
+      <button onclick="location.reload()" class="btn-primary px-6 py-2">Retry</button>
     </div>
   </div>
 </AdminLayout>
@@ -343,6 +280,10 @@ const categories = [...new Set(products.map(p => p.category))];
     @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium transition-colors hover:bg-primary/90;
   }
   
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg border bg-background font-medium transition-colors hover:bg-muted;
+  }
+
   .toggle-btn.active {
     @apply bg-primary;
   }
@@ -358,168 +299,493 @@ const categories = [...new Set(products.map(p => p.category))];
   .toggle-btn.inactive .toggle-indicator {
     @apply translate-x-1;
   }
-  
-  .toggle-btn-mobile.active {
-    @apply bg-primary;
-  }
-  
-  .toggle-btn-mobile.inactive {
-    @apply bg-muted;
-  }
-  
-  .toggle-btn-mobile.active .toggle-indicator {
-    @apply translate-x-6;
-  }
-  
-  .toggle-btn-mobile.inactive .toggle-indicator {
-    @apply translate-x-1;
-  }
 </style>
 
+
 <script>
-  import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../../lib/appwrite';
+  import { databases, storage, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_IMAGES_BUCKET_ID, ID } from '../../lib/appwrite';
+  import { Query } from 'appwrite';
+  import { compressImage, compressVideo } from '../../lib/utils';
 
-  const initProductsPage = () => {
-    // Selection Logic
-    const selectAllCheckbox = document.getElementById('select-all-checkbox') as HTMLInputElement;
-    const bulkActionsBar = document.getElementById('bulk-actions-bar');
-    const selectedCountEl = document.getElementById('selected-count');
-    const cancelSelectionBtn = document.getElementById('cancel-selection');
+  let products = [];
+  let categories = [];
+  let mediaFiles = []; // { type, data, file?, isPrimary, url? }
+  let currentProductId = null;
+  let searchQuery = '';
+  let categoryFilter = 'all';
 
-    if (!selectAllCheckbox || !bulkActionsBar) return;
+  function formatPrice(price: number): string {
+    return '₦' + price.toLocaleString();
+  }
 
-    const updateBulkBar = () => {
-      const selectedCheckboxes = document.querySelectorAll('.product-checkbox:checked');
-      const selectedCount = selectedCheckboxes.length;
-      
-      if (selectedCount > 0) {
-        bulkActionsBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
-        if (selectedCountEl) selectedCountEl.textContent = selectedCount.toString();
-      } else {
-        bulkActionsBar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+  function showPanel(product = null) {
+    const panel = document.getElementById('product-panel');
+    const overlay = document.getElementById('panel-overlay');
+    const form = document.getElementById('product-form') as HTMLFormElement;
+    const panelTitle = document.getElementById('panel-title');
+    const submitText = document.getElementById('submit-text');
+    const isActiveToggle = document.getElementById('isActive') as HTMLButtonElement;
+
+    if (!panel || !overlay || !form) return;
+
+    currentProductId = product?.$id || null;
+    mediaFiles = [];
+
+    // Reset form
+    form.reset();
+    
+    // Update title
+    if (panelTitle) panelTitle.textContent = product ? 'Edit Product' : 'Add New Product';
+    if (submitText) submitText.textContent = product ? 'Update Product' : 'Create Product';
+
+    // Populate form if editing
+    if (product) {
+      (document.getElementById('name') as HTMLInputElement).value = product.name || '';
+      (document.getElementById('description') as HTMLTextAreaElement).value = product.description || '';
+      (document.getElementById('category') as HTMLSelectElement).value = product.category || '';
+      (document.getElementById('brand') as HTMLInputElement).value = product.brand || '';
+      (document.getElementById('price') as HTMLInputElement).value = product.price || '';
+      (document.getElementById('originalPrice') as HTMLInputElement).value = product.originalPrice || '';
+      (document.getElementById('stock') as HTMLInputElement).value = product.stock || 0;
+      (document.getElementById('featured') as HTMLInputElement).checked = product.featured || false;
+
+      // Set active toggle
+      const isActive = product.isActive !== false;
+      isActiveToggle.dataset.currentStatus = isActive ? 'active' : 'inactive';
+      isActiveToggle.classList.toggle('bg-primary', isActive);
+      isActiveToggle.classList.toggle('bg-muted', !isActive);
+      isActiveToggle.querySelector('.toggle-indicator')?.classList.toggle('translate-x-6', isActive);
+      isActiveToggle.querySelector('.toggle-indicator')?.classList.toggle('translate-x-1', !isActive);
+
+      // Load existing media
+      const images = product.images || (product.image ? [product.image] : []);
+      mediaFiles = images.map((url: string, i: number) => ({ 
+        type: 'image', 
+        data: url, 
+        url: url,
+        isPrimary: i === 0 
+      }));
+
+      if (product.video) {
+        mediaFiles.push({
+          type: 'video',
+          data: product.video,
+          url: product.video,
+          thumbnail: product.videoThumbnail,
+          isPrimary: false
+        });
       }
 
-      const totalCheckboxes = document.querySelectorAll('.product-checkbox').length;
-      selectAllCheckbox.checked = selectedCount === totalCheckboxes && totalCheckboxes > 0;
-      selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalCheckboxes;
-    };
+      renderMediaGrid();
+    } else {
+      // Reset toggle for new product
+      isActiveToggle.dataset.currentStatus = 'active';
+      isActiveToggle.classList.add('bg-primary');
+      isActiveToggle.classList.remove('bg-muted');
+      isActiveToggle.querySelector('.toggle-indicator')?.classList.add('translate-x-6');
+      isActiveToggle.querySelector('.toggle-indicator')?.classList.remove('translate-x-1');
+    }
 
-    // Toggle logic with Appwrite integration
-    const initializeToggles = () => {
-      document.querySelectorAll('.toggle-btn, .toggle-btn-mobile').forEach((btn) => {
-        const button = btn as HTMLButtonElement;
-        const isActive = button.dataset.currentStatus === 'active';
-        
-        button.classList.toggle('active', isActive);
-        button.classList.toggle('inactive', !isActive);
-        
-        button.onclick = async () => {
-          const productId = button.dataset.productId;
-          const currentlyActive = button.classList.contains('active');
-          const newStatus = !currentlyActive;
-          
-          button.disabled = true;
-          button.style.opacity = '0.5';
+    // Show panel
+    overlay.classList.remove('hidden');
+    setTimeout(() => {
+      panel.classList.remove('translate-x-full');
+    }, 10);
+  }
 
-          try {
-            await databases.updateDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId, {
-              isActive: newStatus
-            });
-            
-            // Sync all toggles for this product
-            document.querySelectorAll(`[data-product-id="${productId}"].toggle-btn, [data-product-id="${productId}"].toggle-btn-mobile`).forEach(el => {
-              const b = el as HTMLButtonElement;
-              b.classList.toggle('active', newStatus);
-              b.classList.toggle('inactive', !newStatus);
-              b.dataset.currentStatus = newStatus ? 'active' : 'inactive';
-            });
-          } catch (error) {
-            console.error('Failed to toggle active status:', error);
-            alert('Failed to update product status');
-          } finally {
-            button.disabled = false;
-            button.style.opacity = '1';
-          }
-        };
+  function hidePanel() {
+    const panel = document.getElementById('product-panel');
+    const overlay = document.getElementById('panel-overlay');
+
+    if (panel && overlay) {
+      panel.classList.add('translate-x-full');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        mediaFiles = [];
+        currentProductId = null;
+        renderMediaGrid();
+      }, 300);
+    }
+  }
+
+
+  function renderMediaGrid() {
+    const mediaGrid = document.getElementById('media-grid');
+    if (!mediaGrid) return;
+
+    mediaGrid.innerHTML = '';
+    mediaFiles.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'relative group aspect-square rounded-lg overflow-hidden border bg-muted';
+      
+      if (file.type === 'video') {
+        item.innerHTML = `
+          <div class="relative w-full h-full">
+            <img src="${file.thumbnail}" class="w-full h-full object-cover" crossorigin="anonymous" />
+            <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+              <i class="bi bi-play-circle-fill text-3xl text-white"></i>
+            </div>
+            <span class="absolute bottom-2 right-2 px-1.5 py-0.5 text-[10px] font-bold bg-black/60 text-white rounded">VIDEO</span>
+          </div>
+          <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
+            <i class="bi bi-x-lg text-sm"></i>
+          </button>
+        `;
+      } else {
+        item.innerHTML = `
+          <img src="${file.data}" class="w-full h-full object-cover" crossorigin="anonymous" />
+          ${file.isPrimary ? '<span class="absolute bottom-2 left-2 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded">Main</span>' : ''}
+          <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
+            <i class="bi bi-x-lg text-sm"></i>
+          </button>
+        `;
+      }
+      
+      item.querySelector('.remove-btn')!.addEventListener('click', () => {
+        mediaFiles.splice(index, 1);
+        if (file.isPrimary && mediaFiles.length > 0) {
+          mediaFiles[0].isPrimary = true;
+        }
+        renderMediaGrid();
       });
-    };
 
-    // Featured toggle with Appwrite integration
-    const initializeFeaturedToggles = () => {
-      document.querySelectorAll('.featured-checkbox, .featured-checkbox-mobile').forEach((cb) => {
-        const checkbox = cb as HTMLInputElement;
-        
-        checkbox.onchange = async () => {
-          const productId = checkbox.dataset.productId;
-          const isFeatured = checkbox.checked;
-          
-          checkbox.disabled = true;
+      if (!file.isPrimary && file.type === 'image') {
+        const setMain = document.createElement('button');
+        setMain.type = 'button';
+        setMain.className = 'absolute bottom-2 right-2 px-2 py-0.5 text-xs font-medium bg-background/90 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background';
+        setMain.textContent = 'Set Main';
+        setMain.addEventListener('click', () => {
+          mediaFiles.forEach(f => f.isPrimary = false);
+          file.isPrimary = true;
+          renderMediaGrid();
+        });
+        item.appendChild(setMain);
+      }
+      
+      mediaGrid.appendChild(item);
+    });
+  }
 
-          try {
-            await databases.updateDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId, {
-              featured: isFeatured
-            });
-            
-            // Sync all featured checkboxes for this product
-            document.querySelectorAll(`[data-product-id="${productId}"].featured-checkbox, [data-product-id="${productId}"].featured-checkbox-mobile`).forEach(el => {
-              const oc = el as HTMLInputElement;
-              if (oc !== checkbox) oc.checked = isFeatured;
-            });
-          } catch (error) {
-            console.error('Failed to update featured status:', error);
-            alert('Failed to update featured status');
-            checkbox.checked = !isFeatured; // Revert
-          } finally {
-            checkbox.disabled = false;
-          }
-        };
+  async function loadProducts() {
+    const loadingState = document.getElementById('loading-state');
+    const filtersSection = document.getElementById('filters-section');
+    const productsSection = document.getElementById('products-section');
+    const errorState = document.getElementById('error-state');
+    const productsContainer = document.getElementById('products-container');
+    const categoryFilterSelect = document.getElementById('category-filter') as HTMLSelectElement;
+    const categorySelect = document.getElementById('category') as HTMLSelectElement;
+
+    try {
+      console.log('Fetching products...');
+      const response = await databases.listDocuments(
+        APPWRITE_DB_ID,
+        APPWRITE_PRODUCTS_COLLECTION_ID,
+        [Query.orderDesc('$createdAt'), Query.limit(100)]
+      );
+
+      products = response.documents;
+      console.log('Products fetched:', products.length);
+
+      // Extract categories
+      categories = [...new Set(products.map((p: any) => p.category))];
+      
+      // Populate category filters
+      if (categoryFilterSelect) {
+        categories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat;
+          option.textContent = cat;
+          categoryFilterSelect.appendChild(option);
+        });
+      }
+
+      if (categorySelect) {
+        categorySelect.innerHTML = '<option value="">Select category</option>';
+        categories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat;
+          option.textContent = cat;
+          categorySelect.appendChild(option);
+        });
+      }
+
+      // Hide loading
+      loadingState?.classList.add('hidden');
+      filtersSection?.classList.remove('hidden');
+      productsSection?.classList.remove('hidden');
+
+      renderProducts();
+
+    } catch (error) {
+      console.error('Error loading products:', error);
+      loadingState?.classList.add('hidden');
+      errorState?.classList.remove('hidden');
+      
+      const errorMessage = document.getElementById('error-message');
+      if (errorMessage) {
+        errorMessage.textContent = error instanceof Error ? error.message : 'Unknown error occurred';
+      }
+    }
+  }
+
+
+  function renderProducts() {
+    const productsContainer = document.getElementById('products-container');
+    if (!productsContainer) return;
+
+    // Filter products
+    let filtered = products.filter((p: any) => {
+      const matchesSearch = !searchQuery || 
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === 'all' || p.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+
+    if (filtered.length === 0) {
+      productsContainer.innerHTML = `
+        <div class="p-12 text-center">
+          <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="bi bi-box-seam text-3xl text-muted-foreground"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">No products found</h3>
+          <p class="text-muted-foreground">Try adjusting your filters or add a new product</p>
+        </div>
+      `;
+      return;
+    }
+
+    productsContainer.innerHTML = `
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-muted/50 border-b">
+              <th class="p-4 font-medium text-sm">Product</th>
+              <th class="p-4 font-medium text-sm">Price</th>
+              <th class="p-4 font-medium text-sm">Category</th>
+              <th class="p-4 font-medium text-sm text-center">Stock</th>
+              <th class="p-4 font-medium text-sm text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map((product: any) => `
+              <tr 
+                class="border-b hover:bg-muted/30 transition-colors cursor-pointer product-row" 
+                data-product-id="${product.$id}"
+              >
+                <td class="p-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                      <img 
+                        src="${product.image || '/placeholder.png'}" 
+                        alt="${product.name}"
+                        class="w-full h-full object-cover"
+                        crossorigin="anonymous"
+                      />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-medium truncate">${product.name}</div>
+                      <div class="text-xs text-muted-foreground truncate max-w-xs">${product.description || ''}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-4">
+                  <div class="font-medium">${formatPrice(product.price)}</div>
+                  ${product.originalPrice ? `<div class="text-xs text-muted-foreground line-through">${formatPrice(product.originalPrice)}</div>` : ''}
+                </td>
+                <td class="p-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted capitalize">
+                    ${product.category}
+                  </span>
+                </td>
+                <td class="p-4 text-center">
+                  <span class="text-sm">${product.stock || 0}</span>
+                </td>
+                <td class="p-4 text-center">
+                  <span class="px-2 py-1 rounded-full text-[10px] uppercase font-bold ${
+                    product.isActive !== false ? 'bg-green-500/10 text-green-500' : 'bg-gray-500/10 text-gray-500'
+                  }">
+                    ${product.isActive !== false ? 'Active' : 'Inactive'}
+                  </span>
+                  ${product.featured ? '<span class="ml-2 px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-yellow-500/10 text-yellow-500">Featured</span>' : ''}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    // Add click handlers to product rows
+    document.querySelectorAll('.product-row').forEach((row) => {
+      row.addEventListener('click', () => {
+        const productId = (row as HTMLElement).dataset.productId;
+        const product = products.find((p: any) => p.$id === productId);
+        if (product) showPanel(product);
       });
-    };
+    });
+  }
 
-    // Bulk Delete
-    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
-    bulkDeleteBtn?.addEventListener('click', async () => {
-      const selectedCheckboxes = document.querySelectorAll('.product-checkbox:checked');
-      const selectedCount = selectedCheckboxes.length;
-      if (selectedCount === 0) return;
+  // Setup event listeners
+  document.getElementById('add-new-btn')?.addEventListener('click', () => showPanel());
+  document.getElementById('close-panel')?.addEventListener('click', hidePanel);
+  document.getElementById('cancel-btn')?.addEventListener('click', hidePanel);
+  document.getElementById('panel-overlay')?.addEventListener('click', hidePanel);
 
-      if (confirm(`Delete ${selectedCount} product(s)?`)) {
-        for (const cb of selectedCheckboxes) {
-          const productId = (cb as HTMLInputElement).dataset.productId;
-          try {
-            await databases.deleteDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId);
-            document.querySelectorAll(`[data-product-id="${productId}"]`).forEach(el => (el as HTMLElement).style.display = 'none');
-          } catch (e) {
-            console.error(`Failed to delete product ${productId}:`, e);
+  // Search and filter
+  document.getElementById('search-input')?.addEventListener('input', (e) => {
+    searchQuery = (e.target as HTMLInputElement).value;
+    renderProducts();
+  });
+
+  document.getElementById('category-filter')?.addEventListener('change', (e) => {
+    categoryFilter = (e.target as HTMLSelectElement).value;
+    renderProducts();
+  });
+
+
+  // File upload
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const uploadArea = document.getElementById('upload-area');
+  const uploadLoading = document.getElementById('upload-loading');
+  const compressionStats = document.getElementById('compression-stats');
+
+  uploadArea?.addEventListener('click', () => fileInput.click());
+  
+  fileInput?.addEventListener('change', async () => {
+    if (!fileInput.files) return;
+    uploadLoading?.classList.remove('hidden');
+    
+    for (const file of Array.from(fileInput.files)) {
+      if (file.type.startsWith('image/')) {
+        const compressed = await compressImage(file, { quality: 0.8 });
+        mediaFiles.push({
+          type: 'image',
+          data: compressed,
+          file: file,
+          isPrimary: mediaFiles.filter(m => m.type === 'image').length === 0
+        });
+      } else if (file.type.startsWith('video/')) {
+        const videoData = await compressVideo(file);
+        mediaFiles.push({
+          type: 'video',
+          thumbnail: videoData.thumbnail,
+          duration: videoData.duration,
+          file: file,
+          isPrimary: false
+        });
+      }
+    }
+    
+    uploadLoading?.classList.add('hidden');
+    compressionStats?.classList.remove('hidden');
+    setTimeout(() => compressionStats?.classList.add('hidden'), 3000);
+    renderMediaGrid();
+    fileInput.value = '';
+  });
+
+  // Toggle active status
+  const isActiveToggle = document.getElementById('isActive') as HTMLButtonElement;
+  isActiveToggle?.addEventListener('click', () => {
+    const isActive = isActiveToggle.dataset.currentStatus === 'active';
+    isActiveToggle.dataset.currentStatus = isActive ? 'inactive' : 'active';
+    isActiveToggle.classList.toggle('bg-primary', !isActive);
+    isActiveToggle.classList.toggle('bg-muted', isActive);
+    isActiveToggle.querySelector('.toggle-indicator')?.classList.toggle('translate-x-6', !isActive);
+    isActiveToggle.querySelector('.toggle-indicator')?.classList.toggle('translate-x-1', isActive);
+  });
+
+  // Form submission
+  const form = document.getElementById('product-form') as HTMLFormElement;
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const submitText = document.getElementById('submit-text');
+    
+    submitBtn.disabled = true;
+    if (submitText) submitText.innerHTML = '<i class="bi bi-arrow-repeat animate-spin mr-2"></i>' + (currentProductId ? 'Updating...' : 'Creating...');
+
+    try {
+      const imageUrls = [];
+      let videoUrl = '';
+      let videoThumbnailUrl = '';
+
+      // Upload new media files
+      for (const media of mediaFiles) {
+        if (media.file) {
+          const uploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), media.file);
+          const url = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, uploaded.$id).toString();
+          
+          if (media.type === 'image') {
+            imageUrls.push(url);
+          } else if (media.type === 'video') {
+            videoUrl = url;
+            
+            // Upload thumbnail
+            const thumbBlob = await fetch(media.thumbnail).then(r => r.blob());
+            const thumbFile = new File([thumbBlob], `thumb_${uploaded.$id}.jpg`, { type: 'image/jpeg' });
+            const thumbUploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), thumbFile);
+            videoThumbnailUrl = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, thumbUploaded.$id).toString();
+          }
+        } else if (media.url) {
+          // Existing media
+          if (media.type === 'image') {
+            imageUrls.push(media.url);
+          } else if (media.type === 'video') {
+            videoUrl = media.url;
+            videoThumbnailUrl = media.thumbnail || '';
           }
         }
-        updateBulkBar();
       }
-    });
 
-    selectAllCheckbox.addEventListener('change', () => {
-      document.querySelectorAll('.product-checkbox').forEach((cb) => {
-        (cb as HTMLInputElement).checked = selectAllCheckbox.checked;
-      });
-      updateBulkBar();
-    });
+      const formData = new FormData(form);
+      const productData = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        category: formData.get('category'),
+        brand: formData.get('brand'),
+        price: parseFloat(formData.get('price') as string),
+        originalPrice: parseFloat(formData.get('originalPrice') as string) || null,
+        stock: parseInt(formData.get('stock') as string) || 0,
+        image: imageUrls[0] || '',
+        images: imageUrls,
+        video: videoUrl,
+        videoThumbnail: videoThumbnailUrl,
+        featured: formData.has('featured'),
+        isActive: isActiveToggle?.dataset.currentStatus === 'active',
+        isArchived: false
+      };
 
-    document.querySelectorAll('.product-checkbox').forEach((cb) => {
-      cb.addEventListener('change', updateBulkBar);
-    });
+      if (currentProductId) {
+        await databases.updateDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, currentProductId, productData);
+      } else {
+        await databases.createDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, ID.unique(), productData);
+      }
 
-    cancelSelectionBtn?.addEventListener('click', () => {
-      document.querySelectorAll('.product-checkbox').forEach((cb) => {
-        (cb as HTMLInputElement).checked = false;
-      });
-      selectAllCheckbox.checked = false;
-      updateBulkBar();
-    });
+      hidePanel();
+      await loadProducts();
+    } catch (error) {
+      console.error('Error saving product:', error);
+      alert('Failed to save product: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      submitBtn.disabled = false;
+      if (submitText) submitText.textContent = currentProductId ? 'Update Product' : 'Create Product';
+    }
+  });
 
-    initializeToggles();
-    initializeFeaturedToggles();
-  };
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      hidePanel();
+    }
+  });
 
-  initProductsPage();
-  document.addEventListener('astro:after-swap', initProductsPage);
+  // Load products on page load
+  loadProducts();
+
+  // Reload after view transitions
+  document.addEventListener('astro:after-swap', () => {
+    loadProducts();
+  });
 </script>
+

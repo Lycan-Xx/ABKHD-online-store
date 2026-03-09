@@ -396,20 +396,34 @@ import { formatPrice } from '../../lib/utils';
   loadOrders();
 
   // Setup close button and overlay
-  document.getElementById('close-details')?.addEventListener('click', hideOrderDetails);
-  document.getElementById('details-overlay')?.addEventListener('click', hideOrderDetails);
+  const setupCloseHandlers = () => {
+    const closeBtn = document.getElementById('close-details');
+    const overlay = document.getElementById('details-overlay');
+    
+    if (closeBtn) {
+      closeBtn.onclick = hideOrderDetails;
+    }
+    
+    if (overlay) {
+      overlay.onclick = hideOrderDetails;
+    }
+  };
 
   // Close on Escape key
-  document.addEventListener('keydown', (e) => {
+  const handleEscape = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       hideOrderDetails();
     }
-  });
+  };
+
+  document.addEventListener('keydown', handleEscape);
+
+  // Initial setup
+  setupCloseHandlers();
 
   // Reload after view transitions
   document.addEventListener('astro:after-swap', () => {
     loadOrders();
-    document.getElementById('close-details')?.addEventListener('click', hideOrderDetails);
-    document.getElementById('details-overlay')?.addEventListener('click', hideOrderDetails);
+    setupCloseHandlers();
   });
 </script>

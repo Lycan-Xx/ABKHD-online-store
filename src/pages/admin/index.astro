@@ -1,43 +1,6 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_ORDERS_COLLECTION_ID } from '../../lib/appwrite';
-import { Query } from 'appwrite';
 import { formatPrice } from '../../lib/utils';
-
-// Get stats from Appwrite
-let products = [];
-let orders = [];
-let totalProducts = 0;
-let activeProducts = 0;
-let featuredProducts = 0;
-let categories = [];
-let totalRevenue = 0;
-let recentProducts = [];
-
-try {
-  const productsResponse = await databases.listDocuments(
-    APPWRITE_DB_ID,
-    APPWRITE_PRODUCTS_COLLECTION_ID,
-    [Query.limit(100)]
-  );
-  products = productsResponse.documents;
-  totalProducts = products.length;
-  activeProducts = products.filter(p => p.isActive !== false).length;
-  featuredProducts = products.filter(p => p.featured).length;
-  categories = [...new Set(products.map(p => p.category))];
-  recentProducts = [...products].sort((a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()).slice(0, 4);
-
-  // Get orders for revenue
-  const ordersResponse = await databases.listDocuments(
-    APPWRITE_DB_ID,
-    APPWRITE_ORDERS_COLLECTION_ID,
-    [Query.limit(100), Query.orderDesc('$createdAt')]
-  );
-  orders = ordersResponse.documents;
-  totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-} catch (error) {
-  console.error('Error fetching admin stats:', error);
-}
 ---
 
 <AdminLayout title="Dashboard - ABKHD Admin">
@@ -48,20 +11,26 @@ try {
         <h1 class="text-2xl md:text-3xl font-bold">Dashboard</h1>
         <p class="text-muted-foreground mt-1">Overview of your store performance</p>
       </div>
-      <a href="/admin/products/new" class="btn-primary">
+      <button id="add-product-btn" class="btn-primary">
         <i class="bi bi-plus-lg mr-2"></i>
         Add Product
-      </a>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <p class="mt-4 text-muted-foreground">Loading dashboard...</p>
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div id="stats-section" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- Total Products -->
       <div class="rounded-xl border bg-card p-5 transition-all hover:shadow-md">
         <div class="flex items-start justify-between">
           <div>
             <p class="text-sm font-medium text-muted-foreground">Total Products</p>
-            <p class="text-3xl font-bold mt-2">{totalProducts}</p>
+            <p id="total-products" class="text-3xl font-bold mt-2">0</p>
             <p class="text-xs text-muted-foreground mt-1">All products in catalog</p>
           </div>
           <div class="p-3 rounded-lg bg-primary/10">
@@ -75,7 +44,7 @@ try {
         <div class="flex items-start justify-between">
           <div>
             <p class="text-sm font-medium text-muted-foreground">Listed Products</p>
-            <p class="text-3xl font-bold mt-2">{activeProducts}</p>
+            <p id="active-products" class="text-3xl font-bold mt-2">0</p>
             <p class="text-xs text-muted-foreground mt-1">Currently listed in shop</p>
           </div>
           <div class="p-3 rounded-lg bg-green-500/10">
@@ -89,7 +58,7 @@ try {
         <div class="flex items-start justify-between">
           <div>
             <p class="text-sm font-medium text-muted-foreground">Featured Products</p>
-            <p class="text-3xl font-bold mt-2">{featuredProducts}</p>
+            <p id="featured-products" class="text-3xl font-bold mt-2">0</p>
             <p class="text-xs text-muted-foreground mt-1">Shown on homepage</p>
           </div>
           <div class="p-3 rounded-lg bg-yellow-500/10">
@@ -103,7 +72,7 @@ try {
         <div class="flex items-start justify-between">
           <div>
             <p class="text-sm font-medium text-muted-foreground">Total Revenue</p>
-            <p class="text-3xl font-bold mt-2">{formatPrice(totalRevenue)}</p>
+            <p id="total-revenue" class="text-3xl font-bold mt-2">₦0</p>
             <p class="text-xs text-muted-foreground mt-1">From completed orders</p>
           </div>
           <div class="p-3 rounded-lg bg-green-500/10">
@@ -113,29 +82,13 @@ try {
       </div>
     </div>
 
-    <!-- Products by Category -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 rounded-xl border bg-card p-6">
-        <h2 class="text-lg font-semibold mb-4">Products by Category</h2>
-        <div class="space-y-4">
-          {categories.map(category => {
-            const count = products.filter(p => p.category === category).length;
-            const percentage = (count / totalProducts) * 100;
-            return (
-              <div key={category}>
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-sm font-medium capitalize">{category}</span>
-                  <span class="text-sm text-muted-foreground">{count} products</span>
-                </div>
-                <div class="w-full bg-muted rounded-full h-2">
-                  <div 
-                    class="bg-primary h-2 rounded-full transition-all" 
-                    style={`width: ${percentage}%`}
-                  ></div>
-                </div>
-              </div>
-            );
-          })}
+    <!-- Categories and Recent Content -->
+    <div id="content-section" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Categories -->
+      <div class="rounded-xl border bg-card p-6">
+        <h2 class="text-lg font-semibold mb-4">Categories</h2>
+        <div id="categories-grid" class="grid grid-cols-2 gap-3">
+          <!-- Categories will be populated here -->
         </div>
       </div>
 
@@ -147,56 +100,249 @@ try {
             View all
           </a>
         </div>
-        <div class="space-y-3">
-          {recentProducts.map(product => (
-            <a 
-              href={`/admin/products/${product.$id}`}
-              class="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <div class="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  class="w-full h-full object-cover"
-                />
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium truncate">{product.name}</p>
-                <p class="text-xs text-muted-foreground">
-                  {formatPrice(product.price)}
-                </p>
-              </div>
-              <div class="flex items-center gap-2">
-                {product.isActive !== false && (
-                  <span class="text-green-500 text-xs" title="Listed in shop">
-                    <i class="bi bi-check-circle-fill"></i>
-                  </span>
-                )}
-                {product.featured && (
-                  <span class="text-yellow-500 text-xs" title="Featured">
-                    <i class="bi bi-star-fill"></i>
-                  </span>
-                )}
-              </div>
-            </a>
-          ))}
+        <div id="recent-products" class="space-y-3">
+          <!-- Recent products will be populated here -->
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="rounded-xl border bg-card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Recent Orders</h2>
+          <a href="/admin/orders" class="text-sm text-primary hover:underline">
+            View all
+          </a>
+        </div>
+        <div id="recent-orders" class="space-y-3">
+          <!-- Recent orders will be populated here -->
         </div>
       </div>
     </div>
 
-    <!-- Orders Section -->
-    <div class="rounded-xl border bg-card overflow-hidden">
-      <div class="p-6 border-b">
-        <h2 class="text-lg font-semibold">Recent Orders</h2>
-        <p class="text-sm text-muted-foreground">Orders will appear here when customers complete purchases</p>
+    <!-- Error State -->
+    <div id="error-state" class="hidden p-12 text-center rounded-xl border bg-card">
+      <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="bi bi-exclamation-triangle text-3xl text-red-500"></i>
       </div>
-      <div class="p-12 text-center">
-        <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-          <i class="bi bi-bag-x text-3xl text-muted-foreground"></i>
-        </div>
-        <h3 class="text-lg font-semibold mb-2">No orders yet</h3>
-        <p class="text-muted-foreground">Completed orders will appear here</p>
-      </div>
+      <h3 class="text-lg font-semibold mb-2">Failed to load dashboard</h3>
+      <p class="text-muted-foreground mb-4" id="error-message"></p>
+      <button onclick="location.reload()" class="btn-primary px-6 py-2">Retry</button>
     </div>
   </div>
 </AdminLayout>
+
+<style>
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium transition-colors hover:bg-primary/90;
+  }
+</style>
+
+
+<script>
+  import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_ORDERS_COLLECTION_ID } from '../../lib/appwrite';
+  import { Query } from 'appwrite';
+
+  function formatPrice(price: number): string {
+    return '₦' + price.toLocaleString();
+  }
+
+  const categoryIcons: Record<string, { icon: string, color: string }> = {
+    'computers': { icon: 'bi-laptop', color: 'blue' },
+    'mobile phones': { icon: 'bi-phone', color: 'purple' },
+    'accessories': { icon: 'bi-headphones', color: 'green' },
+    'tablets': { icon: 'bi-tablet', color: 'orange' },
+    'gaming': { icon: 'bi-controller', color: 'red' },
+    'audio': { icon: 'bi-speaker', color: 'pink' },
+    'default': { icon: 'bi-box', color: 'gray' }
+  };
+
+  function getCategoryIcon(category: string) {
+    const key = category.toLowerCase();
+    return categoryIcons[key] || categoryIcons['default'];
+  }
+
+  async function loadDashboard() {
+    const loadingState = document.getElementById('loading-state');
+    const statsSection = document.getElementById('stats-section');
+    const contentSection = document.getElementById('content-section');
+    const errorState = document.getElementById('error-state');
+
+    try {
+      console.log('Loading dashboard data...');
+
+      // Fetch products
+      const productsResponse = await databases.listDocuments(
+        APPWRITE_DB_ID,
+        APPWRITE_PRODUCTS_COLLECTION_ID,
+        [Query.limit(100)]
+      );
+      const products = productsResponse.documents;
+
+      // Fetch orders
+      const ordersResponse = await databases.listDocuments(
+        APPWRITE_DB_ID,
+        APPWRITE_ORDERS_COLLECTION_ID,
+        [Query.limit(100), Query.orderDesc('$createdAt')]
+      );
+      const orders = ordersResponse.documents;
+
+      console.log('Products:', products.length, 'Orders:', orders.length);
+
+      // Calculate stats
+      const totalProducts = products.length;
+      const activeProducts = products.filter((p: any) => p.isActive !== false).length;
+      const featuredProducts = products.filter((p: any) => p.featured).length;
+      const totalRevenue = orders.reduce((sum, o: any) => sum + (o.totalAmount || o.total || 0), 0);
+
+      // Update stats
+      document.getElementById('total-products')!.textContent = totalProducts.toString();
+      document.getElementById('active-products')!.textContent = activeProducts.toString();
+      document.getElementById('featured-products')!.textContent = featuredProducts.toString();
+      document.getElementById('total-revenue')!.textContent = formatPrice(totalRevenue);
+
+      // Get categories
+      const categoriesMap = new Map<string, number>();
+      products.forEach((p: any) => {
+        const cat = p.category || 'Uncategorized';
+        categoriesMap.set(cat, (categoriesMap.get(cat) || 0) + 1);
+      });
+
+      // Render categories
+      const categoriesGrid = document.getElementById('categories-grid');
+      if (categoriesGrid) {
+        categoriesGrid.innerHTML = Array.from(categoriesMap.entries())
+          .map(([category, count]) => {
+            const { icon, color } = getCategoryIcon(category);
+            return `
+              <div class="flex flex-col items-center p-4 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+                <div class="w-12 h-12 rounded-full bg-${color}-500/10 flex items-center justify-center mb-2">
+                  <i class="bi ${icon} text-xl text-${color}-500"></i>
+                </div>
+                <p class="text-2xl font-bold">${count}</p>
+                <p class="text-xs text-muted-foreground text-center capitalize">${category}</p>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      // Render recent products
+      const recentProducts = [...products]
+        .sort((a: any, b: any) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime())
+        .slice(0, 5);
+
+      const recentProductsContainer = document.getElementById('recent-products');
+      if (recentProductsContainer) {
+        if (recentProducts.length === 0) {
+          recentProductsContainer.innerHTML = `
+            <div class="text-center py-8">
+              <i class="bi bi-box-seam text-3xl text-muted-foreground mb-2 block"></i>
+              <p class="text-sm text-muted-foreground">No products yet</p>
+            </div>
+          `;
+        } else {
+          recentProductsContainer.innerHTML = recentProducts
+            .map((product: any) => `
+              <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer product-item" data-product-id="${product.$id}">
+                <div class="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                  <img 
+                    src="${product.image || '/placeholder.png'}" 
+                    alt="${product.name}"
+                    class="w-full h-full object-cover"
+                    crossorigin="anonymous"
+                  />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium truncate">${product.name}</p>
+                  <p class="text-xs text-muted-foreground">${formatPrice(product.price)}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  ${product.isActive !== false ? '<span class="text-green-500 text-xs" title="Listed in shop"><i class="bi bi-check-circle-fill"></i></span>' : ''}
+                  ${product.featured ? '<span class="text-yellow-500 text-xs" title="Featured"><i class="bi bi-star-fill"></i></span>' : ''}
+                </div>
+              </div>
+            `)
+            .join('');
+
+          // Add click handlers
+          document.querySelectorAll('.product-item').forEach(item => {
+            item.addEventListener('click', () => {
+              window.location.href = '/admin/products';
+            });
+          });
+        }
+      }
+
+      // Render recent orders
+      const recentOrders = orders.slice(0, 5);
+      const recentOrdersContainer = document.getElementById('recent-orders');
+      if (recentOrdersContainer) {
+        if (recentOrders.length === 0) {
+          recentOrdersContainer.innerHTML = `
+            <div class="text-center py-8">
+              <i class="bi bi-bag-x text-3xl text-muted-foreground mb-2 block"></i>
+              <p class="text-sm text-muted-foreground">No orders yet</p>
+            </div>
+          `;
+        } else {
+          recentOrdersContainer.innerHTML = recentOrders
+            .map((order: any) => `
+              <div class="p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors cursor-pointer order-item" data-order-id="${order.$id}">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm font-medium">${order.customerName || 'N/A'}</p>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold ${
+                    order.status === 'paid' ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500'
+                  }">
+                    ${order.status || 'pending'}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>${new Date(order.$createdAt).toLocaleDateString()}</span>
+                  <span class="font-semibold text-foreground">${formatPrice(order.totalAmount || order.total || 0)}</span>
+                </div>
+              </div>
+            `)
+            .join('');
+
+          // Add click handlers
+          document.querySelectorAll('.order-item').forEach(item => {
+            item.addEventListener('click', () => {
+              window.location.href = '/admin/orders';
+            });
+          });
+        }
+      }
+
+      // Hide loading, show content
+      loadingState?.classList.add('hidden');
+      statsSection?.classList.remove('hidden');
+      contentSection?.classList.remove('hidden');
+
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+      loadingState?.classList.add('hidden');
+      errorState?.classList.remove('hidden');
+      
+      const errorMessage = document.getElementById('error-message');
+      if (errorMessage) {
+        errorMessage.textContent = error instanceof Error ? error.message : 'Unknown error occurred';
+      }
+    }
+  }
+
+  // Add product button handler
+  document.getElementById('add-product-btn')?.addEventListener('click', () => {
+    window.location.href = '/admin/products';
+  });
+
+  // Load dashboard on page load
+  loadDashboard();
+
+  // Reload after view transitions
+  document.addEventListener('astro:after-swap', () => {
+    loadDashboard();
+    document.getElementById('add-product-btn')?.addEventListener('click', () => {
+      window.location.href = '/admin/products';
+    });
+  });
+</script>
