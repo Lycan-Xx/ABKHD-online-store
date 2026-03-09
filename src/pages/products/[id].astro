@@ -68,9 +68,18 @@ const getCategoryData = (categoryName: string) => {
 };
 
 const categoryData = getCategoryData(product.category);
+
+// Get the first image for OG tags
+const ogImage = product.images?.[0] || product.image;
+const ogDescription = product.description || `Buy ${product.name} for ₦${product.price.toLocaleString()}`;
 ---
 
-<Layout title={`${product.name} - ABKHD Store`}>
+<Layout 
+  title={`${product.name} - ABKHD Store`} 
+  description={ogDescription}
+  ogImage={ogImage}
+  ogType="product"
+>
   <Header slot="header" />
   
   <div class="container py-8">

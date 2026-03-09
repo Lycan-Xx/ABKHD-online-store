@@ -1,9 +1,25 @@
 ---
 import { formatPrice } from '../lib/utils';
-import type { Product } from '../data/products';
 
 interface Props {
-  product: Product;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    originalPrice?: number;
+    category?: string;
+    description?: string;
+    image?: string;
+    images?: string[];
+    video?: string;
+    videoThumbnail?: string;
+    stock?: number;
+    featured?: boolean;
+    isActive?: boolean;
+    isUnique?: boolean;
+    verified?: boolean;
+    brand?: string;
+  };
 }
 
 const { product } = Astro.props;
