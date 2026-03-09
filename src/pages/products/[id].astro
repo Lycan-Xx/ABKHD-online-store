@@ -231,6 +231,15 @@ const ogDescription = product.description || `Buy ${product.name} for ₦${produ
           </div>
         )}
 
+        <!-- Share Button -->
+        <button
+          id="share-btn"
+          class="w-full py-3 text-base border-2 border-muted-foreground/20 hover:border-muted-foreground/40 shadow-md hover:scale-105 transition-transform duration-200 focus:ring-2 focus:ring-muted-foreground/60 flex items-center justify-center gap-2"
+        >
+          <i class="bi bi-share"></i>
+          <span>Share Product</span>
+        </button>
+
         <!-- Product Details -->
         <div class="border-t pt-6">
           <div class="space-y-3">
@@ -347,6 +356,69 @@ const ogDescription = product.description || `Buy ${product.name} for ₦${produ
   // Add to cart functionality - dispatch event to React cart
   const addToCartBtn = document.getElementById('add-to-cart-btn');
   const buyNowBtn = document.getElementById('buy-now-btn');
+  const shareBtn = document.getElementById('share-btn');
+  
+  // Share functionality
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async () => {
+      const shareData = {
+        title: product.name,
+        text: `Check out ${product.name} - ${formatPrice(product.price)}`,
+        url: window.location.href
+      };
+      
+      // Use Web Share API if available (mobile-first)
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          // User cancelled or error
+          if (err.name !== 'AbortError') {
+            console.error('Error sharing:', err);
+          }
+        }
+      } else {
+        // Fallback for desktop - try clipboard API first
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(window.location.href);
+            shareBtn.innerHTML = '<i class="bi bi-check-lg"></i> Link Copied!';
+            shareBtn.classList.add('bg-green-500', 'border-green-500', 'text-white');
+            setTimeout(() => {
+              shareBtn.innerHTML = '<i class="bi bi-share"></i> <span>Share Product</span>';
+              shareBtn.classList.remove('bg-green-500', 'border-green-500', 'text-white');
+            }, 2000);
+          } else {
+            // Fallback for older browsers or non-HTTPS
+            throw new Error('Clipboard not available');
+          }
+        } catch (err) {
+          // Create a temporary textarea for copying
+          const textarea = document.createElement('textarea');
+          textarea.value = window.location.href;
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          
+          try {
+            document.execCommand('copy');
+            shareBtn.innerHTML = '<i class="bi bi-check-lg"></i> Link Copied!';
+            shareBtn.classList.add('bg-green-500', 'border-green-500', 'text-white');
+            setTimeout(() => {
+              shareBtn.innerHTML = '<i class="bi bi-share"></i> <span>Share Product</span>';
+              shareBtn.classList.remove('bg-green-500', 'border-green-500', 'text-white');
+            }, 2000);
+          } catch (copyErr) {
+            // Final fallback - show URL in prompt
+            prompt('Copy this link to share:', window.location.href);
+          }
+          
+          document.body.removeChild(textarea);
+        }
+      }
+    });
+  }
   
   if (addToCartBtn) {
     addToCartBtn.addEventListener('click', () => {
