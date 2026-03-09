@@ -65,11 +65,31 @@ import { formatPrice } from '../../lib/utils';
     <div id="orders-section" class="hidden rounded-xl border bg-card overflow-hidden">
       <div class="p-6 border-b">
         <h2 class="text-lg font-semibold">All Completed Orders</h2>
-        <p class="text-sm text-muted-foreground">View order details and status</p>
+        <p class="text-sm text-muted-foreground">Click on an order to view details</p>
       </div>
       
       <div id="orders-container"></div>
     </div>
+
+    <!-- Order Details Slide-in Panel -->
+    <div id="order-details-panel" class="fixed inset-y-0 right-0 w-full max-w-2xl bg-card shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+      <div class="sticky top-0 bg-card border-b p-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold">Order Details</h2>
+          <p class="text-sm text-muted-foreground" id="detail-order-ref"></p>
+        </div>
+        <button id="close-details" class="p-2 hover:bg-muted rounded-lg transition-colors">
+          <i class="bi bi-x text-2xl"></i>
+        </button>
+      </div>
+      
+      <div id="order-details-content" class="p-6 space-y-6">
+        <!-- Content will be populated dynamically -->
+      </div>
+    </div>
+
+    <!-- Overlay for slide-in panel -->
+    <div id="details-overlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
 
     <!-- Error State -->
     <div id="error-state" class="hidden p-12 text-center rounded-xl border bg-card">
@@ -91,6 +111,163 @@ import { formatPrice } from '../../lib/utils';
 
   function formatPrice(price: number): string {
     return '₦' + price.toLocaleString();
+  }
+
+  function showOrderDetails(order: any) {
+    const panel = document.getElementById('order-details-panel');
+    const overlay = document.getElementById('details-overlay');
+    const content = document.getElementById('order-details-content');
+    const orderRef = document.getElementById('detail-order-ref');
+
+    if (!panel || !overlay || !content || !orderRef) return;
+
+    // Parse items
+    let items = [];
+    try {
+      items = JSON.parse(order.items || '[]');
+    } catch (e) {
+      console.error('Failed to parse items:', e);
+    }
+
+    // Set order reference
+    orderRef.textContent = `Reference: ${order.paymentRef || order.paymentReference || 'N/A'}`;
+
+    // Populate content
+    content.innerHTML = `
+      <!-- Customer Information -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+          <i class="bi bi-person-circle text-primary"></i>
+          Customer Information
+        </h3>
+        <div class="grid grid-cols-2 gap-4 p-4 rounded-lg bg-muted/30">
+          <div>
+            <p class="text-xs text-muted-foreground">Name</p>
+            <p class="font-medium">${order.customerName || 'N/A'}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground">Email</p>
+            <p class="font-medium">${order.customerEmail || 'N/A'}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground">Phone</p>
+            <p class="font-medium">${order.customerPhone || 'N/A'}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground">Order Date</p>
+            <p class="font-medium">${new Date(order.$createdAt).toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping Address -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+          <i class="bi bi-geo-alt text-primary"></i>
+          Shipping Address
+        </h3>
+        <div class="p-4 rounded-lg bg-muted/30">
+          <p class="font-medium">${order.address || 'N/A'}</p>
+          <p class="text-sm text-muted-foreground">
+            ${order.city || 'N/A'}, ${order.state || 'N/A'} ${order.postalCode || ''}
+          </p>
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+          <i class="bi bi-bag text-primary"></i>
+          Order Items (${items.length})
+        </h3>
+        <div class="space-y-3">
+          ${items.map((item: any) => `
+            <div class="flex items-center gap-4 p-4 rounded-lg border bg-background">
+              <img 
+                src="${item.image || '/placeholder.png'}" 
+                alt="${item.name}"
+                class="w-16 h-16 object-cover rounded-lg"
+                crossorigin="anonymous"
+              />
+              <div class="flex-1">
+                <p class="font-medium">${item.name}</p>
+                <p class="text-sm text-muted-foreground">Qty: ${item.quantity}</p>
+                <p class="text-sm font-semibold text-primary">${formatPrice(item.price)} each</p>
+              </div>
+              <div class="text-right">
+                <p class="font-bold">${formatPrice(item.price * item.quantity)}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Payment Information -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+          <i class="bi bi-credit-card text-primary"></i>
+          Payment Information
+        </h3>
+        <div class="p-4 rounded-lg bg-muted/30 space-y-3">
+          <div class="flex justify-between">
+            <span class="text-muted-foreground">Payment Method</span>
+            <span class="font-medium capitalize">${order.paymentMethod || 'N/A'}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-muted-foreground">Transaction Reference</span>
+            <span class="font-mono text-sm">${order.paymentRef || order.paymentReference || 'N/A'}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-muted-foreground">Status</span>
+            <span class="px-2 py-1 rounded-full text-xs uppercase font-bold ${
+              order.status === 'paid' ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500'
+            }">
+              ${order.status || 'pending'}
+            </span>
+          </div>
+          <div class="border-t pt-3 flex justify-between items-center">
+            <span class="text-lg font-semibold">Total Amount</span>
+            <span class="text-2xl font-bold text-primary">${formatPrice(order.totalAmount || order.total || 0)}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3">
+        <button 
+          onclick="window.print()" 
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors"
+        >
+          <i class="bi bi-printer"></i>
+          Print Order
+        </button>
+        <button 
+          onclick="navigator.clipboard.writeText('${order.paymentRef || order.paymentReference || ''}')" 
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors"
+        >
+          <i class="bi bi-clipboard"></i>
+          Copy Reference
+        </button>
+      </div>
+    `;
+
+    // Show panel and overlay
+    overlay.classList.remove('hidden');
+    setTimeout(() => {
+      panel.classList.remove('translate-x-full');
+    }, 10);
+  }
+
+  function hideOrderDetails() {
+    const panel = document.getElementById('order-details-panel');
+    const overlay = document.getElementById('details-overlay');
+
+    if (panel && overlay) {
+      panel.classList.add('translate-x-full');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+      }, 300);
+    }
   }
 
   async function loadOrders() {
@@ -158,8 +335,11 @@ import { formatPrice } from '../../lib/utils';
                 </tr>
               </thead>
               <tbody>
-                ${orders.map((order: any) => `
-                  <tr class="border-b hover:bg-muted/30 transition-colors">
+                ${orders.map((order: any, index: number) => `
+                  <tr 
+                    class="border-b hover:bg-muted/30 transition-colors cursor-pointer order-row" 
+                    data-order-index="${index}"
+                  >
                     <td class="p-4">
                       <div class="text-sm font-medium">${order.customerName || 'N/A'}</div>
                       <div class="text-xs text-muted-foreground">${order.customerEmail || 'N/A'}</div>
@@ -186,6 +366,14 @@ import { formatPrice } from '../../lib/utils';
             </table>
           </div>
         `;
+
+        // Add click handlers to order rows
+        document.querySelectorAll('.order-row').forEach((row) => {
+          row.addEventListener('click', () => {
+            const index = parseInt((row as HTMLElement).dataset.orderIndex || '0');
+            showOrderDetails(orders[index]);
+          });
+        });
       }
 
       // Show sections
@@ -207,6 +395,21 @@ import { formatPrice } from '../../lib/utils';
   // Load orders on page load
   loadOrders();
 
+  // Setup close button and overlay
+  document.getElementById('close-details')?.addEventListener('click', hideOrderDetails);
+  document.getElementById('details-overlay')?.addEventListener('click', hideOrderDetails);
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      hideOrderDetails();
+    }
+  });
+
   // Reload after view transitions
-  document.addEventListener('astro:after-swap', loadOrders);
+  document.addEventListener('astro:after-swap', () => {
+    loadOrders();
+    document.getElementById('close-details')?.addEventListener('click', hideOrderDetails);
+    document.getElementById('details-overlay')?.addEventListener('click', hideOrderDetails);
+  });
 </script>
