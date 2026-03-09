@@ -1,20 +1,18 @@
-# ABKHD-store - Modern Ecommerce Platform
+# ABKHD-store - Modern Ecommerce Platform (Astro Rebuild)
 
 ## Table of Contents
 - [Project Overview](#project-overview)
 - [Key Features](#key-features)
 - [Technical Architecture](#technical-architecture)  
 - [Development Setup](#development-setup)
-- [Content Management](#content-management)
-- [API Reference](#api-reference)
 - [Deployment Guide](#deployment-guide)
 - [Maintenance](#maintenance)
 - [Troubleshooting](#troubleshooting)
 
 
-Preview the app through : https://abkhd-store.netlify.app
+Preview the app through : https://abkhd-store-astro.pages.dev
 ## Project Overview
-ABKHD-store is a modern ecommerce platform built with React (Vite) frontend and Strapi CMS backend. The platform focuses on simplicity and clean product categorization with three main categories: Mobile Phones, Laptops, and Accessories.
+ABKHD-store is a modern ecommerce platform recently rebuilt with **Astro 5** for superior performance and Cloudflare Pages compatibility. The platform focuses on simplicity and clean product categorization.
 
 Key aspects:
 - Simplified product management (no stock/quantity tracking)
@@ -43,17 +41,10 @@ Key aspects:
 
 ## Technical Architecture
 ### Frontend
-- **Framework**: React 18 with Vite
-- **Styling**: Tailwind CSS with custom design system
-- **State Management**: React Context API
-- **Routing**: React Router v6
-- **UI Components**: Custom reusable components
-
-### Backend
-- **CMS**: Strapi v4
-- **Database**: SQLite (development), PostgreSQL (production)
-- **API**: RESTful endpoints with auto-generated documentation
-- **Media**: Built-in media library for image management
+- **Framework**: Astro 5 (with React integration)
+- **Styling**: Tailwind CSS
+- **Components**: Astro + React
+- **Package Manager**: Yarn 4 (Berry)
 
 ### File Structure
 ```
@@ -73,15 +64,15 @@ Key aspects:
 
 ## Development Setup
 ### Prerequisites
-- Node.js v16+
-- npm or yarn
-- Strapi CLI (for backend development)
+- Node.js v20+
+- Corepack enabled (`corepack enable`)
+- Yarn 4
 
 ### Installation
 1. Clone the repository
-2. Install frontend dependencies:
+2. Install dependencies:
 ```bash
-npm install
+yarn install
 ```
 3. Install backend dependencies:
 ```bash
@@ -124,20 +115,11 @@ cd backend && npm run develop
    - Add optional fields: longDescription, originalPrice, images
    - Publish products
 
-## API Reference
-### Products
-- `GET /api/products?populate=*` - List all products
-- `GET /api/products/:id?populate=*` - Get single product
-
-### Categories  
-- `GET /api/categories?populate=*` - List all categories
-- `GET /api/categories/:id?populate=*` - Get single category
-
-### Media
-- `GET /api/upload/files` - List uploaded media
-- Media URLs follow pattern: `http://[host]/uploads/[filename]`
-
 ## Deployment Guide
+### Cloudflare Pages
+1. The project is configured for Cloudflare Pages via `wrangler.toml`.
+2. Ensure `YARN_VERSION` is set to `4.x` in your Cloudflare dashboard (though it should auto-detect).
+3. The build command is `yarn build` and the output directory is `dist`.
 ### Replit Deployment
 1. Configure `.replit` file:
 ```toml
