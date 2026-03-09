@@ -3,9 +3,28 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ProductGrid from '../components/ProductGrid.astro';
-import { products } from '../data/products';
+import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../lib/appwrite';
+import { Query } from 'appwrite';
 
-const featuredProducts = products.filter(product => product.featured);
+let featuredProducts = [];
+try {
+  const response = await databases.listDocuments(
+    APPWRITE_DB_ID,
+    APPWRITE_PRODUCTS_COLLECTION_ID,
+    [
+      Query.equal('featured', true),
+      Query.equal('isActive', true),
+      Query.equal('isArchived', false),
+      Query.limit(6)
+    ]
+  );
+  featuredProducts = response.documents.map(doc => ({
+    ...doc,
+    id: doc.$id
+  }));
+} catch (error) {
+  console.error('Error fetching featured products:', error);
+}
 ---
 
 <Layout title="ABKHD | Premium Tech at Smarter Prices">

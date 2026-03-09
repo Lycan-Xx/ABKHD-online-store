@@ -3,14 +3,35 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ProductGrid from '../components/ProductGrid.astro';
-import { products, categories } from '../data/products';
+import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../lib/appwrite';
+import { Query } from 'appwrite';
 
 // Get query parameters for filtering
 const url = Astro.url;
 const selectedCategory = url.searchParams.get('category');
 
-// Filter products based on category
-const filteredProducts = selectedCategory 
+// Fetch products from Appwrite
+let products = [];
+try {
+  const response = await databases.listDocuments(
+    APPWRITE_DB_ID,
+    APPWRITE_PRODUCTS_COLLECTION_ID,
+    [
+      Query.equal('isActive', true),
+      Query.equal('isArchived', false),
+      Query.limit(100)
+    ]
+  );
+  products = response.documents.map(doc => ({
+    ...doc,
+    id: doc.$id // Use Appwrite Document ID
+  }));
+} catch (error) {
+  console.error('Error fetching products from Appwrite:', error);
+}
+
+// Filter products based on category (Server-side for initial load)
+const filteredProducts = selectedCategory && selectedCategory !== 'all'
   ? products.filter(product => product.category === selectedCategory)
   : products;
 
@@ -170,18 +191,9 @@ const categoryFilters = [
 
 
 
-<script>
-  // Client-side filtering
-  const products = [
-    { id: 1, name: "ProBook 15 Laptop", category: "computers", price: 350000, originalPrice: 400000, image: "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800", description: "High-performance laptop with 15.6-inch display, 16GB RAM, 512GB SSD." },
-    { id: 2, name: "UltraSlim Desktop", category: "computers", price: 280000, image: "https://images.pexels.com/photos/442579/pexels-photo-442579.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Compact desktop computer for home and office use." },
-    { id: 3, name: "Galaxy X Pro Smartphone", category: "mobile phones", price: 250000, originalPrice: 280000, image: "https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Flagship smartphone with 6.7-inch AMOLED display, 256GB storage." },
-    { id: 4, name: "Budget Phone A12", category: "mobile phones", price: 85000, image: "https://images.pexels.com/photos/276528/pexels-photo-276528.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Affordable smartphone with great features." },
-    { id: 5, name: "Wireless Earbuds Pro", category: "accessories", price: 25000, originalPrice: 35000, image: "https://images.pexels.com/photos/1580896/pexels-photo-1580896.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Premium wireless earbuds with active noise cancellation." },
-    { id: 6, name: "Fast Charger 65W", category: "accessories", price: 12000, image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Universal fast charger compatible with all devices." },
-    { id: 7, name: "Premium Phone Case", category: "accessories", price: 5000, image: "https://images.pexels.com/photos/2332522/pexels-photo-2332522.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Protective phone case with premium finish." },
-    { id: 8, name: "Wireless Mouse", category: "accessories", price: 8000, image: "https://images.pexels.com/photos/163204/pexels-photo-163204.jpeg?auto=compress&cs=tinysrgb&w=800", description: "Ergonomic wireless mouse for computers." }
-  ];
+<script is:inline define:vars={{ initialProducts: products }}>
+  // Initialize products from server-side data
+  const products = initialProducts;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-NG', {

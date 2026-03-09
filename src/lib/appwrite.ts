@@ -1,11 +1,18 @@
-import { Client, Account, Databases } from "appwrite";
+import { Client, Account, Databases, Storage } from "appwrite";
 
 const client = new Client()
-    .setEndpoint("https://fra.cloud.appwrite.io/v1")
-    .setProject("69ae47f1002d446552b3");
+    .setEndpoint(import.meta.env.PUBLIC_APPWRITE_ENDPOINT || "https://fra.cloud.appwrite.io/v1")
+    .setProject(import.meta.env.PUBLIC_APPWRITE_PROJECT_ID || "69ae47f1002d446552b3");
 
 const account = new Account(client);
 const databases = new Databases(client);
+const storage = new Storage(client);
+
+// Constants for IDs
+export const APPWRITE_DB_ID = import.meta.env.PUBLIC_APPWRITE_DATABASE_ID;
+export const APPWRITE_PRODUCTS_COLLECTION_ID = import.meta.env.PUBLIC_APPWRITE_COLLECTION_PRODUCTS;
+export const APPWRITE_ORDERS_COLLECTION_ID = import.meta.env.PUBLIC_APPWRITE_COLLECTION_ORDERS;
+export const APPWRITE_IMAGES_BUCKET_ID = import.meta.env.PUBLIC_APPWRITE_BUCKET_IMAGES;
 
 // Ping the backend to verify setup
 if (typeof window !== "undefined") {
@@ -16,4 +23,4 @@ if (typeof window !== "undefined") {
     });
 }
 
-export { client, account, databases };
+export { client, account, databases, storage };

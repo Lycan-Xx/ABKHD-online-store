@@ -3,6 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { formatPrice } from '../lib/utils';
+
+const FLUTTERWAVE_KEY = import.meta.env.PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
 ---
 
 <Layout title="Checkout - ABKHD Store">
@@ -196,20 +198,23 @@ import { formatPrice } from '../lib/utils';
   </div>
 
   <Footer slot="footer" />
+  <script is:inline src="https://checkout.flutterwave.com/v3.js"></script>
 </Layout>
 
 <script>
+  import { databases, APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID } from '../lib/appwrite';
+
   // Cart data interface
   interface CartItem {
     cartId: string;
-    id: number;
+    id: string; // Updated to string for Appwrite ID
     name: string;
     price: number;
     image: string;
     quantity: number;
-    size?: string | null;
-    color?: string | null;
   }
+
+  const FLUTTERWAVE_KEY = (window as any).FLUTTERWAVE_KEY || 'YOUR_FLUTTERWAVE_PUBLIC_KEY'; // This will be defined by define:vars or env
 
   // Format price helper
   function formatPrice(price: number): string {
@@ -231,8 +236,8 @@ import { formatPrice } from '../lib/utils';
     return items.reduce((total, item) => total + (item.price * item.quantity), 0);
   }
 
-  // Render cart items
-  function renderCart() {
+  // Render cart items (omitted for brevity, keep existing logic)
+  const renderCart = () => {
     const items = getCart();
     const cartItemsEl = document.getElementById('cart-items');
     const emptyCartEl = document.getElementById('empty-cart');
@@ -272,8 +277,6 @@ import { formatPrice } from '../lib/utils';
         <div class="flex-1">
           <h3 class="font-medium">${item.name}</h3>
           <div class="text-sm text-muted-foreground">
-            ${item.size ? `<p>Size: ${item.size}</p>` : ''}
-            ${item.color ? `<p>Color: ${item.color}</p>` : ''}
             <p>Qty: ${item.quantity}</p>
           </div>
         </div>
@@ -289,121 +292,123 @@ import { formatPrice } from '../lib/utils';
       </div>
     `).join('');
     
-    // Add remove event listeners
     document.querySelectorAll('.remove-item').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const cartId = (e.target as HTMLElement).dataset.cartId;
-        removeFromCart(cartId!);
+        const items = getCart();
+        const newItems = items.filter(item => item.cartId !== cartId);
+        localStorage.setItem('cart', JSON.stringify(newItems));
+        renderCart();
+        window.dispatchEvent(new Event('cart-updated'));
       });
     });
-  }
-
-  // Remove item from cart
-  function removeFromCart(cartId: string) {
-    const items = getCart();
-    const newItems = items.filter(item => item.cartId !== cartId);
-    localStorage.setItem('cart', JSON.stringify(newItems));
-    renderCart();
-    updateCartCount();
-  }
-
-  // Update cart count in header
-  function updateCartCount() {
-    const items = getCart();
-    const count = items.reduce((sum, item) => sum + item.quantity, 0);
-    const cartCountEl = document.getElementById('cart-count');
-    if (cartCountEl) {
-      cartCountEl.textContent = count.toString();
-      cartCountEl.classList.toggle('hidden', count === 0);
-    }
-  }
+  };
 
   // WhatsApp checkout
   document.getElementById('whatsapp-checkout')?.addEventListener('click', () => {
     const items = getCart();
     if (items.length === 0) return;
-    
     const total = getCartTotal(items);
-    const phoneNumber = '2348012345678'; // From env or default
-    
+    const phoneNumber = '2348012345678';
     let message = `Hello ABKHD, I want to order:%0A%0A`;
     items.forEach(item => {
       message += `- ${item.name} x${item.quantity} = ${formatPrice(item.price * item.quantity)}%0A`;
     });
     message += `%0ATotal: ${formatPrice(total)}%0A%0APlease confirm availability.`;
-    
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   });
 
   // Card payment toggle
   document.getElementById('card-checkout-toggle')?.addEventListener('click', () => {
-    const cardSection = document.getElementById('card-payment-section');
-    if (cardSection) {
-      cardSection.classList.toggle('hidden');
-    }
+    document.getElementById('card-payment-section')?.classList.toggle('hidden');
   });
 
-  // Card payment form submission
-  document.getElementById('checkout-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
+  // Flutterwave payment function
+  async function makePayment() {
     const items = getCart();
     if (items.length === 0) return;
-    
+
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const phone = (document.getElementById('phone') as HTMLInputElement).value;
+    const name = (document.getElementById('fullName') as HTMLInputElement).value;
+    const address = (document.getElementById('address') as HTMLInputElement).value;
+    const city = (document.getElementById('city') as HTMLInputElement).value;
+    const state = (document.getElementById('state') as HTMLInputElement).value;
+    const postalCode = (document.getElementById('postalCode') as HTMLInputElement).value;
+
     const total = getCartTotal(items);
-    const payButton = document.getElementById('pay-button') as HTMLButtonElement;
-    
-    // Show loading state
-    const originalText = payButton.textContent;
-    payButton.disabled = true;
-    payButton.innerHTML = '<i class="bi bi-arrow-clockwise animate-spin mr-2"></i> Processing...';
-    
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Clear cart
-    localStorage.removeItem('cart');
-    
-    // Create order in localStorage
-    const order = {
-      id: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      paymentRef: `PAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      status: 'completed',
-      createdAt: new Date().toISOString(),
+    const txRef = `ORD-${Date.now()}`;
+
+    // Get the key from define:vars in Astro or use a direct import if possible
+    // Since we are in a <script> block, we can use define:vars or window
+    const pubKey = (window as any).PUBLIC_FLUTTERWAVE_KEY;
+
+    (window as any).FlutterwaveCheckout({
+      public_key: pubKey,
+      tx_ref: txRef,
+      amount: total,
+      currency: "NGN",
+      payment_options: "card, banktransfer, ussd",
+      redirect_url: window.location.origin + "/success",
       customer: {
-        email: (document.getElementById('email') as HTMLInputElement).value,
-        phone: (document.getElementById('phone') as HTMLInputElement).value,
-        fullName: (document.getElementById('fullName') as HTMLInputElement).value,
-        address: (document.getElementById('address') as HTMLInputElement).value,
-        city: (document.getElementById('city') as HTMLInputElement).value,
-        state: (document.getElementById('state') as HTMLInputElement).value,
-        postalCode: (document.getElementById('postalCode') as HTMLInputElement).value
+        email: email,
+        phone_number: phone,
+        name: name,
       },
-      items: items.map(item => ({
-        id: item.id.toString(),
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        size: item.size,
-        color: item.color,
-        image: item.image
-      })),
-      subtotal: total,
-      shipping: 0,
-      total: total,
-      paymentMethod: 'card'
-    };
+      customizations: {
+        title: "ABKHD Store",
+        description: "Payment for items in cart",
+        logo: "https://your-logo-url.com/logo.png",
+      },
+      callback: async function (data: any) {
+        console.log("Payment successful", data);
+        
+        // Save order to Appwrite
+        const orderData = {
+          customerEmail: email,
+          customerName: name,
+          customerPhone: phone,
+          address: address,
+          city: city,
+          state: state,
+          postalCode: postalCode,
+          items: JSON.stringify(items),
+          totalAmount: total,
+          status: 'paid',
+          paymentReference: data.transaction_id.toString(),
+          paymentMethod: 'card'
+        };
+
+        try {
+          await databases.createDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID.unique(), orderData);
+          localStorage.removeItem('cart');
+          window.location.href = "/success?ref=" + data.transaction_id;
+        } catch (error) {
+          console.error("Failed to create order in Appwrite:", error);
+          // Still redirect or show success but note the order might need manual review
+          window.location.href = "/success?error=order_creation_failed&ref=" + data.transaction_id;
+        }
+      },
+      onclose: function() {
+        const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+        payButton.disabled = false;
+        payButton.innerHTML = `Pay ${formatPrice(total)}`;
+      }
+    });
+  }
+
+  document.getElementById('checkout-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+    payButton.disabled = true;
+    payButton.innerHTML = '<i class="bi bi-arrow-clockwise animate-spin mr-2"></i> Initializing Gateway...';
     
-    // Save order
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    orders.push(order);
-    localStorage.setItem('orders', JSON.stringify(orders));
-    
-    // Redirect to success
-    window.location.href = '/success';
+    makePayment();
   });
 
-  // Initialize
   renderCart();
-  updateCartCount();
+</script>
+
+<script is:inline define:vars={{ FLUTTERWAVE_KEY }}>
+  window.PUBLIC_FLUTTERWAVE_KEY = FLUTTERWAVE_KEY;
 </script>

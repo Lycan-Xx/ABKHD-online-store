@@ -1,16 +1,32 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { products } from '../../data/products';
+import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../../lib/appwrite';
+import { Query } from 'appwrite';
 import { formatPrice } from '../../lib/utils';
 
 // Get query parameters
 const url = Astro.url;
 const searchQuery = url.searchParams.get('search') || '';
 const filterCategory = url.searchParams.get('category') || 'all';
-const filterStatus = url.searchParams.get('status') || 'all';
 
-// Filter products
-let filteredProducts = [...products];
+// Fetch all products for filtering/stats
+let products = [];
+try {
+  const response = await databases.listDocuments(
+    APPWRITE_DB_ID,
+    APPWRITE_PRODUCTS_COLLECTION_ID,
+    [Query.limit(100), Query.orderDesc('$createdAt')]
+  );
+  products = response.documents.map(doc => ({
+    ...doc,
+    id: doc.$id
+  }));
+} catch (error) {
+  console.error('Error fetching admin products:', error);
+}
+
+// Filter products based on search and category
+let filteredProducts = products;
 
 if (searchQuery) {
   const query = searchQuery.toLowerCase();
@@ -359,85 +375,12 @@ const categories = [...new Set(products.map(p => p.category))];
   }
 </style>
 
-<script define:vars={{ products }}>
+<script>
+  import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../../lib/appwrite';
+
   const initProductsPage = () => {
-    // Initialize toggle buttons with correct state
-    const initializeToggles = () => {
-      document.querySelectorAll('.toggle-btn, .toggle-btn-mobile').forEach((btn) => {
-        const button = btn as HTMLButtonElement;
-        const isActive = button.dataset.currentStatus === 'active';
-        
-        if (isActive) {
-          button.classList.add('active');
-          button.classList.remove('inactive');
-        } else {
-          button.classList.add('inactive');
-          button.classList.remove('active');
-        }
-        
-        // Add click handler
-        button.addEventListener('click', () => {
-          const productId = button.dataset.productId;
-          const currentlyActive = button.classList.contains('active');
-          const newStatus = !currentlyActive;
-          
-          // Toggle visual state
-          if (newStatus) {
-            button.classList.add('active');
-            button.classList.remove('inactive');
-            button.dataset.currentStatus = 'active';
-          } else {
-            button.classList.add('inactive');
-            button.classList.remove('active');
-            button.dataset.currentStatus = 'inactive';
-          }
-          
-          // Sync all toggle buttons for this product
-          document.querySelectorAll(`[data-product-id="${productId}"]`).forEach((toggleBtn) => {
-            const tb = toggleBtn as HTMLButtonElement;
-            if (tb !== button) {
-              if (newStatus) {
-                tb.classList.add('active');
-                tb.classList.remove('inactive');
-                tb.dataset.currentStatus = 'active';
-              } else {
-                tb.classList.add('inactive');
-                tb.classList.remove('active');
-                tb.dataset.currentStatus = 'inactive';
-              }
-            }
-          });
-          
-          console.log(`Product ${productId} toggled to: ${newStatus ? 'active' : 'inactive'}`);
-        });
-      });
-    };
-
-    // Initialize featured checkboxes
-    const initializeFeaturedToggles = () => {
-      document.querySelectorAll('.featured-checkbox, .featured-checkbox-mobile').forEach((cb) => {
-        const checkbox = cb as HTMLInputElement;
-        
-        checkbox.addEventListener('change', () => {
-          const productId = checkbox.dataset.productId;
-          const isFeatured = checkbox.checked;
-          
-          // Sync all featured checkboxes for this product
-          document.querySelectorAll(`[data-product-id="${productId}"].featured-checkbox, [data-product-id="${productId}"].featured-checkbox-mobile`).forEach((otherCb) => {
-            const oc = otherCb as HTMLInputElement;
-            if (oc !== checkbox) {
-              oc.checked = isFeatured;
-            }
-          });
-          
-          console.log(`Product ${productId} featured status changed to: ${isFeatured}`);
-        });
-      });
-    };
-
     // Selection Logic
     const selectAllCheckbox = document.getElementById('select-all-checkbox') as HTMLInputElement;
-    const productCheckboxes = document.querySelectorAll('.product-checkbox');
     const bulkActionsBar = document.getElementById('bulk-actions-bar');
     const selectedCountEl = document.getElementById('selected-count');
     const cancelSelectionBtn = document.getElementById('cancel-selection');
@@ -445,7 +388,8 @@ const categories = [...new Set(products.map(p => p.category))];
     if (!selectAllCheckbox || !bulkActionsBar) return;
 
     const updateBulkBar = () => {
-      const selectedCount = document.querySelectorAll('.product-checkbox:checked').length;
+      const selectedCheckboxes = document.querySelectorAll('.product-checkbox:checked');
+      const selectedCount = selectedCheckboxes.length;
       
       if (selectedCount > 0) {
         bulkActionsBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
@@ -458,6 +402,99 @@ const categories = [...new Set(products.map(p => p.category))];
       selectAllCheckbox.checked = selectedCount === totalCheckboxes && totalCheckboxes > 0;
       selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalCheckboxes;
     };
+
+    // Toggle logic with Appwrite integration
+    const initializeToggles = () => {
+      document.querySelectorAll('.toggle-btn, .toggle-btn-mobile').forEach((btn) => {
+        const button = btn as HTMLButtonElement;
+        const isActive = button.dataset.currentStatus === 'active';
+        
+        button.classList.toggle('active', isActive);
+        button.classList.toggle('inactive', !isActive);
+        
+        button.onclick = async () => {
+          const productId = button.dataset.productId;
+          const currentlyActive = button.classList.contains('active');
+          const newStatus = !currentlyActive;
+          
+          button.disabled = true;
+          button.style.opacity = '0.5';
+
+          try {
+            await databases.updateDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId, {
+              isActive: newStatus
+            });
+            
+            // Sync all toggles for this product
+            document.querySelectorAll(`[data-product-id="${productId}"].toggle-btn, [data-product-id="${productId}"].toggle-btn-mobile`).forEach(el => {
+              const b = el as HTMLButtonElement;
+              b.classList.toggle('active', newStatus);
+              b.classList.toggle('inactive', !newStatus);
+              b.dataset.currentStatus = newStatus ? 'active' : 'inactive';
+            });
+          } catch (error) {
+            console.error('Failed to toggle active status:', error);
+            alert('Failed to update product status');
+          } finally {
+            button.disabled = false;
+            button.style.opacity = '1';
+          }
+        };
+      });
+    };
+
+    // Featured toggle with Appwrite integration
+    const initializeFeaturedToggles = () => {
+      document.querySelectorAll('.featured-checkbox, .featured-checkbox-mobile').forEach((cb) => {
+        const checkbox = cb as HTMLInputElement;
+        
+        checkbox.onchange = async () => {
+          const productId = checkbox.dataset.productId;
+          const isFeatured = checkbox.checked;
+          
+          checkbox.disabled = true;
+
+          try {
+            await databases.updateDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId, {
+              featured: isFeatured
+            });
+            
+            // Sync all featured checkboxes for this product
+            document.querySelectorAll(`[data-product-id="${productId}"].featured-checkbox, [data-product-id="${productId}"].featured-checkbox-mobile`).forEach(el => {
+              const oc = el as HTMLInputElement;
+              if (oc !== checkbox) oc.checked = isFeatured;
+            });
+          } catch (error) {
+            console.error('Failed to update featured status:', error);
+            alert('Failed to update featured status');
+            checkbox.checked = !isFeatured; // Revert
+          } finally {
+            checkbox.disabled = false;
+          }
+        };
+      });
+    };
+
+    // Bulk Delete
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    bulkDeleteBtn?.addEventListener('click', async () => {
+      const selectedCheckboxes = document.querySelectorAll('.product-checkbox:checked');
+      const selectedCount = selectedCheckboxes.length;
+      if (selectedCount === 0) return;
+
+      if (confirm(`Delete ${selectedCount} product(s)?`)) {
+        for (const cb of selectedCheckboxes) {
+          const productId = (cb as HTMLInputElement).dataset.productId;
+          try {
+            await databases.deleteDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId);
+            document.querySelectorAll(`[data-product-id="${productId}"]`).forEach(el => (el as HTMLElement).style.display = 'none');
+          } catch (e) {
+            console.error(`Failed to delete product ${productId}:`, e);
+          }
+        }
+        updateBulkBar();
+      }
+    });
 
     selectAllCheckbox.addEventListener('change', () => {
       document.querySelectorAll('.product-checkbox').forEach((cb) => {
@@ -478,71 +515,10 @@ const categories = [...new Set(products.map(p => p.category))];
       updateBulkBar();
     });
 
-    // Export to CSV
-    const exportToCSV = () => {
-      const selectedIds = Array.from(document.querySelectorAll('.product-checkbox:checked'))
-        .map(cb => (cb as HTMLInputElement).dataset.productId);
-      
-      const selectedProducts = products.filter(p => selectedIds.includes(p.id.toString()));
-      
-      if (selectedProducts.length === 0) return;
-
-      const headers = ['ID', 'Name', 'Price', 'Category', 'Featured', 'Status'];
-      const rows = selectedProducts.map(p => [
-        p.id,
-        p.name,
-        p.price,
-        p.category,
-        p.featured ? 'Yes' : 'No',
-        p.isActive !== false ? 'Active' : 'Inactive'
-      ]);
-
-      const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-      ].join('\n');
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `products_export_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-
-    // Delete Products
-    const deleteProducts = () => {
-      const selectedCheckboxes = document.querySelectorAll('.product-checkbox:checked');
-      const selectedCount = selectedCheckboxes.length;
-      
-      if (selectedCount === 0) return;
-
-      const confirmDelete = confirm(`Are you sure you want to delete ${selectedCount} product(s)? This action cannot be undone.`);
-      
-      if (confirmDelete) {
-        selectedCheckboxes.forEach(cb => {
-          const productId = (cb as HTMLInputElement).dataset.productId;
-          document.querySelectorAll(`[data-product-id="${productId}"]`).forEach(el => el.remove());
-        });
-        
-        updateBulkBar();
-        console.log(`${selectedCount} products deleted.`);
-      }
-    };
-
-    document.getElementById('bulk-export-btn')?.addEventListener('click', exportToCSV);
-    document.getElementById('bulk-delete-btn')?.addEventListener('click', deleteProducts);
-
     initializeToggles();
     initializeFeaturedToggles();
   };
 
-  // Run on initial load
   initProductsPage();
-
-  // Run on page transitions
   document.addEventListener('astro:after-swap', initProductsPage);
 </script>

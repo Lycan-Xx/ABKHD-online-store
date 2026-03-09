@@ -1,19 +1,38 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { products } from '../../data/products';
+import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_ORDERS_COLLECTION_ID } from '../../lib/appwrite';
+import { Query } from 'appwrite';
 import { formatPrice } from '../../lib/utils';
 
-// Get stats from products
-const totalProducts = products.length;
-const activeProducts = products.filter(p => p.isActive !== false).length;
-const featuredProducts = products.filter(p => p.featured).length;
-const categories = [...new Set(products.map(p => p.category))];
+// Get stats from Appwrite
+let products = [];
+let orders = [];
+let totalProducts = 0;
+let activeProducts = 0;
+let featuredProducts = 0;
+let categories = [];
+let totalRevenue = 0;
+let recentProducts = [];
 
-// Calculate mock revenue (in real app, this would come from orders)
-const totalRevenue = products.reduce((sum, p) => sum + (p.price * 5), 0); // Mock: 5 sales per product
+try {
+  const productsResponse = await databases.listDocuments(
+    APPWRITE_DB_ID,
+    APPWRITE_PRODUCTS_COLLECTION_ID,
+    [Query.limit(100)]
+  );
+  products = productsResponse.documents;
+  totalProducts = products.length;
+  activeProducts = products.filter(p => p.isActive !== false).length;
+  featuredProducts = products.filter(p => p.featured).length;
+  categories = [...new Set(products.map(p => p.category))];
+  recentProducts = [...products].sort((a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()).slice(0, 4);
 
-// Get recent products (last 4)
-const recentProducts = [...products].slice(0, 4);
+  // For revenue, we'll eventually query the orders collection
+  // For now, let's just keep a placeholder or return 0
+  totalRevenue = 0; 
+} catch (error) {
+  console.error('Error fetching admin stats:', error);
+}
 ---
 
 <AdminLayout title="Dashboard - ABKHD Admin">
@@ -126,10 +145,6 @@ const recentProducts = [...products].slice(0, 4);
         <div class="space-y-3">
           {recentProducts.map(product => (
             <a 
-              href={`/admin/products/${product.id}`}
-              class="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
-            >
-              <div class="w-10 h-10 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                 <img 
                   src={product.image} 
                   alt={product.name}
