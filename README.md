@@ -89,6 +89,38 @@ This project is optimized for Cloudflare Pages.
 
 ---
 
+## 💳 Squad Payment Integration
+
+This project uses Squad as the payment gateway for Nigerian customers. Squad supports:
+- Card payments (Visa, Mastercard, Verve)
+- Bank transfers
+- USSD payments
+- Direct bank account debits
+
+### Quick Start
+See `SQUAD_QUICK_START.md` for a 5-minute setup guide.
+
+### Complete Documentation
+- **Master Guide:** `SQUAD_MASTER_GUIDE.md` - Complete documentation index
+- **Integration Guide:** `SQUAD_INTEGRATION.md` - Full integration details
+- **Debugging Guide:** `SQUAD_DEBUGGING.md` - Troubleshooting help
+- **Deployment Guide:** `DEPLOYMENT_GUIDE.md` - Production deployment
+- **Quick Reference:** `QUICK_REFERENCE.md` - Common commands & URLs
+
+### Testing
+```bash
+# Verify complete setup
+npx tsx scripts/verify-setup.ts
+
+# Test Squad API connection
+npx tsx scripts/test-squad.ts
+
+# Visit test page
+http://localhost:4321/test-squad
+```
+
+---
+
 ## 🔐 Administrative Access
 - **Admin Path**: `/admin`
 - **Login**: Use the credentials created via the `create-admin` script.

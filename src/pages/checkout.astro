@@ -198,7 +198,9 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
   </div>
 
   <Footer slot="footer" />
-  <script is:inline src="https://cdn.jsdelivr.net/npm/react-squadpay@1.0.9/dist/squad.umd.min.js"></script>
+  
+  <!-- Squad Payment SDK -->
+  <script is:inline src="https://checkout.squadco.com/widget/squad.min.js"></script>
 </Layout>
 
 <script>
@@ -349,69 +351,103 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
       return;
     }
 
-    const squadInstance = new (window as any).squad({
-      onClose: () => {
-        console.log("Widget closed");
-        const payButton = document.getElementById('pay-button') as HTMLButtonElement;
-        payButton.disabled = false;
-        payButton.innerHTML = `Pay ${formatPrice(total)}`;
-      },
-      onLoad: () => console.log("Widget loaded successfully"),
-      onSuccess: async (data: any) => {
-        console.log("Payment successful", data);
-        
-        // Save order to Appwrite
-        const orderData = {
-          customerEmail: email,
-          customerName: name,
-          customerPhone: phone,
+    console.log('Initializing Squad payment with key:', pubKey.substring(0, 20) + '...');
+
+    try {
+      const squadInstance = new (window as any).squad({
+        onClose: () => {
+          console.log("Squad widget closed");
+          const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+          if (payButton) {
+            payButton.disabled = false;
+            payButton.innerHTML = `Pay ${formatPrice(total)}`;
+          }
+        },
+        onLoad: () => {
+          console.log("Squad widget loaded successfully");
+        },
+        onSuccess: async (data: any) => {
+          console.log("=== PAYMENT SUCCESS CALLBACK TRIGGERED ===");
+          console.log("Payment data received:", data);
+          console.log("Transaction ref:", data.transaction_ref);
+          
+          // Save order to Appwrite
+          const orderData = {
+            customerEmail: email,
+            customerName: name,
+            customerPhone: phone,
+            address: address,
+            city: city,
+            state: state,
+            postalCode: postalCode || '',
+            items: JSON.stringify(items),
+            totalAmount: total,
+            status: 'paid',
+            paymentReference: data.transaction_ref || txRef,
+            paymentMethod: 'card'
+          };
+
+          console.log("=== ATTEMPTING TO CREATE ORDER ===");
+          console.log("Order data:", orderData);
+          console.log("Database ID:", APPWRITE_DB_ID);
+          console.log("Collection ID:", APPWRITE_ORDERS_COLLECTION_ID);
+
+          try {
+            console.log("Calling databases.createDocument...");
+            const result = await databases.createDocument(
+              APPWRITE_DB_ID, 
+              APPWRITE_ORDERS_COLLECTION_ID, 
+              ID.unique(), 
+              orderData
+            );
+            console.log("=== ORDER CREATED SUCCESSFULLY ===");
+            console.log("Order document:", result);
+            
+            localStorage.removeItem('cart');
+            window.location.href = "/success?ref=" + (data.transaction_ref || txRef);
+          } catch (error) {
+            console.error("=== ORDER CREATION FAILED ===");
+            console.error("Error details:", error);
+            console.error("Error message:", error instanceof Error ? error.message : 'Unknown error');
+            console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
+            
+            // Show alert to user
+            alert('Order creation failed. Please contact support with reference: ' + (data.transaction_ref || txRef));
+            
+            window.location.href = "/success?error=order_creation_failed&ref=" + (data.transaction_ref || txRef);
+          }
+        },
+        key: pubKey,
+        email: email,
+        amount: total * 100, // Convert to kobo
+        currency_code: "NGN",
+        transaction_ref: txRef,
+        customer_name: name,
+        pass_charge: false,
+        callback_url: window.location.origin + "/success",
+        metadata: {
+          customer_phone: phone,
           address: address,
           city: city,
           state: state,
-          postalCode: postalCode || '',
-          items: JSON.stringify(items),
-          totalAmount: total,
-          status: 'paid',
-          paymentReference: data.transaction_ref || txRef,
-          paymentMethod: 'card'
-        };
-
-        try {
-          await databases.createDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID.unique(), orderData);
-          localStorage.removeItem('cart');
-          window.location.href = "/success?ref=" + (data.transaction_ref || txRef);
-        } catch (error) {
-          console.error("Failed to create order in Appwrite:", error);
-          window.location.href = "/success?error=order_creation_failed&ref=" + (data.transaction_ref || txRef);
+          postal_code: postalCode,
+          items: JSON.stringify(items)
         }
-      },
-      key: pubKey,
-      email: email,
-      amount: total * 100, // Convert to kobo
-      currency_code: "NGN",
-      transaction_ref: txRef,
-      customer_name: name,
-      pass_charge: false,
-      callback_url: window.location.origin + "/success",
-      metadata: {
-        customer_phone: phone,
-        address: address,
-        city: city,
-        state: state,
-        postal_code: postalCode,
-        items: JSON.stringify(items)
-      }
-    });
+      });
 
-    try {
+      console.log('Squad instance created, calling setup...');
       squadInstance.setup();
+      
+      console.log('Setup complete, opening modal...');
       squadInstance.open();
     } catch (error) {
       console.error('Squad initialization error:', error);
-      alert('Failed to initialize payment. Please try again.');
+      alert('Failed to initialize payment gateway. Please check console for details.');
       const payButton = document.getElementById('pay-button') as HTMLButtonElement;
-      payButton.disabled = false;
-      payButton.innerHTML = `Pay ${formatPrice(total)}`;
+      if (payButton) {
+        payButton.disabled = false;
+        payButton.innerHTML = `Pay ${formatPrice(total)}`;
+      }
     }
   }
 
