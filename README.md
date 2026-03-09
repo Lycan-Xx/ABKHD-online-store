@@ -14,7 +14,7 @@ ABKHD Store is a high-performance, modern ecommerce platform built with **Astro 
 ## 🚀 Technical Architecture
 
 ### Core Stack
-- **Framework**: [Astro 5](https://astro.build/) (Static Side Generation with Client-side Hydration)
+- **Framework**: [Astro 5](https://astro.build/) (Static Site Generation with Server-Side Rendering)
 - **Backend-as-a-Service**: [Appwrite](https://appwrite.io/) (Database, Storage, Authentication)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Interactions**: Vanilla JS + React Components
@@ -23,10 +23,15 @@ ABKHD Store is a high-performance, modern ecommerce platform built with **Astro 
 
 ### Key Features
 - 🎥 **Video Support**: Products support high-quality video uploads with automatic thumbnail generation.
+- 💾 **Upload Caching**: Automatic caching of uploaded media files to prevent data loss on network failures or page refreshes.
+- 📤 **Sequential Uploads**: Media files upload sequentially with individual progress feedback, allowing retry of failed uploads.
+- 🗑️ **Bulk Operations**: Multi-product selection for bulk delete and export to CSV.
 - 🔐 **Admin Panel**: Secure administrative area for managing products and orders.
 - 🛒 **Dynamic Cart**: Persistent shopping cart with real-time updates.
 - 💳 **Secure Checkout**: Integrated with Squad for safe and easy transactions (Card, Bank Transfer, USSD).
 - 🌓 **Dark Mode**: Premium dark mode support with system preference detection.
+- 📱 **Mobile Share**: Mobile-first share button with desktop clipboard fallback.
+- 🔍 **SEO Ready**: Open Graph meta tags for social media sharing.
 
 ---
 
@@ -126,6 +131,9 @@ http://localhost:4321/test-squad
 - **Login**: Use the credentials created via the `create-admin` script.
 - **Features**: 
   - Create/Edit products with support for multiple images and videos.
+  - Upload caching prevents data loss on network failures.
+  - Sequential uploads with individual progress feedback.
+  - Bulk delete and export products to CSV.
   - View and manage customer orders.
   - Toggle product visibility and featured status.
 
