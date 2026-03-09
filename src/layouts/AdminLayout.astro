@@ -137,5 +137,9 @@ const isActive = (path: string, exact = false) => {
       // Re-initialize after view transitions
       document.addEventListener('astro:after-swap', setDarkMode)
     </script>
+    <script>
+      // Import Appwrite client to trigger initialization and verification ping
+      import { client } from '../lib/appwrite';
+    </script>
   </body>
 </html>

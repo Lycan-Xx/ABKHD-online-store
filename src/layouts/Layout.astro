@@ -43,5 +43,9 @@ const { title = "ABKHD | store", description = "Premium tech at smarter prices" 
       </main>
       <slot name="footer" />
     </div>
+    <script>
+      // Import Appwrite client to trigger initialization and verification ping
+      import { client } from '../lib/appwrite';
+    </script>
   </body>
 </html>
