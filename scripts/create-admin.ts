@@ -1,4 +1,4 @@
-import { Client, Users, Teams, ID } from 'node-appwrite';
+import { Client, Users, Teams, ID, Query } from 'node-appwrite';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -29,9 +29,31 @@ async function createAdmin() {
   try {
     console.log(`--- Creating Admin User: ${email} ---`);
 
-    // 1. Create User
-    const user = await users.create(ID.unique(), email, undefined, password, name);
-    console.log(`✅ User "${name}" created with ID: ${user.$id}`);
+    // 1. Get or Create User
+    let user;
+    try {
+      const existing = await users.list([
+        Query.equal('email', [email])
+      ]);
+      if (existing.total > 0) {
+        user = existing.users[0];
+        console.log(`ℹ️ User already exists. Using ID: ${user.$id}`);
+      } else {
+        user = await users.create(ID.unique(), email, undefined, password, name);
+        console.log(`✅ User "${name}" created with ID: ${user.$id}`);
+      }
+    } catch (e: any) {
+      console.error('Failed to create or find user:', e.message);
+      throw e;
+    }
+
+    // Assign 'admin' label for direct role checking
+    try {
+      await users.updateLabels(user.$id, ['admin']);
+      console.log(`✅ Assigned "admin" label to user.`);
+    } catch (e: any) {
+      console.warn(`⚠️ Failed to assign label (might not be supported on this Appwrite version): ${e.message}`);
+    }
 
     // 2. Ensure "admin" team exists
     const TEAM_ID = 'admin';
@@ -50,7 +72,7 @@ async function createAdmin() {
 
     // 3. Add User to Team
     const domain = process.env.PUBLIC_SITE_URL || 'http://localhost:4321';
-    await teams.createMembership(TEAM_ID, ['admin'], email, undefined, user.$id, `${domain}/admin`);
+    await teams.createMembership(TEAM_ID, ['admin'], email, user.$id, undefined, `${domain}/admin`);
     console.log(`✅ User added to "admin" team.`);
 
     console.log('\n--- Admin Setup Complete ---');

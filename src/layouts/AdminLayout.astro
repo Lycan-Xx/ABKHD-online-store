@@ -162,12 +162,14 @@ const isActive = (path: string, exact = false) => {
           const user = await account.get();
           console.log('User found:', user.email, user.$id);
           
-          // 2. Check if in admin team
+          // 2. Check if in admin team OR has admin label
           const userTeams = await teams.list();
           console.log('User teams:', userTeams.teams.map(t => ({ id: t.$id, name: t.name })));
 
-          const isAdmin = userTeams.teams.some(t => t.$id === 'admin' || t.name.toLowerCase() === 'admin');
-          console.log('Is Admin:', isAdmin);
+          const labels = (user as any).labels || [];
+          const isAdmin = labels.includes('admin') || 
+                        userTeams.teams.some(t => t.$id === 'admin' || t.name.toLowerCase() === 'admin');
+          console.log('Is Admin (Labels + Teams):', isAdmin);
           
           if (!isAdmin) {
             console.warn('User is not an admin, redirecting...');

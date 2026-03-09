@@ -103,11 +103,14 @@ import Footer from '../../components/Footer.astro';
   // Check if already logged in and is admin
   async function checkSession() {
     try {
-      await account.get();
+      const user = await account.get();
       
       const { teams } = await import('../../lib/appwrite');
       const userTeams = await teams.list();
-      const isAdmin = userTeams.teams.some(t => t.$id === 'admin' || t.name.toLowerCase() === 'admin');
+      
+      const labels = (user as any).labels || [];
+      const isAdmin = labels.includes('admin') || 
+                      userTeams.teams.some(t => t.$id === 'admin' || t.name.toLowerCase() === 'admin');
       
       if (isAdmin) {
         window.location.href = '/admin';
