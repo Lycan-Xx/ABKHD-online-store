@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { formatPrice } from '../lib/utils';
 
-const FLUTTERWAVE_KEY = import.meta.env.PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
+const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
 ---
 
 <Layout title="Checkout - ABKHD Store">
@@ -198,7 +198,7 @@ const FLUTTERWAVE_KEY = import.meta.env.PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
   </div>
 
   <Footer slot="footer" />
-  <script is:inline src="https://checkout.flutterwave.com/v3.js"></script>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/react-squadpay@1.0.9/dist/squad.umd.min.js"></script>
 </Layout>
 
 <script>
@@ -214,7 +214,7 @@ const FLUTTERWAVE_KEY = import.meta.env.PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
     quantity: number;
   }
 
-  const FLUTTERWAVE_KEY = (window as any).FLUTTERWAVE_KEY || 'YOUR_FLUTTERWAVE_PUBLIC_KEY'; // This will be defined by define:vars or env
+  const SQUAD_PUBLIC_KEY = (window as any).SQUAD_PUBLIC_KEY || import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
 
   // Format price helper
   function formatPrice(price: number): string {
@@ -323,7 +323,7 @@ const FLUTTERWAVE_KEY = import.meta.env.PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
     document.getElementById('card-payment-section')?.classList.toggle('hidden');
   });
 
-  // Flutterwave payment function
+  // Squad payment function
   async function makePayment() {
     const items = getCart();
     if (items.length === 0) return;
@@ -337,30 +337,27 @@ const FLUTTERWAVE_KEY = import.meta.env.PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
     const postalCode = (document.getElementById('postalCode') as HTMLInputElement).value;
 
     const total = getCartTotal(items);
-    const txRef = `ORD-${Date.now()}`;
+    const txRef = `ABKHD-${Date.now()}`;
 
-    // Get the key from define:vars in Astro or use a direct import if possible
-    // Since we are in a <script> block, we can use define:vars or window
-    const pubKey = (window as any).PUBLIC_FLUTTERWAVE_KEY;
+    const pubKey = (window as any).PUBLIC_SQUAD_KEY || SQUAD_PUBLIC_KEY;
 
-    (window as any).FlutterwaveCheckout({
-      public_key: pubKey,
-      tx_ref: txRef,
-      amount: total,
-      currency: "NGN",
-      payment_options: "card, banktransfer, ussd",
-      redirect_url: window.location.origin + "/success",
-      customer: {
-        email: email,
-        phone_number: phone,
-        name: name,
+    if (!pubKey) {
+      alert('Payment configuration error. Please contact support.');
+      const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+      payButton.disabled = false;
+      payButton.innerHTML = `Pay ${formatPrice(total)}`;
+      return;
+    }
+
+    const squadInstance = new (window as any).squad({
+      onClose: () => {
+        console.log("Widget closed");
+        const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+        payButton.disabled = false;
+        payButton.innerHTML = `Pay ${formatPrice(total)}`;
       },
-      customizations: {
-        title: "ABKHD Store",
-        description: "Payment for items in cart",
-        logo: "https://your-logo-url.com/logo.png",
-      },
-      callback: async function (data: any) {
+      onLoad: () => console.log("Widget loaded successfully"),
+      onSuccess: async (data: any) => {
         console.log("Payment successful", data);
         
         // Save order to Appwrite
@@ -371,30 +368,51 @@ const FLUTTERWAVE_KEY = import.meta.env.PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
           address: address,
           city: city,
           state: state,
-          postalCode: postalCode,
+          postalCode: postalCode || '',
           items: JSON.stringify(items),
           totalAmount: total,
           status: 'paid',
-          paymentReference: data.transaction_id.toString(),
+          paymentReference: data.transaction_ref || txRef,
           paymentMethod: 'card'
         };
 
         try {
           await databases.createDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID.unique(), orderData);
           localStorage.removeItem('cart');
-          window.location.href = "/success?ref=" + data.transaction_id;
+          window.location.href = "/success?ref=" + (data.transaction_ref || txRef);
         } catch (error) {
           console.error("Failed to create order in Appwrite:", error);
-          // Still redirect or show success but note the order might need manual review
-          window.location.href = "/success?error=order_creation_failed&ref=" + data.transaction_id;
+          window.location.href = "/success?error=order_creation_failed&ref=" + (data.transaction_ref || txRef);
         }
       },
-      onclose: function() {
-        const payButton = document.getElementById('pay-button') as HTMLButtonElement;
-        payButton.disabled = false;
-        payButton.innerHTML = `Pay ${formatPrice(total)}`;
+      key: pubKey,
+      email: email,
+      amount: total * 100, // Convert to kobo
+      currency_code: "NGN",
+      transaction_ref: txRef,
+      customer_name: name,
+      pass_charge: false,
+      callback_url: window.location.origin + "/success",
+      metadata: {
+        customer_phone: phone,
+        address: address,
+        city: city,
+        state: state,
+        postal_code: postalCode,
+        items: JSON.stringify(items)
       }
     });
+
+    try {
+      squadInstance.setup();
+      squadInstance.open();
+    } catch (error) {
+      console.error('Squad initialization error:', error);
+      alert('Failed to initialize payment. Please try again.');
+      const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+      payButton.disabled = false;
+      payButton.innerHTML = `Pay ${formatPrice(total)}`;
+    }
   }
 
   document.getElementById('checkout-form')?.addEventListener('submit', async (e) => {
@@ -409,6 +427,6 @@ const FLUTTERWAVE_KEY = import.meta.env.PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
   renderCart();
 </script>
 
-<script is:inline define:vars={{ FLUTTERWAVE_KEY }}>
-  window.PUBLIC_FLUTTERWAVE_KEY = FLUTTERWAVE_KEY;
+<script is:inline define:vars={{ SQUAD_PUBLIC_KEY }}>
+  window.PUBLIC_SQUAD_KEY = SQUAD_PUBLIC_KEY;
 </script>

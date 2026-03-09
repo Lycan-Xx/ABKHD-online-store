@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Storage, Teams } from "appwrite";
+import { Client, Account, Databases, Storage, Teams, ID } from "appwrite";
 
 const client = new Client()
     .setEndpoint(import.meta.env.PUBLIC_APPWRITE_ENDPOINT || "https://fra.cloud.appwrite.io/v1")
@@ -24,4 +24,4 @@ if (typeof window !== "undefined") {
     });
 }
 
-export { client, account, databases, storage, teams };
+export { client, account, databases, storage, teams, ID };

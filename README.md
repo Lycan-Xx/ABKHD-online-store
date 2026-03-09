@@ -18,14 +18,14 @@ ABKHD Store is a high-performance, modern ecommerce platform built with **Astro 
 - **Backend-as-a-Service**: [Appwrite](https://appwrite.io/) (Database, Storage, Authentication)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Interactions**: Vanilla JS + React Components
-- **Payments**: [Flutterwave](https://flutterwave.com/)
+- **Payments**: [Squad](https://squadco.com/) (Nigerian Payment Gateway)
 - **Deployment**: [Cloudflare Pages](https://pages.cloudflare.com/)
 
 ### Key Features
 - 🎥 **Video Support**: Products support high-quality video uploads with automatic thumbnail generation.
 - 🔐 **Admin Panel**: Secure administrative area for managing products and orders.
 - 🛒 **Dynamic Cart**: Persistent shopping cart with real-time updates.
-- 💳 **Secure Checkout**: Integrated with Flutterwave for safe and easy transactions.
+- 💳 **Secure Checkout**: Integrated with Squad for safe and easy transactions (Card, Bank Transfer, USSD).
 - 🌓 **Dark Mode**: Premium dark mode support with system preference detection.
 
 ---
@@ -57,7 +57,8 @@ ABKHD Store is a high-performance, modern ecommerce platform built with **Astro 
    PUBLIC_APPWRITE_COLLECTION_PRODUCTS=products
    PUBLIC_APPWRITE_COLLECTION_ORDERS=orders
    PUBLIC_APPWRITE_BUCKET_IMAGES=product-images
-   PUBLIC_FLUTTERWAVE_PUBLIC_KEY=your_flutterwave_key
+   PUBLIC_SQUAD_PUBLIC_KEY=your_squad_public_key
+   SQUAD_SECRET_KEY=your_squad_secret_key
    ```
 
 2. Run the automated Appwrite setup script:

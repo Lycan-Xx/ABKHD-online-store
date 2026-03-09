@@ -52,9 +52,11 @@ This document provides a comprehensive overview of the technical transition from
 ## 💳 Phase 5: Checkout & Payments
 
 ### Seamless Transactions
-- **Flutterwave Integration**: Implemented a secure card payment gateway via the Flutterwave inline SDK.
+- **Squad Integration**: Implemented a secure payment gateway via Squad's inline SDK for Nigerian merchants.
 - **Cart Logic**: Resolved ID serialization issues between LocalStorage and Appwrite document IDs.
 - **Order Lifecycle**: Automated the creation of an order record in Appwrite immediately upon successful payment confirmation.
+- **Payment Methods**: Support for Card, Bank Transfer, and USSD payments through Squad.
+- **Webhook Support**: Real-time payment notifications via Squad webhooks.
 
 ---
 
@@ -77,7 +79,7 @@ This document provides a comprehensive overview of the technical transition from
 | Backend (Appwrite) Setup | ✅ Complete |
 | Admin Auth & Roles | ✅ Complete |
 | Video Support | ✅ Complete |
-| Flutterwave Payments | ✅ Complete |
+| Squad Payments | ✅ Complete |
 | Production Documentation | ✅ Complete |
 
 **Project is now Production Ready.**
