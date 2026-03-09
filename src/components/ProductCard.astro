@@ -17,6 +17,14 @@ const { product } = Astro.props;
       class="product-image group-hover:scale-105"
       crossorigin="anonymous"
     />
+    <!-- Video Indicator -->
+    {product.video && (
+      <div class="absolute top-3 left-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm">
+          <i class="bi bi-play-fill text-lg"></i>
+        </span>
+      </div>
+    )}
     <!-- Verified Badge -->
     <div class="absolute top-3 right-3">
       <span class="verified-badge">
@@ -74,9 +82,9 @@ const { product } = Astro.props;
       
       const target = e.currentTarget as HTMLButtonElement;
       const product = {
-        id: parseInt(target.dataset.productId || '0'),
+        id: target.dataset.productId || '0',
         name: target.dataset.productName || '',
-        price: parseInt(target.dataset.productPrice || '0'),
+        price: parseFloat(target.dataset.productPrice || '0'),
         image: target.dataset.productImage || ''
       };
       

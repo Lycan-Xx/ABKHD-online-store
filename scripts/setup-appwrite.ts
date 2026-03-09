@@ -66,7 +66,7 @@ async function setup() {
       if (type === 'string') {
         await databases.createStringAttribute(DB_ID, PRODUCTS_ID, key, size || 255, required, defaultValue, array);
       } else if (type === 'integer') {
-        await databases.createIntegerAttribute(DB_ID, PRODUCTS_ID, key, required, undefined, defaultValue, array);
+        await databases.createIntegerAttribute(DB_ID, PRODUCTS_ID, key, required, undefined, undefined, defaultValue, array);
       } else if (type === 'boolean') {
         await databases.createBooleanAttribute(DB_ID, PRODUCTS_ID, key, required, defaultValue, array);
       }
@@ -86,6 +86,8 @@ async function setup() {
     await createProductAttr('tags', 'string', 50, false, undefined, true);
     await createProductAttr('isActive', 'boolean', undefined, false, true);
     await createProductAttr('isArchived', 'boolean', undefined, false, false);
+    await createProductAttr('video', 'string', 500, false);
+    await createProductAttr('videoThumbnail', 'string', 500, false);
 
     // 3. Ensure Orders Collection exists
     const ORDERS_ID = 'orders';
@@ -136,8 +138,8 @@ async function setup() {
         await storage.createBucket(IMAGES_BUCKET_ID, 'Product Images', [
           Permission.read(Role.any()),
           Permission.write(Role.team('admin')),
-        ], false, true, undefined, ['jpg', 'png', 'webp', 'jpeg']);
-        console.log('✅ Product Images bucket created.');
+        ], false, true, undefined, ['jpg', 'png', 'webp', 'jpeg', 'mp4', 'webm', 'ogv', 'mov']);
+        console.log('✅ Product Images (and Video) bucket created.');
       } else {
         throw e;
       }

@@ -207,7 +207,7 @@ const FLUTTERWAVE_KEY = import.meta.env.PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
   // Cart data interface
   interface CartItem {
     cartId: string;
-    id: string; // Updated to string for Appwrite ID
+    id: string | number;
     name: string;
     price: number;
     image: string;

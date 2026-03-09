@@ -131,9 +131,11 @@ export const compressImage = (file: File, config = DEFAULT_IMAGE_CONFIG) => {
 }
 
 /**
- * Compress a video file - creates thumbnail preview
+ * "Compress" a video file - creates a high-quality thumbnail preview
+ * Note: True video re-encoding on client is complex without WASM.
+ * This function handles metadata and thumbnail extraction.
  */
-export const compressVideo = async (file: File): Promise<{thumbnail: string, duration: number}> => {
+export const compressVideo = async (file: File): Promise<{thumbnail: string, duration: number, width: number, height: number, size: number}> => {
   return new Promise((resolve, reject) => {
     if (!file || !file.type.startsWith('video/')) {
       reject(new Error('Invalid video file'))
@@ -147,36 +149,51 @@ export const compressVideo = async (file: File): Promise<{thumbnail: string, dur
     video.muted = true
     video.playsInline = true
 
+    const timeout = setTimeout(() => {
+      video.src = ""
+      reject(new Error('Video processing timed out'))
+    }, 10000)
+
     video.onloadedmetadata = () => {
       let { videoWidth, videoHeight } = video
       
-      if (videoWidth > 1920) {
-        videoHeight = (videoHeight * 1920) / videoWidth
-        videoWidth = 1920
+      const maxWidth = 1280
+      if (videoWidth > maxWidth) {
+        videoHeight = (videoHeight * maxWidth) / videoWidth
+        videoWidth = maxWidth
       }
       
       canvas.width = videoWidth
       canvas.height = videoHeight
 
+      // Seek to 1 second or 10% of duration
       video.currentTime = Math.min(video.duration * 0.1, 1)
     }
 
     video.onseeked = () => {
+      clearTimeout(timeout)
       const ctx = canvas.getContext('2d')!
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
       
       const thumbnail = canvas.toDataURL('image/jpeg', 0.8)
       const duration = video.duration
+      const width = video.videoWidth
+      const height = video.videoHeight
 
+      URL.revokeObjectURL(video.src)
       video.src = ''
 
       resolve({
         thumbnail,
-        duration: Math.round(duration * 100) / 100
+        duration: Math.round(duration * 100) / 100,
+        width,
+        height,
+        size: file.size
       })
     }
 
     video.onerror = () => {
+      clearTimeout(timeout)
       reject(new Error('Failed to load video'))
     }
 

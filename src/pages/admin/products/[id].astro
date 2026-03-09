@@ -232,7 +232,8 @@ try {
 
         <!-- Hidden inputs to store media data -->
         <input type="hidden" id="images" name="images" value={product.images ? JSON.stringify(product.images) : (product.image ? JSON.stringify([product.image]) : '[]')} />
-        <input type="hidden" id="videos" name="videos" value={product.videos ? JSON.stringify(product.videos) : '[]'} />
+        <input type="hidden" id="video-url-hidden" value={product.video || ''} />
+        <input type="hidden" id="video-thumb-hidden" value={product.videoThumbnail || ''} />
 
         <p class="text-xs text-muted-foreground">
           The first image will be used as the main product image.
@@ -332,8 +333,8 @@ try {
 </style>
 
 <script>
-  import { databases, storage, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_IMAGES_BUCKET_ID } from '../../../lib/appwrite';
-  import { compressImage } from '../../../lib/utils';
+  import { databases, storage, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_IMAGES_BUCKET_ID, ID } from '../../../lib/appwrite';
+  import { compressImage, compressVideo } from '../../../lib/utils';
 
   let mediaFiles = []; // { type, data, file?, isPrimary }
   const productId = window.location.pathname.split('/').pop();
@@ -351,13 +352,31 @@ try {
     mediaFiles.forEach((file, index) => {
       const item = document.createElement('div');
       item.className = 'relative group aspect-square rounded-lg overflow-hidden border bg-muted';
-      item.innerHTML = `
-        <img src="${file.data}" class="w-full h-full object-cover" />
-        ${file.isPrimary ? '<span class="absolute bottom-2 left-2 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded">Main</span>' : ''}
-        <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
-          <i class="bi bi-x-lg text-sm"></i>
-        </button>
-      `;
+      
+      if (file.type === 'video') {
+        item.innerHTML = `
+          <div class="relative w-full h-full">
+            <img src="${file.thumbnail}" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+              <i class="bi bi-play-circle-fill text-3xl text-white"></i>
+            </div>
+            <span class="absolute bottom-2 right-2 px-1.5 py-0.5 text-[10px] font-bold bg-black/60 text-white rounded">
+              VIDEO
+            </span>
+          </div>
+          <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
+            <i class="bi bi-x-lg text-sm"></i>
+          </button>
+        `;
+      } else {
+        item.innerHTML = `
+          <img src="${file.data}" class="w-full h-full object-cover" />
+          ${file.isPrimary ? '<span class="absolute bottom-2 left-2 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded">Main</span>' : ''}
+          <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
+            <i class="bi bi-x-lg text-sm"></i>
+          </button>
+        `;
+      }
       item.querySelector('.remove-btn').onclick = () => {
         mediaFiles.splice(index, 1);
         if (file.isPrimary && mediaFiles.length > 0) mediaFiles[0].isPrimary = true;
@@ -368,8 +387,22 @@ try {
   };
 
   const initMedia = () => {
-    const existing = JSON.parse(imagesInput.value || '[]');
-    mediaFiles = existing.map((url, i) => ({ type: 'image', data: url, isPrimary: i === 0 }));
+    const images = JSON.parse(imagesInput.value || '[]');
+    mediaFiles = images.map((url, i) => ({ type: 'image', data: url, isPrimary: i === 0 }));
+    
+    // Check for video
+    const videoUrl = (document.getElementById('video-url-hidden') as HTMLInputElement)?.value;
+    const videoThumb = (document.getElementById('video-thumb-hidden') as HTMLInputElement)?.value;
+    
+    if (videoUrl) {
+      mediaFiles.push({
+        type: 'video',
+        data: videoUrl,
+        thumbnail: videoThumb,
+        isPrimary: false
+      });
+    }
+    
     renderMediaGrid();
   };
 
@@ -377,10 +410,28 @@ try {
   fileInput.onchange = async () => {
     if (!fileInput.files) return;
     loadingState.classList.remove('hidden');
+    
     for (const file of Array.from(fileInput.files)) {
-      const compressed = await compressImage(file, { quality: 0.8 });
-      mediaFiles.push({ type: 'image', data: compressed, file: file, isPrimary: mediaFiles.length === 0 });
+      if (file.type.startsWith('image/')) {
+        const compressed = await compressImage(file, { quality: 0.8 });
+        mediaFiles.push({
+          type: 'image',
+          data: compressed,
+          file: file,
+          isPrimary: mediaFiles.length === 0
+        });
+      } else if (file.type.startsWith('video/')) {
+        const videoData = await compressVideo(file);
+        mediaFiles.push({
+          type: 'video',
+          thumbnail: videoData.thumbnail,
+          duration: videoData.duration,
+          file: file,
+          isPrimary: false
+        });
+      }
     }
+    
     loadingState.classList.add('hidden');
     renderMediaGrid();
   };
@@ -402,12 +453,30 @@ try {
 
     try {
       const imageUrls = [];
+      let videoUrl = (document.getElementById('video-url-hidden') as HTMLInputElement)?.value || '';
+      let videoThresholdUrl = (document.getElementById('video-thumb-hidden') as HTMLInputElement)?.value || '';
+
       for (const media of mediaFiles) {
         if (media.file) {
-          const uploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, 'unique()', media.file);
-          imageUrls.push(storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, uploaded.$id).toString());
+          const uploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), media.file);
+          const url = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, uploaded.$id).toString();
+          
+          if (media.type === 'image') {
+            imageUrls.push(url);
+          } else if (media.type === 'video') {
+            videoUrl = url;
+            
+            // Upload thumbnail
+            const thumbBlob = await fetch(media.thumbnail).then(r => r.blob());
+            const thumbFile = new File([thumbBlob], `thumb_${uploaded.$id}.jpg`, { type: 'image/jpeg' });
+            const thumbUploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), thumbFile);
+            videoThresholdUrl = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, thumbUploaded.$id).toString();
+          }
         } else {
-          imageUrls.push(media.data); // Keep existing URLs
+          if (media.type === 'image') {
+            imageUrls.push(media.data);
+          }
+          // Existing video is already in videoUrl/videoThresholdUrl
         }
       }
 
@@ -420,8 +489,11 @@ try {
         price: parseFloat(formData.get('price') as string),
         originalPrice: parseFloat(formData.get('originalPrice') as string) || null,
         stock: parseInt(formData.get('stock') as string) || 0,
+        stock: parseInt(formData.get('stock') as string) || 0,
         image: imageUrls[0] || '',
         images: imageUrls,
+        video: videoUrl,
+        videoThumbnail: videoThresholdUrl,
         featured: formData.has('featured'),
         isActive: isActiveToggle?.dataset.currentStatus === 'active'
       };

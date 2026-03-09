@@ -6,7 +6,7 @@ export interface Category {
 }
 
 export interface Product {
-  id: number
+  id: string | number
   name: string
   price: number
   originalPrice?: number
@@ -15,6 +15,8 @@ export interface Product {
   longDescription?: string
   image: string
   images?: string[]
+  video?: string
+  videoThumbnail?: string
   videos?: string[]
   stock: number
   featured: boolean

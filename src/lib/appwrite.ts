@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Storage } from "appwrite";
+import { Client, Account, Databases, Storage, Teams } from "appwrite";
 
 const client = new Client()
     .setEndpoint(import.meta.env.PUBLIC_APPWRITE_ENDPOINT || "https://fra.cloud.appwrite.io/v1")
@@ -7,6 +7,7 @@ const client = new Client()
 const account = new Account(client);
 const databases = new Databases(client);
 const storage = new Storage(client);
+const teams = new Teams(client);
 
 // Constants for IDs
 export const APPWRITE_DB_ID = import.meta.env.PUBLIC_APPWRITE_DATABASE_ID;
@@ -23,4 +24,4 @@ if (typeof window !== "undefined") {
     });
 }
 
-export { client, account, databases, storage };
+export { client, account, databases, storage, teams };

@@ -87,7 +87,7 @@ const categoryData = getCategoryData(product.category);
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
       <!-- Product Images -->
       <div class="space-y-4">
-        <div class="aspect-square overflow-hidden rounded-lg bg-muted">
+        <div class="aspect-square overflow-hidden rounded-lg bg-muted relative">
           <img
             id="main-image"
             src={product.images?.[0] || product.image}
@@ -95,14 +95,24 @@ const categoryData = getCategoryData(product.category);
             class="w-full h-full object-cover"
             crossorigin="anonymous"
           />
+          {product.video && (
+            <video
+              id="main-video"
+              src={product.video}
+              class="hidden w-full h-full object-cover"
+              controls
+              playsinline
+            />
+          )}
         </div>
-        {product.images && product.images.length > 1 && (
-          <div class="flex space-x-2">
-            {product.images.map((image, index) => (
+        {( (product.images && product.images.length > 1) || product.video ) && (
+          <div class="flex space-x-2 overflow-x-auto pb-2">
+            {product.images?.map((image, index) => (
               <button
                 key={index}
-                class="thumbnail-btn w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent"
-                data-image={image}
+                class="thumbnail-btn flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent"
+                data-type="image"
+                data-url={image}
                 data-index={index}
               >
                 <img
@@ -113,6 +123,23 @@ const categoryData = getCategoryData(product.category);
                 />
               </button>
             ))}
+            {product.video && (
+              <button
+                class="thumbnail-btn flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent relative"
+                data-type="video"
+                data-url={product.video}
+              >
+                <img
+                  src={product.videoThumbnail || product.image}
+                  alt={`${product.name} video`}
+                  class="w-full h-full object-cover"
+                  crossorigin="anonymous"
+                />
+                <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <i class="bi bi-play-circle-fill text-2xl text-white"></i>
+                </div>
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -232,18 +259,33 @@ const categoryData = getCategoryData(product.category);
 <script define:vars={{ product }}>
   // Image gallery functionality
   const mainImage = document.getElementById('main-image');
+  const mainVideo = document.getElementById('main-video');
   const thumbnailBtns = document.querySelectorAll('.thumbnail-btn');
   
   thumbnailBtns.forEach((btn, index) => {
     btn.addEventListener('click', () => {
-      const imageUrl = btn.dataset.image;
-      if (mainImage && imageUrl) {
-        mainImage.src = imageUrl;
-      }
+      const type = btn.dataset.type;
+      const url = btn.dataset.url;
       
       // Update active thumbnail
       thumbnailBtns.forEach(b => b.classList.remove('border-primary'));
       btn.classList.add('border-primary');
+
+      if (type === 'video') {
+        if (mainVideo) {
+          mainImage.classList.add('hidden');
+          mainVideo.classList.remove('hidden');
+          mainVideo.src = url || '';
+          mainVideo.play().catch(e => console.warn('Autoplay failed:', e));
+        }
+      } else {
+        mainImage.classList.remove('hidden');
+        if (mainVideo) {
+          mainVideo.classList.add('hidden');
+          mainVideo.pause();
+        }
+        if (mainImage && url) mainImage.src = url;
+      }
     });
   });
   
@@ -271,9 +313,12 @@ const categoryData = getCategoryData(product.category);
   
   if (addToCartBtn) {
     addToCartBtn.addEventListener('click', () => {
+      // Ensure product.id exists for cart compatibility
+      const productToCart = { ...product, id: product.$id };
+      
       // Dispatch custom event for React cart
       window.dispatchEvent(new CustomEvent('add-to-cart', {
-        detail: { product, quantity: 1 }
+        detail: { product: productToCart, quantity: 1 }
       }));
       // Show feedback
       const originalText = addToCartBtn.textContent;
@@ -288,9 +333,12 @@ const categoryData = getCategoryData(product.category);
   
   if (buyNowBtn) {
     buyNowBtn.addEventListener('click', () => {
+      // Ensure product.id exists for cart compatibility
+      const productToCart = { ...product, id: product.$id };
+      
       // Add to cart and navigate to checkout
       window.dispatchEvent(new CustomEvent('add-to-cart', {
-        detail: { product, quantity: 1 }
+        detail: { product: productToCart, quantity: 1 }
       }));
       window.location.href = '/checkout';
     });

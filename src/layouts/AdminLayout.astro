@@ -80,13 +80,23 @@ const isActive = (path: string, exact = false) => {
             </nav>
           </div>
 
-          <a 
-            href="/" 
-            class="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <i class="bi bi-arrow-left"></i>
-            Back to Store
-          </a>
+          <div class="flex items-center gap-4">
+            <a 
+              href="/" 
+              class="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <i class="bi bi-arrow-left"></i>
+              Back to Store
+            </a>
+            
+            <button 
+              id="logout-btn"
+              class="flex items-center gap-2 text-sm text-red-500 hover:text-red-600 transition-colors"
+            >
+              <i class="bi bi-box-arrow-right"></i>
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
@@ -138,8 +148,57 @@ const isActive = (path: string, exact = false) => {
       document.addEventListener('astro:after-swap', setDarkMode)
     </script>
     <script>
-      // Import Appwrite client to trigger initialization and verification ping
-      import { client } from '../lib/appwrite';
+      import { account, teams } from '../lib/appwrite';
+
+      const checkAuth = async () => {
+        // Skip check on login page
+        if (window.location.pathname === '/admin/login') return;
+
+        console.log('--- Admin Auth Check ---');
+        console.log('Path:', window.location.pathname);
+
+        try {
+          // 1. Check if logged in
+          const user = await account.get();
+          console.log('User found:', user.email, user.$id);
+          
+          // 2. Check if in admin team
+          const userTeams = await teams.list();
+          console.log('User teams:', userTeams.teams.map(t => ({ id: t.$id, name: t.name })));
+
+          const isAdmin = userTeams.teams.some(t => t.$id === 'admin' || t.name.toLowerCase() === 'admin');
+          console.log('Is Admin:', isAdmin);
+          
+          if (!isAdmin) {
+            console.warn('User is not an admin, redirecting...');
+            window.location.href = '/admin/login?error=unauthorized';
+          }
+        } catch (error) {
+          console.error('Auth check failed or not logged in:', error);
+          window.location.href = '/admin/login';
+        }
+      };
+
+      const handleLogout = async () => {
+        try {
+          await account.deleteSession('current');
+          window.location.href = '/admin/login';
+        } catch (error) {
+          console.error('Logout failed:', error);
+        }
+      };
+
+      // Run on initial load
+      checkAuth();
+
+      // Setup logout button
+      document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
+
+      // Re-run after view transitions
+      document.addEventListener('astro:after-swap', () => {
+        checkAuth();
+        document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
+      });
     </script>
   </body>
 </html>

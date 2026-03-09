@@ -322,7 +322,7 @@ if (categories.length === 0) {
 
 <script>
   import { databases, storage, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_IMAGES_BUCKET_ID, ID } from '../../../lib/appwrite';
-  import { compressImage } from '../../../lib/utils';
+  import { compressImage, compressVideo } from '../../../lib/utils';
 
   let mediaFiles = []; // { type, data, file?, isPrimary }
   let isProcessing = false;
@@ -339,13 +339,31 @@ if (categories.length === 0) {
     mediaFiles.forEach((file, index) => {
       const item = document.createElement('div');
       item.className = 'relative group aspect-square rounded-lg overflow-hidden border bg-muted';
-      item.innerHTML = `
-        <img src="${file.data}" class="w-full h-full object-cover" />
-        ${file.isPrimary ? '<span class="absolute bottom-2 left-2 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded">Main</span>' : ''}
-        <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
-          <i class="bi bi-x-lg text-sm"></i>
-        </button>
-      `;
+      
+      if (file.type === 'video') {
+        item.innerHTML = `
+          <div class="relative w-full h-full">
+            <img src="${file.thumbnail}" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+              <i class="bi bi-play-circle-fill text-3xl text-white"></i>
+            </div>
+            <span class="absolute bottom-2 right-2 px-1.5 py-0.5 text-[10px] font-bold bg-black/60 text-white rounded">
+              VIDEO ${file.duration}s
+            </span>
+          </div>
+          <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
+            <i class="bi bi-x-lg text-sm"></i>
+          </button>
+        `;
+      } else {
+        item.innerHTML = `
+          <img src="${file.data}" class="w-full h-full object-cover" />
+          ${file.isPrimary ? '<span class="absolute bottom-2 left-2 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded">Main</span>' : ''}
+          <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
+            <i class="bi bi-x-lg text-sm"></i>
+          </button>
+        `;
+      }
       item.querySelector('.remove-btn').onclick = () => {
         mediaFiles.splice(index, 1);
         if (file.isPrimary && mediaFiles.length > 0) mediaFiles[0].isPrimary = true;
@@ -371,15 +389,28 @@ if (categories.length === 0) {
   fileInput.onchange = async () => {
     if (!fileInput.files) return;
     loadingState.classList.remove('hidden');
+    
     for (const file of Array.from(fileInput.files)) {
-      const compressed = await compressImage(file, { quality: 0.8 });
-      mediaFiles.push({
-        type: 'image',
-        data: compressed,
-        file: file, // Keep original file for upload
-        isPrimary: mediaFiles.length === 0
-      });
+      if (file.type.startsWith('image/')) {
+        const compressed = await compressImage(file, { quality: 0.8 });
+        mediaFiles.push({
+          type: 'image',
+          data: compressed,
+          file: file,
+          isPrimary: mediaFiles.length === 0
+        });
+      } else if (file.type.startsWith('video/')) {
+        const videoData = await compressVideo(file);
+        mediaFiles.push({
+          type: 'video',
+          thumbnail: videoData.thumbnail,
+          duration: videoData.duration,
+          file: file,
+          isPrimary: false // Videos aren't primary usually
+        });
+      }
     }
+    
     loadingState.classList.add('hidden');
     renderMediaGrid();
   };
@@ -401,14 +432,25 @@ if (categories.length === 0) {
 
     try {
       const imageUrls = [];
+      let videoUrl = '';
+      let videoThumbnailUrl = '';
+
       for (const media of mediaFiles) {
-        // In a real app, we'd upload to Appwrite Storage here
-        // For simplicity and speed in this demo, we'll try to upload if possible
-        // but fall back to the data URL if needed (though Appwrite has limits)
         if (media.file) {
           const uploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), media.file);
           const url = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, uploaded.$id);
-          imageUrls.push(url.toString());
+          
+          if (media.type === 'image') {
+            imageUrls.push(url.toString());
+          } else if (media.type === 'video') {
+            videoUrl = url.toString();
+            
+            // Upload thumbnail too
+            const thumbBlob = await fetch(media.thumbnail).then(r => r.blob());
+            const thumbFile = new File([thumbBlob], `thumb_${uploaded.$id}.jpg`, { type: 'image/jpeg' });
+            const thumbUploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), thumbFile);
+            videoThumbnailUrl = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, thumbUploaded.$id).toString();
+          }
         }
       }
 
@@ -423,6 +465,8 @@ if (categories.length === 0) {
         stock: parseInt(formData.get('stock') as string) || 0,
         image: imageUrls[0] || '',
         images: imageUrls,
+        video: videoUrl,
+        videoThumbnail: videoThumbnailUrl,
         featured: formData.has('featured'),
         isActive: isActiveToggle?.dataset.currentStatus === 'active',
         isArchived: false
