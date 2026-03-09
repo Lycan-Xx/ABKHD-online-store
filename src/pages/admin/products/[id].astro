@@ -198,6 +198,33 @@ try {
           </span>
         </div>
 
+        <!-- Upload Progress -->
+        <div id="upload-progress" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-blue-700 dark:text-blue-400">
+              <i class="bi bi-cloud-arrow-up mr-1 animate-pulse"></i>
+              <span id="upload-progress-text">Uploading...</span>
+            </span>
+            <span id="upload-progress-count" class="text-xs text-blue-600 dark:text-blue-300"></span>
+          </div>
+          <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+            <div id="upload-progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Pending Uploads Alert -->
+        <div id="pending-uploads-alert" class="hidden bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span class="text-sm">You have pending uploads from a previous session</span>
+            </div>
+            <button id="retry-upload-btn" type="button" class="text-xs px-3 py-1 bg-amber-500 text-white rounded hover:bg-amber-600 transition-colors">
+              Resume Upload
+            </button>
+          </div>
+        </div>
+
         <!-- Image/Video Grid -->
         <div id="media-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           <!-- Existing images will be shown here -->
@@ -335,8 +362,14 @@ try {
 <script>
   import { databases, storage, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_IMAGES_BUCKET_ID, ID } from '../../../lib/appwrite';
   import { compressImage, compressVideo } from '../../../lib/utils';
+  import { 
+    saveToCache, 
+    loadFromCache, 
+    clearCache, 
+    hasPendingUploads
+  } from '../../../lib/upload-cache';
 
-  let mediaFiles = []; // { type, data, file?, isPrimary }
+  let mediaFiles: any[] = [];
   const productId = window.location.pathname.split('/').pop();
 
   const fileInput = document.getElementById('file-input') as HTMLInputElement;
@@ -353,16 +386,27 @@ try {
       const item = document.createElement('div');
       item.className = 'relative group aspect-square rounded-lg overflow-hidden border bg-muted';
       
+      // Status indicator
+      let statusBadge = '';
+      if (file.status === 'uploading') {
+        statusBadge = '<span class="absolute top-2 left-2 px-2 py-0.5 text-xs font-medium bg-blue-500 text-white rounded animate-pulse">Uploading...</span>';
+      } else if (file.status === 'failed') {
+        statusBadge = `<span class="absolute top-2 left-2 px-2 py-0.5 text-xs font-medium bg-red-500 text-white rounded cursor-pointer hover:bg-red-600 retry-item" data-index="${index}">Retry</span>`;
+      } else if (file.status === 'completed') {
+        statusBadge = '<span class="absolute top-2 left-2 px-2 py-0.5 text-xs font-medium bg-green-500 text-white rounded">Uploaded</span>';
+      }
+      
       if (file.type === 'video') {
         item.innerHTML = `
           <div class="relative w-full h-full">
-            <img src="${file.thumbnail}" class="w-full h-full object-cover" />
+            <img src="${file.thumbnail || file.data}" class="w-full h-full object-cover" />
             <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
               <i class="bi bi-play-circle-fill text-3xl text-white"></i>
             </div>
             <span class="absolute bottom-2 right-2 px-1.5 py-0.5 text-[10px] font-bold bg-black/60 text-white rounded">
               VIDEO
             </span>
+            ${statusBadge}
           </div>
           <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
             <i class="bi bi-x-lg text-sm"></i>
@@ -372,6 +416,7 @@ try {
         item.innerHTML = `
           <img src="${file.data}" class="w-full h-full object-cover" />
           ${file.isPrimary ? '<span class="absolute bottom-2 left-2 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded">Main</span>' : ''}
+          ${statusBadge}
           <button type="button" class="remove-btn absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-background/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
             <i class="bi bi-x-lg text-sm"></i>
           </button>
@@ -380,15 +425,32 @@ try {
       item.querySelector('.remove-btn').onclick = () => {
         mediaFiles.splice(index, 1);
         if (file.isPrimary && mediaFiles.length > 0) mediaFiles[0].isPrimary = true;
+        saveToCache(mediaFiles);
         renderMediaGrid();
       };
+      
+      // Retry failed upload
+      const retryBtn = item.querySelector('.retry-item');
+      if (retryBtn) {
+        retryBtn.onclick = async (e) => {
+          e.stopPropagation();
+          await retryUpload(index);
+        };
+      }
+      
       mediaGrid.appendChild(item);
     });
   };
 
   const initMedia = () => {
     const images = JSON.parse(imagesInput.value || '[]');
-    mediaFiles = images.map((url, i) => ({ type: 'image', data: url, isPrimary: i === 0 }));
+    mediaFiles = images.map((url, i) => ({ 
+      type: 'image', 
+      data: url, 
+      isPrimary: i === 0,
+      status: 'completed',
+      createdAt: Date.now()
+    }));
     
     // Check for video
     const videoUrl = (document.getElementById('video-url-hidden') as HTMLInputElement)?.value;
@@ -399,8 +461,22 @@ try {
         type: 'video',
         data: videoUrl,
         thumbnail: videoThumb,
-        isPrimary: false
+        isPrimary: false,
+        status: 'completed',
+        createdAt: Date.now()
       });
+    }
+    
+    // Check for pending uploads from cache
+    if (hasPendingUploads()) {
+      const pendingAlert = document.getElementById('pending-uploads-alert');
+      pendingAlert?.classList.remove('hidden');
+      
+      const cachedFiles = loadFromCache();
+      if (cachedFiles.length > 0) {
+        // Merge cached files with existing
+        mediaFiles = [...mediaFiles, ...cachedFiles];
+      }
     }
     
     renderMediaGrid();
@@ -418,7 +494,9 @@ try {
           type: 'image',
           data: compressed,
           file: file,
-          isPrimary: mediaFiles.length === 0
+          isPrimary: mediaFiles.length === 0,
+          status: 'pending',
+          createdAt: Date.now()
         });
       } else if (file.type.startsWith('video/')) {
         const videoData = await compressVideo(file);
@@ -427,10 +505,15 @@ try {
           thumbnail: videoData.thumbnail,
           duration: videoData.duration,
           file: file,
-          isPrimary: false
+          isPrimary: false,
+          status: 'pending',
+          createdAt: Date.now()
         });
       }
     }
+    
+    // Save to cache
+    saveToCache(mediaFiles);
     
     loadingState.classList.add('hidden');
     renderMediaGrid();
@@ -445,36 +528,210 @@ try {
     isActiveToggle.querySelector('.toggle-indicator')?.classList.toggle('translate-x-1', isActive);
   });
 
+  // Retry upload for a single file
+  async function retryUpload(index: number) {
+    const file = mediaFiles[index];
+    if (!file || file.status === 'uploading' || !file.file) return;
+    
+    const uploadProgress = document.getElementById('upload-progress');
+    const uploadProgressText = document.getElementById('upload-progress-text');
+    const uploadProgressBar = document.getElementById('upload-progress-bar') as HTMLDivElement;
+    
+    uploadProgress?.classList.remove('hidden');
+    uploadProgressText!.textContent = `Retrying ${file.type}...`;
+    uploadProgressBar!.style.width = '50%';
+    
+    try {
+      file.status = 'uploading';
+      renderMediaGrid();
+      
+      const uploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), file.file);
+      const url = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, uploaded.$id).toString();
+      
+      let thumbnailUrl = '';
+      if (file.type === 'video' && file.thumbnail) {
+        const thumbBlob = await fetch(file.thumbnail).then(r => r.blob());
+        const thumbFile = new File([thumbBlob], `thumb_${uploaded.$id}.jpg`, { type: 'image/jpeg' });
+        const thumbUploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), thumbFile);
+        thumbnailUrl = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, thumbUploaded.$id).toString();
+      }
+      
+      file.status = 'completed';
+      file.uploadedUrl = url;
+      file.data = url;
+      if (thumbnailUrl) file.thumbnail = thumbnailUrl;
+      
+      uploadProgressBar!.style.width = '100%';
+      saveToCache(mediaFiles);
+      renderMediaGrid();
+      
+      setTimeout(() => {
+        uploadProgress?.classList.add('hidden');
+        uploadProgressBar!.style.width = '0%';
+      }, 1000);
+    } catch (error) {
+      console.error('Retry failed:', error);
+      file.status = 'failed';
+      file.error = error instanceof Error ? error.message : 'Upload failed';
+      uploadProgressBar!.style.width = '0%';
+      uploadProgress?.classList.add('hidden');
+      renderMediaGrid();
+      alert('Failed to retry upload: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  }
+
+  // Resume all pending uploads
+  async function resumePendingUploads() {
+    const pendingFiles = mediaFiles.filter(f => f.status === 'pending' || f.status === 'failed');
+    if (pendingFiles.length === 0) return;
+    
+    const uploadProgress = document.getElementById('upload-progress');
+    const uploadProgressText = document.getElementById('upload-progress-text');
+    const uploadProgressBar = document.getElementById('upload-progress-bar') as HTMLDivElement;
+    const pendingAlert = document.getElementById('pending-uploads-alert');
+    
+    uploadProgress?.classList.remove('hidden');
+    pendingAlert?.classList.add('hidden');
+    
+    for (let i = 0; i < mediaFiles.length; i++) {
+      const file = mediaFiles[i];
+      
+      if (file.status === 'pending' || file.status === 'failed') {
+        if (!file.file) continue;
+        
+        uploadProgressText!.textContent = `Uploading ${file.type} ${i + 1}/${mediaFiles.length}...`;
+        uploadProgressBar!.style.width = `${((i + 1) / mediaFiles.length) * 100}%`;
+        
+        try {
+          file.status = 'uploading';
+          renderMediaGrid();
+          
+          const uploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), file.file);
+          const url = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, uploaded.$id).toString();
+          
+          file.status = 'completed';
+          file.uploadedUrl = url;
+          file.data = url;
+          
+          if (file.type === 'video' && file.thumbnail) {
+            const thumbBlob = await fetch(file.thumbnail).then(r => r.blob());
+            const thumbFile = new File([thumbBlob], `thumb_${uploaded.$id}.jpg`, { type: 'image/jpeg' });
+            const thumbUploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), thumbFile);
+            file.thumbnail = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, thumbUploaded.$id).toString();
+          }
+          
+          saveToCache(mediaFiles);
+          renderMediaGrid();
+        } catch (error) {
+          console.error('Upload failed:', error);
+          file.status = 'failed';
+          file.error = error instanceof Error ? error.message : 'Upload failed';
+          saveToCache(mediaFiles);
+          renderMediaGrid();
+        }
+      }
+    }
+    
+    uploadProgressBar!.style.width = '100%';
+    setTimeout(() => {
+      uploadProgress?.classList.add('hidden');
+      uploadProgressBar!.style.width = '0%';
+    }, 1000);
+    
+    const failedCount = mediaFiles.filter(f => f.status === 'failed').length;
+    if (failedCount > 0) {
+      alert(`${failedCount} file(s) failed to upload. Click Retry to try again.`);
+    }
+  }
+
+  // Setup retry button listener
+  document.getElementById('retry-upload-btn')?.addEventListener('click', resumePendingUploads);
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
     submitBtn.disabled = true;
     submitBtn.innerHTML = 'Updating...';
 
+    const uploadProgress = document.getElementById('upload-progress');
+    const uploadProgressText = document.getElementById('upload-progress-text');
+    const uploadProgressBar = document.getElementById('upload-progress-bar') as HTMLDivElement;
+
     try {
-      const imageUrls = [];
+      const imageUrls: string[] = [];
       let videoUrl = (document.getElementById('video-url-hidden') as HTMLInputElement)?.value || '';
       let videoThumbnailUrl = (document.getElementById('video-thumb-hidden') as HTMLInputElement)?.value || '';
 
-      for (const media of mediaFiles) {
-        if (media.file) {
-          const uploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), media.file);
-          const url = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, uploaded.$id).toString();
+      // Upload pending media files sequentially
+      const pendingFiles = mediaFiles.filter(f => (f.status === 'pending' || f.status === 'failed') && f.file);
+      
+      if (pendingFiles.length > 0) {
+        uploadProgress?.classList.remove('hidden');
+        
+        for (let i = 0; i < mediaFiles.length; i++) {
+          const media = mediaFiles[i];
           
-          if (media.type === 'image') {
-            imageUrls.push(url);
-          } else if (media.type === 'video') {
-            videoUrl = url;
+          if (media.status === 'pending' || media.status === 'failed') {
+            if (!media.file) continue;
             
-            // Upload thumbnail
-            const thumbBlob = await fetch(media.thumbnail).then(r => r.blob());
-            const thumbFile = new File([thumbBlob], `thumb_${uploaded.$id}.jpg`, { type: 'image/jpeg' });
-            const thumbUploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), thumbFile);
-            videoThumbnailUrl = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, thumbUploaded.$id).toString();
+            uploadProgressText!.textContent = `Uploading ${media.type} ${i + 1}/${mediaFiles.length}...`;
+            uploadProgressBar!.style.width = `${((i + 1) / mediaFiles.length) * 100}%`;
+            
+            try {
+              media.status = 'uploading';
+              renderMediaGrid();
+              
+              const uploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), media.file);
+              const url = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, uploaded.$id).toString();
+              
+              media.status = 'completed';
+              media.uploadedUrl = url;
+              
+              if (media.type === 'image') {
+                imageUrls.push(url);
+              } else if (media.type === 'video') {
+                videoUrl = url;
+                
+                // Upload thumbnail
+                const thumbBlob = await fetch(media.thumbnail!).then(r => r.blob());
+                const thumbFile = new File([thumbBlob], `thumb_${uploaded.$id}.jpg`, { type: 'image/jpeg' });
+                const thumbUploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), thumbFile);
+                videoThumbnailUrl = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, thumbUploaded.$id).toString();
+              }
+            } catch (uploadError) {
+              console.error('Upload failed for:', media, uploadError);
+              media.status = 'failed';
+              media.error = uploadError instanceof Error ? uploadError.message : 'Upload failed';
+            }
+          } else if (media.status === 'completed') {
+            // Already uploaded or existing
+            if (media.type === 'image') {
+              imageUrls.push(media.data || media.url || media.uploadedUrl || '');
+            } else if (media.type === 'video') {
+              videoUrl = media.data || media.url || media.uploadedUrl || '';
+              videoThumbnailUrl = media.thumbnail || '';
+            }
+          } else {
+            // No file, use data URL (existing media)
+            if (media.type === 'image') {
+              imageUrls.push(media.data || media.url || '');
+            } else if (media.type === 'video') {
+              videoUrl = media.data || media.url || '';
+              videoThumbnailUrl = media.thumbnail || '';
+            }
           }
-        } else {
+        }
+        
+        uploadProgressBar!.style.width = '100%';
+        setTimeout(() => uploadProgress?.classList.add('hidden'), 500);
+      } else {
+        // No pending files, use existing URLs
+        for (const media of mediaFiles) {
           if (media.type === 'image') {
-            imageUrls.push(media.data);
+            imageUrls.push(media.data || media.url || '');
+          } else if (media.type === 'video') {
+            videoUrl = media.data || media.url || '';
+            videoThumbnailUrl = media.thumbnail || '';
           }
         }
       }
@@ -497,10 +754,14 @@ try {
       };
 
       await databases.updateDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId, updateData);
+      
+      // Clear cache on successful submission
+      clearCache();
+      
       window.location.href = '/admin/products';
     } catch (error) {
       console.error('Update failed:', error);
-      alert('Update failed: ' + error.message);
+      alert('Update failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
       submitBtn.disabled = false;
       submitBtn.innerHTML = 'Update Product';
     }
