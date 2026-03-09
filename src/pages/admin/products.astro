@@ -42,6 +42,57 @@ import { formatPrice } from '../../lib/utils';
       </select>
     </div>
 
+    <!-- Selection Toolbar -->
+    <div id="selection-toolbar" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span id="selected-count" class="text-sm font-medium text-blue-700 dark:text-blue-300">0 selected</span>
+          <button id="select-all-btn" type="button" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+            Select All
+          </button>
+          <button id="deselect-all-btn" type="button" class="text-xs text-blue-600 dark:text-blue-400 hover:underline hidden">
+            Deselect All
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="export-selected-btn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border bg-background hover:bg-muted transition-colors">
+            <i class="bi bi-download mr-1.5"></i>
+            Export
+          </button>
+          <button id="delete-selected-btn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors">
+            <i class="bi bi-trash mr-1.5"></i>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-card rounded-xl border shadow-xl max-w-md w-full p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+            <i class="bi bi-exclamation-triangle text-xl text-red-500"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold">Delete Products</h3>
+            <p class="text-sm text-muted-foreground">This action cannot be undone</p>
+          </div>
+        </div>
+        <p id="delete-modal-text" class="text-sm text-muted-foreground mb-6">
+          Are you sure you want to delete <span id="delete-count" class="font-medium text-foreground">0</span> products? This will permanently remove them from the database.
+        </p>
+        <div class="flex gap-3 justify-end">
+          <button id="cancel-delete-btn" type="button" class="px-4 py-2 text-sm font-medium rounded-lg border bg-background hover:bg-muted transition-colors">
+            Cancel
+          </button>
+          <button id="confirm-delete-btn" type="button" class="px-4 py-2 text-sm font-medium rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Products Table -->
     <div id="products-section" class="hidden rounded-xl border bg-card overflow-hidden">
       <div id="products-container"></div>
@@ -375,6 +426,7 @@ import { formatPrice } from '../../lib/utils';
   let currentProductId = null;
   let searchQuery = '';
   let categoryFilter = 'all';
+  let selectedProducts = new Set(); // Track selected product IDs
 
   function formatPrice(price: number): string {
     return '₦' + price.toLocaleString();
@@ -614,7 +666,11 @@ import { formatPrice } from '../../lib/utils';
       filtersSection?.classList.remove('hidden');
       productsSection?.classList.remove('hidden');
 
+      // Clear selection when loading new products
+      selectedProducts.clear();
+      
       renderProducts();
+      updateSelectionUI();
 
     } catch (error) {
       console.error('Error loading products:', error);
@@ -660,6 +716,9 @@ import { formatPrice } from '../../lib/utils';
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-muted/50 border-b">
+              <th class="p-4 font-medium text-sm w-10">
+                <input type="checkbox" id="select-all-checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
+              </th>
               <th class="p-4 font-medium text-sm">Product</th>
               <th class="p-4 font-medium text-sm">Price</th>
               <th class="p-4 font-medium text-sm">Category</th>
@@ -670,10 +729,18 @@ import { formatPrice } from '../../lib/utils';
           <tbody>
             ${filtered.map((product: any) => `
               <tr 
-                class="border-b hover:bg-muted/30 transition-colors cursor-pointer product-row" 
+                class="border-b hover:bg-muted/30 transition-colors product-row ${selectedProducts.has(product.$id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''}" 
                 data-product-id="${product.$id}"
               >
-                <td class="p-4">
+                <td class="p-4" onclick="event.stopPropagation()">
+                  <input 
+                    type="checkbox" 
+                    class="product-checkbox w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" 
+                    data-product-id="${product.$id}"
+                    ${selectedProducts.has(product.$id) ? 'checked' : ''}
+                  />
+                </td>
+                <td class="p-4 cursor-pointer">
                   <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                       <img 
@@ -689,19 +756,19 @@ import { formatPrice } from '../../lib/utils';
                     </div>
                   </div>
                 </td>
-                <td class="p-4">
+                <td class="p-4 cursor-pointer">
                   <div class="font-medium">${formatPrice(product.price)}</div>
                   ${product.originalPrice ? `<div class="text-xs text-muted-foreground line-through">${formatPrice(product.originalPrice)}</div>` : ''}
                 </td>
-                <td class="p-4">
+                <td class="p-4 cursor-pointer">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted capitalize">
                     ${product.category}
                   </span>
                 </td>
-                <td class="p-4 text-center">
+                <td class="p-4 text-center cursor-pointer">
                   <span class="text-sm">${product.stock || 0}</span>
                 </td>
-                <td class="p-4 text-center">
+                <td class="p-4 text-center cursor-pointer">
                   <span class="px-2 py-1 rounded-full text-[10px] uppercase font-bold ${
                     product.isActive !== false ? 'bg-green-500/10 text-green-500' : 'bg-gray-500/10 text-gray-500'
                   }">
@@ -716,14 +783,184 @@ import { formatPrice } from '../../lib/utils';
       </div>
     `;
 
-    // Add click handlers to product rows
+    // Add click handlers to product rows (but not checkbox)
     document.querySelectorAll('.product-row').forEach((row) => {
-      row.addEventListener('click', () => {
+      row.addEventListener('click', (e) => {
+        // Don't trigger if clicking on checkbox
+        if ((e.target as HTMLElement).type === 'checkbox') return;
         const productId = (row as HTMLElement).dataset.productId;
         const product = products.find((p: any) => p.$id === productId);
         if (product) showPanel(product);
       });
     });
+
+    // Add checkbox handlers
+    document.querySelectorAll('.product-checkbox').forEach((checkbox) => {
+      checkbox.addEventListener('change', (e) => {
+        const productId = (e.target as HTMLInputElement).dataset.productId;
+        if ((e.target as HTMLInputElement).checked) {
+          selectedProducts.add(productId);
+        } else {
+          selectedProducts.delete(productId);
+        }
+        updateSelectionUI();
+      });
+    });
+
+    // Select all checkbox handler
+    const selectAllCheckbox = document.getElementById('select-all-checkbox') as HTMLInputElement;
+    selectAllCheckbox?.addEventListener('change', (e) => {
+      if ((e.target as HTMLInputElement).checked) {
+        filtered.forEach((p: any) => selectedProducts.add(p.$id));
+      } else {
+        filtered.forEach((p: any) => selectedProducts.delete(p.$id));
+      }
+      renderProducts();
+    });
+    
+    // Update select all checkbox state
+    if (selectAllCheckbox && filtered.length > 0) {
+      const allSelected = filtered.every((p: any) => selectedProducts.has(p.$id));
+      selectAllCheckbox.checked = allSelected;
+      selectAllCheckbox.indeterminate = selectedProducts.size > 0 && !allSelected;
+    }
+  }
+
+  // Update selection UI
+  function updateSelectionUI() {
+    const toolbar = document.getElementById('selection-toolbar');
+    const selectedCount = document.getElementById('selected-count');
+    const selectAllBtn = document.getElementById('select-all-btn');
+    const deselectAllBtn = document.getElementById('deselect-all-btn');
+    const deleteBtn = document.getElementById('delete-selected-btn');
+    const exportBtn = document.getElementById('export-selected-btn');
+    
+    if (selectedProducts.size > 0) {
+      toolbar?.classList.remove('hidden');
+      if (selectedCount) selectedCount.textContent = `${selectedProducts.size} selected`;
+      selectAllBtn?.classList.add('hidden');
+      deselectAllBtn?.classList.remove('hidden');
+    } else {
+      toolbar?.classList.add('hidden');
+      selectAllBtn?.classList.remove('hidden');
+      deselectAllBtn?.classList.add('hidden');
+    }
+    
+    // Update delete button text
+    if (deleteBtn) {
+      deleteBtn.innerHTML = `<i class="bi bi-trash mr-1.5"></i> Delete (${selectedProducts.size})`;
+    }
+    
+    // Update export button
+    if (exportBtn) {
+      exportBtn.innerHTML = `<i class="bi bi-download mr-1.5"></i> Export (${selectedProducts.size})`;
+    }
+  }
+
+  // Export selected products to CSV
+  function exportSelectedProducts() {
+    const selectedProds = products.filter((p: any) => selectedProducts.has(p.$id));
+    
+    if (selectedProds.length === 0) {
+      alert('No products selected for export');
+      return;
+    }
+    
+    // CSV headers
+    const headers = ['Name', 'Description', 'Category', 'Brand', 'Price', 'Original Price', 'Stock', 'Active', 'Featured'];
+    
+    // CSV rows
+    const rows = selectedProds.map((p: any) => [
+      p.name || '',
+      (p.description || '').replace(/,/g, ';'), // Escape commas
+      p.category || '',
+      p.brand || '',
+      p.price || 0,
+      p.originalPrice || '',
+      p.stock || 0,
+      p.isActive !== false ? 'Yes' : 'No',
+      p.featured ? 'Yes' : 'No'
+    ]);
+    
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+    
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `products_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // Delete selected products
+  async function deleteSelectedProducts() {
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteCount = document.getElementById('delete-count');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    
+    if (selectedProducts.size === 0) {
+      alert('No products selected for deletion');
+      return;
+    }
+    
+    // Show modal
+    if (deleteCount) deleteCount.textContent = selectedProducts.size.toString();
+    deleteModal?.classList.remove('hidden');
+    
+    // Cancel handler
+    const cancelHandler = () => {
+      deleteModal?.classList.add('hidden');
+      cancelDeleteBtn?.removeEventListener('click', cancelHandler);
+      confirmDeleteBtn?.removeEventListener('click', confirmHandler);
+    };
+    
+    // Confirm handler
+    const confirmHandler = async () => {
+      deleteModal?.classList.add('hidden');
+      cancelDeleteBtn?.removeEventListener('click', cancelHandler);
+      confirmDeleteBtn?.removeEventListener('click', confirmHandler);
+      
+      const deleteBtn = document.getElementById('delete-selected-btn');
+      if (deleteBtn) {
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin mr-1.5"></i> Deleting...';
+      }
+      
+      try {
+        const productIds = Array.from(selectedProducts);
+        
+        for (const productId of productIds) {
+          await databases.deleteDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId);
+        }
+        
+        // Clear selection and reload
+        selectedProducts.clear();
+        updateSelectionUI();
+        await loadProducts();
+        
+        alert(`Successfully deleted ${productIds.length} product(s)`);
+      } catch (error) {
+        console.error('Error deleting products:', error);
+        alert('Failed to delete products: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      } finally {
+        if (deleteBtn) {
+          deleteBtn.disabled = false;
+          deleteBtn.innerHTML = '<i class="bi bi-trash mr-1.5"></i> Delete';
+        }
+      }
+    };
+    
+    cancelDeleteBtn?.addEventListener('click', cancelHandler);
+    confirmDeleteBtn?.addEventListener('click', confirmHandler);
   }
 
   // Setup event listeners
@@ -732,15 +969,37 @@ import { formatPrice } from '../../lib/utils';
   document.getElementById('cancel-btn')?.addEventListener('click', hidePanel);
   document.getElementById('panel-overlay')?.addEventListener('click', hidePanel);
 
+  // Selection toolbar event listeners
+  document.getElementById('select-all-btn')?.addEventListener('click', () => {
+    products.forEach((p: any) => selectedProducts.add(p.$id));
+    renderProducts();
+    updateSelectionUI();
+  });
+
+  document.getElementById('deselect-all-btn')?.addEventListener('click', () => {
+    selectedProducts.clear();
+    renderProducts();
+    updateSelectionUI();
+  });
+
+  document.getElementById('export-selected-btn')?.addEventListener('click', exportSelectedProducts);
+  document.getElementById('delete-selected-btn')?.addEventListener('click', deleteSelectedProducts);
+
   // Search and filter
   document.getElementById('search-input')?.addEventListener('input', (e) => {
     searchQuery = (e.target as HTMLInputElement).value;
+    // Clear selection when filter changes
+    selectedProducts.clear();
     renderProducts();
+    updateSelectionUI();
   });
 
   document.getElementById('category-filter')?.addEventListener('change', (e) => {
     categoryFilter = (e.target as HTMLSelectElement).value;
+    // Clear selection when filter changes
+    selectedProducts.clear();
     renderProducts();
+    updateSelectionUI();
   });
 
 
