@@ -161,15 +161,12 @@ const categories = [...new Set(products.map(p => p.category))];
 
                 <!-- Featured -->
                 <td class="px-4 py-3 text-center">
-                  {product.featured ? (
-                    <span class="text-yellow-500">
-                      <i class="bi bi-star-fill"></i>
-                    </span>
-                  ) : (
-                    <span class="text-muted-foreground/30">
-                      <i class="bi bi-star"></i>
-                    </span>
-                  )}
+                  <input 
+                    type="checkbox" 
+                    class="featured-checkbox w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    data-product-id={product.id}
+                    checked={product.featured}
+                  />
                 </td>
 
                 <!-- Listed (Active Toggle) -->
@@ -226,11 +223,15 @@ const categories = [...new Set(products.map(p => p.category))];
                       {formatPrice(product.price)}
                     </p>
                   </div>
-                  {product.featured && (
-                    <span class="text-yellow-500">
-                      <i class="bi bi-star-fill"></i>
-                    </span>
-                  )}
+                  <div class="flex flex-col items-center gap-1">
+                    <span class="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Featured</span>
+                    <input 
+                      type="checkbox" 
+                      class="featured-checkbox-mobile w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+                      data-product-id={product.id}
+                      checked={product.featured}
+                    />
+                  </div>
                 </div>
                 <div class="flex items-center justify-between mt-3">
                   <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted capitalize">
@@ -368,6 +369,29 @@ const categories = [...new Set(products.map(p => p.category))];
     });
   };
 
+  // Initialize featured checkboxes
+  const initializeFeaturedToggles = () => {
+    document.querySelectorAll('.featured-checkbox, .featured-checkbox-mobile').forEach((cb) => {
+      const checkbox = cb as HTMLInputElement;
+      
+      checkbox.addEventListener('change', () => {
+        const productId = checkbox.dataset.productId;
+        const isFeatured = checkbox.checked;
+        
+        // Sync all featured checkboxes for this product
+        document.querySelectorAll(`[data-product-id="${productId}"].featured-checkbox, [data-product-id="${productId}"].featured-checkbox-mobile`).forEach((otherCb) => {
+          const oc = otherCb as HTMLInputElement;
+          if (oc !== checkbox) {
+            oc.checked = isFeatured;
+          }
+        });
+        
+        console.log(`Product ${productId} featured status changed to: ${isFeatured}`);
+      });
+    });
+  };
+
   // Initialize on page load
   initializeToggles();
+  initializeFeaturedToggles();
 </script>

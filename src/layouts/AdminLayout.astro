@@ -116,7 +116,7 @@ const isActive = (path: string, exact = false) => {
     </div>
     <script>
       // Initialize dark mode
-      const initializeDarkMode = () => {
+      const setDarkMode = () => {
         const savedTheme = localStorage.getItem('darkMode')
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
         
@@ -129,12 +129,13 @@ const isActive = (path: string, exact = false) => {
         } else {
           document.documentElement.classList.remove('dark')
         }
-
-        return isDark
       }
 
       // Initialize on page load
-      initializeDarkMode()
+      setDarkMode()
+
+      // Re-initialize after view transitions
+      document.addEventListener('astro:after-swap', setDarkMode)
     </script>
   </body>
 </html>

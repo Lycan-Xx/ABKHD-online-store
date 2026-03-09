@@ -16,9 +16,9 @@ const filteredProducts = selectedCategory
 
 // Categories with icons for filtering
 const categoryFilters = [
-  { name: 'Computers', icon: 'bi-laptop', value: 'computers' },
-  { name: 'Mobile Phones', icon: 'bi-phone', value: 'mobile phones' },
-  { name: 'Accessories', icon: 'bi-headphones', value: 'accessories' }
+  { name: 'Computers', icon: 'bi bi-laptop', value: 'computers' },
+  { name: 'Mobile Phones', icon: 'bi bi-phone', value: 'mobile phones' },
+  { name: 'Accessories', icon: 'bi bi-headphones', value: 'accessories' }
 ];
 ---
 
@@ -50,7 +50,6 @@ const categoryFilters = [
             </p>
           </div>
           
-          <!-- Mobile Filter Button (will be enhanced with React) -->
           <button
             id="mobile-filter-btn"
             class="lg:hidden flex items-center space-x-2 px-4 py-2 border border-border rounded-lg bg-card hover:border-primary/50 transition-colors"
@@ -62,9 +61,20 @@ const categoryFilters = [
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <!-- Desktop Sidebar - Hidden on mobile -->
-        <aside class="hidden lg:block lg:col-span-1">
+        <!-- Filter Sidebar (Drawer on Mobile, Sidebar on Desktop) -->
+        <aside 
+          id="filter-sidebar"
+          class="fixed inset-y-0 left-0 z-50 w-80 bg-background border-r p-6 transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:z-0 lg:w-full lg:p-0 lg:border-r-0 lg:block lg:col-span-1 shadow-2xl lg:shadow-none"
+        >
           <div class="lg:sticky lg:top-24 space-y-6">
+            <!-- Mobile Header -->
+            <div class="flex items-center justify-between lg:hidden mb-6">
+              <h2 class="text-xl font-bold">Filters</h2>
+              <button id="close-filter-btn" class="p-2 hover:bg-muted rounded-full">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+
             <!-- Categories Header -->
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-2 text-sm font-medium">
@@ -73,7 +83,7 @@ const categoryFilters = [
               </div>
               <button
                 id="clear-filters"
-                class="text-xs text-primary hover:underline hidden"
+                class={`text-xs text-primary hover:underline ${!selectedCategory ? 'hidden' : ''}`}
               >
                 Clear
               </button>
@@ -83,51 +93,51 @@ const categoryFilters = [
               <!-- All Products Button -->
               <button
                 data-category="all"
-                class="category-btn w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group All Products"
+                class={`category-btn w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group ${
+                  !selectedCategory || selectedCategory === 'all' 
+                    ? 'border-primary bg-primary/5 text-primary' 
+                    : 'border-border bg-card hover:border-primary/50'
+                }`}
               >
                 <div class="flex items-center space-x-3">
-                  <i class="bi bi-grid text-lg text-muted-foreground group-hover:text-primary transition-colors"></i>
+                  <i class={`bi bi-grid text-lg transition-colors ${
+                    !selectedCategory || selectedCategory === 'all' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                  }`}></i>
                   <span class="font-medium">All Products</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <span class="text-xs text-muted-foreground">{products.length}</span>
                 </div>
               </button>
 
               {categoryFilters.map((category) => {
-                const count = products.filter(p => p.category === category.value).length;
+                const isActive = selectedCategory === category.value;
                 return (
                   <button
                     data-category={category.value}
-                    data-count={count}
                     class={`category-btn w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group ${
-                      ''
+                      isActive 
+                        ? 'border-primary bg-primary/5 text-primary' 
+                        : 'border-border bg-card hover:border-primary/50'
                     }`}
                   >
                     <div class="flex items-center space-x-3">
-                      <i class={`${category.icon} text-lg text-muted-foreground group-hover:text-primary transition-colors`}></i>
-                      <span class="font-medium">
+                      <i class={`${category.icon} text-lg transition-colors ${
+                        isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                      }`}></i>
+                      <span class={`font-medium ${isActive ? 'text-primary' : ''}`}>
                         {category.name}
                       </span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <span class="text-xs text-muted-foreground">{count}</span>
                     </div>
                   </button>
                 );
               })}
             </div>
-
-            <!-- Show All Products Button -->
-            {!selectedCategory && (
-              <div class="pt-4 border-t">
-                <p class="text-xs text-muted-foreground text-center">
-                  Showing all products
-                </p>
-              </div>
-            )}
           </div>
         </aside>
+
+        <!-- Overlay for mobile drawer -->
+        <div 
+          id="filter-overlay"
+          class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 opacity-0 pointer-events-none lg:hidden"
+        ></div>
 
         <!-- Products Grid -->
           <main class="lg:col-span-3">
@@ -158,8 +168,7 @@ const categoryFilters = [
   <Footer slot="footer" />
 </Layout>
 
-<!-- Mobile Filter Drawer Container (will be enhanced with React) -->
-<div id="mobile-filter-drawer"></div>
+
 
 <script>
   // Client-side filtering
@@ -252,18 +261,25 @@ const categoryFilters = [
       const category = btn.dataset.category;
       const isSelected = category === selectedCategory;
       
+      const icon = btn.querySelector('i');
+      const text = btn.querySelector('span.font-medium');
+      
       if (isSelected) {
-        btn.classList.add('border-primary', 'bg-primary/5');
+        btn.classList.add('border-primary', 'bg-primary/5', 'text-primary');
         btn.classList.remove('border-border', 'bg-card', 'hover:border-primary/50');
-        btn.querySelector('i.bi').classList.add('text-primary');
-        btn.querySelector('i.bi').classList.remove('text-muted-foreground');
-        btn.querySelector('span.font-medium').classList.add('text-primary');
+        if (icon) {
+          icon.classList.add('text-primary');
+          icon.classList.remove('text-muted-foreground');
+        }
+        if (text) text.classList.add('text-primary');
       } else {
-        btn.classList.remove('border-primary', 'bg-primary/5');
+        btn.classList.remove('border-primary', 'bg-primary/5', 'text-primary');
         btn.classList.add('border-border', 'bg-card', 'hover:border-primary/50');
-        btn.querySelector('i.bi').classList.remove('text-primary');
-        btn.querySelector('i.bi').classList.add('text-muted-foreground');
-        btn.querySelector('span.font-medium').classList.remove('text-primary');
+        if (icon) {
+          icon.classList.remove('text-primary');
+          icon.classList.add('text-muted-foreground');
+        }
+        if (text) text.classList.remove('text-primary');
       }
     });
 
@@ -321,11 +337,34 @@ const categoryFilters = [
     filterProducts(urlCategory);
   }
 
-  // Basic mobile filter button functionality
+  // Mobile Filter Functionality
   const mobileFilterBtn = document.getElementById('mobile-filter-btn');
-  if (mobileFilterBtn) {
-    mobileFilterBtn.addEventListener('click', () => {
-      console.log('Mobile filter clicked - will be enhanced with React');
-    });
+  const closeFilterBtn = document.getElementById('close-filter-btn');
+  const filterSidebar = document.getElementById('filter-sidebar');
+  const filterOverlay = document.getElementById('filter-overlay');
+
+  function openFilters() {
+    filterSidebar?.classList.remove('-translate-x-full');
+    filterOverlay?.classList.remove('opacity-0', 'pointer-events-none');
+    document.body.style.overflow = 'hidden';
   }
+
+  function closeFilters() {
+    filterSidebar?.classList.add('-translate-x-full');
+    filterOverlay?.classList.add('opacity-0', 'pointer-events-none');
+    document.body.style.overflow = '';
+  }
+
+  mobileFilterBtn?.addEventListener('click', openFilters);
+  closeFilterBtn?.addEventListener('click', closeFilters);
+  filterOverlay?.addEventListener('click', closeFilters);
+
+  // Close filters when a category is selected on mobile
+  categoryButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (window.innerWidth < 1024) {
+        closeFilters();
+      }
+    });
+  });
 </script>

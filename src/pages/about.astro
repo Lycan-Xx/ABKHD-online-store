@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import CertificationFlow from '../components/react/CertificationFlow';
+import CertificationFlow from '../components/CertificationFlow.astro';
 ---
 
 <Layout title="About Us - ABKHD Store">
@@ -206,7 +206,7 @@ import CertificationFlow from '../components/react/CertificationFlow';
         </p>
         
         <div class="p-6 md:p-8 rounded-xl border border-border bg-card/50">
-          <CertificationFlow client:visible />
+          <CertificationFlow />
         </div>
       </div>
 
