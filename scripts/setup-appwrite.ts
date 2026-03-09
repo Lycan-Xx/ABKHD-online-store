@@ -86,6 +86,7 @@ async function setup() {
     await createProductAttr('tags', 'string', 50, false, undefined, true);
     await createProductAttr('isActive', 'boolean', undefined, false, true);
     await createProductAttr('isArchived', 'boolean', undefined, false, false);
+    await createProductAttr('brand', 'string', 100, false);
     await createProductAttr('video', 'string', 500, false);
     await createProductAttr('videoThumbnail', 'string', 500, false);
 
@@ -122,11 +123,17 @@ async function setup() {
       console.log(`✅ Order attribute "${key}" created.`);
     };
 
-    await createOrderAttr('paymentRef', 'string', 255, true);
-    await createOrderAttr('status', 'string', 20, false, 'pending');
-    await createOrderAttr('customer', 'string', 5000, true);
+    await createOrderAttr('customerEmail', 'string', 255, true);
+    await createOrderAttr('customerName', 'string', 255, true);
+    await createOrderAttr('customerPhone', 'string', 50, false);
+    await createOrderAttr('address', 'string', 500, false);
+    await createOrderAttr('city', 'string', 100, false);
+    await createOrderAttr('state', 'string', 100, false);
+    await createOrderAttr('postalCode', 'string', 20, false);
     await createOrderAttr('items', 'string', 5000, true);
-    await createOrderAttr('total', 'integer', undefined, true);
+    await createOrderAttr('totalAmount', 'integer', undefined, true);
+    await createOrderAttr('status', 'string', 20, false, 'pending');
+    await createOrderAttr('paymentReference', 'string', 255, false);
     await createOrderAttr('paymentMethod', 'string', 20, false);
 
     // 4. Ensure Storage Bucket exists

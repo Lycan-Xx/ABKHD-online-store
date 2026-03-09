@@ -1,3 +1,4 @@
+---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { formatPrice } from '../../lib/utils';
 import { databases, APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID } from '../../lib/appwrite';
@@ -19,7 +20,7 @@ try {
 } catch (error) {
   console.error('Error fetching orders:', error);
 }
-
+---
 
 <AdminLayout title="Orders - ABKHD Admin">
   <div class="space-y-6">

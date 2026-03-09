@@ -27,9 +27,14 @@ try {
   categories = [...new Set(products.map(p => p.category))];
   recentProducts = [...products].sort((a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()).slice(0, 4);
 
-  // For revenue, we'll eventually query the orders collection
-  // For now, let's just keep a placeholder or return 0
-  totalRevenue = 0; 
+  // Get orders for revenue
+  const ordersResponse = await databases.listDocuments(
+    APPWRITE_DB_ID,
+    APPWRITE_ORDERS_COLLECTION_ID,
+    [Query.limit(100), Query.orderDesc('$createdAt')]
+  );
+  orders = ordersResponse.documents;
+  totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 } catch (error) {
   console.error('Error fetching admin stats:', error);
 }
@@ -99,7 +104,7 @@ try {
           <div>
             <p class="text-sm font-medium text-muted-foreground">Total Revenue</p>
             <p class="text-3xl font-bold mt-2">{formatPrice(totalRevenue)}</p>
-            <p class="text-xs text-muted-foreground mt-1">Mock data</p>
+            <p class="text-xs text-muted-foreground mt-1">From completed orders</p>
           </div>
           <div class="p-3 rounded-lg bg-green-500/10">
             <i class="bi bi-currency-naira text-xl text-green-500"></i>
@@ -145,6 +150,10 @@ try {
         <div class="space-y-3">
           {recentProducts.map(product => (
             <a 
+              href={`/admin/products/${product.$id}`}
+              class="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+            >
+              <div class="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                 <img 
                   src={product.image} 
                   alt={product.name}

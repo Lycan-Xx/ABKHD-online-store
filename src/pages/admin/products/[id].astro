@@ -454,7 +454,7 @@ try {
     try {
       const imageUrls = [];
       let videoUrl = (document.getElementById('video-url-hidden') as HTMLInputElement)?.value || '';
-      let videoThresholdUrl = (document.getElementById('video-thumb-hidden') as HTMLInputElement)?.value || '';
+      let videoThumbnailUrl = (document.getElementById('video-thumb-hidden') as HTMLInputElement)?.value || '';
 
       for (const media of mediaFiles) {
         if (media.file) {
@@ -470,13 +470,12 @@ try {
             const thumbBlob = await fetch(media.thumbnail).then(r => r.blob());
             const thumbFile = new File([thumbBlob], `thumb_${uploaded.$id}.jpg`, { type: 'image/jpeg' });
             const thumbUploaded = await storage.createFile(APPWRITE_IMAGES_BUCKET_ID, ID.unique(), thumbFile);
-            videoThresholdUrl = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, thumbUploaded.$id).toString();
+            videoThumbnailUrl = storage.getFileView(APPWRITE_IMAGES_BUCKET_ID, thumbUploaded.$id).toString();
           }
         } else {
           if (media.type === 'image') {
             imageUrls.push(media.data);
           }
-          // Existing video is already in videoUrl/videoThresholdUrl
         }
       }
 
@@ -489,11 +488,10 @@ try {
         price: parseFloat(formData.get('price') as string),
         originalPrice: parseFloat(formData.get('originalPrice') as string) || null,
         stock: parseInt(formData.get('stock') as string) || 0,
-        stock: parseInt(formData.get('stock') as string) || 0,
         image: imageUrls[0] || '',
         images: imageUrls,
         video: videoUrl,
-        videoThumbnail: videoThresholdUrl,
+        videoThumbnail: videoThumbnailUrl,
         featured: formData.has('featured'),
         isActive: isActiveToggle?.dataset.currentStatus === 'active'
       };

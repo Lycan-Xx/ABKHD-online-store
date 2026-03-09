@@ -14,6 +14,9 @@ try {
 if (categories.length === 0) {
   categories = ['Computers', 'Mobile Phones', 'Accessories'];
 }
+
+const isEditing = false;
+const product = null;
 ---
 
 <AdminLayout title={isEditing ? `Edit ${product?.name || 'Product'}` : 'Add New Product'}>

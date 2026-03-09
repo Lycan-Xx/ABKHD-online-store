@@ -8,6 +8,7 @@ import { formatPrice } from '../../lib/utils';
 const url = Astro.url;
 const searchQuery = url.searchParams.get('search') || '';
 const filterCategory = url.searchParams.get('category') || 'all';
+const filterStatus = url.searchParams.get('status') || 'all';
 
 // Fetch all products for filtering/stats
 let products = [];
