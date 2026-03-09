@@ -316,9 +316,13 @@ import { formatPrice } from '../../lib/utils';
       const avgValue = totalRevenue / orders.length;
 
       // Update stats
-      document.getElementById('total-revenue')!.textContent = formatPrice(totalRevenue);
-      document.getElementById('completed-orders')!.textContent = orders.length.toString();
-      document.getElementById('avg-value')!.textContent = formatPrice(avgValue);
+      const totalRevenueEl = document.getElementById('total-revenue');
+      const completedOrdersEl = document.getElementById('completed-orders');
+      const avgValueEl = document.getElementById('avg-value');
+      
+      if (totalRevenueEl) totalRevenueEl.textContent = formatPrice(totalRevenue);
+      if (completedOrdersEl) completedOrdersEl.textContent = orders.length.toString();
+      if (avgValueEl) avgValueEl.textContent = formatPrice(avgValue);
 
       // Render orders table
       if (ordersContainer) {

@@ -238,6 +238,32 @@ import { formatPrice } from '../../lib/utils';
             />
             <label for="featured" class="text-sm font-medium">Featured Product</label>
           </div>
+
+          <div class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="verified"
+              name="verified"
+              class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <div>
+              <label for="verified" class="text-sm font-medium">Verified Product</label>
+              <p class="text-xs text-muted-foreground">Shows verified badge in shop</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="isUnique"
+              name="isUnique"
+              class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <div>
+              <label for="isUnique" class="text-sm font-medium">Unique Item</label>
+              <p class="text-xs text-muted-foreground">Auto-deactivates when purchased (for used items)</p>
+            </div>
+          </div>
         </div>
 
         <!-- Submit -->
@@ -348,6 +374,8 @@ import { formatPrice } from '../../lib/utils';
       (document.getElementById('originalPrice') as HTMLInputElement).value = product.originalPrice || '';
       (document.getElementById('stock') as HTMLInputElement).value = product.stock || 0;
       (document.getElementById('featured') as HTMLInputElement).checked = product.featured || false;
+      (document.getElementById('verified') as HTMLInputElement).checked = product.verified || false;
+      (document.getElementById('isUnique') as HTMLInputElement).checked = product.isUnique || false;
 
       // Set active toggle
       const isActive = product.isActive !== false;
@@ -752,6 +780,8 @@ import { formatPrice } from '../../lib/utils';
         video: videoUrl,
         videoThumbnail: videoThumbnailUrl,
         featured: formData.has('featured'),
+        verified: formData.has('verified'),
+        isUnique: formData.has('isUnique'),
         isActive: isActiveToggle?.dataset.currentStatus === 'active',
         isArchived: false
       };

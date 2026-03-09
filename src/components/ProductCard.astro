@@ -26,23 +26,41 @@ const { product } = Astro.props;
       </div>
     )}
     <!-- Verified Badge -->
-    <div class="absolute top-3 right-3">
-      <span class="verified-badge">
-        <i class="bi bi-patch-check-fill"></i>
-        Verified
-      </span>
-    </div>
+    {product.verified && (
+      <div class="absolute top-3 right-3">
+        <span class="verified-badge">
+          <i class="bi bi-patch-check-fill"></i>
+          Verified
+        </span>
+      </div>
+    )}
+    <!-- Stock Badge -->
+    {product.stock !== undefined && product.stock !== null && (
+      <div class="absolute bottom-3 left-3">
+        <span class={`px-2 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
+          product.stock === 0 ? 'bg-red-500/90 text-white' :
+          product.stock <= 5 ? 'bg-yellow-500/90 text-white' :
+          'bg-green-500/90 text-white'
+        }`}>
+          {product.stock === 0 ? 'Out of Stock' : 
+           product.isUnique ? 'Unique Item' :
+           `${product.stock} in stock`}
+        </span>
+      </div>
+    )}
     <!-- Quick Add Button -->
-    <button
-      class="quick-add-btn absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity"
-      data-product-id={product.id}
-      data-product-name={product.name}
-      data-product-price={product.price}
-      data-product-image={product.image}
-      aria-label={`Add ${product.name} to cart`}
-    >
-      <i class="bi bi-bag-plus"></i>
-    </button>
+    {product.stock !== 0 && (
+      <button
+        class="quick-add-btn absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity"
+        data-product-id={product.id}
+        data-product-name={product.name}
+        data-product-price={product.price}
+        data-product-image={product.image}
+        aria-label={`Add ${product.name} to cart`}
+      >
+        <i class="bi bi-bag-plus"></i>
+      </button>
+    )}
   </div>
   <div class="p-4 space-y-2">
     <h3 class="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">

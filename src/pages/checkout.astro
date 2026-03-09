@@ -407,6 +407,29 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
             console.log("=== ORDER CREATED SUCCESSFULLY ===");
             console.log("Order document:", result);
             
+            // Reduce stock for purchased items
+            console.log("=== REDUCING STOCK FOR PURCHASED ITEMS ===");
+            try {
+              const { reduceMultipleProductsStock } = await import('../lib/stock-manager');
+              const stockItems = items.map((item: any) => ({
+                productId: item.id,
+                quantity: item.quantity
+              }));
+              
+              const stockResults = await reduceMultipleProductsStock(stockItems);
+              console.log("Stock reduction results:", stockResults);
+              
+              // Log any deactivated products
+              stockResults.forEach((result: any) => {
+                if (result.deactivated) {
+                  console.log(`Product ${result.productId} was deactivated (out of stock or unique item)`);
+                }
+              });
+            } catch (stockError) {
+              console.error("Stock reduction failed (non-critical):", stockError);
+              // Don't fail the order if stock reduction fails
+            }
+            
             localStorage.removeItem('cart');
             window.location.href = "/success?ref=" + (data.transaction_ref || txRef);
           } catch (error) {
