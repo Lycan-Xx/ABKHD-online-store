@@ -2,8 +2,6 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-
-const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
 ---
 
 <Layout title="Checkout - ABKHD Store">
@@ -17,11 +15,7 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
         <i class="bi bi-arrow-left"></i>
         <span>Continue Shopping</span>
       </a>
-      <nav class="breadcrumb">
-        <a href="/">Home</a>
-        <i class="bi bi-chevron-right"></i>
-        <span>Checkout</span>
-      </nav>
+      <h1 class="checkout-title">Checkout</h1>
     </div>
 
     <!-- ── Empty cart ─────────────────────────────────────────── -->
@@ -249,8 +243,6 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
 
   <Footer slot="footer" />
 
-  <!-- Squad SDK -->
-  <script is:inline src="https://checkout.squadco.com/widget/squad.min.js"></script>
 </Layout>
 
 <!-- ── Styles ───────────────────────────────────────────────────── -->
@@ -721,46 +713,36 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
 <script>
   import { databases, APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID } from '../lib/appwrite';
 
-  /* ─── Types ─────────────────────────────────────────────── */
-  interface CartItem {
-    cartId: string;
-    id: string | number;
-    name: string;
-    price: number;
-    image: string;
-    quantity: number;
-  }
-
   /* ─── Constants ──────────────────────────────────────────── */
-  const SHIPPING: Record<string, number> = { Yola: 1000, Jimeta: 2000 };
+  const SHIPPING = { Yola: 1000, Jimeta: 2000 };
   const WHATSAPP_NUMBER = '2348085657927';
 
   /* ─── State ──────────────────────────────────────────────── */
-  let currentTab: 1 | 2 | 3 = 1;
+  let currentTab = 1;
   let currentTxRef = '';
   let confirmedEmail = '';
 
   /* ─── Helpers ────────────────────────────────────────────── */
-  const fmt = (n: number) => '₦' + n.toLocaleString('en-NG');
+  const fmt = (n) => '₦' + n.toLocaleString('en-NG');
 
-  function getCart(): CartItem[] {
+  function getCart() {
     try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
     catch { return []; }
   }
-  function saveCart(items: CartItem[]) {
+  function saveCart(items) {
     localStorage.setItem('cart', JSON.stringify(items));
     window.dispatchEvent(new Event('cart-updated'));
   }
-  function subtotal(items: CartItem[]) {
+  function subtotal(items) {
     return items.reduce((s, i) => s + i.price * i.quantity, 0);
   }
-  function shippingFee(): number {
-    const city = (document.getElementById('city') as HTMLSelectElement)?.value;
+  function shippingFee() {
+    const city = document.getElementById('city')?.value;
     return SHIPPING[city] ?? 0;
   }
 
   /* ─── WhatsApp link builder ──────────────────────────────── */
-  function buildWhatsAppHref(): string {
+  function buildWhatsAppHref() {
     const items = getCart();
     if (!items.length) return `https://wa.me/${WHATSAPP_NUMBER}`;
     const total = subtotal(items) + shippingFee();
@@ -776,21 +758,46 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
   /* ─── Render cart ────────────────────────────────────────── */
   function renderCart(successMode = false) {
     const items = getCart();
-    const list = document.getElementById('cart-items-list')!;
-    const emptyState = document.getElementById('empty-state')!;
-    const grid = document.getElementById('checkout-grid')!;
+    const list = document.getElementById('cart-items-list');
+    const emptyState = document.getElementById('empty-state');
+    const grid = document.getElementById('checkout-grid');
+
+    if (!list || !emptyState || !grid) {
+      console.error('[Checkout] Required DOM elements not found');
+      return;
+    }
+
+    console.log('[Checkout] renderCart called with', items.length, 'items, successMode:', successMode);
 
     if (!successMode && items.length === 0) {
+      console.log('[Checkout] Showing empty state');
       emptyState.classList.remove('hidden');
       grid.classList.add('hidden');
       return;
     }
+    
+    console.log('[Checkout] Showing checkout grid with items');
     emptyState.classList.add('hidden');
     grid.classList.remove('hidden');
 
-    list.innerHTML = items.map(item => `
+    // Validate items have required fields
+    const validItems = items.filter(item => {
+      if (!item.id || !item.name || item.price === undefined || !item.image) {
+        console.warn('[Checkout] Invalid item skipped:', item);
+        return false;
+      }
+      return true;
+    });
+
+    if (validItems.length === 0 && items.length > 0) {
+      console.error('[Checkout] All items were invalid');
+      list.innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444;">Error loading cart items. Please refresh the page.</div>';
+      return;
+    }
+
+    list.innerHTML = validItems.map(item => `
       <div class="cart-item ${successMode ? 'success-item' : ''}" data-cart-id="${item.cartId}">
-        <img src="${item.image}" alt="${item.name}" crossorigin="anonymous" />
+        <img src="${item.image}" alt="${item.name}" crossorigin="anonymous" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22%3E%3Crect fill=%22%23ddd%22 width=%2260%22 height=%2260%22/%3E%3C/svg%3E'" />
         <div class="cart-item-body">
           <div class="cart-item-name" title="${item.name}">${item.name}</div>
           <div class="cart-item-price">${fmt(item.price)} each</div>
@@ -806,16 +813,18 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
       </div>
     `).join('');
 
+    console.log('[Checkout] Rendered', validItems.length, 'items');
+
     // Attach qty / remove listeners
     if (!successMode) {
-      list.querySelectorAll<HTMLButtonElement>('.qty-dec').forEach(btn => {
-        btn.addEventListener('click', () => adjustQty(btn.dataset.cartId!, -1));
+      list.querySelectorAll('.qty-dec').forEach(btn => {
+        btn.addEventListener('click', () => adjustQty(btn.dataset.cartId, -1));
       });
-      list.querySelectorAll<HTMLButtonElement>('.qty-inc').forEach(btn => {
-        btn.addEventListener('click', () => adjustQty(btn.dataset.cartId!, 1));
+      list.querySelectorAll('.qty-inc').forEach(btn => {
+        btn.addEventListener('click', () => adjustQty(btn.dataset.cartId, 1));
       });
-      list.querySelectorAll<HTMLButtonElement>('.remove-btn').forEach(btn => {
-        btn.addEventListener('click', () => removeItem(btn.dataset.cartId!));
+      list.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', () => removeItem(btn.dataset.cartId));
       });
     }
 
@@ -823,12 +832,12 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
     updateWhatsApp();
   }
 
-  function adjustQty(cartId: string, delta: number) {
+  function adjustQty(cartId, delta) {
     const items = getCart().map(i => i.cartId === cartId ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i);
     saveCart(items);
     renderCart();
   }
-  function removeItem(cartId: string) {
+  function removeItem(cartId) {
     const items = getCart().filter(i => i.cartId !== cartId);
     saveCart(items);
     renderCart();
@@ -839,10 +848,10 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
     const sub = subtotal(items);
     const ship = shippingFee();
     const total = sub + ship;
-    const cityVal = (document.getElementById('city') as HTMLSelectElement)?.value;
+    const cityVal = document.getElementById('city')?.value;
 
-    const summaryEl = document.getElementById('price-summary')!;
-    const paidEl = document.getElementById('paid-banner')!;
+    const summaryEl = document.getElementById('price-summary');
+    const paidEl = document.getElementById('paid-banner');
 
     if (successMode) {
       summaryEl.classList.add('hidden');
@@ -853,18 +862,18 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
     summaryEl.classList.remove('hidden');
     paidEl.classList.add('hidden');
 
-    document.getElementById('summary-subtotal')!.textContent = fmt(sub);
-    document.getElementById('summary-shipping')!.textContent = cityVal ? fmt(ship) : '—';
-    document.getElementById('summary-total')!.textContent = cityVal ? fmt(total) : fmt(sub);
+    document.getElementById('summary-subtotal').textContent = fmt(sub);
+    document.getElementById('summary-shipping').textContent = cityVal ? fmt(ship) : '—';
+    document.getElementById('summary-total').textContent = cityVal ? fmt(total) : fmt(sub);
   }
 
   function updateWhatsApp() {
-    const btn = document.getElementById('whatsapp-btn') as HTMLAnchorElement;
+    const btn = document.getElementById('whatsapp-btn');
     if (btn) btn.href = buildWhatsAppHref();
   }
 
   /* ─── Tab navigation ─────────────────────────────────────── */
-  function goToTab(tab: 1 | 2 | 3) {
+  function goToTab(tab) {
     currentTab = tab;
     document.querySelectorAll('.tab-panel').forEach((el, i) => {
       el.classList.toggle('hidden', i + 1 !== tab);
@@ -872,7 +881,7 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
     });
 
     // Step indicators
-    document.querySelectorAll<HTMLElement>('.step').forEach((el) => {
+    document.querySelectorAll('.step').forEach((el) => {
       const n = parseInt(el.dataset.step || '0');
       el.classList.remove('active', 'done');
       if (n === tab) el.classList.add('active');
@@ -890,10 +899,10 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
   /* ─── Details form submit ────────────────────────────────── */
   document.getElementById('details-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
+    const form = e.target;
     let valid = true;
 
-    form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[required]').forEach(el => {
+    form.querySelectorAll('[required]').forEach(el => {
       if (!el.value.trim()) {
         el.classList.add('invalid');
         valid = false;
@@ -921,150 +930,199 @@ const SQUAD_PUBLIC_KEY = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
   document.getElementById('back-to-details')?.addEventListener('click', () => goToTab(1));
 
   /* ─── Squad payment ──────────────────────────────────────── */
-  document.getElementById('squad-btn')?.addEventListener('click', () => {
+  document.getElementById('squad-btn')?.addEventListener('click', async () => {
     const items = getCart();
     if (!items.length) return;
 
-    const email    = (document.getElementById('email')    as HTMLInputElement).value;
-    const phone    = (document.getElementById('phone')    as HTMLInputElement).value;
-    const name     = (document.getElementById('fullName') as HTMLInputElement).value;
-    const address  = (document.getElementById('address')  as HTMLInputElement).value;
-    const city     = (document.getElementById('city')     as HTMLSelectElement).value;
-    const state    = (document.getElementById('state')    as HTMLSelectElement).value;
-    const postal   = (document.getElementById('postalCode') as HTMLInputElement).value;
+    const email    = document.getElementById('email').value;
+    const phone    = document.getElementById('phone').value;
+    const name     = document.getElementById('fullName').value;
+    const address  = document.getElementById('address').value;
+    const city     = document.getElementById('city').value;
+    const state    = document.getElementById('state').value;
+    const postal   = document.getElementById('postalCode').value;
     const ship     = shippingFee();
     const total    = subtotal(items) + ship;
 
     currentTxRef  = `ABKHD-${Date.now()}`;
     confirmedEmail = email;
 
-    const pubKey = (window as any).PUBLIC_SQUAD_KEY;
-    if (!pubKey) { alert('Payment configuration error. Please contact support.'); return; }
-
     const btn = document.getElementById('squad-btn') as HTMLButtonElement;
+    if (!btn) return;
     btn.disabled = true;
-    btn.querySelector<HTMLElement>('.pm-name')!.textContent = 'Initializing…';
+    const pmName = btn.querySelector('.pm-name');
+    if (pmName) pmName.textContent = 'Initializing…';
 
     try {
-      const instance = new (window as any).squad({
-        onClose: () => {
-          btn.disabled = false;
-          btn.querySelector<HTMLElement>('.pm-name')!.textContent = 'Squad';
-        },
-        onLoad: () => {},
-        onSuccess: async (data: any) => {
-          const txRef = data.transaction_ref || currentTxRef;
-
-          const orderData = {
-            customer:       JSON.stringify({ email, name, phone }),
-            customerEmail:  email,
-            customerName:   name,
-            items:          JSON.stringify(items),
-            total:          total,
-            totalAmount:    total,
-            paymentRef:     txRef,
-            customerPhone:  phone,
-            address,
-            city,
-            state,
-            postalCode:     postal || '',
-            status:         'paid',
-            paymentMethod:  'card',
-          };
-
-          try {
-            await databases.createDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID.unique(), orderData);
-
-            try {
-              const { reduceMultipleProductsStock } = await import('../lib/stock-manager');
-              await reduceMultipleProductsStock(items.map((i: any) => ({ productId: i.id, quantity: i.quantity })));
-            } catch (se) {
-              console.error('Stock reduction failed (non-critical):', se);
-            }
-
-            // Show success state (no redirect)
-            // Store order data for page reload scenario
-            sessionStorage.setItem('lastOrder', JSON.stringify({
-              ref: txRef,
-              email: email,
-              items: items,
-              total: total
-            }));
-            
-            document.getElementById('order-ref-display')!.textContent = txRef;
-            document.getElementById('confirm-email')!.textContent = email;
-            document.getElementById('cart-pane-title')!.textContent = 'Your Order';
-            localStorage.removeItem('cart');
-            window.dispatchEvent(new Event('cart-updated'));
-            goToTab(3);
-
-          } catch (err) {
-            console.error('Order creation failed:', err);
-            alert('Payment was received but order creation failed. Please contact support with reference: ' + txRef);
-            goToTab(3);
-          }
-        },
-        key:              pubKey,
-        email,
-        amount:           total * 100,
-        currency_code:    'NGN',
-        transaction_ref:  currentTxRef,
-        customer_name:    name,
-        pass_charge:      false,
-        callback_url:     window.location.origin + '/checkout',
-        metadata: {
-          customer_phone: phone,
-          address, city, state,
-          postal_code:    postal,
-          items:          JSON.stringify(items),
-        },
+      const response = await fetch('/api/squad-initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          amount: total,
+          customerName: name,
+          phone,
+          address,
+          city,
+          state,
+          postalCode: postal || '',
+          items,
+          transactionRef: currentTxRef,
+        }),
       });
 
-      instance.setup();
-      instance.open();
+      const result = await response.json();
+
+      if (!response.ok || !result.checkoutUrl) {
+        throw new Error(result.error || 'Failed to initialize payment');
+      }
+
+      sessionStorage.setItem('pendingOrder', JSON.stringify({
+        txRef: currentTxRef,
+        email,
+        name,
+        phone,
+        address,
+        city,
+        state,
+        postalCode: postal || '',
+        items,
+        total,
+      }));
+
+      window.location.href = result.checkoutUrl;
     } catch (err) {
       console.error('Squad init error:', err);
       alert('Failed to initialize payment gateway. Please try again.');
       btn.disabled = false;
-      btn.querySelector<HTMLElement>('.pm-name')!.textContent = 'Squad';
+      if (pmName) pmName.textContent = 'Squad';
     }
   });
 
   /* ─── Init ───────────────────────────────────────────────── */
+  // Debug: Log cart state
+  const debugCart = localStorage.getItem('cart');
+  console.log('[Checkout] Initial cart from localStorage:', debugCart);
+  
+  // Additional debugging
+  if (debugCart) {
+    try {
+      const parsed = JSON.parse(debugCart);
+      console.log('[Checkout] Parsed cart items:', parsed);
+      console.log('[Checkout] Number of items:', parsed.length);
+      parsed.forEach((item: any, idx: number) => {
+        console.log(`[Checkout] Item ${idx}:`, item);
+      });
+    } catch (e) {
+      console.error('[Checkout] Failed to parse cart:', e);
+    }
+  } else {
+    console.warn('[Checkout] Cart is empty or not found in localStorage');
+  }
+  
+  // Initial render
   renderCart();
+
+  // Listen for cart updates from other pages/tabs
+  window.addEventListener('storage', (e) => {
+    console.log('[Checkout] Storage event triggered', e);
+    if (e.key === 'cart' || e.key === null) {
+      console.log('[Checkout] Cart storage changed, re-rendering');
+      renderCart();
+    }
+  });
+  
+  window.addEventListener('cart-updated', () => {
+    console.log('[Checkout] cart-updated event triggered');
+    renderCart();
+  });
+  
+  // Also listen for add-to-cart events in case user adds items while on checkout
+  window.addEventListener('add-to-cart', ((e: CustomEvent) => {
+    console.log('[Checkout] add-to-cart event received:', e.detail);
+    const { product, quantity = 1, size = null, color = null } = e.detail || {};
+    
+    if (!product) return;
+    
+    const items = getCart();
+    const cartId = `${product.id}-${size || 'default'}-${color || 'default'}-${Date.now()}`;
+    
+    // Check for existing item
+    const existingIndex = items.findIndex(
+      item => item.id === product.id && item.size === size && item.color === color
+    );
+    
+    if (existingIndex >= 0) {
+      items[existingIndex].quantity += quantity;
+    } else {
+      items.push({
+        ...product,
+        cartId,
+        quantity,
+        size,
+        color
+      });
+    }
+    
+    saveCart(items);
+    renderCart();
+  }) as EventListener);
 
   // Check for payment reference in URL (Squad redirects back with reference)
   const urlParams = new URLSearchParams(window.location.search);
   const paymentRef = urlParams.get('reference');
   
   if (paymentRef) {
-    // Payment was successful - show success state
     const email = urlParams.get('email') || '';
     
-    // Try to restore order data from sessionStorage
-    let orderData = null;
+    let pendingOrder = null;
     try {
-      orderData = JSON.parse(sessionStorage.getItem('lastOrder') || 'null');
+      pendingOrder = JSON.parse(sessionStorage.getItem('pendingOrder') || 'null');
     } catch {}
     
-    // Restore cart items for display if available
-    if (orderData && orderData.items) {
-      localStorage.setItem('cart', JSON.stringify(orderData.items));
-      window.dispatchEvent(new Event('cart-updated'));
+    if (pendingOrder) {
+      const orderData = {
+        customer:       JSON.stringify({ email, name: pendingOrder.name, phone: pendingOrder.phone }),
+        customerEmail:  email,
+        customerName:   pendingOrder.name,
+        items:          JSON.stringify(pendingOrder.items),
+        total:          pendingOrder.total,
+        totalAmount:    pendingOrder.total,
+        paymentRef:     paymentRef,
+        customerPhone:  pendingOrder.phone,
+        address:        pendingOrder.address,
+        city:           pendingOrder.city,
+        state:          pendingOrder.state,
+        postalCode:     pendingOrder.postalCode || '',
+        status:         'paid',
+        paymentMethod:  'card',
+      };
+
+      try {
+        await databases.createDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID.unique(), orderData);
+
+        try {
+          const { reduceMultipleProductsStock } = await import('../lib/stock-manager');
+          await reduceMultipleProductsStock(pendingOrder.items.map((i: any) => ({ productId: i.id, quantity: i.quantity })));
+        } catch (se) {
+          console.error('Stock reduction failed (non-critical):', se);
+        }
+
+        localStorage.removeItem('cart');
+        window.dispatchEvent(new Event('cart-updated'));
+        
+      } catch (err) {
+        console.error('Order creation failed:', err);
+      }
     }
     
     document.getElementById('order-ref-display')!.textContent = paymentRef;
-    document.getElementById('confirm-email')!.textContent = email || (orderData?.email) || confirmedEmail || '—';
+    document.getElementById('confirm-email')!.textContent = email || (pendingOrder?.email) || '—';
     document.getElementById('cart-pane-title')!.textContent = 'Your Order';
     
-    // Clear URL and sessionStorage to prevent re-triggering on refresh
     window.history.replaceState({}, '', window.location.pathname);
-    sessionStorage.removeItem('lastOrder');
+    sessionStorage.removeItem('pendingOrder');
     
     goToTab(3);
   }
-</script>
-
-<script is:inline define:vars={{ SQUAD_PUBLIC_KEY }}>
-  window.PUBLIC_SQUAD_KEY = SQUAD_PUBLIC_KEY;
 </script>
