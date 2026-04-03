@@ -17,15 +17,27 @@ export async function getStaticPaths() {
 
 const { id } = Astro.params;
 
+// Define the 3 main product categories
+const DEFAULT_CATEGORIES = ['Computers', 'Mobile Phones', 'Accessories'];
+
 let product = null;
 let categories = [];
 try {
   product = await databases.getDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, id);
   const categoriesResponse = await databases.listDocuments(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, [Query.limit(100)]);
-  categories = [...new Set(categoriesResponse.documents.map(p => p.category))];
+  // Filter out undefined/null categories and get unique values
+  const existingCategories = [...new Set(
+    categoriesResponse.documents
+      .map((p: any) => p.category)
+      .filter((cat: any) => cat && typeof cat === 'string')
+  )];
+  // Merge with defaults and remove duplicates
+  categories = [...new Set([...DEFAULT_CATEGORIES, ...existingCategories])];
+  console.log('Categories loaded:', categories);
 } catch (error) {
   console.error('Error fetching product for edit:', error);
-  return Astro.redirect('/admin/products');
+  categories = DEFAULT_CATEGORIES;
+  console.log('Using default categories:', categories);
 }
 ---
 

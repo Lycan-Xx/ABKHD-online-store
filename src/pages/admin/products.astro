@@ -638,8 +638,12 @@ import { formatPrice } from '../../lib/utils';
       products = response.documents;
       console.log('Products fetched:', products.length);
 
-      // Extract categories
-      categories = [...new Set(products.map((p: any) => p.category))];
+      // Define default categories
+      const DEFAULT_CATEGORIES = ['Computers', 'Mobile Phones', 'Accessories'];
+
+      // Extract categories from products and merge with defaults
+      const existingCategories = [...new Set(products.map((p: any) => p.category).filter((cat: any) => cat))];
+      categories = [...new Set([...DEFAULT_CATEGORIES, ...existingCategories])];
       
       // Populate category filters
       if (categoryFilterSelect) {
