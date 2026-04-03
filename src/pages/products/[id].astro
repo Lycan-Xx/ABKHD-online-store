@@ -53,6 +53,59 @@ const categoryData = getCategoryData(product.category);
 // Get the first image for OG tags
 const ogImage = product.images?.[0] || product.image;
 const ogDescription = product.description || `Buy ${product.name} for ₦${product.price.toLocaleString()}`;
+
+// Simple Markdown-like parser for product descriptions
+// Supports: **bold**, - list items, and paragraph breaks
+function parseDescription(text: string): string {
+  if (!text) return '';
+  
+  const lines = text.split('\n');
+  let html = '';
+  let inList = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Empty line - close any open list and add paragraph break
+    if (line === '') {
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
+      continue;
+    }
+    
+    // List item (starts with - )
+    if (line.startsWith('- ')) {
+      if (!inList) {
+        html += '<ul class="list-disc list-inside space-y-1 my-2">';
+        inList = true;
+      }
+      const listContent = line.substring(2).trim();
+      // Check for bold within list item
+      const formattedContent = listContent.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+      html += `<li class="leading-relaxed">${formattedContent}</li>`;
+      continue;
+    }
+    
+    // Regular paragraph
+    if (inList) {
+      html += '</ul>';
+      inList = false;
+    }
+    
+    // Check for bold text (**text**)
+    const formattedLine = line.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+    html += `<p class="leading-relaxed">${formattedLine}</p>`;
+  }
+  
+  // Close any remaining open list
+  if (inList) {
+    html += '</ul>';
+  }
+  
+  return html;
+}
 ---
 
 <Layout 
@@ -175,14 +228,10 @@ const ogDescription = product.description || `Buy ${product.name} for ₦${produ
           <div class="border-t pt-6">
             <h3 class="font-semibold mb-3">Description</h3>
             <div class="text-muted-foreground">
-              {product.longDescription ? (
-                <div class="space-y-2">
-                  {product.longDescription.split('\n').map((line, index) => (
-                    line.trim() && <p key={index} class="leading-relaxed">{line.trim()}</p>
-                  ))}
-                </div>
+              {product.description ? (
+                <div class="space-y-3" set:html={parseDescription(product.description)} />
               ) : (
-                <p class="leading-relaxed">{product.description}</p>
+                <p class="leading-relaxed">No description available</p>
               )}
             </div>
           </div>
@@ -356,55 +405,73 @@ const ogDescription = product.description || `Buy ${product.name} for ₦${produ
         url: window.location.href
       };
       
-      // Use Web Share API if available (mobile-first)
-      if (navigator.share) {
+      // Check if Web Share API is available (native mobile sharing)
+      if (typeof navigator.share === 'function') {
         try {
+          console.log('Attempting to share via Web Share API...');
           await navigator.share(shareData);
+          console.log('Share successful');
         } catch (err) {
           // User cancelled or error
-          if (err.name !== 'AbortError') {
+          if (err.name === 'AbortError') {
+            console.log('Share cancelled by user');
+          } else if (err.name === 'TypeError') {
+            // This can happen on iOS if share data is invalid
+            console.error('TypeError during share:', err);
+            // Fallback to clipboard
+            copyToClipboard();
+          } else {
             console.error('Error sharing:', err);
+            // Fallback to clipboard on error
+            copyToClipboard();
           }
         }
       } else {
-        // Fallback for desktop - try clipboard API first
-        try {
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(window.location.href);
-            shareBtn.innerHTML = '<i class="bi bi-check-lg"></i> Link Copied!';
-            shareBtn.classList.add('bg-green-500', 'border-green-500', 'text-white');
-            setTimeout(() => {
-              shareBtn.innerHTML = '<i class="bi bi-share"></i> <span>Share Product</span>';
-              shareBtn.classList.remove('bg-green-500', 'border-green-500', 'text-white');
-            }, 2000);
-          } else {
-            // Fallback for older browsers or non-HTTPS
-            throw new Error('Clipboard not available');
-          }
-        } catch (err) {
-          // Create a temporary textarea for copying
-          const textarea = document.createElement('textarea');
-          textarea.value = window.location.href;
-          textarea.style.position = 'fixed';
-          textarea.style.opacity = '0';
-          document.body.appendChild(textarea);
-          textarea.select();
-          
-          try {
-            document.execCommand('copy');
-            shareBtn.innerHTML = '<i class="bi bi-check-lg"></i> Link Copied!';
-            shareBtn.classList.add('bg-green-500', 'border-green-500', 'text-white');
-            setTimeout(() => {
-              shareBtn.innerHTML = '<i class="bi bi-share"></i> <span>Share Product</span>';
-              shareBtn.classList.remove('bg-green-500', 'border-green-500', 'text-white');
-            }, 2000);
-          } catch (copyErr) {
-            // Final fallback - show URL in prompt
-            prompt('Copy this link to share:', window.location.href);
-          }
-          
-          document.body.removeChild(textarea);
+        console.log('Web Share API not available, using clipboard fallback');
+        copyToClipboard();
+      }
+      
+      // Clipboard fallback function
+      function copyToClipboard() {
+        // Try modern clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(window.location.href).then(() => {
+            showCopiedFeedback();
+          }).catch(() => {
+            fallbackCopy();
+          });
+        } else {
+          // Older browsers
+          fallbackCopy();
         }
+      }
+      
+      function fallbackCopy() {
+        const textarea = document.createElement('textarea');
+        textarea.value = window.location.href;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        
+        try {
+          document.execCommand('copy');
+          showCopiedFeedback();
+        } catch (copyErr) {
+          // Final fallback - show URL in prompt
+          prompt('Copy this link to share:', window.location.href);
+        }
+        
+        document.body.removeChild(textarea);
+      }
+      
+      function showCopiedFeedback() {
+        shareBtn.innerHTML = '<i class="bi bi-check-lg"></i> Link Copied!';
+        shareBtn.classList.add('bg-green-500', 'border-green-500', 'text-white');
+        setTimeout(() => {
+          shareBtn.innerHTML = '<i class="bi bi-share"></i> <span>Share Product</span>';
+          shareBtn.classList.remove('bg-green-500', 'border-green-500', 'text-white');
+        }, 2000);
       }
     });
   }
