@@ -35,11 +35,11 @@ const filteredProducts = selectedCategory && selectedCategory !== 'all'
   ? products.filter(product => product.category === selectedCategory)
   : products;
 
-// Categories with icons for filtering
+// Categories with icons for filtering (values must match database category values exactly)
 const categoryFilters = [
-  { name: 'Computers', icon: 'bi bi-laptop', value: 'computers' },
-  { name: 'Mobile Phones', icon: 'bi bi-phone', value: 'mobile phones' },
-  { name: 'Accessories', icon: 'bi bi-headphones', value: 'accessories' }
+  { name: 'Computers', icon: 'bi bi-laptop', value: 'Computers' },
+  { name: 'Mobile Phones', icon: 'bi bi-phone', value: 'Mobile Phones' },
+  { name: 'Accessories', icon: 'bi bi-headphones', value: 'Accessories' }
 ];
 ---
 
