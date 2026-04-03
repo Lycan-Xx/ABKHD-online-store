@@ -162,9 +162,23 @@ import { formatPrice } from '../../lib/utils';
   }
 
   async function loadDashboard() {
-    const loadingState = document.getElementById('loading-state');
+    // Check if we're actually on the dashboard page by verifying the URL path
+    // This prevents the function from running when navigating to other admin pages
+    const currentPath = window.location.pathname;
+    // Only run on /admin or /admin/ (dashboard page), not on /admin/products, /admin/orders, etc.
+    if (currentPath !== '/admin' && currentPath !== '/admin/' && currentPath !== '/' ) {
+      return;
+    }
+
+    // Also verify key dashboard elements exist (in case we're on a different page with similar path)
     const statsSection = document.getElementById('stats-section');
     const contentSection = document.getElementById('content-section');
+    
+    if (!statsSection || !contentSection) {
+      return;
+    }
+
+    const loadingState = document.getElementById('loading-state');
     const errorState = document.getElementById('error-state');
 
     try {
