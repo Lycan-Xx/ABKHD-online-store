@@ -137,10 +137,10 @@ const ogDescription = product.description || `Buy ${product.name} for ₦${produ
       <!-- Product Info -->
       <div class="space-y-6">
         <div>
-          <h1 class="text-3xl font-bold mb-2">{product.name}</h1>
+          <h1 class="text-2xl md:text-3xl font-bold mb-2 text-foreground">{product.name}</h1>
           <div class="flex items-center space-x-4 mb-4">
             <div class="flex items-center space-x-2">
-              <span class="text-2xl font-bold">{formatPrice(product.price)}</span>
+              <span class="text-3xl md:text-4xl font-extrabold text-primary">{formatPrice(product.price)}</span>
               {product.originalPrice && (
                 <span class="text-lg text-muted-foreground line-through">
                   {formatPrice(product.originalPrice)}
@@ -283,7 +283,15 @@ const ogDescription = product.description || `Buy ${product.name} for ₦${produ
   <Footer slot="footer" />
 </Layout>
 
-<script define:vars={{ product }}>
+<script define:vars={{ product, formattedPrice: formatPrice(product.price) }}>
+  // Format price helper for share functionality
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+    }).format(price)
+  };
+
   // Image gallery functionality
   const mainImage = document.getElementById('main-image');
   const mainVideo = document.getElementById('main-video');
