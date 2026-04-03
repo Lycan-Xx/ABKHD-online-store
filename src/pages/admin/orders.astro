@@ -63,7 +63,7 @@ import { formatPrice } from '../../lib/utils';
 
     <!-- Orders List -->
     <div id="orders-section" class="hidden rounded-xl border bg-card overflow-hidden">
-      <div class="p-6 border-b">
+      <div class="p-4 sm:p-6 border-b">
         <h2 class="text-lg font-semibold">All Completed Orders</h2>
         <p class="text-sm text-muted-foreground">Click on an order to view details</p>
       </div>
@@ -327,47 +327,33 @@ import { formatPrice } from '../../lib/utils';
       // Render orders table
       if (ordersContainer) {
         ordersContainer.innerHTML = `
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-muted/50 border-b">
-                  <th class="p-4 font-medium text-sm">Customer</th>
-                  <th class="p-4 font-medium text-sm">Date</th>
-                  <th class="p-4 font-medium text-sm">Amount</th>
-                  <th class="p-4 font-medium text-sm">Status</th>
-                  <th class="p-4 font-medium text-sm">Reference</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${orders.map((order: any, index: number) => `
-                  <tr 
-                    class="border-b hover:bg-muted/30 transition-colors cursor-pointer order-row" 
-                    data-order-index="${index}"
-                  >
-                    <td class="p-4">
-                      <div class="text-sm font-medium">${order.customerName || 'N/A'}</div>
-                      <div class="text-xs text-muted-foreground">${order.customerEmail || 'N/A'}</div>
-                    </td>
-                    <td class="p-4 text-sm">
-                      ${new Date(order.$createdAt).toLocaleDateString()}
-                    </td>
-                    <td class="p-4 text-sm font-semibold">
-                      ${formatPrice(order.totalAmount || order.total || 0)}
-                    </td>
-                    <td class="p-4">
-                      <span class="px-2 py-1 rounded-full text-[10px] uppercase font-bold ${
-                        order.status === 'paid' ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500'
-                      }">
-                        ${order.status || 'pending'}
-                      </span>
-                    </td>
-                    <td class="p-4 text-xs font-mono text-muted-foreground">
-                      ${order.paymentRef || order.paymentReference || 'N/A'}
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
+          <!-- Mobile Card View -->
+          <div class="divide-y">
+            ${orders.map((order: any, index: number) => `
+              <div 
+                class="p-4 hover:bg-muted/30 transition-colors cursor-pointer order-row" 
+                data-order-index="${index}"
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium text-sm truncate">${order.customerName || 'N/A'}</div>
+                    <div class="text-xs text-muted-foreground truncate">${order.customerEmail || 'N/A'}</div>
+                    <div class="text-xs text-muted-foreground mt-1">${new Date(order.$createdAt).toLocaleDateString()}</div>
+                  </div>
+                  <div class="text-right flex-shrink-0">
+                    <div class="font-semibold text-sm">${formatPrice(order.totalAmount || order.total || 0)}</div>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] uppercase font-bold ${
+                      order.status === 'paid' ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500'
+                    }">
+                      ${order.status || 'pending'}
+                    </span>
+                  </div>
+                </div>
+                <div class="text-[10px] text-muted-foreground font-mono mt-2 truncate">
+                  Ref: ${order.paymentRef || order.paymentReference || 'N/A'}
+                </div>
+              </div>
+            `).join('')}
           </div>
         `;
 
