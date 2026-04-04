@@ -332,7 +332,7 @@ import Footer from '../components/layout/Footer.astro';
      STYLES — all selectors prefixed co- to avoid any global clash
      Bootstrap Icons, Tailwind, and global.css cannot override these
 ═══════════════════════════════════════════════════════════════ -->
-<style>
+<style is:global>
   /* ── Tokens ── */
   .co-root {
     --cob: hsl(var(--background));
