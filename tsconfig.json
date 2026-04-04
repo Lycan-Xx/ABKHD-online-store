@@ -1,13 +1,22 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@components/*": ["./src/components/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@stores/*": ["./src/stores/*"],
-      "@types/*": ["./src/types/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@lib/*": [
+        "./src/lib/*"
+      ],
+      "@stores/*": [
+        "./src/stores/*"
+      ],
+      "@types/*": [
+        "./src/types/*"
+      ]
     }
   },
   "extends": "astro/tsconfigs/strict"
