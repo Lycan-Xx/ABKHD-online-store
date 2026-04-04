@@ -481,7 +481,7 @@ function parseDescription(text: string): string {
       // Ensure product.id exists for cart compatibility
       const productToCart = { ...product, id: product.$id };
       
-      // Dispatch custom event for React cart
+      // Dispatch custom event for cart drawer
       window.dispatchEvent(new CustomEvent('add-to-cart', {
         detail: { product: productToCart, quantity: 1 }
       }));
