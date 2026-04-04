@@ -1,3 +1,4 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { SquadAPI, InitiatePaymentSchema } from '../../lib/squad';
@@ -22,6 +23,7 @@ export const POST: APIRoute = async ({ request }) => {
     const result = await squad.initiatePayment(validated, callbackUrl);
 
     if (!result.success || !result.data) {
+      console.error('Squad Initiation Failed:', result.message);
       return new Response(JSON.stringify({ error: result.message }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
@@ -34,12 +36,14 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: 'Invalid request data', details: error.issues }), {
+    if (error && typeof error === 'object' && ('issues' in error || error.name === 'ZodError')) {
+      console.error('Squad Validation Error:', (error as z.ZodError).issues);
+      return new Response(JSON.stringify({ error: 'Invalid request data', details: (error as z.ZodError).issues }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
+    console.error('Unhandled API Endpoint Error:', error);
     return handleAPIError(error);
   }
 };
