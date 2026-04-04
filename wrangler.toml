@@ -6,6 +6,7 @@ pages_build_output_dir = "./dist"
 [env.production]
 vars = { SQUAD_SECRET_KEY = "" }
 
+
 # Uncomment if you want to use Cloudflare KV for data storage
 # [[kv_namespaces]]
 # binding = "MY_KV"
