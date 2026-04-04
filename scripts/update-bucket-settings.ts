@@ -38,7 +38,7 @@ async function updateBucketSettings() {
       bucket.enabled,
       bucket.maximumFileSize, // Keep existing max file size
       allowedExtensions,
-      bucket.compression,
+      bucket.compression as any,
       bucket.encryption,
       bucket.antivirus
     );

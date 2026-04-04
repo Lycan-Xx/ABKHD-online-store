@@ -32,7 +32,7 @@ async function checkPermissions() {
     console.log('✅ Orders collection found');
     console.log('   Name:', collection.name);
     console.log('   ID:', collection.$id);
-    console.log('   Total Documents:', collection.total);
+    console.log('   Total Documents:', (collection as any).total);
     console.log('\n📋 Current Permissions:');
     
     if (collection.$permissions && collection.$permissions.length > 0) {
