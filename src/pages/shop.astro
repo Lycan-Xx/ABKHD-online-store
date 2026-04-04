@@ -47,19 +47,6 @@ const categoryFilters = [
   <Header slot="header" />
   
   <div class="container py-8 md:py-12">
-    <!-- Navigation -->
-    <div class="mb-12">
-      <nav class="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
-        <a href="/" class="hover:text-foreground">Home</a>
-        <i class="bi bi-chevron-right"></i>
-        <span class="text-foreground">Shop</span>
-      </nav>
-      <a href="/" class="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors">
-        <i class="bi bi-arrow-left text-lg"></i>
-        <span class="text-sm font-medium">Back to Home</span>
-      </a>
-    </div>
-    
     <!-- Content Container -->
     <div class="max-w-6xl mx-auto">
       <div class="mb-8">
@@ -261,7 +248,7 @@ const categoryFilters = [
     `).join('');
 
     productsContainer.innerHTML = `
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
         ${productsHTML}
       </div>
     `;

@@ -67,7 +67,7 @@ const { product } = Astro.props;
     <!-- Quick Add Button -->
     {product.stock !== 0 && (
       <button
-        class="quick-add-btn absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity"
+        class="quick-add-btn absolute bottom-3 right-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
         data-product-id={product.id}
         data-product-name={product.name}
         data-product-price={product.price}
