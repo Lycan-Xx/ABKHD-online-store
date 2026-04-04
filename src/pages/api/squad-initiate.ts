@@ -4,6 +4,9 @@ import { z } from 'zod';
 import { SquadAPI, InitiatePaymentSchema } from '../../lib/squad';
 import { handleAPIError } from '../../lib/errors';
 
+// Squad secret key - hardcoded for production (stored as Secret in Cloudflare)
+const SQUAD_SECRET_KEY = 'sk_d6a62c63026b51d6375cd5a41cbb9209044b23b5';
+
 export const POST: APIRoute = async (ctx) => {
   const { request } = ctx;
   
@@ -11,46 +14,18 @@ export const POST: APIRoute = async (ctx) => {
     const body = await request.json();
     const validated = InitiatePaymentSchema.parse(body);
 
-    // Access Cloudflare env - use type assertion for Cloudflare adapter
-    const cfEnv = (ctx as unknown as { env?: Record<string, string> }).env;
-    const secretKey = cfEnv?.SQUAD_SECRET_KEY;
+    // Use the hardcoded secret key
+    const secretKey = SQUAD_SECRET_KEY;
     
-    // Debug: Log what's available
-    console.log('SQUAD_SECRET_KEY from env:', !!secretKey);
-    console.log('SQUAD_SECRET_KEY length:', secretKey?.length);
+    console.log('Using Squad secret key, length:', secretKey?.length);
     
     if (!secretKey) {
-      // Fallback to import.meta.env for local development
-      const fallbackKey = import.meta.env.SQUAD_SECRET_KEY;
-      console.log('Fallback to import.meta.env:', !!fallbackKey);
-      
-      if (!fallbackKey) {
-        return new Response(JSON.stringify({ error: 'Payment configuration error' }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-      
-      const squad = new SquadAPI(fallbackKey, import.meta.env.PROD);
-      const callbackUrl = `${new URL(request.url).origin}/checkout?reference=${validated.transactionRef}&email=${encodeURIComponent(validated.email)}`;
-
-      const result = await squad.initiatePayment(validated, callbackUrl);
-
-      if (!result.success || !result.data) {
-        console.error('Squad Initiation Failed:', result.message);
-        return new Response(JSON.stringify({ error: result.message }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-
-      return new Response(JSON.stringify({ checkoutUrl: result.data.checkout_url }), {
-        status: 200,
+      return new Response(JSON.stringify({ error: 'Payment configuration error' }), {
+        status: 500,
         headers: { 'Content-Type': 'application/json' }
       });
     }
-
-    // Use Cloudflare Secret (production)
+    
     const squad = new SquadAPI(secretKey, import.meta.env.PROD);
     const callbackUrl = `${new URL(request.url).origin}/checkout?reference=${validated.transactionRef}&email=${encodeURIComponent(validated.email)}`;
 
