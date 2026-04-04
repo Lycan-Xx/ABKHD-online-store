@@ -6,11 +6,9 @@ import ProductGrid from '../components/ui/ProductGrid.astro';
 import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../lib/appwrite';
 import { Query } from 'appwrite';
 
-// Get query parameters for filtering
 const url = Astro.url;
 const selectedCategory = url.searchParams.get('category');
 
-// Fetch products from Appwrite
 let products = [];
 try {
   const response = await databases.listDocuments(
@@ -22,348 +20,249 @@ try {
       Query.limit(100)
     ]
   );
-  products = response.documents.map(doc => ({
-    ...doc,
-    id: doc.$id // Use Appwrite Document ID
-  }));
+  products = response.documents.map(doc => ({ ...doc, id: doc.$id }));
 } catch (error) {
   console.error('Error fetching products from Appwrite:', error);
 }
 
-// Filter products based on category (Server-side for initial load)
 const filteredProducts = selectedCategory && selectedCategory !== 'all'
-  ? products.filter(product => product.category === selectedCategory)
+  ? products.filter(p => p.category === selectedCategory)
   : products;
 
-// Categories with icons for filtering (values must match database category values exactly)
 const categoryFilters = [
-  { name: 'Computers', icon: 'bi bi-laptop', value: 'Computers' },
-  { name: 'Mobile Phones', icon: 'bi bi-phone', value: 'Mobile Phones' },
-  { name: 'Accessories', icon: 'bi bi-headphones', value: 'Accessories' }
+  { name: 'All',          icon: 'bi-grid-3x3-gap-fill', value: 'all'          },
+  { name: 'Computers',    icon: 'bi-laptop',             value: 'Computers'    },
+  { name: 'Mobile Phones',icon: 'bi-phone',              value: 'Mobile Phones'},
+  { name: 'Accessories',  icon: 'bi-headphones',         value: 'Accessories'  },
 ];
 ---
 
-<Layout title="Shop - ABKHD Store">
+<Layout title="Shop – ABKHD Store" description="Browse the full ABKHD catalog of premium, tested tech.">
   <Header slot="header" />
-  
-  <div class="container py-8 md:py-12">
-    <!-- Content Container -->
-    <div class="max-w-6xl mx-auto">
-      <div class="mb-8">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">Shop</h1>
-            <p class="text-muted-foreground products-count-text">
-              {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
-            </p>
-          </div>
-          
-          <button
-            id="mobile-filter-btn"
-            class="lg:hidden flex items-center space-x-2 px-4 py-2 border border-border rounded-lg bg-card hover:border-primary/50 transition-colors"
-          >
-            <i class="bi bi-funnel text-primary"></i>
-            <span class="text-sm font-medium">Filters</span>
-          </button>
+
+  <!-- ═══ HERO STRIP ═══ -->
+  <section class="border-b bg-gradient-to-br from-background via-primary/5 to-background">
+    <div class="container py-10 md:py-14">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold tracking-widest uppercase text-primary/70 mb-2">ABKHD Store</p>
+          <h1 class="text-4xl md:text-5xl font-black tracking-tight">Shop</h1>
+          <p class="text-muted-foreground mt-2 text-sm md:text-base">
+            Honestly priced. Rigorously tested. Ready to ship.
+          </p>
         </div>
+        <p id="shop-count-text" class="text-sm text-muted-foreground shrink-0">
+          {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+        </p>
       </div>
+    </div>
+  </section>
 
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <!-- Filter Sidebar (Drawer on Mobile, Sidebar on Desktop) -->
-        <aside 
-          id="filter-sidebar"
-          class="fixed inset-y-0 left-0 z-50 w-80 bg-background border-r p-6 transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:z-0 lg:w-full lg:p-0 lg:border-r-0 lg:block lg:col-span-1 shadow-2xl lg:shadow-none"
-        >
-          <div class="lg:sticky lg:top-24 space-y-6">
-            <!-- Mobile Header -->
-            <div class="flex items-center justify-between lg:hidden mb-6">
-              <h2 class="text-xl font-bold">Filters</h2>
-              <button id="close-filter-btn" class="p-2 hover:bg-muted rounded-full">
-                <i class="bi bi-x-lg"></i>
-              </button>
-            </div>
-
-            <!-- Categories Header -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2 text-sm font-medium">
-                <i class="bi bi-funnel text-primary"></i>
-                <span>Filter by Category</span>
-              </div>
-              <button
-                id="clear-filters"
-                class={`text-xs text-primary hover:underline ${!selectedCategory ? 'hidden' : ''}`}
-              >
-                Clear
-              </button>
-            </div>
-
-            <div class="space-y-3">
-              <!-- All Products Button -->
-              <button
-                data-category="all"
-                class={`category-btn w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group ${
-                  !selectedCategory || selectedCategory === 'all' 
-                    ? 'border-primary bg-primary/5 text-primary' 
-                    : 'border-border bg-card hover:border-primary/50'
-                }`}
-              >
-                <div class="flex items-center space-x-3">
-                  <i class={`bi bi-grid text-lg transition-colors ${
-                    !selectedCategory || selectedCategory === 'all' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
-                  }`}></i>
-                  <span class="font-medium">All Products</span>
-                </div>
-              </button>
-
-              {categoryFilters.map((category) => {
-                const isActive = selectedCategory === category.value;
-                return (
-                  <button
-                    data-category={category.value}
-                    class={`category-btn w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left group ${
-                      isActive 
-                        ? 'border-primary bg-primary/5 text-primary' 
-                        : 'border-border bg-card hover:border-primary/50'
-                    }`}
-                  >
-                    <div class="flex items-center space-x-3">
-                      <i class={`${category.icon} text-lg transition-colors ${
-                        isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
-                      }`}></i>
-                      <span class={`font-medium ${isActive ? 'text-primary' : ''}`}>
-                        {category.name}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </aside>
-
-        <!-- Overlay for mobile drawer -->
-        <div 
-          id="filter-overlay"
-          class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 opacity-0 pointer-events-none lg:hidden"
-        ></div>
-
-        <!-- Products Grid -->
-          <main class="lg:col-span-3">
-            <div id="products-container">
-              {filteredProducts.length === 0 ? (
-                <div class="text-center py-12 border border-dashed rounded-xl">
-                  <i class="bi bi-inbox text-4xl text-muted-foreground mb-4"></i>
-                  <p class="text-lg font-medium mb-2">No products found</p>
-                  <p class="text-sm text-muted-foreground mb-6">
-                    Try adjusting your filters
-                  </p>
-                  <button
-                    id="clear-filters-btn"
-                    class="btn-secondary px-6 py-2"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-              ) : (
-                <ProductGrid id="products-grid" products={filteredProducts} />
-              )}
-            </div>
-          </main>
+  <!-- ═══ FILTER PILL BAR ═══ -->
+  <div class="sticky top-16 z-30 border-b bg-background/90 backdrop-blur-sm">
+    <div class="container">
+      <div class="flex items-center gap-2 py-3 overflow-x-auto scrollbar-hide">
+        {categoryFilters.map(cat => (
+          <button
+            data-category={cat.value}
+            class={`pill-btn shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
+              (!selectedCategory && cat.value === 'all') || selectedCategory === cat.value
+                ? 'pill-btn--active'
+                : ''
+            }`}
+          >
+            <i class={`bi ${cat.icon} text-xs`}></i>
+            {cat.name}
+          </button>
+        ))}
       </div>
     </div>
   </div>
 
+  <!-- ═══ PRODUCT GRID ═══ -->
+  <main class="container py-8 md:py-10">
+    <div id="products-container">
+      {filteredProducts.length === 0 ? (
+        <div class="text-center py-20 border border-dashed rounded-2xl">
+          <i class="bi bi-inbox text-5xl text-muted-foreground mb-4 block"></i>
+          <p class="text-lg font-semibold mb-2">No products found</p>
+          <p class="text-sm text-muted-foreground mb-6">Try a different category filter</p>
+          <button id="clear-filters-empty" class="btn-secondary px-6 py-2">Clear Filters</button>
+        </div>
+      ) : (
+        <ProductGrid products={filteredProducts} />
+      )}
+    </div>
+  </main>
+
   <Footer slot="footer" />
 </Layout>
 
+<style is:global>
+  /* Pill filter buttons */
+  .pill-btn {
+    background: hsl(var(--background));
+    border-color: hsl(var(--border));
+    color: hsl(var(--muted-foreground));
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .pill-btn:hover:not(.pill-btn--active) {
+    border-color: hsl(var(--primary) / 0.45);
+    color: hsl(var(--foreground));
+    background: hsl(var(--primary) / 0.06);
+  }
+  .pill-btn--active {
+    background: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    box-shadow: 0 2px 10px hsl(var(--primary) / 0.3);
+  }
+  /* Hide scrollbar for pill bar */
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 
-
-<script is:inline define:vars={{ initialProducts: products }}>
-  // Initialize products from server-side data
-  const products = initialProducts;
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
-
-  // Get elements
-  const categoryButtons = document.querySelectorAll('.category-btn');
-  const clearFiltersBtn = document.getElementById('clear-filters');
-  const clearFiltersBtn2 = document.getElementById('clear-filters-btn');
-  const productsContainer = document.getElementById('products-container');
-  const productsCountEl = document.querySelector('.products-count');
-
-  // Track selected category
-  let selectedCategory = 'all';
-
-  // Format currency
-  function formatNaira(amount) {
-    return '₦' + amount.toLocaleString();
+  /* JS-rendered card grid (mirrors ProductGrid for client-side filter) */
+  #products-container .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (min-width: 640px) {
+    #products-container .shop-grid { gap: 16px; }
+  }
+  @media (min-width: 768px) {
+    #products-container .shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  }
+  @media (min-width: 1280px) {
+    #products-container .shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   }
 
-  // Render products grid
-  function renderProducts(productsToRender) {
-    if (productsToRender.length === 0) {
-      productsContainer.innerHTML = `
-        <div class="text-center py-12 border border-dashed rounded-xl">
-          <i class="bi bi-inbox text-4xl text-muted-foreground mb-4"></i>
-          <p class="text-lg font-medium mb-2">No products found</p>
-          <p class="text-sm text-muted-foreground mb-6">
-            Try adjusting your filters
-          </p>
-          <button id="clear-filters-btn2" class="btn-secondary px-6 py-2">
-            Clear Filters
-          </button>
-        </div>
-      `;
-      document.getElementById('clear-filters-btn2')?.addEventListener('click', () => filterProducts('all'));
+  /* JS-rendered card fixes: show description on sm+, hide feat label text on mobile */
+  @media (min-width: 640px) {
+    #products-container .product-desc { display: -webkit-box !important; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    #products-container .feat-label   { display: inline !important; }
+  }
+  #products-container .feat-label { display: none; }
+</style>
+
+<script is:inline define:vars={{ initialProducts: products }}>
+  const fmt = n => '₦' + Number(n).toLocaleString('en-NG');
+
+  let currentCategory = (new URLSearchParams(window.location.search)).get('category') || 'all';
+
+  const pillBtns    = document.querySelectorAll('.pill-btn');
+  const container   = document.getElementById('products-container');
+  const countText   = document.getElementById('shop-count-text');
+
+  /* ── Render ── */
+  function renderProducts(list) {
+    if (!list.length) {
+      container.innerHTML = `
+        <div class="text-center py-20 border border-dashed rounded-2xl">
+          <i class="bi bi-inbox text-5xl text-muted-foreground mb-4 block"></i>
+          <p class="text-lg font-semibold mb-2">No products found</p>
+          <p class="text-sm text-muted-foreground mb-6">Try a different category filter</p>
+          <button onclick="applyFilter('all')" class="btn-secondary px-6 py-2">Clear Filters</button>
+        </div>`;
       return;
     }
 
-    const productsHTML = productsToRender.map(product => `
-      <a href="/products/${product.id}" class="group">
-        <div class="rounded-xl border bg-card overflow-hidden transition-all hover:shadow-lg hover:border-primary/50">
-          <div class="aspect-square overflow-hidden bg-muted">
-            <img 
-              src="${product.image}" 
-              alt="${product.name}" 
-              class="w-full h-full object-cover transition-transform group-hover:scale-105"
-              loading="lazy"
-            />
-          </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">${product.name}</h3>
-            <p class="text-sm text-muted-foreground line-clamp-2 mb-3">${product.description}</p>
-            <div class="flex items-center gap-2">
-              <span class="text-lg font-bold">${formatNaira(product.price)}</span>
-              ${product.originalPrice ? `<span class="text-sm text-muted-foreground line-through">${formatNaira(product.originalPrice)}</span>` : ''}
+    /* Re-use ProductCard visual style via inline HTML */
+    const cards = list.map(p => {
+      const discount = p.originalPrice && p.originalPrice > p.price
+        ? Math.round((1 - p.price / p.originalPrice) * 100) : null;
+      const stockClass = p.stock === 0 ? 'badge-out' : p.stock <= 5 ? 'badge-low' : 'badge-stock';
+      const stockIcon  = p.stock === 0 ? 'bi-x-circle-fill' : p.stock <= 5 ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill';
+      const stockLabel = p.stock === 0 ? 'Out of Stock' : p.isUnique ? 'Unique Item' : `${p.stock} in stock`;
+      return `
+        <a href="/products/${p.id}" class="product-card group block" aria-label="${p.name}">
+          <div class="card-inner">
+            <div class="relative aspect-square overflow-hidden pc-img-wrap bg-muted">
+              <img src="${p.image || ''}" alt="${p.name}"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy" crossorigin="anonymous"
+                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22%3E%3Crect fill=%22%23ccc%22 width=%22400%22 height=%22400%22/%3E%3C/svg%3E'">
+              <div class="shimmer-overlay"></div>
+              ${p.stock !== undefined && p.stock !== null ? `
+                <div class="absolute bottom-2.5 left-2.5">
+                  <span class="badge-glass ${stockClass}">
+                    <i class="bi ${stockIcon} text-[10px]"></i>
+                    <span class="text-[10px] font-semibold">${stockLabel}</span>
+                  </span>
+                </div>` : ''}
+              ${discount ? `
+                <div class="absolute bottom-2.5 right-2.5">
+                  <span class="badge-discount">-${discount}%</span>
+                </div>` : ''}
+            </div>
+            <div class="card-body">
+              ${p.brand ? `<p class="brand-label">${p.brand}</p>` : ''}
+              <h3 class="product-title">${p.name}</h3>
+              <p class="product-desc" style="display:none" class="sm-desc">${p.description || ''}</p>
+              <div class="price-col">
+                <span class="price-main">${fmt(p.price)}</span>
+                ${p.originalPrice ? `<span class="price-original">${fmt(p.originalPrice)}</span>` : ''}
+              </div>
+              <div class="card-actions">
+                ${p.featured ? `<span class="feat-pill"><i class="bi bi-star-fill" style="font-size:9px"></i> <span class="feat-label">Featured</span></span>` : ''}
+                ${p.stock !== 0 ? `
+                  <button class="quick-add-btn" style="margin-left:auto"
+                    data-product-id="${p.id}" data-product-name="${p.name}"
+                    data-product-price="${p.price}" data-product-image="${p.image || ''}"
+                    aria-label="Add ${p.name} to cart">
+                    <i class="bi bi-bag-plus"></i>
+                  </button>` : ''}
+              </div>
             </div>
           </div>
-        </div>
-      </a>
-    `).join('');
+        </a>`;
+    }).join('');
 
-    productsContainer.innerHTML = `
-      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
-        ${productsHTML}
-      </div>
-    `;
+    container.innerHTML = `<div class="shop-grid">${cards}</div>`;
+
+    /* Re-bind quick-add listeners */
+    container.querySelectorAll('.quick-add-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault(); e.stopPropagation();
+        const t = e.currentTarget;
+        window.dispatchEvent(new CustomEvent('add-to-cart', {
+          detail: { product: {
+            id: t.dataset.productId,
+            name: t.dataset.productName,
+            price: parseFloat(t.dataset.productPrice),
+            image: t.dataset.productImage
+          }, quantity: 1 }
+        }));
+        const orig = t.innerHTML;
+        t.innerHTML = '<i class="bi bi-check-lg"></i>';
+        t.classList.add('!bg-green-500');
+        setTimeout(() => { t.innerHTML = orig; t.classList.remove('!bg-green-500'); }, 1500);
+      });
+    });
   }
 
-  // Update button states
-  function updateButtonStates() {
-    categoryButtons.forEach(btn => {
-      const category = btn.dataset.category;
-      const isSelected = category === selectedCategory;
-      
-      const icon = btn.querySelector('i');
-      const text = btn.querySelector('span.font-medium');
-      
-      if (isSelected) {
-        btn.classList.add('border-primary', 'bg-primary/5', 'text-primary');
-        btn.classList.remove('border-border', 'bg-card', 'hover:border-primary/50');
-        if (icon) {
-          icon.classList.add('text-primary');
-          icon.classList.remove('text-muted-foreground');
-        }
-        if (text) text.classList.add('text-primary');
-      } else {
-        btn.classList.remove('border-primary', 'bg-primary/5', 'text-primary');
-        btn.classList.add('border-border', 'bg-card', 'hover:border-primary/50');
-        if (icon) {
-          icon.classList.remove('text-primary');
-          icon.classList.add('text-muted-foreground');
-        }
-        if (text) text.classList.remove('text-primary');
-      }
+  /* ── Filter ── */
+  window.applyFilter = function(cat) {
+    currentCategory = cat;
+    const filtered = cat === 'all' ? initialProducts : initialProducts.filter(p => p.category === cat);
+
+    pillBtns.forEach(btn => {
+      const isActive = btn.dataset.category === cat;
+      btn.classList.toggle('pill-btn--active', isActive);
     });
 
-    // Show/hide clear button
-    if (clearFiltersBtn) {
-      if (selectedCategory === 'all') {
-        clearFiltersBtn.classList.add('hidden');
-      } else {
-        clearFiltersBtn.classList.remove('hidden');
-      }
-    }
-  }
+    if (countText) countText.textContent = `${filtered.length} ${filtered.length === 1 ? 'product' : 'products'}`;
 
-  // Filter products
-  function filterProducts(category) {
-    selectedCategory = category;
-    
-    const filtered = category === 'all' 
-      ? products 
-      : products.filter(p => p.category === category);
-    
-    // Update URL without reload
-    if (category === 'all') {
-      window.history.pushState({}, '', '/shop');
-    } else {
-      window.history.pushState({}, '', `/shop?category=${encodeURIComponent(category)}`);
-    }
-    
-    // Update products count
-    const countEl = document.querySelector('.products-count-text');
-    if (countEl) {
-      countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'product' : 'products'} found`;
-    }
-    
+    window.history.replaceState({}, '', cat === 'all' ? '/shop' : `/shop?category=${encodeURIComponent(cat)}`);
     renderProducts(filtered);
-    updateButtonStates();
+  };
+
+  pillBtns.forEach(btn => btn.addEventListener('click', () => window.applyFilter(btn.dataset.category)));
+  document.getElementById('clear-filters-empty')?.addEventListener('click', () => window.applyFilter('all'));
+
+  /* ── Sync initial URL ── */
+  if (currentCategory && currentCategory !== 'all') {
+    pillBtns.forEach(btn => btn.classList.toggle('pill-btn--active', btn.dataset.category === currentCategory));
   }
-
-  // Add click handlers to category buttons
-  categoryButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const category = btn.dataset.category;
-      filterProducts(category);
-    });
-  });
-
-  // Clear filters button
-  clearFiltersBtn?.addEventListener('click', () => filterProducts('all'));
-  clearFiltersBtn2?.addEventListener('click', () => filterProducts('all'));
-
-  // Check URL for category on load
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlCategory = urlParams.get('category');
-  if (urlCategory) {
-    filterProducts(urlCategory);
-  }
-
-  // Mobile Filter Functionality
-  const mobileFilterBtn = document.getElementById('mobile-filter-btn');
-  const closeFilterBtn = document.getElementById('close-filter-btn');
-  const filterSidebar = document.getElementById('filter-sidebar');
-  const filterOverlay = document.getElementById('filter-overlay');
-
-  function openFilters() {
-    filterSidebar?.classList.remove('-translate-x-full');
-    filterOverlay?.classList.remove('opacity-0', 'pointer-events-none');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeFilters() {
-    filterSidebar?.classList.add('-translate-x-full');
-    filterOverlay?.classList.add('opacity-0', 'pointer-events-none');
-    document.body.style.overflow = '';
-  }
-
-  mobileFilterBtn?.addEventListener('click', openFilters);
-  closeFilterBtn?.addEventListener('click', closeFilters);
-  filterOverlay?.addEventListener('click', closeFilters);
-
-  // Close filters when a category is selected on mobile
-  categoryButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (window.innerWidth < 1024) {
-        closeFilters();
-      }
-    });
-  });
 </script>

@@ -3,54 +3,111 @@
 ---
 
 <!-- Overlay -->
-<div 
-  id="menu-overlay" 
+<div
+  id="menu-overlay"
   class="fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"
   aria-hidden="true"
 ></div>
 
-<!-- Mobile Menu -->
-<div 
+<!-- Mobile Menu Drawer -->
+<div
   id="mobile-menu"
-  class="fixed left-0 top-0 h-full w-64 bg-background z-50 shadow-xl transition-transform duration-300 -translate-x-full md:hidden"
+  class="fixed left-0 top-0 h-full w-72 bg-background z-50 shadow-2xl transition-transform duration-300 -translate-x-full md:hidden flex flex-col"
   role="dialog"
   aria-label="Navigation Menu"
   aria-modal="true"
 >
-  <div class="flex flex-col h-full">
-    <!-- Header -->
-    <div class="flex items-center justify-between p-4 border-b">
-      <h2 class="text-lg font-semibold">Menu</h2>
-      <button
-        id="menu-close"
-        class="p-2 hover:bg-accent rounded-md transition-colors"
-        aria-label="Close menu"
-      >
-        <i class="bi bi-x text-xl"></i>
-      </button>
-    </div>
+  <!-- Header -->
+  <div class="flex items-center justify-between px-5 py-4 border-b">
+    <a href="/" class="flex items-center gap-1">
+      <span class="font-black text-lg tracking-tight">ABKHD</span>
+      <span class="font-light text-lg text-muted-foreground">Store</span>
+    </a>
+    <button
+      id="menu-close"
+      class="p-2 hover:bg-accent rounded-md transition-colors"
+      aria-label="Close menu"
+    >
+      <i class="bi bi-x-lg text-lg"></i>
+    </button>
+  </div>
 
-    <!-- Navigation -->
-    <nav class="flex-1 p-4">
-      <div class="space-y-4">
-        <a href="/shop" class="menu-link block py-3 px-4 text-lg transition-all duration-200 rounded-md">Shop</a>
-        <a href="/about" class="menu-link block py-3 px-4 text-lg transition-all duration-200 rounded-md">About Us</a>
-        <a href="/contact" class="menu-link block py-3 px-4 text-lg transition-all duration-200 rounded-md">Contact</a>
-      </div>
-    </nav>
+  <!-- Navigation Links -->
+  <nav class="flex-1 px-4 py-5 space-y-1.5 overflow-y-auto">
+    <a href="/" class="menu-link flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200">
+      <span class="menu-icon"><i class="bi bi-stars"></i></span>
+      <span class="font-medium">Featured</span>
+    </a>
+    <a href="/shop" class="menu-link menu-link--shop flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200">
+      <span class="menu-icon"><i class="bi bi-bag"></i></span>
+      <span class="font-medium">Shop</span>
+      <span class="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">Browse</span>
+    </a>
+    <a href="/about" class="menu-link flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200">
+      <span class="menu-icon"><i class="bi bi-info-circle"></i></span>
+      <span class="font-medium">About Us</span>
+    </a>
+    <a href="/contact" class="menu-link flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200">
+      <span class="menu-icon"><i class="bi bi-envelope"></i></span>
+      <span class="font-medium">Contact</span>
+    </a>
+  </nav>
 
-    <!-- Dark Mode Toggle -->
-    <div class="border-t p-4">
-      <button
-        id="dark-mode-toggle-mobile"
-        class="flex items-center justify-between w-full p-3 rounded-md bg-accent hover:bg-accent/80 transition-colors"
-      >
+  <!-- Footer: Dark Mode Toggle -->
+  <div class="border-t px-4 py-4">
+    <button
+      id="dark-mode-toggle-mobile"
+      class="flex items-center justify-between w-full px-4 py-3 rounded-xl bg-accent hover:bg-accent/70 transition-colors"
+    >
+      <div class="flex items-center gap-3">
+        <i id="dark-mode-icon-mobile" class="bi bi-moon-fill text-lg text-muted-foreground"></i>
         <span class="text-sm font-medium" id="dark-mode-text-mobile">Dark Mode</span>
-        <i id="dark-mode-icon-mobile" class="bi bi-moon-fill text-xl"></i>
-      </button>
-    </div>
+      </div>
+      <div id="dark-toggle-pill" class="w-10 h-5 rounded-full bg-border relative transition-colors">
+        <div id="dark-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-background shadow transition-transform"></div>
+      </div>
+    </button>
   </div>
 </div>
+
+<style>
+  .menu-icon {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    background: hsl(var(--accent));
+    color: hsl(var(--muted-foreground));
+    font-size: 15px;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .menu-link {
+    color: hsl(var(--muted-foreground));
+    text-decoration: none;
+  }
+  .menu-link:hover .menu-icon,
+  .menu-link.active .menu-icon {
+    background: hsl(var(--primary) / 0.12);
+    color: hsl(var(--primary));
+  }
+  .menu-link:hover,
+  .menu-link.active {
+    color: hsl(var(--foreground));
+    background: hsl(var(--accent));
+  }
+  .menu-link.active {
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.08);
+    font-weight: 600;
+  }
+  .menu-link--shop {
+    border: 1px solid hsl(var(--primary) / 0.2);
+    background: hsl(var(--primary) / 0.05);
+    color: hsl(var(--foreground));
+  }
+  .menu-link--shop .menu-icon { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
+  .menu-link--shop:hover { background: hsl(var(--primary) / 0.1); }
+</style>
 
 <script>
   import { toggleDarkMode, $isDarkMode } from '../../stores/dark-mode';
@@ -59,70 +116,56 @@
   createInitializer(() => {
     const currentPath = window.location.pathname;
 
-    // Update active menu links
-    const links = document.querySelectorAll('.menu-link');
-    links.forEach(link => {
+    // Mark active link
+    document.querySelectorAll('.menu-link').forEach(link => {
       const href = (link as HTMLAnchorElement).getAttribute('href');
-      if (href === currentPath) {
-        link.classList.add('text-primary', 'bg-primary/15', 'font-semibold', 'shadow-md', 'ring-1', 'ring-primary/30', 'border-l-4', 'border-primary');
-        link.classList.remove('text-muted-foreground', 'font-medium', 'hover:text-primary', 'hover:bg-accent');
-      } else {
-        link.classList.add('text-muted-foreground', 'font-medium', 'hover:text-primary', 'hover:bg-accent');
-        link.classList.remove('text-primary', 'bg-primary/15', 'font-semibold', 'shadow-md', 'ring-1', 'ring-primary/30', 'border-l-4', 'border-primary');
-      }
+      if (href === currentPath) link.classList.add('active');
     });
 
-    // Dark mode icon
-    function updateDarkModeIcon() {
+    function updateDarkMode() {
       const isDark = $isDarkMode.get();
       const iconEl = document.getElementById('dark-mode-icon-mobile');
       const textEl = document.getElementById('dark-mode-text-mobile');
-      if (iconEl) iconEl.className = isDark ? 'bi bi-sun-fill text-xl' : 'bi bi-moon-fill text-xl';
+      const pill   = document.getElementById('dark-toggle-pill');
+      const dot    = document.getElementById('dark-toggle-dot');
+      if (iconEl) iconEl.className = isDark ? 'bi bi-sun-fill text-lg text-yellow-400' : 'bi bi-moon-fill text-lg text-muted-foreground';
       if (textEl) textEl.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      if (pill) pill.style.background = isDark ? 'hsl(var(--primary))' : '';
+      if (dot)  dot.style.transform   = isDark ? 'translateX(20px)' : '';
     }
-    updateDarkModeIcon();
-    const unsubDark = $isDarkMode.subscribe(() => updateDarkModeIcon());
+    updateDarkMode();
+    const unsubDark = $isDarkMode.subscribe(() => updateDarkMode());
 
-    // Menu open/close
     function openMenu() {
-      const menu = document.getElementById('mobile-menu');
-      const overlay = document.getElementById('menu-overlay');
-      if (menu && overlay) {
-        overlay.classList.remove('opacity-0', 'pointer-events-none');
-        menu.classList.remove('-translate-x-full');
-        document.body.style.overflow = 'hidden';
-      }
+      document.getElementById('menu-overlay')?.classList.remove('opacity-0', 'pointer-events-none');
+      document.getElementById('mobile-menu')?.classList.remove('-translate-x-full');
+      document.body.style.overflow = 'hidden';
     }
-
     function closeMenu() {
-      const menu = document.getElementById('mobile-menu');
-      const overlay = document.getElementById('menu-overlay');
-      if (menu && overlay) {
-        overlay.classList.add('opacity-0', 'pointer-events-none');
-        menu.classList.add('-translate-x-full');
-        document.body.style.overflow = '';
-      }
+      document.getElementById('menu-overlay')?.classList.add('opacity-0', 'pointer-events-none');
+      document.getElementById('mobile-menu')?.classList.add('-translate-x-full');
+      document.body.style.overflow = '';
     }
 
-    const menuBtn = document.getElementById('mobile-menu-btn');
-    const menuClose = document.getElementById('menu-close');
-    const menuOverlay = document.getElementById('menu-overlay');
-    const darkToggle = document.getElementById('dark-mode-toggle-mobile');
+    const menuBtn     = document.getElementById('mobile-menu-btn');
+    const menuClose   = document.getElementById('menu-close');
+    const overlay     = document.getElementById('menu-overlay');
+    const darkToggle  = document.getElementById('dark-mode-toggle-mobile');
 
-    const handleOpen = () => openMenu();
+    const handleOpen  = () => openMenu();
     const handleClose = () => closeMenu();
-    const handleDark = () => toggleDarkMode();
+    const handleDark  = () => toggleDarkMode();
 
     menuBtn?.addEventListener('click', handleOpen);
     menuClose?.addEventListener('click', handleClose);
-    menuOverlay?.addEventListener('click', handleClose);
+    overlay?.addEventListener('click', handleClose);
     darkToggle?.addEventListener('click', handleDark);
 
     return () => {
       unsubDark();
       menuBtn?.removeEventListener('click', handleOpen);
       menuClose?.removeEventListener('click', handleClose);
-      menuOverlay?.removeEventListener('click', handleClose);
+      overlay?.removeEventListener('click', handleClose);
       darkToggle?.removeEventListener('click', handleDark);
     };
   });
