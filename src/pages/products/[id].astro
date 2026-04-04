@@ -4,7 +4,7 @@ import Header from '../../components/layout/Header.astro';
 import Footer from '../../components/layout/Footer.astro';
 import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../../lib/appwrite';
 import { Query } from 'appwrite';
-import { formatPrice } from '../../lib/utils';
+import { formatPrice, parseDescription } from '../../lib/utils';
 
 export const prerender = false;
 
@@ -53,59 +53,6 @@ const categoryData = getCategoryData(product.category);
 // Get the first image for OG tags
 const ogImage = product.images?.[0] || product.image;
 const ogDescription = product.description || `Buy ${product.name} for ₦${product.price.toLocaleString()}`;
-
-// Simple Markdown-like parser for product descriptions
-// Supports: **bold**, - list items, and paragraph breaks
-function parseDescription(text: string): string {
-  if (!text) return '';
-  
-  const lines = text.split('\n');
-  let html = '';
-  let inList = false;
-  
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    
-    // Empty line - close any open list and add paragraph break
-    if (line === '') {
-      if (inList) {
-        html += '</ul>';
-        inList = false;
-      }
-      continue;
-    }
-    
-    // List item (starts with - )
-    if (line.startsWith('- ')) {
-      if (!inList) {
-        html += '<ul class="list-disc list-inside space-y-1 my-2">';
-        inList = true;
-      }
-      const listContent = line.substring(2).trim();
-      // Check for bold within list item
-      const formattedContent = listContent.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
-      html += `<li class="leading-relaxed">${formattedContent}</li>`;
-      continue;
-    }
-    
-    // Regular paragraph
-    if (inList) {
-      html += '</ul>';
-      inList = false;
-    }
-    
-    // Check for bold text (**text**)
-    const formattedLine = line.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
-    html += `<p class="leading-relaxed">${formattedLine}</p>`;
-  }
-  
-  // Close any remaining open list
-  if (inList) {
-    html += '</ul>';
-  }
-  
-  return html;
-}
 ---
 
 <Layout 

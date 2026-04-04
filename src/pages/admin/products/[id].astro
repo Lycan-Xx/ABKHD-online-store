@@ -1,6 +1,7 @@
 ---
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../../../lib/appwrite';
+import { parseDescription } from '../../../lib/utils';
 import { Query } from 'appwrite';
 
 export async function getStaticPaths() {
@@ -91,6 +92,20 @@ try {
               class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
               placeholder="Enter product description"
             >{product.description || ''}</textarea>
+            
+            <!-- Description Preview -->
+            <div class="mt-4 p-4 rounded-lg border bg-muted/30">
+              <p class="text-xs font-medium text-muted-foreground mb-3">
+                <i class="bi bi-eye mr-1"></i>Preview (how it will appear)
+              </p>
+              <div id="description-preview" class="text-sm space-y-3 text-foreground">
+                {product.description ? (
+                  <div set:html={product.description} />
+                ) : (
+                  <p class="text-muted-foreground italic">Description preview will appear here...</p>
+                )}
+              </div>
+            </div>
           </div>
 
           <!-- Category -->
@@ -169,6 +184,13 @@ try {
               placeholder="0.00"
             />
             <p class="text-xs text-muted-foreground mt-1">For showing discount</p>
+            <!-- Discount Percentage Display -->
+            <div id="discount-display" class="mt-2 hidden">
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
+                <i class="bi bi-percent"></i>
+                <span id="discount-value">0</span>% OFF
+              </span>
+            </div>
           </div>
 
           <!-- Stock -->
@@ -373,7 +395,7 @@ try {
 
 <script>
   import { databases, storage, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_IMAGES_BUCKET_ID, ID } from '../../../lib/appwrite';
-  import { compressImage, compressVideo } from '../../../lib/utils';
+  import { compressImage, compressVideo, parseDescription } from '../../../lib/utils';
   import { 
     saveToCache, 
     loadFromCache, 
@@ -391,6 +413,49 @@ try {
   const form = document.getElementById('product-form') as HTMLFormElement;
   const isActiveToggle = document.getElementById('isActive') as HTMLButtonElement;
   const imagesInput = document.getElementById('images') as HTMLInputElement;
+  
+  // Description Preview Elements
+  const descriptionField = document.getElementById('description') as HTMLTextAreaElement;
+  const descriptionPreview = document.getElementById('description-preview') as HTMLDivElement;
+  
+  // Discount Display Elements
+  const priceInput = document.getElementById('price') as HTMLInputElement;
+  const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
+  const discountDisplay = document.getElementById('discount-display') as HTMLDivElement;
+  const discountValue = document.getElementById('discount-value') as HTMLSpanElement;
+
+  // Real-time description preview update
+  const updateDescriptionPreview = () => {
+    const text = descriptionField.value.trim();
+    if (text) {
+      descriptionPreview.innerHTML = parseDescription(text);
+    } else {
+      descriptionPreview.innerHTML = '<p class="text-muted-foreground italic">Description preview will appear here...</p>';
+    }
+  };
+
+  // Real-time discount calculation update
+  const updateDiscountDisplay = () => {
+    const price = parseFloat(priceInput.value || '0');
+    const originalPrice = parseFloat(originalPriceInput.value || '0');
+    
+    if (originalPrice > 0 && originalPrice > price) {
+      const discount = Math.round((1 - price / originalPrice) * 100);
+      discountValue.textContent = discount.toString();
+      discountDisplay.classList.remove('hidden');
+    } else {
+      discountDisplay.classList.add('hidden');
+    }
+  };
+
+  // Attach event listeners
+  descriptionField?.addEventListener('input', updateDescriptionPreview);
+  priceInput?.addEventListener('input', updateDiscountDisplay);
+  originalPriceInput?.addEventListener('input', updateDiscountDisplay);
+  
+  // Initialize preview on page load
+  updateDescriptionPreview();
+  updateDiscountDisplay();
 
   const renderMediaGrid = () => {
     mediaGrid.innerHTML = '';

@@ -220,3 +220,70 @@ export const formatFileSize = (bytes: number): string => {
 export const needsCompression = (file: File, thresholdMB = 1): boolean => {
   return file.size > thresholdMB * 1024 * 1024
 }
+
+// ============== PRODUCT FORMATTING ==============
+
+/**
+ * Parse product description with markdown-like formatting
+ * Supports: **bold**, - list items, and paragraph breaks
+ */
+export function parseDescription(text: string): string {
+  if (!text) return '';
+  
+  const lines = text.split('\n');
+  let html = '';
+  let inList = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Empty line - close any open list and add paragraph break
+    if (line === '') {
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
+      continue;
+    }
+    
+    // List item (starts with - )
+    if (line.startsWith('- ')) {
+      if (!inList) {
+        html += '<ul class="list-disc list-inside space-y-1 my-2">';
+        inList = true;
+      }
+      const listContent = line.substring(2).trim();
+      // Check for bold within list item
+      const formattedContent = listContent.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+      html += `<li class="leading-relaxed">${formattedContent}</li>`;
+      continue;
+    }
+    
+    // Regular paragraph
+    if (inList) {
+      html += '</ul>';
+      inList = false;
+    }
+    
+    // Check for bold text (**text**)
+    const formattedLine = line.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+    html += `<p class="leading-relaxed">${formattedLine}</p>`;
+  }
+  
+  // Close any remaining open list
+  if (inList) {
+    html += '</ul>';
+  }
+  
+  return html;
+}
+
+/**
+ * Calculate discount percentage between original and current price
+ */
+export function calculateDiscount(price: number, originalPrice: number): number | null {
+  if (!originalPrice || originalPrice <= 0 || originalPrice <= price) {
+    return null;
+  }
+  return Math.round((1 - price / originalPrice) * 100);
+}
