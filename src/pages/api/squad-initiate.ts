@@ -35,7 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: 'Invalid request data', details: error.errors }), {
+      return new Response(JSON.stringify({ error: 'Invalid request data', details: error.issues }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
