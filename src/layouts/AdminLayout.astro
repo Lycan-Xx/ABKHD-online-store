@@ -52,6 +52,14 @@ const isActive = (path: string, exact = false) => {
     </script>
   </head>
   <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center">
+      <div class="text-center space-y-4">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+        <p class="text-muted-foreground text-sm">Loading admin panel...</p>
+      </div>
+    </div>
+
     <!-- Hide content initially so unauthorized users never see a flash of the dashboard -->
     <div id="admin-root" class="min-h-screen bg-background" style="display: none; opacity: 0; transition: opacity 0.4s ease;">
       <!-- Admin Header -->
@@ -82,12 +90,19 @@ const isActive = (path: string, exact = false) => {
           </div>
 
           <div class="flex items-center gap-4">
+            <div id="user-info" class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <i class="bi bi-person-fill text-primary"></i>
+              </div>
+              <span id="user-name" class="hidden md:inline font-medium"></span>
+            </div>
+            
             <a 
               href="/" 
               class="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <i class="bi bi-arrow-left"></i>
-              Back to Store
+              <span class="hidden md:inline">Back to Store</span>
             </a>
             
             <button 
@@ -95,7 +110,7 @@ const isActive = (path: string, exact = false) => {
               class="flex items-center gap-2 text-sm text-red-500 hover:text-red-600 transition-colors"
             >
               <i class="bi bi-box-arrow-right"></i>
-              Logout
+              <span class="hidden md:inline">Logout</span>
             </button>
           </div>
         </div>
@@ -151,9 +166,16 @@ const isActive = (path: string, exact = false) => {
     <script>
       import { account, teams } from '../lib/appwrite';
 
+      // Global store for current admin user
+      (window as any).adminUser = null;
+
       const checkAuth = async () => {
-        // Skip check on login page
-        if (window.location.pathname === '/login') return;
+        // Skip check on login page - hide loading immediately
+        if (window.location.pathname === '/login') {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) loadingScreen.style.display = 'none';
+          return;
+        }
 
         console.log('--- Admin Auth Check ---');
         console.log('Path:', window.location.pathname);
@@ -178,8 +200,31 @@ const isActive = (path: string, exact = false) => {
             return;
           }
 
-          // Auth clear, reveal dashboard
+          // Store user info globally for child pages
+          (window as any).adminUser = {
+            id: user.$id,
+            name: user.name || user.email,
+            email: user.email
+          };
+
+          // Update UI with user name
+          const userNameEl = document.getElementById('user-name');
+          if (userNameEl) {
+            userNameEl.textContent = user.name || user.email;
+          }
+
+          // Hide loading screen and reveal dashboard
+          const loadingScreen = document.getElementById('loading-screen');
           const root = document.getElementById('admin-root');
+          
+          if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => {
+              loadingScreen.style.display = 'none';
+            }, 300);
+          }
+          
           if (root) {
             root.style.display = 'block';
             // Allow display change to apply before fading in
@@ -187,6 +232,11 @@ const isActive = (path: string, exact = false) => {
           }
         } catch (error) {
           console.error('Auth check failed or not logged in:', error);
+          // Hide loading screen before redirect
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+          }
           window.location.href = '/login';
         }
       };

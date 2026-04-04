@@ -749,6 +749,7 @@ try {
       }
 
       const formData = new FormData(form);
+      const adminUser = (window as any).adminUser;
       const updateData = {
         name: formData.get('name'),
         description: formData.get('description'),
@@ -762,7 +763,9 @@ try {
         video: videoUrl,
         videoThumbnail: videoThumbnailUrl,
         featured: formData.has('featured'),
-        isActive: isActiveToggle?.dataset.currentStatus === 'active'
+        isActive: isActiveToggle?.dataset.currentStatus === 'active',
+        updatedBy: adminUser?.id || 'unknown',
+        updatedByName: adminUser?.name || adminUser?.email || 'Unknown Admin'
       };
 
       await databases.updateDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId, updateData);

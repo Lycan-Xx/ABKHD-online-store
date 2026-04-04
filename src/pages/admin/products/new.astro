@@ -727,6 +727,7 @@ const product = null;
       }
 
       const formData = new FormData(form);
+      const adminUser = (window as any).adminUser;
       const productData = {
         name: formData.get('name'),
         description: formData.get('description'),
@@ -741,7 +742,11 @@ const product = null;
         videoThumbnail: videoThumbnailUrl,
         featured: formData.has('featured'),
         isActive: isActiveToggle?.dataset.currentStatus === 'active',
-        isArchived: false
+        isArchived: false,
+        createdBy: adminUser?.id || 'unknown',
+        createdByName: adminUser?.name || adminUser?.email || 'Unknown Admin',
+        updatedBy: adminUser?.id || 'unknown',
+        updatedByName: adminUser?.name || adminUser?.email || 'Unknown Admin'
       };
 
       await databases.createDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, ID.unique(), productData);
