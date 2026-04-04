@@ -11,9 +11,8 @@ export const POST: APIRoute = async (ctx) => {
     const body = await request.json();
     const validated = InitiatePaymentSchema.parse(body);
 
-    // Access Cloudflare secret via context.env (set via wrangler secret put)
-    const cfEnv = (ctx as unknown as { env?: Record<string, string> }).env;
-    const secretKey = cfEnv?.SQUAD_SECRET_KEY;
+    // Access environment variable - works with plain text env vars in Cloudflare Dashboard
+    const secretKey = import.meta.env.SQUAD_SECRET_KEY;
     
     console.log('SQUAD_SECRET_KEY from env:', !!secretKey);
     
