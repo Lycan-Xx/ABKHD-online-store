@@ -1,0 +1,164 @@
+---
+// CartDrawer.astro - Cart drawer using nanostores
+---
+
+<!-- Overlay -->
+<div 
+  id="cart-overlay" 
+  class="fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 opacity-0 pointer-events-none"
+  aria-hidden="true"
+></div>
+
+<!-- Cart Drawer -->
+<div 
+  id="cart-drawer"
+  class="fixed right-0 top-0 h-full w-full max-w-md bg-background z-50 shadow-xl transition-transform duration-300 translate-x-full"
+  role="dialog"
+  aria-label="Shopping Cart"
+  aria-modal="true"
+>
+  <div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b">
+      <h2 class="text-lg font-semibold">Shopping Cart</h2>
+      <button
+        id="cart-close"
+        class="p-2 hover:bg-accent rounded-md transition-colors"
+        aria-label="Close cart"
+      >
+        <i class="bi bi-x text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Cart Items -->
+    <div id="cart-items-container" class="flex-1 overflow-y-auto p-4">
+      <div id="cart-empty" class="text-center py-8">
+        <i class="bi bi-bag text-4xl text-muted-foreground mb-4"></i>
+        <p class="text-muted-foreground">Your cart is empty</p>
+      </div>
+      <div id="cart-items-list" class="space-y-4 hidden"></div>
+    </div>
+
+    <!-- Footer -->
+    <div id="cart-footer" class="border-t p-4 space-y-4 hidden">
+      <div class="flex justify-between items-center">
+        <span class="font-semibold">Total: <span id="cart-total">₦0</span></span>
+      </div>
+      <a
+        href="/checkout"
+        id="cart-checkout"
+        class="w-full btn-primary block text-center border-2 border-accent shadow-lg hover:scale-105 transition-transform duration-200"
+      >
+        Checkout
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { $cartItems, $isCartOpen, getCartItemsArray, getCartSubtotal, removeFromCart, closeCart, openCart } from '../../stores/cart';
+  import { createInitializer } from '../../lib/init';
+
+  function formatPrice(price: number): string {
+    return '₦' + price.toLocaleString();
+  }
+
+  createInitializer(() => {
+    function renderCart() {
+      const items = getCartItemsArray();
+      const emptyEl = document.getElementById('cart-empty');
+      const listEl = document.getElementById('cart-items-list');
+      const footerEl = document.getElementById('cart-footer');
+      const totalEl = document.getElementById('cart-total');
+
+      if (!emptyEl || !listEl || !footerEl || !totalEl) return;
+
+      if (items.length === 0) {
+        emptyEl.classList.remove('hidden');
+        listEl.classList.add('hidden');
+        footerEl.classList.add('hidden');
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+      listEl.classList.remove('hidden');
+      footerEl.classList.remove('hidden');
+
+      totalEl.textContent = formatPrice(getCartSubtotal());
+
+      listEl.innerHTML = items.map(item => `
+        <div class="flex items-center space-x-4 p-4 border rounded-lg" data-cart-id="${item.cartId}">
+          <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded" crossorigin="anonymous" />
+          <div class="flex-1">
+            <h3 class="font-medium text-sm">${item.name}</h3>
+            <div class="text-xs text-muted-foreground space-y-1">
+              ${item.size ? `<p>Size: ${item.size}</p>` : ''}
+              ${item.color ? `<p>Color: ${item.color}</p>` : ''}
+              <p>${formatPrice(item.price)} × ${item.quantity}</p>
+            </div>
+          </div>
+          <button class="cart-remove-item p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground" data-cart-id="${item.cartId}" aria-label="Remove item">
+            <i class="bi bi-trash text-sm"></i>
+          </button>
+        </div>
+      `).join('');
+
+      listEl.querySelectorAll('.cart-remove-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const cartId = (e.currentTarget as HTMLElement).dataset.cartId;
+          if (cartId) removeFromCart(cartId);
+        });
+      });
+    }
+
+    function openDrawer() {
+      const drawer = document.getElementById('cart-drawer');
+      const overlay = document.getElementById('cart-overlay');
+      if (drawer && overlay) {
+        overlay.classList.remove('opacity-0', 'pointer-events-none');
+        drawer.classList.remove('translate-x-full');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeDrawer() {
+      const drawer = document.getElementById('cart-drawer');
+      const overlay = document.getElementById('cart-overlay');
+      if (drawer && overlay) {
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        drawer.classList.add('translate-x-full');
+        document.body.style.overflow = '';
+      }
+    }
+
+    // Subscribe to store changes
+    const unsubItems = $cartItems.subscribe(() => renderCart());
+    const unsubOpen = $isCartOpen.subscribe((isOpen) => {
+      if (isOpen) {
+        renderCart();
+        openDrawer();
+      } else {
+        closeDrawer();
+      }
+    });
+
+    // Close button & overlay
+    const cartCloseBtn = document.getElementById('cart-close');
+    const cartOverlay = document.getElementById('cart-overlay');
+
+    const handleClose = () => closeCart();
+
+    cartCloseBtn?.addEventListener('click', handleClose);
+    cartOverlay?.addEventListener('click', handleClose);
+
+    // Initial render
+    renderCart();
+
+    return () => {
+      unsubItems();
+      unsubOpen();
+      cartCloseBtn?.removeEventListener('click', handleClose);
+      cartOverlay?.removeEventListener('click', handleClose);
+    };
+  });
+</script>

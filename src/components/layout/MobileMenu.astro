@@ -1,0 +1,129 @@
+---
+// MobileMenu.astro - Native Astro component for mobile navigation menu
+---
+
+<!-- Overlay -->
+<div 
+  id="menu-overlay" 
+  class="fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"
+  aria-hidden="true"
+></div>
+
+<!-- Mobile Menu -->
+<div 
+  id="mobile-menu"
+  class="fixed left-0 top-0 h-full w-64 bg-background z-50 shadow-xl transition-transform duration-300 -translate-x-full md:hidden"
+  role="dialog"
+  aria-label="Navigation Menu"
+  aria-modal="true"
+>
+  <div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b">
+      <h2 class="text-lg font-semibold">Menu</h2>
+      <button
+        id="menu-close"
+        class="p-2 hover:bg-accent rounded-md transition-colors"
+        aria-label="Close menu"
+      >
+        <i class="bi bi-x text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 p-4">
+      <div class="space-y-4">
+        <a href="/shop" class="menu-link block py-3 px-4 text-lg transition-all duration-200 rounded-md">Shop</a>
+        <a href="/about" class="menu-link block py-3 px-4 text-lg transition-all duration-200 rounded-md">About Us</a>
+        <a href="/contact" class="menu-link block py-3 px-4 text-lg transition-all duration-200 rounded-md">Contact</a>
+      </div>
+    </nav>
+
+    <!-- Dark Mode Toggle -->
+    <div class="border-t p-4">
+      <button
+        id="dark-mode-toggle-mobile"
+        class="flex items-center justify-between w-full p-3 rounded-md bg-accent hover:bg-accent/80 transition-colors"
+      >
+        <span class="text-sm font-medium" id="dark-mode-text-mobile">Dark Mode</span>
+        <i id="dark-mode-icon-mobile" class="bi bi-moon-fill text-xl"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { toggleDarkMode, $isDarkMode } from '../../stores/dark-mode';
+  import { createInitializer } from '../../lib/init';
+
+  createInitializer(() => {
+    const currentPath = window.location.pathname;
+
+    // Update active menu links
+    const links = document.querySelectorAll('.menu-link');
+    links.forEach(link => {
+      const href = (link as HTMLAnchorElement).getAttribute('href');
+      if (href === currentPath) {
+        link.classList.add('text-primary', 'bg-primary/15', 'font-semibold', 'shadow-md', 'ring-1', 'ring-primary/30', 'border-l-4', 'border-primary');
+        link.classList.remove('text-muted-foreground', 'font-medium', 'hover:text-primary', 'hover:bg-accent');
+      } else {
+        link.classList.add('text-muted-foreground', 'font-medium', 'hover:text-primary', 'hover:bg-accent');
+        link.classList.remove('text-primary', 'bg-primary/15', 'font-semibold', 'shadow-md', 'ring-1', 'ring-primary/30', 'border-l-4', 'border-primary');
+      }
+    });
+
+    // Dark mode icon
+    function updateDarkModeIcon() {
+      const isDark = $isDarkMode.get();
+      const iconEl = document.getElementById('dark-mode-icon-mobile');
+      const textEl = document.getElementById('dark-mode-text-mobile');
+      if (iconEl) iconEl.className = isDark ? 'bi bi-sun-fill text-xl' : 'bi bi-moon-fill text-xl';
+      if (textEl) textEl.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    }
+    updateDarkModeIcon();
+    const unsubDark = $isDarkMode.subscribe(() => updateDarkModeIcon());
+
+    // Menu open/close
+    function openMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const overlay = document.getElementById('menu-overlay');
+      if (menu && overlay) {
+        overlay.classList.remove('opacity-0', 'pointer-events-none');
+        menu.classList.remove('-translate-x-full');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const overlay = document.getElementById('menu-overlay');
+      if (menu && overlay) {
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        menu.classList.add('-translate-x-full');
+        document.body.style.overflow = '';
+      }
+    }
+
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const menuClose = document.getElementById('menu-close');
+    const menuOverlay = document.getElementById('menu-overlay');
+    const darkToggle = document.getElementById('dark-mode-toggle-mobile');
+
+    const handleOpen = () => openMenu();
+    const handleClose = () => closeMenu();
+    const handleDark = () => toggleDarkMode();
+
+    menuBtn?.addEventListener('click', handleOpen);
+    menuClose?.addEventListener('click', handleClose);
+    menuOverlay?.addEventListener('click', handleClose);
+    darkToggle?.addEventListener('click', handleDark);
+
+    return () => {
+      unsubDark();
+      menuBtn?.removeEventListener('click', handleOpen);
+      menuClose?.removeEventListener('click', handleClose);
+      menuOverlay?.removeEventListener('click', handleClose);
+      darkToggle?.removeEventListener('click', handleDark);
+    };
+  });
+</script>
