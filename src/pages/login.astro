@@ -1,0 +1,232 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+
+// Redirect away if already authenticated
+---
+
+<Layout title="Sign In – ABKHD Store">
+  <Header slot="header" />
+
+  <div class="login-page">
+    <div class="login-card">
+      <!-- Logo -->
+      <div class="login-logo">
+        <a href="/" aria-label="Back to ABKHD Store">
+          <span class="font-black text-2xl tracking-tight">ABKHD</span>
+          <span class="font-light text-2xl text-muted-foreground">Store</span>
+        </a>
+      </div>
+
+      <h1 class="login-title">Welcome back</h1>
+      <p class="login-sub">Sign in to continue</p>
+
+      <form id="login-form" class="login-form" novalidate>
+        <div class="field-group">
+          <label for="email" class="field-label">Email address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            autocomplete="email"
+            class="field-input"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <div class="field-group">
+          <label for="password" class="field-label">Password</label>
+          <div class="input-wrap">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              class="field-input"
+              placeholder="••••••••"
+            />
+            <button type="button" id="pw-toggle" class="pw-eye" aria-label="Toggle password visibility">
+              <i class="bi bi-eye" id="pw-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="error-message" class="error-box hidden">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          <span id="error-text">Invalid email or password.</span>
+        </div>
+
+        <button type="submit" id="login-button" class="login-btn">
+          <span id="btn-label">Sign in</span>
+          <i class="bi bi-arrow-right" id="btn-icon"></i>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <a href="/" class="back-link">
+          <i class="bi bi-arrow-left text-xs"></i>
+          Back to store
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</Layout>
+
+<style is:global>
+  .login-page {
+    min-height: calc(100vh - 200px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .login-card {
+    width: 100%; max-width: 400px;
+    background: hsl(var(--card));
+    border: 1.5px solid hsl(var(--border));
+    border-radius: 16px;
+    padding: 40px 36px;
+    box-shadow: 0 8px 40px -12px rgba(0,0,0,0.12);
+  }
+  .login-logo {
+    text-align: center; margin-bottom: 28px;
+    text-decoration: none;
+  }
+  .login-logo a { text-decoration: none; }
+  .login-title {
+    font-size: 1.5rem; font-weight: 800;
+    letter-spacing: -0.01em; text-align: center;
+    color: hsl(var(--foreground)); margin-bottom: 4px;
+  }
+  .login-sub {
+    font-size: 13px; color: hsl(var(--muted-foreground));
+    text-align: center; margin-bottom: 28px;
+  }
+  .login-form { display: flex; flex-direction: column; gap: 16px; }
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-label { font-size: 13px; font-weight: 500; color: hsl(var(--foreground)); }
+  .field-input {
+    width: 100%; padding: 10px 14px;
+    border-radius: 9px; border: 1.5px solid hsl(var(--border));
+    background: hsl(var(--background));
+    font-size: 14px; color: hsl(var(--foreground));
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none; box-sizing: border-box;
+  }
+  .field-input:focus {
+    border-color: hsl(var(--primary) / 0.6);
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
+  }
+  .input-wrap { position: relative; }
+  .input-wrap .field-input { padding-right: 42px; }
+  .pw-eye {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: hsl(var(--muted-foreground)); padding: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.15s;
+  }
+  .pw-eye:hover { color: hsl(var(--foreground)); }
+
+  .error-box {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-radius: 8px;
+    background: hsl(0 84% 60% / 0.08);
+    border: 1px solid hsl(0 84% 60% / 0.25);
+    color: hsl(0 72% 51%); font-size: 13px;
+  }
+  .error-box.hidden { display: none; }
+
+  .login-btn {
+    width: 100%; padding: 11px 20px;
+    border-radius: 10px; border: none; cursor: pointer;
+    background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+    font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 2px 12px hsl(var(--primary) / 0.3);
+    transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+    margin-top: 4px;
+  }
+  .login-btn:hover:not(:disabled) {
+    background: hsl(var(--primary) / 0.88);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 18px hsl(var(--primary) / 0.38);
+  }
+  .login-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+  .login-footer { margin-top: 24px; text-align: center; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 13px; color: hsl(var(--muted-foreground));
+    text-decoration: none; transition: color 0.15s;
+  }
+  .back-link:hover { color: hsl(var(--foreground)); }
+</style>
+
+<script>
+  import { account, teams } from '../lib/appwrite';
+
+  // ── Redirect if already authenticated ──
+  (async () => {
+    try {
+      const user = await account.get();
+      const userTeams = await teams.list();
+      const labels = (user as any).labels || [];
+      const isAdmin = labels.includes('admin') ||
+                      userTeams.teams.some((t: any) => t.$id === 'admin' || t.name.toLowerCase() === 'admin');
+      if (isAdmin) {
+        window.location.href = '/admin';
+      } else {
+        // Logged-in but not an admin: redirect to storefront
+        window.location.href = '/';
+      }
+    } catch {
+      // Not logged in — stay on page
+    }
+  })();
+
+  // ── Password toggle ──
+  const pwToggle = document.getElementById('pw-toggle');
+  const pwInput  = document.getElementById('password') as HTMLInputElement;
+  const pwIcon   = document.getElementById('pw-icon');
+  pwToggle?.addEventListener('click', () => {
+    const isHidden = pwInput.type === 'password';
+    pwInput.type = isHidden ? 'text' : 'password';
+    if (pwIcon) pwIcon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+  });
+
+  // ── Login form ──
+  const form      = document.getElementById('login-form') as HTMLFormElement;
+  const errorBox  = document.getElementById('error-message') as HTMLDivElement;
+  const errorText = document.getElementById('error-text') as HTMLSpanElement;
+  const loginBtn  = document.getElementById('login-button') as HTMLButtonElement;
+  const btnLabel  = document.getElementById('btn-label') as HTMLSpanElement;
+  const btnIcon   = document.getElementById('btn-icon') as HTMLElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const email    = (fd.get('email') as string).trim();
+    const password = fd.get('password') as string;
+
+    // Clear previous error
+    errorBox.classList.add('hidden');
+    loginBtn.disabled = true;
+    btnLabel.textContent = 'Signing in…';
+    btnIcon.className = 'bi bi-arrow-repeat animate-spin';
+
+    try {
+      await account.createEmailPasswordSession(email, password);
+      window.location.href = '/admin';
+    } catch (err: any) {
+      loginBtn.disabled = false;
+      btnLabel.textContent = 'Sign in';
+      btnIcon.className = 'bi bi-arrow-right';
+      errorText.textContent = err.message || 'Login failed. Please try again.';
+      errorBox.classList.remove('hidden');
+    }
+  });
+</script>

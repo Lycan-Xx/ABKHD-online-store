@@ -1,26 +1,31 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/layout/Header.astro';
-import Footer from '../components/layout/Footer.astro';
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
 ---
 
 <Layout title="Contact Us - ABKHD Store">
   <Header slot="header" />
-  
+
   <div class="container py-8 md:py-12">
     <!-- Navigation -->
     <div class="mb-12">
-      <nav class="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
+      <nav
+        class="flex items-center space-x-2 text-sm text-muted-foreground mb-4"
+      >
         <a href="/" class="hover:text-foreground">Home</a>
         <i class="bi bi-chevron-right"></i>
         <span class="text-foreground">Contact</span>
       </nav>
-      <a href="/" class="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors">
+      <a
+        href="/"
+        class="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors"
+      >
         <i class="bi bi-arrow-left text-lg"></i>
         <span class="text-sm font-medium">Back to Home</span>
       </a>
     </div>
-    
+
     <!-- Content Container -->
     <div class="max-w-6xl mx-auto">
       <!-- Header - Minimal -->
@@ -33,16 +38,20 @@ import Footer from '../components/layout/Footer.astro';
 
       <!-- Primary Contact - WhatsApp Hero -->
       <div class="mb-16 max-w-2xl mx-auto">
-        <div class="text-center p-10 rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
-          <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+        <div
+          class="text-center p-10 rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent"
+        >
+          <div
+            class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6"
+          >
             <i class="bi bi-whatsapp text-primary text-4xl"></i>
           </div>
           <h2 class="text-2xl font-bold mb-3">Chat with us on WhatsApp</h2>
           <p class="text-muted-foreground mb-6">
             The fastest way to get answers. We typically respond within minutes.
           </p>
-          <a 
-            href="https://wa.me/2348085657927" 
+          <a
+            href="https://wa.me/2348085657927"
             class="inline-flex items-center justify-center px-10 py-4 text-lg font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             <i class="bi bi-whatsapp mr-2 text-xl"></i>
@@ -57,16 +66,20 @@ import Footer from '../components/layout/Footer.astro';
           Or reach us via
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a 
-            href="mailto:hello@abkhdstore.com"
+          <a
+            href="mailto:abkhdtechgadgets@gmail.com"
             class="flex items-center space-x-4 p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors group"
           >
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+            <div
+              class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors"
+            >
               <i class="bi bi-envelope text-primary text-xl"></i>
             </div>
             <div>
               <h3 class="font-semibold mb-1">Email</h3>
-              <p class="text-sm text-muted-foreground">hello@abkhdstore.com</p>
+              <p class="text-sm text-muted-foreground">
+                abkhdtechgadgets@gmail.com
+              </p>
             </div>
           </a>
 
@@ -74,7 +87,9 @@ import Footer from '../components/layout/Footer.astro';
             id="contact-form-toggle"
             class="flex items-center space-x-4 p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors group text-left"
           >
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+            <div
+              class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors"
+            >
               <i class="bi bi-pencil-square text-primary text-xl"></i>
             </div>
             <div>
@@ -86,7 +101,10 @@ import Footer from '../components/layout/Footer.astro';
       </div>
 
       <!-- Contact Form - Collapsible -->
-      <div id="contact-form" class="mb-16 p-8 rounded-xl border border-border bg-card/50 max-w-2xl mx-auto hidden">
+      <div
+        id="contact-form"
+        class="mb-16 p-8 rounded-xl border border-border bg-card/50 max-w-2xl mx-auto hidden"
+      >
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-bold">Send us a Message</h2>
           <button
@@ -96,7 +114,7 @@ import Footer from '../components/layout/Footer.astro';
             <i class="bi bi-x-lg"></i>
           </button>
         </div>
-        
+
         <form id="contact-form-element" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -151,14 +169,10 @@ import Footer from '../components/layout/Footer.astro';
               required
               rows="5"
               class="w-full p-3 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow resize-vertical"
-              placeholder="Tell us more..."
-            ></textarea>
+              placeholder="Tell us more..."></textarea>
           </div>
 
-          <button
-            type="submit"
-            class="w-full btn-primary py-3"
-          >
+          <button type="submit" class="w-full btn-primary py-3">
             <span class="flex items-center justify-center">
               <i class="bi bi-send mr-2"></i>
               Send Message
@@ -182,31 +196,31 @@ import Footer from '../components/layout/Footer.astro';
 
 <script>
   // Contact form toggle functionality
-  const formToggle = document.getElementById('contact-form-toggle');
-  const contactForm = document.getElementById('contact-form');
-  const formClose = document.getElementById('contact-form-close');
-  const formElement = document.getElementById('contact-form-element');
+  const formToggle = document.getElementById("contact-form-toggle");
+  const contactForm = document.getElementById("contact-form");
+  const formClose = document.getElementById("contact-form-close");
+  const formElement = document.getElementById("contact-form-element");
 
   if (formToggle && contactForm) {
-    formToggle.addEventListener('click', () => {
-      contactForm.classList.toggle('hidden');
+    formToggle.addEventListener("click", () => {
+      contactForm.classList.toggle("hidden");
     });
   }
 
   if (formClose && contactForm) {
-    formClose.addEventListener('click', () => {
-      contactForm.classList.add('hidden');
+    formClose.addEventListener("click", () => {
+      contactForm.classList.add("hidden");
     });
   }
 
   // Form submission
   if (formElement) {
-    formElement.addEventListener('submit', async (e) => {
+    formElement.addEventListener("submit", async (e) => {
       e.preventDefault();
-      
+
       const submitBtn = formElement.querySelector('button[type="submit"]');
       const originalText = submitBtn.innerHTML;
-      
+
       // Show loading state
       submitBtn.innerHTML = `
         <span class="flex items-center justify-center">
@@ -215,17 +229,17 @@ import Footer from '../components/layout/Footer.astro';
         </span>
       `;
       submitBtn.disabled = true;
-      
+
       // Simulate form submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Show success message
-      alert('Message sent successfully! We\'ll get back to you soon.');
-      
+      alert("Message sent successfully! We'll get back to you soon.");
+
       // Reset form
       formElement.reset();
-      contactForm.classList.add('hidden');
-      
+      contactForm.classList.add("hidden");
+
       // Reset button
       submitBtn.innerHTML = originalText;
       submitBtn.disabled = false;

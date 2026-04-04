@@ -52,7 +52,8 @@ const isActive = (path: string, exact = false) => {
     </script>
   </head>
   <body>
-    <div class="min-h-screen bg-background">
+    <!-- Hide content initially so unauthorized users never see a flash of the dashboard -->
+    <div id="admin-root" class="min-h-screen bg-background" style="display: none; opacity: 0; transition: opacity 0.4s ease;">
       <!-- Admin Header -->
       <header class="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div class="container flex h-16 items-center justify-between">
@@ -152,7 +153,7 @@ const isActive = (path: string, exact = false) => {
 
       const checkAuth = async () => {
         // Skip check on login page
-        if (window.location.pathname === '/admin/login') return;
+        if (window.location.pathname === '/login') return;
 
         console.log('--- Admin Auth Check ---');
         console.log('Path:', window.location.pathname);
@@ -172,19 +173,28 @@ const isActive = (path: string, exact = false) => {
           console.log('Is Admin (Labels + Teams):', isAdmin);
           
           if (!isAdmin) {
-            console.warn('User is not an admin, redirecting...');
-            window.location.href = '/admin/login?error=unauthorized';
+            console.warn('User is logged in but not an admin. Redirecting to storefront...');
+            window.location.href = '/';
+            return;
+          }
+
+          // Auth clear, reveal dashboard
+          const root = document.getElementById('admin-root');
+          if (root) {
+            root.style.display = 'block';
+            // Allow display change to apply before fading in
+            setTimeout(() => root.style.opacity = '1', 50);
           }
         } catch (error) {
           console.error('Auth check failed or not logged in:', error);
-          window.location.href = '/admin/login';
+          window.location.href = '/login';
         }
       };
 
       const handleLogout = async () => {
         try {
           await account.deleteSession('current');
-          window.location.href = '/admin/login';
+          window.location.href = '/login';
         } catch (error) {
           console.error('Logout failed:', error);
         }
