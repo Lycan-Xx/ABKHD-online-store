@@ -25,7 +25,7 @@
     --input: 220 14% 90%;
     --ring: 173 58% 39%;
     --radius: 0.75rem;
-    
+
     /* Custom tokens */
     --verified: 142 71% 45%;
     --verified-foreground: 0 0% 100%;
@@ -53,7 +53,7 @@
     --border: 220 20% 18%;
     --input: 220 20% 18%;
     --ring: 173 58% 45%;
-    
+
     /* Custom tokens */
     --verified: 142 71% 45%;
     --verified-foreground: 0 0% 100%;
@@ -69,23 +69,40 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
 }
 
 @layer components {
   .product-card {
     @apply relative overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:border-primary/30;
   }
-  
+
   .product-image {
     @apply aspect-square w-full object-cover transition-transform duration-300;
   }
-  
+
   .btn-primary {
     @apply inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
-  
+
   .btn-secondary {
     @apply inline-flex items-center justify-center rounded-lg border border-border bg-background px-5 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .card {
+    @apply bg-card border border-border rounded-lg shadow-sm;
+  }
+
+  .input {
+    @apply w-full px-4 py-3 border border-border rounded-md bg-background transition-colors duration-200 focus:border-primary focus:ring-2 focus:ring-ring/20;
   }
 
   .verified-badge {
@@ -156,5 +173,35 @@
     0%, 100% { opacity: 0.6; transform: scale(1); }
     12.5% { opacity: 1; transform: scale(1.02); }
     25% { opacity: 0.6; transform: scale(1); }
+  }
+}
+
+@layer utilities {
+  .animate-fade-up {
+    animation: fadeUp 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out forwards;
+  }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
   }
 }

@@ -1,73 +1,45 @@
 import type { APIRoute } from 'astro';
-import CreateSquadClient from '@squadco/js';
+import { z } from 'zod';
+import { SquadAPI, InitiatePaymentSchema } from '../../lib/squad';
+import { handleAPIError } from '../../lib/errors';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const payload = await request.json();
-    
-    const {
-      email,
-      amount,
-      customerName,
-      phone,
-      address,
-      city,
-      state,
-      postalCode,
-      items,
-      transactionRef,
-    } = payload;
+    const body = await request.json();
+    const validated = InitiatePaymentSchema.parse(body);
 
-    const squadPublicKey = import.meta.env.PUBLIC_SQUAD_PUBLIC_KEY;
-    const squadSecretKey = import.meta.env.SQUAD_SECRET_KEY;
-
-    if (!squadPublicKey || !squadSecretKey) {
+    const secretKey = import.meta.env.SQUAD_SECRET_KEY;
+    if (!secretKey) {
       return new Response(JSON.stringify({ error: 'Payment configuration error' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const squad = new CreateSquadClient(
-      squadPublicKey,
-      squadSecretKey,
-      import.meta.env.PROD ? 'production' : 'development'
-    );
+    const squad = new SquadAPI(secretKey, import.meta.env.PROD);
+    const callbackUrl = `${new URL(request.url).origin}/checkout?reference=${validated.transactionRef}&email=${encodeURIComponent(validated.email)}`;
 
-    const response = await squad.initiatePayment({
-      amount: Math.round(amount * 100),
-      email,
-      initiateType: 'inline',
-      currency: 'NGN',
-      customerName,
-      callbackUrl: `${new URL(request.url).origin}/checkout?reference=${transactionRef}&email=${encodeURIComponent(email)}`,
-      metadata: {
-        customer_phone: phone,
-        address,
-        city,
-        state,
-        postal_code: postalCode,
-        items: JSON.stringify(items),
-        transaction_ref: transactionRef,
-      },
-    });
+    const result = await squad.initiatePayment(validated, callbackUrl);
 
-    if (!response.success || !response.data) {
-      return new Response(JSON.stringify({ error: response.message || 'Payment initiation failed' }), {
+    if (!result.success || !result.data) {
+      return new Response(JSON.stringify({ error: result.message }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    return new Response(JSON.stringify({ checkoutUrl: response.data.checkout_url }), {
+    return new Response(JSON.stringify({ checkoutUrl: result.data.checkout_url }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
+
   } catch (error) {
-    console.error('Squad payment initiation error:', error);
-    return new Response(JSON.stringify({ error: 'Payment initialization failed' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    if (error instanceof z.ZodError) {
+      return new Response(JSON.stringify({ error: 'Invalid request data', details: error.issues }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    return handleAPIError(error);
   }
 };

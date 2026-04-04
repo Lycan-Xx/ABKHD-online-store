@@ -1,5 +1,5 @@
 ---
-import CartDrawer from './CartDrawer.astro';
+import CartDrawer from '../cart/CartDrawer.astro';
 import MobileMenu from './MobileMenu.astro';
 
 const currentPath = Astro.url.pathname;
@@ -100,65 +100,52 @@ const isHome = currentPath === '/';
 <CartDrawer />
 
 <script>
-  // Dark mode toggle functionality
-  function initDarkMode() {
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    const darkModeIcon = document.getElementById('dark-mode-icon');
+  import { initDarkMode, toggleDarkMode, $isDarkMode } from '../../stores/dark-mode';
+  import { $cartItems, getCartCount, openCart } from '../../stores/cart';
+  import { createInitializer } from '../../lib/init';
+
+  createInitializer(() => {
+    // Dark mode
+    initDarkMode();
     
     function updateDarkModeIcon() {
-      const isDark = document.documentElement.classList.contains('dark');
-      if (darkModeIcon) {
-        darkModeIcon.className = isDark ? 'bi bi-sun text-lg' : 'bi bi-moon text-lg';
+      const icon = document.getElementById('dark-mode-icon');
+      if (icon) {
+        icon.className = $isDarkMode.get() ? 'bi bi-sun text-lg' : 'bi bi-moon text-lg';
       }
     }
-    
-    // Initialize icon
     updateDarkModeIcon();
-    
-    if (darkModeToggle) {
-      darkModeToggle.addEventListener('click', () => {
-        const currentlyDark = document.documentElement.classList.contains('dark');
-        
-        if (currentlyDark) {
-          document.documentElement.classList.remove('dark');
-          localStorage.setItem('darkMode', 'false');
-        } else {
-          document.documentElement.classList.add('dark');
-          localStorage.setItem('darkMode', 'true');
-        }
-        
-        updateDarkModeIcon();
-      });
-    }
-  }
 
-  // Initialize cart count from localStorage
-  function initCartCount() {
-    try {
-      const cartData = localStorage.getItem('cart');
-      if (cartData) {
-        const items = JSON.parse(cartData);
-        const count = items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
-        const cartCountEl = document.getElementById('cart-count');
-        if (cartCountEl) {
-          cartCountEl.textContent = count.toString();
-          cartCountEl.classList.toggle('hidden', count === 0);
-        }
+    const unsubDark = $isDarkMode.subscribe(() => updateDarkModeIcon());
+
+    // Cart count
+    function updateCartBadge() {
+      const el = document.getElementById('cart-count');
+      if (el) {
+        const count = getCartCount();
+        el.textContent = count.toString();
+        el.classList.toggle('hidden', count === 0);
       }
-    } catch (e) {
-      console.error('Error loading cart count:', e);
     }
-  }
+    updateCartBadge();
+    const unsubCart = $cartItems.subscribe(() => updateCartBadge());
 
-  // Initialize on page load
-  document.addEventListener('DOMContentLoaded', () => {
-    initDarkMode();
-    initCartCount();
-  });
+    // Event listeners
+    const darkToggle = document.getElementById('dark-mode-toggle');
+    const cartToggle = document.getElementById('cart-toggle');
 
-  // Also initialize on Astro view transitions
-  document.addEventListener('astro:page-load', () => {
-    initDarkMode();
-    initCartCount();
+    const handleDark = () => toggleDarkMode();
+    const handleCart = () => openCart();
+
+    darkToggle?.addEventListener('click', handleDark);
+    cartToggle?.addEventListener('click', handleCart);
+
+    // Cleanup
+    return () => {
+      unsubDark();
+      unsubCart();
+      darkToggle?.removeEventListener('click', handleDark);
+      cartToggle?.removeEventListener('click', handleCart);
+    };
   });
 </script>

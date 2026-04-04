@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
+import Header from '../../components/layout/Header.astro';
+import Footer from '../../components/layout/Footer.astro';
 import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../../lib/appwrite';
 import { Query } from 'appwrite';
 import { formatPrice } from '../../lib/utils';
@@ -391,7 +391,7 @@ function parseDescription(text: string): string {
     });
   }
 
-  // Add to cart functionality - dispatch event to React cart
+  // Add to cart functionality - dispatch event for cart update
   const addToCartBtn = document.getElementById('add-to-cart-btn');
   const buyNowBtn = document.getElementById('buy-now-btn');
   const shareBtn = document.getElementById('share-btn');
@@ -481,7 +481,7 @@ function parseDescription(text: string): string {
       // Ensure product.id exists for cart compatibility
       const productToCart = { ...product, id: product.$id };
       
-      // Dispatch custom event for React cart
+      // Dispatch custom event for cart drawer
       window.dispatchEvent(new CustomEvent('add-to-cart', {
         detail: { product: productToCart, quantity: 1 }
       }));
