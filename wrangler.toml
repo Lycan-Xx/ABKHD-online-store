@@ -2,11 +2,6 @@ name = "abkhd-store-astro"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = "./dist"
 
-# Production environment variables (add your secrets via Cloudflare Dashboard or wrangler secret put)
-[env.production]
-vars = { SQUAD_SECRET_KEY = "" }
-
-
 # Uncomment if you want to use Cloudflare KV for data storage
 # [[kv_namespaces]]
 # binding = "MY_KV"
