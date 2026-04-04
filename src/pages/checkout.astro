@@ -4,57 +4,100 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<Layout title="Checkout - ABKHD Store">
+<Layout title="Checkout — ABKHD Store">
   <Header slot="header" />
 
-  <div class="checkout-root">
+  <div class="co-root">
 
-    <!-- ── Back nav ───────────────────────────────────────────── -->
-    <div class="checkout-topbar">
-      <a href="/shop" class="back-link">
-        <i class="bi bi-arrow-left"></i>
-        <span>Continue Shopping</span>
-      </a>
-      <h1 class="checkout-title">Checkout</h1>
+    <!-- ── Mobile sticky progress header ─────────────────────── -->
+    <div class="mobile-header" id="mobile-header">
+      <div class="mobile-header-inner">
+        <a href="/shop" class="mobile-back-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Shop
+        </a>
+        <span class="mobile-title">Checkout</span>
+        <div style="width:60px"></div>
+      </div>
+      <!-- Mobile progress bar -->
+      <div class="mobile-progress" id="mobile-progress">
+        <div class="mobile-progress-info">
+          <span class="mobile-step-label" id="mobile-step-label">Shipping Details</span>
+          <span class="mobile-step-count" id="mobile-step-count">1 / 3</span>
+        </div>
+        <div class="mobile-progress-track">
+          <div class="mobile-progress-fill" id="mobile-progress-fill" style="width: 8%"></div>
+        </div>
+        <div class="mobile-progress-dots">
+          <div class="mobile-dot active" data-step="1"></div>
+          <div class="mobile-dot" data-step="2"></div>
+          <div class="mobile-dot" data-step="3"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- ── Empty cart ─────────────────────────────────────────── -->
+    <!-- ── Empty cart state ───────────────────────────────────── -->
     <div id="empty-state" class="empty-state hidden">
-      <i class="bi bi-bag-x"></i>
+      <div class="empty-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+      </div>
       <h2>Your cart is empty</h2>
-      <p>Add some products before checking out.</p>
+      <p>Add some items before checking out.</p>
       <a href="/shop" class="btn-primary">Browse Products</a>
     </div>
 
-    <!-- ── Main grid ──────────────────────────────────────────── -->
-    <div id="checkout-grid" class="checkout-grid hidden">
+    <!-- ── Checkout layout ────────────────────────────────────── -->
+    <div id="checkout-layout" class="checkout-layout hidden">
 
-      <!-- LEFT: wizard pane -->
-      <div class="wizard-pane">
+      <!-- ───── LEFT: wizard pane ───────────────────────────── -->
+      <div class="wizard-pane" id="wizard-pane">
 
-        <!-- Step indicators -->
-        <div class="steps" id="step-indicators">
-          <div class="step active" data-step="1">
-            <div class="step-circle"><span class="step-num">1</span><i class="bi bi-check2 step-check hidden"></i></div>
+        <!-- Desktop topbar -->
+        <div class="desktop-topbar">
+          <a href="/shop" class="back-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Continue Shopping
+          </a>
+          <h1 class="desktop-title">Checkout</h1>
+        </div>
+
+        <!-- Step indicator (desktop horizontal) -->
+        <div class="steps-bar" id="steps-bar">
+          <div class="step-item active" data-step="1">
+            <div class="step-circle">
+              <span class="step-num">1</span>
+              <svg class="step-check hidden" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
             <span class="step-label">Details</span>
           </div>
-          <div class="step-line"></div>
-          <div class="step" data-step="2">
-            <div class="step-circle"><span class="step-num">2</span><i class="bi bi-check2 step-check hidden"></i></div>
+          <div class="step-line" data-line="1"></div>
+          <div class="step-item" data-step="2">
+            <div class="step-circle">
+              <span class="step-num">2</span>
+              <svg class="step-check hidden" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
             <span class="step-label">Payment</span>
           </div>
-          <div class="step-line"></div>
-          <div class="step" data-step="3">
-            <div class="step-circle"><span class="step-num">3</span><i class="bi bi-check2 step-check hidden"></i></div>
+          <div class="step-line" data-line="2"></div>
+          <div class="step-item" data-step="3">
+            <div class="step-circle">
+              <span class="step-num">3</span>
+              <svg class="step-check hidden" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
             <span class="step-label">Confirmed</span>
           </div>
         </div>
 
-        <!-- ── TAB 1: Details ──────────────────────────────── -->
+        <!-- ─── TAB 1: Details ──────────────────────────── -->
         <div class="tab-panel active" id="tab-details">
-          <h2 class="panel-title">Shipping Details</h2>
+          <div class="panel-header">
+            <h2 class="panel-title">Shipping Details</h2>
+            <p class="panel-sub">Where should we deliver your order?</p>
+          </div>
 
-          <form id="details-form" class="details-form" novalidate>
+          <form id="details-form" novalidate>
             <div class="field-row">
               <div class="field">
                 <label for="fullName">Full Name <span class="req">*</span></label>
@@ -67,7 +110,7 @@ import Footer from '../components/Footer.astro';
             </div>
 
             <div class="field">
-              <label for="phone">Phone <span class="req">*</span></label>
+              <label for="phone">Phone Number <span class="req">*</span></label>
               <input type="tel" id="phone" name="phone" placeholder="+2348012345678" required />
             </div>
 
@@ -85,7 +128,7 @@ import Footer from '../components/Footer.astro';
                     <option value="Yola">Yola</option>
                     <option value="Jimeta">Jimeta</option>
                   </select>
-                  <i class="bi bi-chevron-down select-icon"></i>
+                  <svg class="select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
               </div>
               <div class="field">
@@ -94,7 +137,7 @@ import Footer from '../components/Footer.astro';
                   <select id="state" name="state" disabled>
                     <option value="Adamawa">Adamawa</option>
                   </select>
-                  <i class="bi bi-chevron-down select-icon"></i>
+                  <svg class="select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
               </div>
             </div>
@@ -104,39 +147,66 @@ import Footer from '../components/Footer.astro';
               <input type="text" id="postalCode" name="postalCode" placeholder="640001" />
             </div>
 
-            <button type="submit" class="btn-primary btn-full btn-proceed">
+            <!-- Delivery fee callout -->
+            <div class="delivery-callout hidden" id="delivery-callout">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              <span id="delivery-callout-text">Delivery to Yola: ₦1,000</span>
+            </div>
+
+            <button type="submit" class="btn-primary btn-full">
               Proceed to Payment
-              <i class="bi bi-arrow-right"></i>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           </form>
         </div>
 
-        <!-- ── TAB 2: Payment ──────────────────────────────── -->
+        <!-- ─── TAB 2: Payment ──────────────────────────── -->
         <div class="tab-panel hidden" id="tab-payment">
-          <h2 class="panel-title">Choose Payment</h2>
-          <p class="panel-sub">Select how you'd like to complete your purchase.</p>
+          <div class="panel-header">
+            <h2 class="panel-title">Choose Payment</h2>
+            <p class="panel-sub">Select how you'd like to complete your purchase.</p>
+          </div>
+
+          <!-- Order summary mini (payment tab) -->
+          <div class="payment-summary-strip" id="payment-summary-strip">
+            <div class="pss-row">
+              <span>Subtotal</span>
+              <span id="pss-subtotal">₦0</span>
+            </div>
+            <div class="pss-row">
+              <span>Delivery</span>
+              <span id="pss-shipping">—</span>
+            </div>
+            <div class="pss-row pss-total">
+              <span>Total due</span>
+              <span id="pss-total">₦0</span>
+            </div>
+          </div>
 
           <div class="payment-methods">
-
             <!-- Squad -->
-            <button id="squad-btn" class="payment-method-card">
-              <div class="pm-logo squad-logo">
-                <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <button id="squad-btn" class="pm-card">
+              <div class="pm-logo">
+                <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="40" height="40" rx="10" fill="#FF6B00"/>
                   <path d="M10 28L20 12L30 28H10Z" fill="white" opacity="0.9"/>
                 </svg>
               </div>
               <div class="pm-info">
                 <span class="pm-name">Squad</span>
-                <span class="pm-desc">Pay securely with card, bank transfer, or USSD</span>
+                <span class="pm-desc">Card, bank transfer, or USSD</span>
               </div>
-              <div class="pm-arrow"><i class="bi bi-arrow-right"></i></div>
+              <div class="pm-arrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
             </button>
 
-            <!-- Paystack (coming soon) -->
-            <div class="payment-method-card pm-disabled" title="Coming soon">
-              <div class="pm-logo paystack-logo">
-                <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Paystack — coming soon -->
+            <div class="pm-card pm-disabled">
+              <div class="pm-logo">
+                <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="40" height="40" rx="10" fill="#00C3F7"/>
                   <rect x="8" y="15" width="24" height="4" rx="2" fill="white"/>
                   <rect x="8" y="22" width="16" height="4" rx="2" fill="white" opacity="0.6"/>
@@ -148,20 +218,33 @@ import Footer from '../components/Footer.astro';
               </div>
               <div class="pm-badge">Soon</div>
             </div>
-
           </div>
 
-          <button class="btn-ghost btn-back" id="back-to-details">
-            <i class="bi bi-arrow-left"></i> Back to Details
+          <!-- WhatsApp — secondary option -->
+          <div class="whatsapp-section">
+            <p class="whatsapp-label">Prefer to order manually?</p>
+            <a id="whatsapp-link" href="#" target="_blank" rel="noopener" class="whatsapp-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+              </svg>
+              Chat via WhatsApp
+            </a>
+          </div>
+
+          <button class="btn-ghost" id="back-to-details">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Details
           </button>
         </div>
 
-        <!-- ── TAB 3: Confirmed ────────────────────────────── -->
+        <!-- ─── TAB 3: Confirmed ─────────────────────────── -->
         <div class="tab-panel hidden" id="tab-confirmed">
-          <div class="success-content">
-            <div class="success-icon-wrap">
-              <div class="success-ring"></div>
-              <i class="bi bi-check-lg success-icon"></i>
+          <div class="success-wrap">
+            <div class="success-icon-ring">
+              <div class="success-ring-bg"></div>
+              <svg class="success-check" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
             </div>
             <h2 class="success-title">Order Confirmed!</h2>
             <p class="success-msg">Thank you for your purchase. We've received your order and will process it within 1–2 business days.</p>
@@ -173,18 +256,21 @@ import Footer from '../components/Footer.astro';
 
             <div class="next-steps">
               <div class="next-step">
-                <i class="bi bi-envelope-check"></i>
-                <span>Confirmation email sent to <strong id="confirm-email">—</strong></span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span>Confirmation sent to <strong id="confirm-email">—</strong></span>
               </div>
               <div class="next-step">
-                <i class="bi bi-box-seam"></i>
-                <span>Order processed within 1–2 business days</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                <span>Processed within 1–2 business days</span>
               </div>
               <div class="next-step">
-                <i class="bi bi-truck"></i>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                 <span>Tracking info sent once dispatched</span>
               </div>
             </div>
+
+            <!-- Future: receipt download will go here -->
+            <div id="receipt-slot"></div>
 
             <div class="success-actions">
               <a href="/shop" class="btn-primary">Continue Shopping</a>
@@ -193,18 +279,19 @@ import Footer from '../components/Footer.astro';
           </div>
         </div>
 
-      </div><!-- /wizard-pane -->
+      </div>
+      <!-- /wizard-pane -->
 
-      <!-- RIGHT: cart pane -->
-      <div class="cart-pane">
+      <!-- ───── RIGHT: cart pane ────────────────────────────── -->
+      <div class="cart-pane" id="cart-pane">
         <div class="cart-inner">
-
-          <h3 class="cart-title" id="cart-pane-title">Your Cart</h3>
-
-          <!-- Cart items list -->
-          <div id="cart-items-list" class="cart-items-list">
-            <!-- rendered by JS -->
+          <div class="cart-header-row">
+            <h3 class="cart-title" id="cart-pane-title">Your Cart</h3>
+            <span class="cart-item-count" id="cart-item-count">0 items</span>
           </div>
+
+          <!-- Cart items grid (JS rendered) -->
+          <div id="cart-items-grid" class="cart-items-grid"></div>
 
           <!-- Order summary -->
           <div id="price-summary" class="price-summary">
@@ -213,138 +300,213 @@ import Footer from '../components/Footer.astro';
               <span id="summary-subtotal">₦0</span>
             </div>
             <div class="summary-row">
-              <span>Shipping</span>
-              <span id="summary-shipping">—</span>
+              <span>Delivery</span>
+              <span id="summary-shipping">Select city</span>
             </div>
-            <div class="summary-row total-row">
+            <div class="summary-divider"></div>
+            <div class="summary-row summary-total">
               <span>Total</span>
               <span id="summary-total">₦0</span>
             </div>
           </div>
 
-          <!-- Paid banner (hidden until success) -->
+          <!-- Paid state (hidden until step 3) -->
           <div id="paid-banner" class="paid-banner hidden">
-            <i class="bi bi-shield-check"></i>
-            <span>Successfully Paid</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Payment successful</span>
           </div>
 
-          <!-- WhatsApp button — always visible -->
-          <a id="whatsapp-btn" href="#" target="_blank" class="whatsapp-btn" rel="noopener">
-            <i class="bi bi-whatsapp"></i>
-            <span>Chat via WhatsApp</span>
+          <!-- WhatsApp — tertiary in cart pane -->
+          <a id="whatsapp-cart-btn" href="#" target="_blank" rel="noopener" class="whatsapp-cart-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+            </svg>
+            Order via WhatsApp instead
           </a>
-
         </div>
-      </div><!-- /cart-pane -->
+      </div>
 
-    </div><!-- /checkout-grid -->
+    </div>
+    <!-- /checkout-layout -->
 
-  </div><!-- /checkout-root -->
+  </div>
+  <!-- /co-root -->
 
   <Footer slot="footer" />
-
 </Layout>
 
-<!-- ── Styles ───────────────────────────────────────────────────── -->
+<!-- ── Styles ─────────────────────────────────────────────────────── -->
 <style>
-  /* ---------- Reset / root variables ---------- */
-  .checkout-root {
-    --co-bg:        hsl(var(--background));
-    --co-card:      hsl(var(--card));
-    --co-border:    hsl(var(--border));
-    --co-primary:   hsl(var(--primary));
-    --co-primary-fg:hsl(var(--primary-foreground));
-    --co-muted:     hsl(var(--muted));
-    --co-muted-fg:  hsl(var(--muted-foreground));
-    --co-fg:        hsl(var(--foreground));
-    --co-success:   #16a34a;
-    --co-success-bg:#f0fdf4;
-    --co-success-border:#bbf7d0;
-    --radius-lg: 14px;
-    --radius-md: 10px;
-    --shadow-card: 0 2px 18px rgba(0,0,0,0.07);
+  /* ── Design tokens (inherit from site, override locally) ── */
+  .co-root {
+    --co-bg:          hsl(var(--background));
+    --co-card:        hsl(var(--card));
+    --co-border:      hsl(var(--border));
+    --co-primary:     hsl(var(--primary));
+    --co-primary-fg:  hsl(var(--primary-foreground));
+    --co-muted:       hsl(var(--muted));
+    --co-muted-fg:    hsl(var(--muted-foreground));
+    --co-fg:          hsl(var(--foreground));
+    --co-success:     #16a34a;
+    --co-success-bg:  #f0fdf4;
+    --co-success-bd:  #bbf7d0;
+    --r-lg: 14px;
+    --r-md: 10px;
+    --shadow: 0 2px 20px rgba(0,0,0,0.08);
 
-    max-width: 1200px;
+    max-width: 1240px;
     margin: 0 auto;
-    padding: 28px 20px 64px;
-    min-height: 60vh;
+    padding: 0 20px 80px;
+    min-height: 70vh;
   }
 
-  /* ---------- Topbar ---------- */
-  .checkout-topbar {
+  /* ── Mobile header ── */
+  .mobile-header {
+    display: none;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--co-bg) 95%, transparent);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--co-border);
+    padding-bottom: 14px;
+  }
+  .mobile-header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 32px;
+    padding: 14px 20px 10px;
+  }
+  .mobile-back-link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--co-muted-fg);
+    text-decoration: none;
+  }
+  .mobile-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--co-fg);
+  }
+  .mobile-progress { padding: 0 20px; }
+  .mobile-progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .mobile-step-label { font-size: 13px; font-weight: 600; color: var(--co-fg); }
+  .mobile-step-count { font-size: 12px; color: var(--co-muted-fg); }
+  .mobile-progress-track {
+    height: 3px;
+    border-radius: 2px;
+    background: var(--co-border);
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .mobile-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--co-primary);
+    transition: width 0.4s ease;
+  }
+  .mobile-progress-dots { display: flex; gap: 6px; }
+  .mobile-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--co-border);
+    transition: background 0.3s ease, width 0.3s ease;
+  }
+  .mobile-dot.active { background: var(--co-primary); width: 18px; border-radius: 3px; }
+  .mobile-dot.done { background: var(--co-success); }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center;
+    padding: 100px 24px;
+  }
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--co-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: var(--co-muted-fg);
+  }
+  .empty-state h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--co-fg); }
+  .empty-state p { color: var(--co-muted-fg); font-size: 14px; margin-bottom: 24px; }
+
+  /* ── Layout ── */
+  .checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 28px;
+    align-items: start;
+    padding-top: 32px;
+  }
+  @media (max-width: 960px) {
+    .checkout-layout { grid-template-columns: 1fr; }
+    .cart-pane { order: -1; }
+    .mobile-header { display: block; }
+    .desktop-topbar { display: none; }
+    .co-root { padding-top: 0; }
+    .checkout-layout { padding-top: 20px; }
+  }
+
+  /* ── Wizard pane ── */
+  .wizard-pane {
+    background: var(--co-card);
+    border: 1px solid var(--co-border);
+    border-radius: var(--r-lg);
+    padding: 32px;
+    box-shadow: var(--shadow);
+  }
+  @media (max-width: 600px) { .wizard-pane { padding: 20px 16px; border-radius: 12px; } }
+
+  /* Desktop topbar */
+  .desktop-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
     flex-wrap: wrap;
     gap: 10px;
   }
   .back-link {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: var(--radius-md);
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--r-md);
     border: 1px solid var(--co-border);
-    background: var(--co-card);
+    background: var(--co-bg);
     font-size: 13px;
     font-weight: 500;
-    color: var(--co-fg);
-    text-decoration: none;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  .back-link:hover { border-color: var(--co-primary); background: color-mix(in srgb, var(--co-primary) 6%, var(--co-card)); }
-  .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
     color: var(--co-muted-fg);
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
   }
-  .breadcrumb a { color: var(--co-muted-fg); text-decoration: none; }
-  .breadcrumb a:hover { color: var(--co-fg); }
+  .back-link:hover { border-color: var(--co-primary); color: var(--co-fg); }
+  .desktop-title { font-size: 22px; font-weight: 800; color: var(--co-fg); margin: 0; }
 
-  /* ---------- Empty state ---------- */
-  .empty-state {
-    text-align: center;
-    padding: 80px 20px;
-  }
-  .empty-state i { font-size: 52px; color: var(--co-muted-fg); display: block; margin-bottom: 16px; }
-  .empty-state h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-  .empty-state p { color: var(--co-muted-fg); margin-bottom: 20px; }
-
-  /* ---------- Grid ---------- */
-  .checkout-grid {
-    display: grid;
-    grid-template-columns: 1fr 420px;
-    gap: 28px;
-    align-items: start;
-  }
-  @media (max-width: 900px) {
-    .checkout-grid { grid-template-columns: 1fr; }
-    .cart-pane { order: -1; }
-  }
-
-  /* ---------- Wizard pane ---------- */
-  .wizard-pane {
-    background: var(--co-card);
-    border: 1px solid var(--co-border);
-    border-radius: var(--radius-lg);
-    padding: 32px;
-    box-shadow: var(--shadow-card);
-  }
-
-  /* Step indicators */
-  .steps {
+  /* ── Steps bar ── */
+  .steps-bar {
     display: flex;
     align-items: center;
-    margin-bottom: 36px;
+    margin-bottom: 32px;
   }
-  .step {
+  .step-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     flex-shrink: 0;
   }
   .step-circle {
@@ -359,183 +521,152 @@ import Footer from '../components/Footer.astro';
     font-size: 13px;
     font-weight: 700;
     color: var(--co-muted-fg);
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     position: relative;
   }
-  .step.active .step-circle {
+  .step-item.active .step-circle {
     border-color: var(--co-primary);
     background: var(--co-primary);
     color: var(--co-primary-fg);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--co-primary) 15%, transparent);
   }
-  .step.done .step-circle {
+  .step-item.done .step-circle {
     border-color: var(--co-success);
     background: var(--co-success);
-    color: #fff;
+    color: white;
   }
-  .step.done .step-num { display: none; }
-  .step.done .step-check { display: block !important; }
-  .step-check { font-size: 14px; }
+  .step-item.done .step-num { display: none; }
+  .step-item.done .step-check { display: block !important; }
   .step-label {
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.04em;
-    color: var(--co-muted-fg);
+    letter-spacing: 0.05em;
     text-transform: uppercase;
+    color: var(--co-muted-fg);
   }
-  .step.active .step-label { color: var(--co-primary); }
-  .step.done .step-label { color: var(--co-success); }
+  .step-item.active .step-label { color: var(--co-primary); }
+  .step-item.done .step-label { color: var(--co-success); }
   .step-line {
     flex: 1;
     height: 2px;
     background: var(--co-border);
-    margin: 0 8px;
-    margin-bottom: 22px;
-    transition: background 0.3s;
+    margin: 0 6px 20px;
+    transition: background 0.4s ease;
   }
   .step-line.done { background: var(--co-success); }
 
-  /* ---------- Tab panels ---------- */
-  .tab-panel { animation: fadeUp 0.25s ease; }
+  /* ── Tab panels ── */
+  .tab-panel { animation: fadeUp 0.28s ease; }
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
+    from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .panel-title {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: var(--co-fg);
-  }
-  .panel-sub {
-    font-size: 13px;
-    color: var(--co-muted-fg);
-    margin-bottom: 24px;
-  }
+  .panel-header { margin-bottom: 22px; }
+  .panel-title { font-size: 20px; font-weight: 700; color: var(--co-fg); margin: 0 0 5px; }
+  .panel-sub { font-size: 13px; color: var(--co-muted-fg); margin: 0; }
 
-  /* ---------- Details form ---------- */
-  .details-form { display: flex; flex-direction: column; gap: 16px; }
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 560px) { .field-row { grid-template-columns: 1fr; } }
-  .field { display: flex; flex-direction: column; gap: 6px; }
+  /* ── Form ── */
+  #details-form { display: flex; flex-direction: column; gap: 15px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+  @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 5px; }
   .field label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.03em;
-    color: var(--co-muted-fg);
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    color: var(--co-muted-fg);
   }
   .req { color: var(--co-primary); }
-  .optional { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--co-muted-fg); opacity: 0.7; }
+  .optional { font-weight: 400; text-transform: none; letter-spacing: 0; opacity: 0.65; }
   .field input,
   .select-wrap select {
     width: 100%;
-    padding: 11px 14px;
+    padding: 10px 13px;
     border: 1.5px solid var(--co-border);
-    border-radius: var(--radius-md);
+    border-radius: var(--r-md);
     background: var(--co-bg);
     color: var(--co-fg);
     font-size: 14px;
     font-family: inherit;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.18s, box-shadow 0.18s;
     -webkit-appearance: none;
     appearance: none;
+    box-sizing: border-box;
   }
   .field input:focus,
   .select-wrap select:focus {
     border-color: var(--co-primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--co-primary) 15%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--co-primary) 14%, transparent);
   }
   .field input.invalid { border-color: #ef4444; }
   .select-wrap { position: relative; }
-  .select-wrap select { padding-right: 36px; cursor: pointer; }
-  .select-wrap select:disabled { opacity: 0.55; cursor: not-allowed; }
+  .select-wrap select { padding-right: 34px; cursor: pointer; }
+  .select-wrap select:disabled { opacity: 0.5; cursor: not-allowed; }
   .select-icon {
     position: absolute;
-    right: 12px;
+    right: 11px;
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
     color: var(--co-muted-fg);
-    font-size: 13px;
   }
 
-  /* ---------- Buttons ---------- */
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: var(--co-primary);
-    color: var(--co-primary-fg);
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    transition: opacity 0.2s, transform 0.15s;
-    font-family: inherit;
-  }
-  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-  .btn-full { width: 100%; }
-  .btn-proceed { margin-top: 6px; padding: 14px 24px; font-size: 15px; }
-
-  .btn-ghost {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border: 1.5px solid var(--co-border);
-    border-radius: var(--radius-md);
-    background: transparent;
-    color: var(--co-fg);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    font-family: inherit;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  .btn-ghost:hover { border-color: var(--co-primary); background: color-mix(in srgb, var(--co-primary) 5%, transparent); }
-  .btn-back { margin-top: 20px; }
-
-  /* ---------- Payment methods ---------- */
-  .payment-methods { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
-  .payment-method-card {
+  /* Delivery callout */
+  .delivery-callout {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 16px 18px;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--co-primary) 8%, var(--co-bg));
+    border: 1px solid color-mix(in srgb, var(--co-primary) 25%, transparent);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--co-primary);
+  }
+
+  /* ── Payment tab ── */
+  .payment-summary-strip {
+    background: var(--co-muted);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    margin-bottom: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pss-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--co-muted-fg); }
+  .pss-total { font-size: 15px; font-weight: 700; color: var(--co-fg); border-top: 1px solid var(--co-border); padding-top: 8px; margin-top: 2px; }
+
+  .payment-methods { display: flex; flex-direction: column; gap: 11px; margin-bottom: 20px; }
+  .pm-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 17px;
     border: 1.5px solid var(--co-border);
-    border-radius: var(--radius-md);
+    border-radius: var(--r-md);
     background: var(--co-bg);
     cursor: pointer;
     text-align: left;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
     width: 100%;
     font-family: inherit;
     color: var(--co-fg);
   }
-  .payment-method-card:hover:not(.pm-disabled) {
+  .pm-card:hover:not(.pm-disabled) {
     border-color: var(--co-primary);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--co-primary) 10%, transparent);
     background: color-mix(in srgb, var(--co-primary) 3%, var(--co-bg));
   }
-  .pm-disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    filter: blur(0.3px);
-    pointer-events: none;
-  }
+  .pm-disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
   .pm-logo { flex-shrink: 0; }
   .pm-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
   .pm-name { font-size: 15px; font-weight: 700; }
   .pm-desc { font-size: 12px; color: var(--co-muted-fg); }
-  .pm-arrow { color: var(--co-muted-fg); font-size: 16px; }
+  .pm-arrow { color: var(--co-muted-fg); }
   .pm-badge {
     padding: 3px 10px;
     background: var(--co-muted);
@@ -546,29 +677,66 @@ import Footer from '../components/Footer.astro';
     letter-spacing: 0.04em;
   }
 
-  /* ---------- Success tab ---------- */
-  .success-content { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px 0 4px; gap: 18px; }
-  .success-icon-wrap { position: relative; width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; }
-  .success-ring {
+  /* WhatsApp section (payment tab) */
+  .whatsapp-section {
+    border-top: 1px solid var(--co-border);
+    padding-top: 16px;
+    margin-bottom: 16px;
+  }
+  .whatsapp-label { font-size: 12px; color: var(--co-muted-fg); margin: 0 0 10px; }
+  .whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border: 1.5px solid #22c55e;
+    border-radius: var(--r-md);
+    color: #22c55e;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    background: transparent;
+    transition: background 0.18s;
+  }
+  .whatsapp-btn:hover { background: color-mix(in srgb, #22c55e 8%, transparent); }
+
+  /* ── Success tab ── */
+  .success-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    padding: 8px 0;
+  }
+  .success-icon-ring {
+    position: relative;
+    width: 74px;
+    height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .success-ring-bg {
     position: absolute;
     inset: 0;
     border-radius: 50%;
     background: var(--co-success-bg);
-    border: 2px solid var(--co-success-border);
-    animation: ringPop 0.4s ease;
+    border: 2px solid var(--co-success-bd);
+    animation: ringPop 0.45s ease;
   }
   @keyframes ringPop {
-    0% { transform: scale(0.5); opacity: 0; }
-    60% { transform: scale(1.1); }
+    0% { transform: scale(0.4); opacity: 0; }
+    65% { transform: scale(1.1); }
     100% { transform: scale(1); opacity: 1; }
   }
-  .success-icon { font-size: 32px; color: var(--co-success); position: relative; z-index: 1; }
-  .success-title { font-size: 22px; font-weight: 800; color: var(--co-fg); }
-  .success-msg { font-size: 14px; color: var(--co-muted-fg); max-width: 380px; line-height: 1.6; }
+  .success-check { position: relative; z-index: 1; color: var(--co-success); }
+  .success-title { font-size: 22px; font-weight: 800; color: var(--co-fg); margin: 0; }
+  .success-msg { font-size: 14px; color: var(--co-muted-fg); max-width: 370px; line-height: 1.65; margin: 0; }
   .order-ref-card {
     width: 100%;
     background: var(--co-muted);
-    border-radius: var(--radius-md);
+    border-radius: var(--r-md);
     padding: 14px 18px;
     display: flex;
     flex-direction: column;
@@ -576,65 +744,142 @@ import Footer from '../components/Footer.astro';
     text-align: left;
   }
   .ref-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--co-muted-fg); }
-  .ref-value { font-size: 15px; font-weight: 700; font-family: monospace; color: var(--co-fg); }
-  .next-steps { width: 100%; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+  .ref-value { font-size: 15px; font-weight: 700; font-family: monospace; color: var(--co-fg); word-break: break-all; }
+  .next-steps { width: 100%; display: flex; flex-direction: column; gap: 12px; text-align: left; }
   .next-step { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; color: var(--co-fg); }
-  .next-step i { color: var(--co-success); font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .next-step svg { color: var(--co-success); flex-shrink: 0; margin-top: 2px; }
   .success-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
 
-  /* ---------- Cart pane ---------- */
-  .cart-pane { position: sticky; top: 88px; }
+  /* ── Buttons ── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 12px 22px;
+    background: var(--co-primary);
+    color: var(--co-primary-fg);
+    border: none;
+    border-radius: var(--r-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.18s, transform 0.14s;
+    font-family: inherit;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-full { width: 100%; padding: 13px 22px; font-size: 15px; margin-top: 4px; }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border: 1.5px solid var(--co-border);
+    border-radius: var(--r-md);
+    background: transparent;
+    color: var(--co-muted-fg);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+    transition: border-color 0.18s, color 0.18s;
+    margin-top: 14px;
+  }
+  .btn-ghost:hover { border-color: var(--co-primary); color: var(--co-fg); }
+
+  /* ── Cart pane ── */
+  .cart-pane {
+    position: sticky;
+    top: 88px;
+  }
+  @media (max-width: 960px) {
+    .cart-pane { position: static; }
+  }
   .cart-inner {
     background: var(--co-card);
     border: 1px solid var(--co-border);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    box-shadow: var(--shadow-card);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
     gap: 0;
   }
-  .cart-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: var(--co-fg);
+  .cart-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .cart-title { font-size: 16px; font-weight: 700; color: var(--co-fg); margin: 0; }
+  .cart-item-count { font-size: 12px; color: var(--co-muted-fg); }
+
+  /* ── Cart items grid (always single column in cart pane) ── */
+  .cart-items-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
   }
 
-  /* Cart items */
-  .cart-items-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
   .cart-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px;
     border: 1.5px solid var(--co-border);
-    border-radius: var(--radius-md);
+    border-radius: var(--r-md);
     background: var(--co-bg);
-    transition: border-color 0.3s;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
   }
-  .cart-item.success-item {
-    border-color: var(--co-success-border);
-    background: var(--co-success-bg);
-  }
-  .cart-item img {
+  .cart-item.success-item { border-color: var(--co-success-bd); background: var(--co-success-bg); }
+
+  /* Horizontal list: image on left, info on right */
+  .cart-item-img {
     width: 60px;
     height: 60px;
     object-fit: cover;
-    border-radius: 8px;
+    display: block;
+    background: var(--co-muted);
+    border-radius: 6px;
     flex-shrink: 0;
   }
-  .cart-item-body { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .cart-item-name { font-size: 13px; font-weight: 600; color: var(--co-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cart-item-price { font-size: 12px; color: var(--co-muted-fg); }
-  .cart-item-subtotal { font-size: 13px; font-weight: 700; color: var(--co-fg); }
-  .qty-controls { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
-  .qty-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    border: 1.5px solid var(--co-border);
-    background: var(--co-card);
+  .cart-item-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+  .cart-item-name {
+    font-size: 12px;
+    font-weight: 600;
     color: var(--co-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.3;
+  }
+  .cart-item-meta { font-size: 11px; color: var(--co-muted-fg); }
+  .cart-item-subtotal { font-size: 12px; font-weight: 700; color: var(--co-fg); }
+
+  .qty-controls { display: flex; align-items: center; gap: 7px; margin-top: 8px; flex-wrap: wrap; }
+  .qty-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    border: none;
+    background: color-mix(in srgb, var(--co-primary) 12%, var(--co-bg));
+    color: var(--co-primary);
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
@@ -642,487 +887,518 @@ import Footer from '../components/Footer.astro';
     align-items: center;
     justify-content: center;
     line-height: 1;
-    transition: border-color 0.15s, background 0.15s;
+    transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
     padding: 0;
     font-family: inherit;
   }
-  .qty-btn:hover { border-color: var(--co-primary); background: color-mix(in srgb, var(--co-primary) 8%, var(--co-card)); }
+  .qty-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--co-primary) 22%, var(--co-bg));
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--co-primary) 25%, transparent);
+  }
+  .qty-btn:active:not(:disabled) { transform: scale(0.98); }
   .qty-btn:disabled { opacity: 0.35; cursor: not-allowed; }
   .qty-value { font-size: 13px; font-weight: 700; min-width: 20px; text-align: center; color: var(--co-fg); }
   .remove-btn {
-    background: none;
-    border: none;
+    background: #fee2e2;
+    border: 1.5px solid #fca5a5;
     cursor: pointer;
-    color: #ef4444;
-    font-size: 13px;
-    padding: 0;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
     font-family: inherit;
-    margin-top: 2px;
-    transition: opacity 0.15s;
+    transition: background 0.18s, border-color 0.18s, transform 0.12s;
   }
-  .remove-btn:hover { opacity: 0.7; }
+  .remove-btn:hover { background: #fecaca; border-color: #f87171; transform: scale(1.03); }
+  .remove-btn:active { transform: scale(0.98); }
 
-  /* Price summary */
-  .price-summary { border-top: 1px solid var(--co-border); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-  .summary-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--co-muted-fg); }
-  .total-row { font-size: 15px; font-weight: 700; color: var(--co-fg); border-top: 1px solid var(--co-border); padding-top: 10px; margin-top: 4px; }
-
-  /* Paid banner */
-  .paid-banner {
-    border-top: 1px solid var(--co-success-border);
+  /* ── Price summary ── */
+  .price-summary {
+    border-top: 1px solid var(--co-border);
     padding-top: 16px;
-    margin-bottom: 18px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: var(--co-success-bg);
-    border-radius: var(--radius-md);
-    padding: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--co-success);
-    border: 1.5px solid var(--co-success-border);
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 16px;
   }
-  .paid-banner i { font-size: 20px; }
+  .summary-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--co-muted-fg); }
+  .summary-divider { height: 1px; background: var(--co-border); margin: 3px 0; }
+  .summary-total { font-size: 15px; font-weight: 700; color: var(--co-fg); }
 
-  /* WhatsApp */
-  .whatsapp-btn {
-    margin-top: 4px;
+  /* ── Paid banner ── */
+  .paid-banner {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 9px;
-    padding: 12px 18px;
-    background: #22c55e;
-    color: #fff;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.2s, transform 0.15s;
+    padding: 12px 16px;
+    background: var(--co-success-bg);
+    border: 1.5px solid var(--co-success-bd);
+    border-radius: var(--r-md);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--co-success);
+    margin-bottom: 14px;
   }
-  .whatsapp-btn i { font-size: 16px; }
-  .whatsapp-btn:hover { background: #16a34a; transform: translateY(-1px); }
 
-  /* Utilities */
+  /* ── WhatsApp in cart (tertiary) ── */
+  .whatsapp-cart-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid var(--co-border);
+    border-radius: var(--r-md);
+    color: var(--co-muted-fg);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    background: transparent;
+    transition: border-color 0.18s, color 0.18s;
+    margin-top: 4px;
+  }
+  .whatsapp-cart-btn:hover { border-color: #22c55e; color: #22c55e; }
+
+  /* ── Utilities ── */
   .hidden { display: none !important; }
 </style>
 
-<!-- ── Script ────────────────────────────────────────────────────── -->
+<!-- ── Script ─────────────────────────────────────────────────────── -->
 <script>
-  import { databases, APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID } from '../lib/appwrite';
+  // Wrap everything in an async IIFE so top-level await works safely
+  // and any parse error doesn't kill the whole page script
+  (async () => {
 
-  /* ─── Constants ──────────────────────────────────────────── */
-  const SHIPPING = { Yola: 1000, Jimeta: 2000 };
-  const WHATSAPP_NUMBER = '2348085657927';
+    /* ── Lazy import (Appwrite only needed on payment return) ── */
+    let databases: any = null;
+    let APPWRITE_DB_ID = '';
+    let APPWRITE_ORDERS_COLLECTION_ID = '';
+    let ID: any = null;
 
-  /* ─── State ──────────────────────────────────────────────── */
-  let currentTab = 1;
-  let currentTxRef = '';
-  let confirmedEmail = '';
+    /* ─────────────────────────────────────────────────────────────
+       CONSTANTS
+    ───────────────────────────────────────────────────────────── */
+    const SHIPPING_FEES: Record<string, number> = {
+      Yola: 1000,
+      Jimeta: 2000,
+    };
+    const WHATSAPP_NUMBER = '2348085657927';
 
-  /* ─── Helpers ────────────────────────────────────────────── */
-  const fmt = (n) => '₦' + n.toLocaleString('en-NG');
+    const STEP_LABELS = ['Shipping Details', 'Choose Payment', 'Order Confirmed'];
+    const STEP_PROGRESS = ['8%', '50%', '100%'];
 
-  function getCart() {
-    try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
-    catch { return []; }
-  }
-  function saveCart(items) {
-    localStorage.setItem('cart', JSON.stringify(items));
-    window.dispatchEvent(new Event('cart-updated'));
-  }
-  function subtotal(items) {
-    return items.reduce((s, i) => s + i.price * i.quantity, 0);
-  }
-  function shippingFee() {
-    const city = document.getElementById('city')?.value;
-    return SHIPPING[city] ?? 0;
-  }
+    /* ─────────────────────────────────────────────────────────────
+       STATE
+    ───────────────────────────────────────────────────────────── */
+    let currentStep = 1;
+    let confirmedEmail = '';
+    let currentTxRef = '';
 
-  /* ─── WhatsApp link builder ──────────────────────────────── */
-  function buildWhatsAppHref() {
-    const items = getCart();
-    if (!items.length) return `https://wa.me/${WHATSAPP_NUMBER}`;
-    const total = subtotal(items) + shippingFee();
-    let msg = 'Hello ABKHD, I want to order:%0A%0A';
-    items.forEach(i => {
-      msg += `- ${i.name} x${i.quantity} = ${fmt(i.price * i.quantity)}%0A`;
-    });
-    msg += `%0AShipping: ${shippingFee() ? fmt(shippingFee()) : 'TBD'}`;
-    msg += `%0ATotal: ${fmt(total)}%0A%0APlease confirm availability.`;
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
-  }
-
-  /* ─── Render cart ────────────────────────────────────────── */
-  function renderCart(successMode = false) {
-    const items = getCart();
-    const list = document.getElementById('cart-items-list');
-    const emptyState = document.getElementById('empty-state');
-    const grid = document.getElementById('checkout-grid');
-
-    if (!list || !emptyState || !grid) {
-      console.error('[Checkout] Required DOM elements not found');
-      return;
+    /* ─────────────────────────────────────────────────────────────
+       CART HELPERS
+    ───────────────────────────────────────────────────────────── */
+    function getCart(): any[] {
+      try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
+      catch { return []; }
     }
 
-    console.log('[Checkout] renderCart called with', items.length, 'items, successMode:', successMode);
-
-    if (!successMode && items.length === 0) {
-      console.log('[Checkout] Showing empty state');
-      emptyState.classList.remove('hidden');
-      grid.classList.add('hidden');
-      return;
+    function saveCart(items: any[]) {
+      localStorage.setItem('cart', JSON.stringify(items));
+      window.dispatchEvent(new Event('cart-updated'));
     }
-    
-    console.log('[Checkout] Showing checkout grid with items');
-    emptyState.classList.add('hidden');
-    grid.classList.remove('hidden');
 
-    // Validate items have required fields
-    const validItems = items.filter(item => {
-      if (!item.id || !item.name || item.price === undefined || !item.image) {
-        console.warn('[Checkout] Invalid item skipped:', item);
-        return false;
+    function fmt(n: number) {
+      return '₦' + Number(n).toLocaleString('en-NG');
+    }
+
+    function subtotal(items: any[]) {
+      return items.reduce((s, i) => s + (i.price * i.quantity), 0);
+    }
+
+    function getCity(): string {
+      return (document.getElementById('city') as HTMLSelectElement)?.value || '';
+    }
+
+    function shippingFee(): number {
+      return SHIPPING_FEES[getCity()] ?? 0;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       WHATSAPP LINK
+    ───────────────────────────────────────────────────────────── */
+    function buildWhatsAppHref(): string {
+      const items = getCart();
+      if (!items.length) return `https://wa.me/${WHATSAPP_NUMBER}`;
+      const total = subtotal(items) + shippingFee();
+      let msg = 'Hello ABKHD, I want to order:%0A%0A';
+      items.forEach(i => {
+        msg += `- ${encodeURIComponent(i.name)} x${i.quantity} = ${fmt(i.price * i.quantity)}%0A`;
+      });
+      const city = getCity();
+      msg += `%0ADelivery (${city || 'TBD'}): ${city ? fmt(shippingFee()) : 'TBD'}`;
+      msg += `%0ATotal: ${fmt(total)}%0A%0APlease confirm availability.`;
+      return `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+    }
+
+    function updateWhatsAppLinks() {
+      const href = buildWhatsAppHref();
+      const el1 = document.getElementById('whatsapp-link') as HTMLAnchorElement;
+      const el2 = document.getElementById('whatsapp-cart-btn') as HTMLAnchorElement;
+      if (el1) el1.href = href;
+      if (el2) el2.href = href;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       RENDER CART
+    ───────────────────────────────────────────────────────────── */
+    function renderCart(successMode = false) {
+      const items = getCart();
+      const grid   = document.getElementById('cart-items-grid')!;
+      const empty  = document.getElementById('empty-state')!;
+      const layout = document.getElementById('checkout-layout')!;
+
+      if (!successMode && items.length === 0) {
+        empty.classList.remove('hidden');
+        layout.classList.add('hidden');
+        return;
       }
-      return true;
-    });
 
-    if (validItems.length === 0 && items.length > 0) {
-      console.error('[Checkout] All items were invalid');
-      list.innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444;">Error loading cart items. Please refresh the page.</div>';
-      return;
-    }
+      empty.classList.add('hidden');
+      layout.classList.remove('hidden');
 
-    list.innerHTML = validItems.map(item => `
-      <div class="cart-item ${successMode ? 'success-item' : ''}" data-cart-id="${item.cartId}">
-        <img src="${item.image}" alt="${item.name}" crossorigin="anonymous" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22%3E%3Crect fill=%22%23ddd%22 width=%2260%22 height=%2260%22/%3E%3C/svg%3E'" />
-        <div class="cart-item-body">
-          <div class="cart-item-name" title="${item.name}">${item.name}</div>
-          <div class="cart-item-price">${fmt(item.price)} each</div>
-          <div class="cart-item-subtotal">${fmt(item.price * item.quantity)}</div>
-          ${!successMode ? `
-          <div class="qty-controls">
-            <button class="qty-btn qty-dec" data-cart-id="${item.cartId}" ${item.quantity <= 1 ? 'disabled' : ''}>−</button>
-            <span class="qty-value">${item.quantity}</span>
-            <button class="qty-btn qty-inc" data-cart-id="${item.cartId}">+</button>
-            <button class="remove-btn" data-cart-id="${item.cartId}">Remove</button>
-          </div>` : ''}
+      // item count badge
+      const totalQty = items.reduce((s: number, i: any) => s + i.quantity, 0);
+      const countEl = document.getElementById('cart-item-count');
+      if (countEl) countEl.textContent = `${totalQty} item${totalQty !== 1 ? 's' : ''}`;
+
+      if (!grid) return;
+
+      grid.innerHTML = items.map((item: any) => `
+        <div class="cart-item ${successMode ? 'success-item' : ''}" data-cart-id="${item.cartId}">
+          <img
+            class="cart-item-img"
+            src="${item.image}"
+            alt="${item.name}"
+            crossorigin="anonymous"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%2290%22%3E%3Crect fill=%22%23ddd%22 width=%22120%22 height=%2290%22/%3E%3C/svg%3E'"
+          />
+          <div class="cart-item-body">
+            <div class="cart-item-name" title="${item.name}">${item.name}</div>
+            <div class="cart-item-meta">${fmt(item.price)} each</div>
+            <div class="cart-item-subtotal">${fmt(item.price * item.quantity)}</div>
+            ${!successMode ? `
+              <div class="qty-controls">
+                <button class="qty-btn qty-dec" data-cart-id="${item.cartId}" ${item.quantity <= 1 ? 'disabled' : ''}>−</button>
+                <span class="qty-value">${item.quantity}</span>
+                <button class="qty-btn qty-inc" data-cart-id="${item.cartId}">+</button>
+                <button class="remove-btn" data-cart-id="${item.cartId}">Remove</button>
+              </div>
+            ` : ''}
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
 
-    console.log('[Checkout] Rendered', validItems.length, 'items');
-
-    // Attach qty / remove listeners
-    if (!successMode) {
-      list.querySelectorAll('.qty-dec').forEach(btn => {
-        btn.addEventListener('click', () => adjustQty(btn.dataset.cartId, -1));
-      });
-      list.querySelectorAll('.qty-inc').forEach(btn => {
-        btn.addEventListener('click', () => adjustQty(btn.dataset.cartId, 1));
-      });
-      list.querySelectorAll('.remove-btn').forEach(btn => {
-        btn.addEventListener('click', () => removeItem(btn.dataset.cartId));
-      });
-    }
-
-    updateSummary(successMode);
-    updateWhatsApp();
-  }
-
-  function adjustQty(cartId, delta) {
-    const items = getCart().map(i => i.cartId === cartId ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i);
-    saveCart(items);
-    renderCart();
-  }
-  function removeItem(cartId) {
-    const items = getCart().filter(i => i.cartId !== cartId);
-    saveCart(items);
-    renderCart();
-  }
-
-  function updateSummary(successMode = false) {
-    const items = getCart();
-    const sub = subtotal(items);
-    const ship = shippingFee();
-    const total = sub + ship;
-    const cityVal = document.getElementById('city')?.value;
-
-    const summaryEl = document.getElementById('price-summary');
-    const paidEl = document.getElementById('paid-banner');
-
-    if (successMode) {
-      summaryEl.classList.add('hidden');
-      paidEl.classList.remove('hidden');
-      return;
-    }
-
-    summaryEl.classList.remove('hidden');
-    paidEl.classList.add('hidden');
-
-    document.getElementById('summary-subtotal').textContent = fmt(sub);
-    document.getElementById('summary-shipping').textContent = cityVal ? fmt(ship) : '—';
-    document.getElementById('summary-total').textContent = cityVal ? fmt(total) : fmt(sub);
-  }
-
-  function updateWhatsApp() {
-    const btn = document.getElementById('whatsapp-btn');
-    if (btn) btn.href = buildWhatsAppHref();
-  }
-
-  /* ─── Tab navigation ─────────────────────────────────────── */
-  function goToTab(tab) {
-    currentTab = tab;
-    document.querySelectorAll('.tab-panel').forEach((el, i) => {
-      el.classList.toggle('hidden', i + 1 !== tab);
-      el.classList.toggle('active', i + 1 === tab);
-    });
-
-    // Step indicators
-    document.querySelectorAll('.step').forEach((el) => {
-      const n = parseInt(el.dataset.step || '0');
-      el.classList.remove('active', 'done');
-      if (n === tab) el.classList.add('active');
-      if (n < tab) el.classList.add('done');
-    });
-
-    // Step lines
-    document.querySelectorAll('.step-line').forEach((el, i) => {
-      el.classList.toggle('done', i + 1 < tab);
-    });
-
-    if (tab === 3) renderCart(true);
-  }
-
-  /* ─── Details form submit ────────────────────────────────── */
-  document.getElementById('details-form')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const form = e.target;
-    let valid = true;
-
-    form.querySelectorAll('[required]').forEach(el => {
-      if (!el.value.trim()) {
-        el.classList.add('invalid');
-        valid = false;
-      } else {
-        el.classList.remove('invalid');
-      }
-    });
-
-    if (!valid) return;
-    goToTab(2);
-  });
-
-  // Remove invalid class on input
-  document.querySelectorAll('.details-form input, .details-form select').forEach(el => {
-    el.addEventListener('input', () => el.classList.remove('invalid'));
-  });
-
-  // City change → update shipping
-  document.getElementById('city')?.addEventListener('change', () => {
-    updateSummary();
-    updateWhatsApp();
-  });
-
-  // Back to details
-  document.getElementById('back-to-details')?.addEventListener('click', () => goToTab(1));
-
-  /* ─── Squad payment ──────────────────────────────────────── */
-  document.getElementById('squad-btn')?.addEventListener('click', async () => {
-    const items = getCart();
-    if (!items.length) return;
-
-    const email    = document.getElementById('email').value;
-    const phone    = document.getElementById('phone').value;
-    const name     = document.getElementById('fullName').value;
-    const address  = document.getElementById('address').value;
-    const city     = document.getElementById('city').value;
-    const state    = document.getElementById('state').value;
-    const postal   = document.getElementById('postalCode').value;
-    const ship     = shippingFee();
-    const total    = subtotal(items) + ship;
-
-    currentTxRef  = `ABKHD-${Date.now()}`;
-    confirmedEmail = email;
-
-    const btn = document.getElementById('squad-btn') as HTMLButtonElement;
-    if (!btn) return;
-    btn.disabled = true;
-    const pmName = btn.querySelector('.pm-name');
-    if (pmName) pmName.textContent = 'Initializing…';
-
-    try {
-      const response = await fetch('/api/squad-initiate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          amount: total,
-          customerName: name,
-          phone,
-          address,
-          city,
-          state,
-          postalCode: postal || '',
-          items,
-          transactionRef: currentTxRef,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.checkoutUrl) {
-        throw new Error(result.error || 'Failed to initialize payment');
+      if (!successMode) {
+        grid.querySelectorAll('.qty-dec').forEach(btn => {
+          btn.addEventListener('click', () => adjustQty((btn as HTMLElement).dataset.cartId!, -1));
+        });
+        grid.querySelectorAll('.qty-inc').forEach(btn => {
+          btn.addEventListener('click', () => adjustQty((btn as HTMLElement).dataset.cartId!, 1));
+        });
+        grid.querySelectorAll('.remove-btn').forEach(btn => {
+          btn.addEventListener('click', () => removeItem((btn as HTMLElement).dataset.cartId!));
+        });
       }
 
-      sessionStorage.setItem('pendingOrder', JSON.stringify({
-        txRef: currentTxRef,
-        email,
-        name,
-        phone,
-        address,
-        city,
-        state,
-        postalCode: postal || '',
-        items,
-        total,
-      }));
-
-      window.location.href = result.checkoutUrl;
-    } catch (err) {
-      console.error('Squad init error:', err);
-      alert('Failed to initialize payment gateway. Please try again.');
-      btn.disabled = false;
-      if (pmName) pmName.textContent = 'Squad';
+      updateSummary(successMode);
+      updateWhatsAppLinks();
     }
-  });
 
-  /* ─── Init ───────────────────────────────────────────────── */
-  // Debug: Log cart state
-  const debugCart = localStorage.getItem('cart');
-  console.log('[Checkout] Initial cart from localStorage:', debugCart);
-  
-  // Additional debugging
-  if (debugCart) {
-    try {
-      const parsed = JSON.parse(debugCart);
-      console.log('[Checkout] Parsed cart items:', parsed);
-      console.log('[Checkout] Number of items:', parsed.length);
-      parsed.forEach((item: any, idx: number) => {
-        console.log(`[Checkout] Item ${idx}:`, item);
-      });
-    } catch (e) {
-      console.error('[Checkout] Failed to parse cart:', e);
-    }
-  } else {
-    console.warn('[Checkout] Cart is empty or not found in localStorage');
-  }
-  
-  // Initial render
-  renderCart();
-
-  // Listen for cart updates from other pages/tabs
-  window.addEventListener('storage', (e) => {
-    console.log('[Checkout] Storage event triggered', e);
-    if (e.key === 'cart' || e.key === null) {
-      console.log('[Checkout] Cart storage changed, re-rendering');
+    function adjustQty(cartId: string, delta: number) {
+      const items = getCart().map((i: any) =>
+        i.cartId === cartId ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i
+      );
+      saveCart(items);
       renderCart();
     }
-  });
-  
-  window.addEventListener('cart-updated', () => {
-    console.log('[Checkout] cart-updated event triggered');
-    renderCart();
-  });
-  
-  // Also listen for add-to-cart events in case user adds items while on checkout
-  window.addEventListener('add-to-cart', ((e: CustomEvent) => {
-    console.log('[Checkout] add-to-cart event received:', e.detail);
-    const { product, quantity = 1, size = null, color = null } = e.detail || {};
-    
-    if (!product) return;
-    
-    const items = getCart();
-    const cartId = `${product.id}-${size || 'default'}-${color || 'default'}-${Date.now()}`;
-    
-    // Check for existing item
-    const existingIndex = items.findIndex(
-      item => item.id === product.id && item.size === size && item.color === color
-    );
-    
-    if (existingIndex >= 0) {
-      items[existingIndex].quantity += quantity;
-    } else {
-      items.push({
-        ...product,
-        cartId,
-        quantity,
-        size,
-        color
-      });
+
+    function removeItem(cartId: string) {
+      const items = getCart().filter((i: any) => i.cartId !== cartId);
+      saveCart(items);
+      renderCart();
+      if (items.length === 0) goToTab(1);
     }
-    
-    saveCart(items);
-    renderCart();
-  }) as EventListener);
 
-  // Check for payment reference in URL (Squad redirects back with reference)
-  const urlParams = new URLSearchParams(window.location.search);
-  const paymentRef = urlParams.get('reference');
-  
-  if (paymentRef) {
-    const email = urlParams.get('email') || '';
-    
-    let pendingOrder = null;
-    try {
-      pendingOrder = JSON.parse(sessionStorage.getItem('pendingOrder') || 'null');
-    } catch {}
-    
-    if (pendingOrder) {
-      const orderData = {
-        customer:       JSON.stringify({ email, name: pendingOrder.name, phone: pendingOrder.phone }),
-        customerEmail:  email,
-        customerName:   pendingOrder.name,
-        items:          JSON.stringify(pendingOrder.items),
-        total:          pendingOrder.total,
-        totalAmount:    pendingOrder.total,
-        paymentRef:     paymentRef,
-        customerPhone:  pendingOrder.phone,
-        address:        pendingOrder.address,
-        city:           pendingOrder.city,
-        state:          pendingOrder.state,
-        postalCode:     pendingOrder.postalCode || '',
-        status:         'paid',
-        paymentMethod:  'card',
-      };
+    function updateSummary(successMode = false) {
+      const items = getCart();
+      const sub = subtotal(items);
+      const ship = shippingFee();
+      const city = getCity();
+      const total = sub + ship;
 
-      try {
-        await databases.createDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID.unique(), orderData);
+      const summaryEl = document.getElementById('price-summary');
+      const paidEl    = document.getElementById('paid-banner');
+      if (!summaryEl || !paidEl) return;
 
-        try {
-          const { reduceMultipleProductsStock } = await import('../lib/stock-manager');
-          await reduceMultipleProductsStock(pendingOrder.items.map((i: any) => ({ productId: i.id, quantity: i.quantity })));
-        } catch (se) {
-          console.error('Stock reduction failed (non-critical):', se);
-        }
+      if (successMode) {
+        summaryEl.classList.add('hidden');
+        paidEl.classList.remove('hidden');
+        return;
+      }
 
-        localStorage.removeItem('cart');
-        window.dispatchEvent(new Event('cart-updated'));
-        
-      } catch (err) {
-        console.error('Order creation failed:', err);
+      summaryEl.classList.remove('hidden');
+      paidEl.classList.add('hidden');
+
+      const subEl   = document.getElementById('summary-subtotal');
+      const shipEl  = document.getElementById('summary-shipping');
+      const totalEl = document.getElementById('summary-total');
+      if (subEl) subEl.textContent = fmt(sub);
+      if (shipEl) shipEl.textContent = city ? fmt(ship) : 'Select city';
+      if (totalEl) totalEl.textContent = city ? fmt(total) : fmt(sub);
+
+      // Payment tab summary strip
+      const pssSubEl   = document.getElementById('pss-subtotal');
+      const pssShipEl  = document.getElementById('pss-shipping');
+      const pssTotalEl = document.getElementById('pss-total');
+      if (pssSubEl) pssSubEl.textContent = fmt(sub);
+      if (pssShipEl) pssShipEl.textContent = city ? fmt(ship) : '—';
+      if (pssTotalEl) pssTotalEl.textContent = city ? fmt(total) : fmt(sub);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       TAB / STEP NAVIGATION
+    ───────────────────────────────────────────────────────────── */
+    function goToTab(tab: number) {
+      currentStep = tab;
+
+      // Tab panels
+      document.querySelectorAll<HTMLElement>('.tab-panel').forEach((el, i) => {
+        const isActive = i + 1 === tab;
+        el.classList.toggle('hidden', !isActive);
+        el.classList.toggle('active', isActive);
+      });
+
+      // Desktop step circles
+      document.querySelectorAll<HTMLElement>('.step-item').forEach(el => {
+        const n = parseInt(el.dataset.step || '0');
+        el.classList.remove('active', 'done');
+        if (n === tab) el.classList.add('active');
+        if (n < tab)  el.classList.add('done');
+      });
+
+      // Desktop step lines
+      document.querySelectorAll<HTMLElement>('.step-line').forEach(el => {
+        const n = parseInt(el.dataset.line || '0');
+        el.classList.toggle('done', n < tab);
+      });
+
+      // Mobile progress
+      const labelEl = document.getElementById('mobile-step-label');
+      const countEl = document.getElementById('mobile-step-count');
+      const fillEl  = document.getElementById('mobile-progress-fill');
+      if (labelEl) labelEl.textContent = STEP_LABELS[tab - 1];
+      if (countEl) countEl.textContent = `${tab} / 3`;
+      if (fillEl)  fillEl.style.width  = STEP_PROGRESS[tab - 1];
+
+      document.querySelectorAll<HTMLElement>('.mobile-dot').forEach(el => {
+        const n = parseInt(el.dataset.step || '0');
+        el.classList.remove('active', 'done');
+        if (n === tab) el.classList.add('active');
+        if (n < tab)  el.classList.add('done');
+      });
+
+      // Scroll to top of wizard on mobile
+      if (window.innerWidth < 960) {
+        document.getElementById('wizard-pane')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      if (tab === 3) renderCart(true);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       DELIVERY CALLOUT
+    ───────────────────────────────────────────────────────────── */
+    function updateDeliveryCallout() {
+      const city = getCity();
+      const callout = document.getElementById('delivery-callout');
+      const text    = document.getElementById('delivery-callout-text');
+      if (!callout || !text) return;
+      if (city && SHIPPING_FEES[city] !== undefined) {
+        text.textContent = `Delivery to ${city}: ${fmt(SHIPPING_FEES[city])}`;
+        callout.classList.remove('hidden');
+      } else {
+        callout.classList.add('hidden');
       }
     }
-    
-    document.getElementById('order-ref-display')!.textContent = paymentRef;
-    document.getElementById('confirm-email')!.textContent = email || (pendingOrder?.email) || '—';
-    document.getElementById('cart-pane-title')!.textContent = 'Your Order';
-    
-    window.history.replaceState({}, '', window.location.pathname);
-    sessionStorage.removeItem('pendingOrder');
-    
-    goToTab(3);
-  }
+
+    /* ─────────────────────────────────────────────────────────────
+       FORM EVENTS
+    ───────────────────────────────────────────────────────────── */
+    document.getElementById('details-form')?.addEventListener('submit', e => {
+      e.preventDefault();
+      const form = e.target as HTMLFormElement;
+      let valid = true;
+      form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[required]').forEach(el => {
+        if (!el.value.trim()) { el.classList.add('invalid'); valid = false; }
+        else el.classList.remove('invalid');
+      });
+      if (!valid) return;
+      updateSummary();
+      goToTab(2);
+    });
+
+    document.querySelectorAll('.details-form input, .details-form select, #details-form input, #details-form select')
+      .forEach(el => el.addEventListener('input', () => (el as HTMLElement).classList.remove('invalid')));
+
+    document.getElementById('city')?.addEventListener('change', () => {
+      updateSummary();
+      updateDeliveryCallout();
+      updateWhatsAppLinks();
+    });
+
+    document.getElementById('back-to-details')?.addEventListener('click', () => goToTab(1));
+
+    /* ─────────────────────────────────────────────────────────────
+       SQUAD PAYMENT
+    ───────────────────────────────────────────────────────────── */
+    document.getElementById('squad-btn')?.addEventListener('click', async () => {
+      const items = getCart();
+      if (!items.length) return;
+
+      const email   = (document.getElementById('email') as HTMLInputElement).value;
+      const phone   = (document.getElementById('phone') as HTMLInputElement).value;
+      const name    = (document.getElementById('fullName') as HTMLInputElement).value;
+      const address = (document.getElementById('address') as HTMLInputElement).value;
+      const city    = (document.getElementById('city') as HTMLSelectElement).value;
+      const state   = (document.getElementById('state') as HTMLSelectElement).value;
+      const postal  = (document.getElementById('postalCode') as HTMLInputElement).value;
+      const ship    = shippingFee();
+      const total   = subtotal(items) + ship;
+
+      currentTxRef   = `ABKHD-${Date.now()}`;
+      confirmedEmail = email;
+
+      const btn = document.getElementById('squad-btn') as HTMLButtonElement;
+      if (!btn) return;
+      btn.disabled = true;
+      const pmName = btn.querySelector('.pm-name');
+      if (pmName) pmName.textContent = 'Initializing…';
+
+      try {
+        const response = await fetch('/api/squad-initiate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email, amount: total, customerName: name, phone,
+            address, city, state, postalCode: postal || '',
+            items, transactionRef: currentTxRef,
+          }),
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.checkoutUrl) throw new Error(result.error || 'Failed to initialize payment');
+
+        sessionStorage.setItem('pendingOrder', JSON.stringify({
+          txRef: currentTxRef, email, name, phone,
+          address, city, state, postalCode: postal || '', items, total,
+        }));
+
+        window.location.href = result.checkoutUrl;
+
+      } catch (err) {
+        console.error('Squad init error:', err);
+        alert('Failed to initialize payment gateway. Please try again.');
+        btn.disabled = false;
+        if (pmName) pmName.textContent = 'Squad';
+      }
+    });
+
+    /* ─────────────────────────────────────────────────────────────
+       CART EVENT LISTENERS (for cross-tab updates)
+    ───────────────────────────────────────────────────────────── */
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'cart' || e.key === null) renderCart();
+    });
+    window.addEventListener('cart-updated', () => renderCart());
+
+    /* ─────────────────────────────────────────────────────────────
+       PAYMENT RETURN (Squad redirect back)
+    ───────────────────────────────────────────────────────────── */
+    const urlParams   = new URLSearchParams(window.location.search);
+    const paymentRef  = urlParams.get('reference');
+
+    if (paymentRef) {
+      const emailFromUrl = urlParams.get('email') || '';
+      let pendingOrder: any = null;
+      try { pendingOrder = JSON.parse(sessionStorage.getItem('pendingOrder') || 'null'); }
+      catch {}
+
+      if (pendingOrder) {
+        try {
+          // Lazy-load Appwrite only when needed
+          const appwrite = await import('../lib/appwrite');
+          databases = appwrite.databases;
+          APPWRITE_DB_ID = appwrite.APPWRITE_DB_ID;
+          APPWRITE_ORDERS_COLLECTION_ID = appwrite.APPWRITE_ORDERS_COLLECTION_ID;
+          ID = appwrite.ID;
+
+          const orderData = {
+            customer:        JSON.stringify({ email: emailFromUrl || pendingOrder.email, name: pendingOrder.name, phone: pendingOrder.phone }),
+            customerEmail:   emailFromUrl || pendingOrder.email,
+            customerName:    pendingOrder.name,
+            items:           JSON.stringify(pendingOrder.items),
+            total:           pendingOrder.total,
+            totalAmount:     pendingOrder.total,
+            paymentRef:      paymentRef,
+            customerPhone:   pendingOrder.phone,
+            address:         pendingOrder.address,
+            city:            pendingOrder.city,
+            state:           pendingOrder.state,
+            postalCode:      pendingOrder.postalCode || '',
+            status:          'paid',
+            paymentMethod:   'card',
+          };
+
+          await databases.createDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID.unique(), orderData);
+
+          // Stock reduction (non-critical)
+          try {
+            const { reduceMultipleProductsStock } = await import('../lib/stock-manager');
+            await reduceMultipleProductsStock(
+              pendingOrder.items.map((i: any) => ({ productId: i.id, quantity: i.quantity }))
+            );
+          } catch (se) {
+            console.error('Stock reduction failed (non-critical):', se);
+          }
+
+          localStorage.removeItem('cart');
+          window.dispatchEvent(new Event('cart-updated'));
+
+        } catch (err) {
+          console.error('Order creation failed:', err);
+        }
+      }
+
+      // Populate success tab
+      const refEl   = document.getElementById('order-ref-display');
+      const emailEl = document.getElementById('confirm-email');
+      const titleEl = document.getElementById('cart-pane-title');
+      if (refEl)   refEl.textContent   = paymentRef;
+      if (emailEl) emailEl.textContent = emailFromUrl || pendingOrder?.email || '—';
+      if (titleEl) titleEl.textContent = 'Your Order';
+
+      window.history.replaceState({}, '', window.location.pathname);
+      sessionStorage.removeItem('pendingOrder');
+
+      goToTab(3);
+
+    } else {
+      // Normal page load — render cart
+      renderCart();
+    }
+
+  })(); // end async IIFE
 </script>
