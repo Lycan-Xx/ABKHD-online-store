@@ -1,3 +1,4 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import { databases, APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID } from '../../lib/appwrite';
 import { Query } from 'appwrite';

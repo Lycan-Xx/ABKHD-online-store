@@ -33,7 +33,9 @@ export class SquadAPI {
 
   constructor(secretKey: string, isProd: boolean) {
     this.secretKey = secretKey;
-    this.baseUrl = isProd ? SQUAD_BASE_URL_PROD : SQUAD_BASE_URL_DEV;
+    // Auto-detect environment based on the key prefix. If a live key is used locally, 
+    // it forces the prod endpoint, avoiding "Key must start with sandbox_sk_" errors.
+    this.baseUrl = secretKey.startsWith('sk_') ? SQUAD_BASE_URL_PROD : SQUAD_BASE_URL_DEV;
   }
 
   async initiatePayment(input: InitiatePaymentInput, callbackUrl: string): Promise<PaymentResponse> {
@@ -74,10 +76,17 @@ export class SquadAPI {
 
     const data = await response.json();
 
-    if (data.status === false) {
+    if (data.status === false || data.success === false || (data.status !== 200 && data.status !== 'success')) {
       return {
         success: false,
         message: data.message || 'Payment initiation failed',
+      };
+    }
+
+    if (!data.data || !data.data.checkout_url) {
+      return {
+        success: false,
+        message: 'Payment initiation failed: invalid response format',
       };
     }
 
@@ -86,7 +95,7 @@ export class SquadAPI {
       message: 'Payment initiated successfully',
       data: {
         checkout_url: data.data.checkout_url,
-        transaction_ref: data.data.transaction_ref,
+        transaction_ref: data.data.transaction_ref || validated.transactionRef,
       },
     };
   }
