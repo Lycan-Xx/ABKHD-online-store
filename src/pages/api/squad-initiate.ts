@@ -4,9 +4,6 @@ import { z } from 'zod';
 import { SquadAPI, InitiatePaymentSchema } from '../../lib/squad';
 import { handleAPIError } from '../../lib/errors';
 
-// Squad secret key - hardcoded for production (stored as Secret in Cloudflare)
-const SQUAD_SECRET_KEY = 'sk_d6a62c63026b51d6375cd5a41cbb9209044b23b5';
-
 export const POST: APIRoute = async (ctx) => {
   const { request } = ctx;
   
@@ -14,10 +11,11 @@ export const POST: APIRoute = async (ctx) => {
     const body = await request.json();
     const validated = InitiatePaymentSchema.parse(body);
 
-    // Use the hardcoded secret key
-    const secretKey = SQUAD_SECRET_KEY;
+    // Access Cloudflare secret via context.env (set via wrangler secret put)
+    const cfEnv = (ctx as unknown as { env?: Record<string, string> }).env;
+    const secretKey = cfEnv?.SQUAD_SECRET_KEY;
     
-    console.log('Using Squad secret key, length:', secretKey?.length);
+    console.log('SQUAD_SECRET_KEY from env:', !!secretKey);
     
     if (!secretKey) {
       return new Response(JSON.stringify({ error: 'Payment configuration error' }), {
