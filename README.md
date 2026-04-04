@@ -7,7 +7,7 @@ ABKHD Store is a high-performance, modern ecommerce platform built with **Astro 
 ---
 
 ### 🌐 Live Preview
-**Production**: [https://abkhd-store-astro.pages.dev](https://abkhd-store-astro.pages.dev)
+**Production**: [https://abkhdstores.com.ng](https://abkhdstores.com.ng)
 
 ---
 
@@ -32,6 +32,56 @@ ABKHD Store is a high-performance, modern ecommerce platform built with **Astro 
 - 🌓 **Dark Mode**: Premium dark mode support with system preference detection.
 - 📱 **Mobile Share**: Mobile-first share button with desktop clipboard fallback.
 - 🔍 **SEO Ready**: Open Graph meta tags for social media sharing.
+- 🛍️ **Checkout Flow**: Multi-step checkout (Details → Payment → Confirmation) with order summary.
+- 📍 **Delivery Areas**: Support for Yola and Jimeta with delivery fees.
+- 💬 **WhatsApp Order**: Alternative ordering via WhatsApp for customers who prefer manual orders.
+
+---
+
+## 📁 Project Structure
+
+```
+ABKHD-online-store/
+├── src/
+│   ├── pages/
+│   │   ├── index.astro          # Homepage
+│   │   ├── shop.astro          # Product listing
+│   │   ├── checkout.astro      # Multi-step checkout
+│   │   ├── about.astro         # About page
+│   │   ├── contact.astro       # Contact page
+│   │   ├── login.astro          # Customer login
+│   │   ├── products/
+│   │   │   └── [id].astro      # Product detail
+│   │   ├── admin/
+│   │   │   ├── index.astro      # Dashboard
+│   │   │   ├── products.astro  # Product management
+│   │   │   ├── orders.astro     # Order management
+│   │   │   └── login.astro      # Admin login
+│   │   └── api/
+│   │       ├── squad-initiate.ts    # Payment initiation
+│   │       └── squad-webhook.ts     # Payment callback
+│   ├── lib/
+│   │   ├── appwrite.ts         # Appwrite client
+│   │   ├── squad.ts            # Squad payment API
+│   │   ├── cart.ts             # Cart utilities
+│   │   ├── upload-cache.ts     # Upload caching
+│   │   ├── stock-manager.ts    # Stock management
+│   │   └── utils.ts            # Utility functions
+│   ├── components/
+│   │   ├── layout/             # Header, Footer
+│   │   ├── ui/                  # Reusable components
+│   │   └── cart/               # Cart components
+│   └── layouts/
+│       ├── Layout.astro        # Main layout
+│       └── AdminLayout.astro   # Admin layout
+├── public/
+│   └── assets/logo/            # Brand logos
+├── scripts/
+│   ├── setup-appwrite.ts      # Appwrite setup
+│   ├── create-admin.ts         # Admin creation
+│   └── verify-setup.ts        # Setup verification
+└── package.json
+```
 
 ---
 
@@ -41,6 +91,7 @@ ABKHD Store is a high-performance, modern ecommerce platform built with **Astro 
 - Node.js v20+
 - Yarn 4 (Berry)
 - Appwrite Cloud account
+- Cloudflare account
 
 ### Installation
 1. Clone the repository:
@@ -87,10 +138,21 @@ yarn dev
 
 ### Cloudflare Pages
 This project is optimized for Cloudflare Pages.
+
 1. Connect your repository to Cloudflare Pages.
 2. Set the build command: `yarn build`
 3. Set the output directory: `dist`
-4. Add your `.env` variables in the Cloudflare Dashboard under **Settings > Environment Variables**.
+4. Add your environment variables in the Cloudflare Dashboard under **Settings > Environment Variables**:
+   - `PUBLIC_APPWRITE_ENDPOINT`
+   - `PUBLIC_APPWRITE_PROJECT_ID`
+   - `PUBLIC_APPWRITE_DATABASE_ID`
+   - `PUBLIC_APPWRITE_COLLECTION_PRODUCTS`
+   - `PUBLIC_APPWRITE_COLLECTION_ORDERS`
+   - `PUBLIC_APPWRITE_BUCKET_IMAGES`
+   - `PUBLIC_SQUAD_PUBLIC_KEY`
+   - `SQUAD_SECRET_KEY`
+
+**Important**: Do NOT include a `wrangler.toml` file in your repository. Including it will lock the Dashboard's Environment Variables section and prevent you from adding plain text variables. If you need Wrangler functionality, add secrets via the CLI instead.
 
 ---
 
@@ -102,27 +164,10 @@ This project uses Squad as the payment gateway for Nigerian customers. Squad sup
 - USSD payments
 - Direct bank account debits
 
-### Quick Start
-See `SQUAD_QUICK_START.md` for a 5-minute setup guide.
-
-### Complete Documentation
-- **Master Guide:** `SQUAD_MASTER_GUIDE.md` - Complete documentation index
-- **Integration Guide:** `SQUAD_INTEGRATION.md` - Full integration details
-- **Debugging Guide:** `SQUAD_DEBUGGING.md` - Troubleshooting help
-- **Deployment Guide:** `DEPLOYMENT_GUIDE.md` - Production deployment
-- **Quick Reference:** `QUICK_REFERENCE.md` - Common commands & URLs
-
-### Testing
-```bash
-# Verify complete setup
-npx tsx scripts/verify-setup.ts
-
-# Test Squad API connection
-npx tsx scripts/test-squad.ts
-
-# Visit test page
-http://localhost:4321/test-squad
-```
+### Configuration
+1. Get your API keys from [Squad Dashboard](https://dashboard.squadco.com)
+2. Add `SQUAD_SECRET_KEY` as a plain text environment variable in Cloudflare Dashboard
+3. The public key is used client-side for the checkout UI
 
 ---
 
@@ -136,6 +181,23 @@ http://localhost:4321/test-squad
   - Bulk delete and export products to CSV.
   - View and manage customer orders.
   - Toggle product visibility and featured status.
+
+---
+
+## 🔄 Recent Updates
+
+### April 2026
+- 🚀 **New Checkout Flow**: Complete redesign with multi-step checkout (Details → Payment → Confirmation)
+- 📍 **Delivery Areas**: Added support for Yola (₦1,000) and Jimeta (₦2,000) delivery
+- 💬 **WhatsApp Orders**: Added alternative ordering via WhatsApp for customers
+- 🛡️ **Dashboard Variables Fix**: Removed wrangler.toml to enable plain text environment variables in Cloudflare
+- 🔧 **Payment Fix**: Resolved Squad payment initialization issues by using import.meta.env for environment variables
+
+### Technical Improvements
+- Stock management system to prevent overselling
+- Improved order processing with webhook support
+- Enhanced mobile responsiveness
+- Better error handling and logging
 
 ---
 
