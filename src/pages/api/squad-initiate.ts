@@ -96,8 +96,9 @@ export const POST: APIRoute = async (ctx) => {
     // Log key info (masked for security)
     console.log('Squad secret key found, length:', secretKey.length, 'masked:', secretKey.substring(0, 3) + '***' + secretKey.substring(secretKey.length - 3));
     
-    // Determine environment
-    const isProd = url.hostname.includes('pages.dev') && !url.hostname.includes('localhost');
+    // Determine environment based on hostname
+    // Production domains: pages.dev (Cloudflare Pages) or custom domains like abkhdstores.com.ng
+    const isProd = !url.hostname.includes('localhost') && !url.hostname.includes('127.0.0.1') && !url.hostname.includes('192.168.');
     console.log('Payment environment - Hostname:', url.hostname, 'Production mode:', isProd);
     
     // Initialize Squad API
@@ -112,9 +113,11 @@ export const POST: APIRoute = async (ctx) => {
 
     if (!result.success || !result.data) {
       console.error('Squad payment initiation failed:', result.message);
+      console.error('Full result:', result);
       return new Response(JSON.stringify({ 
         error: 'Payment initiation failed',
-        message: result.message || 'Unable to initialize payment'
+        message: result.message || 'Unable to initialize payment',
+        details: result
       }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }

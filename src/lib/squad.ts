@@ -77,10 +77,11 @@ export class SquadAPI {
     });
 
     if (!response.ok) {
-      const error = await response.text();
+      const errorText = await response.text();
+      console.error('Squad API error response:', response.status, response.statusText, errorText);
       return {
         success: false,
-        message: `Payment initiation failed: ${error}`,
+        message: `Payment initiation failed: ${response.status} ${response.statusText} - ${errorText}`,
       };
     }
 
