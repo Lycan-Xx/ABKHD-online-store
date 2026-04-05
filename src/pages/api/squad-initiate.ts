@@ -33,23 +33,27 @@ function getSquadSecretKey(): string | null {
     console.log('Method 2 failed:', e);
   }
   
-  // Method 3: Debug - log what's available
+  // Method 3: Debug - log what's available (masked for security)
   try {
     // @ts-ignore
     const allEnvVars = import.meta.env ? Object.keys(import.meta.env) : [];
     const squadRelated = allEnvVars.filter(key => 
       key.includes('SQUAD') || key.includes('squad') || key.includes('Squad')
     );
-    console.log('Available env vars related to Squad:', squadRelated);
+    console.log('Available env vars related to Squad (count):', squadRelated.length);
     
-    // Log the actual values (masked for security)
+    // Log only key names with masked values for security
     squadRelated.forEach(key => {
       // @ts-ignore
       const value = import.meta.env[key];
       if (value && typeof value === 'string') {
-        console.log(`  ${key}: ${value.substring(0, 6)}... (length: ${value.length})`);
+        // Mask the value - show only first 3 and last 3 characters
+        const maskedValue = value.length > 6 ? 
+          `${value.substring(0, 3)}***${value.substring(value.length - 3)}` : 
+          '***';
+        console.log(`  ${key}: ${maskedValue} (length: ${value.length})`);
       } else {
-        console.log(`  ${key}: ${value}`);
+        console.log(`  ${key}: [no value or not a string]`);
       }
     });
   } catch (e) {
@@ -89,8 +93,8 @@ export const POST: APIRoute = async (ctx) => {
       });
     }
     
-    // Log key info (without exposing full key)
-    console.log('SQUAD_SECRET_KEY found, length:', secretKey.length, 'starts with:', secretKey.substring(0, 6) + '...');
+    // Log key info (masked for security)
+    console.log('Squad secret key found, length:', secretKey.length, 'masked:', secretKey.substring(0, 3) + '***' + secretKey.substring(secretKey.length - 3));
     
     // Determine environment
     const isProd = url.hostname.includes('pages.dev') && !url.hostname.includes('localhost');

@@ -33,9 +33,19 @@ export class SquadAPI {
 
   constructor(secretKey: string, isProd: boolean) {
     this.secretKey = secretKey;
-    // Auto-detect environment based on the key prefix. If a live key is used locally, 
-    // it forces the prod endpoint, avoiding "Key must start with sandbox_sk_" errors.
-    this.baseUrl = secretKey.startsWith('sk_') ? SQUAD_BASE_URL_PROD : SQUAD_BASE_URL_DEV;
+    
+    // Use the isProd parameter to determine environment
+    if (isProd) {
+      this.baseUrl = SQUAD_BASE_URL_PROD;
+    } else {
+      this.baseUrl = SQUAD_BASE_URL_DEV;
+    }
+    
+    // Log for debugging (masked for security)
+    const maskedKey = secretKey.length > 6 ? 
+      `${secretKey.substring(0, 3)}***${secretKey.substring(secretKey.length - 3)}` : 
+      '***';
+    console.log(`SquadAPI initialized - Production: ${isProd}, Base URL: ${this.baseUrl}, Key: ${maskedKey}`);
   }
 
   async initiatePayment(input: InitiatePaymentInput, callbackUrl: string): Promise<PaymentResponse> {
