@@ -114,7 +114,9 @@ ABKHD-online-store/
    PUBLIC_APPWRITE_COLLECTION_ORDERS=orders
    PUBLIC_APPWRITE_BUCKET_IMAGES=product-images
    PUBLIC_SQUAD_PUBLIC_KEY=your_squad_public_key
-   SQUAD_SECRET_KEY=your_squad_secret_key
+   PUBLIC_SQUAD_SECRET_KEY=your_squad_secret_key  # For Cloudflare Pages
+   # Optional for local development:
+   # SQUAD_SECRET_KEY=your_squad_secret_key
    ```
 
 2. Run the automated Appwrite setup script:
@@ -150,7 +152,7 @@ This project is optimized for Cloudflare Pages.
    - `PUBLIC_APPWRITE_COLLECTION_ORDERS`
    - `PUBLIC_APPWRITE_BUCKET_IMAGES`
    - `PUBLIC_SQUAD_PUBLIC_KEY`
-   - `SQUAD_SECRET_KEY`
+   - `PUBLIC_SQUAD_SECRET_KEY` (for Cloudflare Pages deployment)
 
 **Important**: Do NOT include a `wrangler.toml` file in your repository. Including it will lock the Dashboard's Environment Variables section and prevent you from adding plain text variables. If you need Wrangler functionality, add secrets via the CLI instead.
 
@@ -166,8 +168,9 @@ This project uses Squad as the payment gateway for Nigerian customers. Squad sup
 
 ### Configuration
 1. Get your API keys from [Squad Dashboard](https://dashboard.squadco.com)
-2. Add `SQUAD_SECRET_KEY` as a plain text environment variable in Cloudflare Dashboard
-3. The public key is used client-side for the checkout UI
+2. For Cloudflare Pages deployment, add `PUBLIC_SQUAD_SECRET_KEY` as a plain text environment variable in Cloudflare Dashboard
+3. The public key (`PUBLIC_SQUAD_PUBLIC_KEY`) is used client-side for the checkout UI
+4. For local development, you can also set `SQUAD_SECRET_KEY` in your `.env` file
 
 ---
 

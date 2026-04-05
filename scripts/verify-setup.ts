@@ -49,8 +49,11 @@ async function verifySetup() {
     'PUBLIC_APPWRITE_COLLECTION_ORDERS',
     'PUBLIC_APPWRITE_BUCKET_IMAGES',
     'PUBLIC_SQUAD_PUBLIC_KEY',
-    'SQUAD_SECRET_KEY'
+    'PUBLIC_SQUAD_SECRET_KEY'  // Primary for Cloudflare Pages
   ];
+  
+  // Also check for SQUAD_SECRET_KEY for backward compatibility
+  const optionalEnvVars = ['SQUAD_SECRET_KEY'];
 
   requiredEnvVars.forEach(varName => {
     const value = process.env[varName];
@@ -64,7 +67,7 @@ async function verifySetup() {
 
   // Check Squad Keys Format
   const squadPublicKey = process.env.PUBLIC_SQUAD_PUBLIC_KEY;
-  const squadSecretKey = process.env.SQUAD_SECRET_KEY;
+  const squadSecretKey = process.env.PUBLIC_SQUAD_SECRET_KEY || process.env.SQUAD_SECRET_KEY;
 
   if (squadPublicKey) {
     const isSandbox = squadPublicKey.startsWith('sandbox_pk_');

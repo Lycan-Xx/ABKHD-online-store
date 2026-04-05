@@ -11,7 +11,8 @@ import { resolve } from 'path';
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env') });
 
-const SQUAD_SECRET_KEY = process.env.SQUAD_SECRET_KEY;
+// Try both variable names for compatibility
+const SQUAD_SECRET_KEY = process.env.PUBLIC_SQUAD_SECRET_KEY || process.env.SQUAD_SECRET_KEY;
 const SQUAD_PUBLIC_KEY = process.env.PUBLIC_SQUAD_PUBLIC_KEY;
 
 async function testSquadConnection() {

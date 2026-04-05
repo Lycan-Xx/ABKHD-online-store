@@ -6,48 +6,34 @@ import { handleAPIError } from '../../lib/errors';
 
 // Helper function to get environment variable
 function getSquadSecretKey(): string | null {
-  // Try multiple methods to get the environment variable
+  // In Cloudflare Pages, environment variables for server-side functions
+  // need to be PUBLIC_ prefixed to be accessible via import.meta.env
   
-  // Method 1: Direct from import.meta.env (standard Astro way)
+  // Method 1: Try PUBLIC_SQUAD_SECRET_KEY first (Cloudflare Pages compatible)
   try {
     // @ts-ignore
-    const key1 = import.meta.env.SQUAD_SECRET_KEY;
+    const key1 = import.meta.env.PUBLIC_SQUAD_SECRET_KEY;
     if (key1 && typeof key1 === 'string' && key1.trim().length > 0) {
-      console.log('Got SQUAD_SECRET_KEY from import.meta.env');
+      console.log('Got SQUAD_SECRET_KEY from PUBLIC_SQUAD_SECRET_KEY (Cloudflare Pages)');
       return key1;
     }
   } catch (e) {
     console.log('Method 1 failed:', e);
   }
   
-  // Method 2: From PUBLIC_ variable (might be exposed in Cloudflare Pages)
+  // Method 2: Try SQUAD_SECRET_KEY (standard, might work in other environments)
   try {
     // @ts-ignore
-    const key2 = import.meta.env.PUBLIC_SQUAD_SECRET_KEY;
+    const key2 = import.meta.env.SQUAD_SECRET_KEY;
     if (key2 && typeof key2 === 'string' && key2.trim().length > 0) {
-      console.log('Got SQUAD_SECRET_KEY from PUBLIC_SQUAD_SECRET_KEY');
+      console.log('Got SQUAD_SECRET_KEY from import.meta.env');
       return key2;
     }
   } catch (e) {
     console.log('Method 2 failed:', e);
   }
   
-  // Method 3: From global process.env (Node.js style)
-  try {
-    // @ts-ignore
-    if (typeof process !== 'undefined' && process.env) {
-      // @ts-ignore
-      const key3 = process.env.SQUAD_SECRET_KEY;
-      if (key3 && typeof key3 === 'string' && key3.trim().length > 0) {
-        console.log('Got SQUAD_SECRET_KEY from process.env');
-        return key3;
-      }
-    }
-  } catch (e) {
-    console.log('Method 3 failed:', e);
-  }
-  
-  // Method 4: Debug - log all available env vars
+  // Method 3: Debug - log what's available
   try {
     // @ts-ignore
     const allEnvVars = import.meta.env ? Object.keys(import.meta.env) : [];
@@ -55,6 +41,17 @@ function getSquadSecretKey(): string | null {
       key.includes('SQUAD') || key.includes('squad') || key.includes('Squad')
     );
     console.log('Available env vars related to Squad:', squadRelated);
+    
+    // Log the actual values (masked for security)
+    squadRelated.forEach(key => {
+      // @ts-ignore
+      const value = import.meta.env[key];
+      if (value && typeof value === 'string') {
+        console.log(`  ${key}: ${value.substring(0, 6)}... (length: ${value.length})`);
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
+    });
   } catch (e) {
     console.log('Could not list env vars:', e);
   }
@@ -73,17 +70,18 @@ export const POST: APIRoute = async (ctx) => {
     const secretKey = getSquadSecretKey();
     
     if (!secretKey) {
-      console.error('SQUAD_SECRET_KEY is not available. Check Cloudflare Pages environment variables.');
+      console.error('Squad secret key is not available. Check Cloudflare Pages environment variables.');
       console.error('Current hostname:', url.hostname);
       console.error('Request URL:', request.url);
       
       return new Response(JSON.stringify({ 
         error: 'Payment configuration error',
-        message: 'Server configuration issue: SQUAD_SECRET_KEY is not set. Please check Cloudflare Pages environment variables.',
+        message: 'Server configuration issue: Payment secret key is not set.',
         details: {
           hostname: url.hostname,
           timestamp: new Date().toISOString(),
-          suggestion: 'Add SQUAD_SECRET_KEY to Cloudflare Pages environment variables and redeploy.'
+          suggestion: 'Add PUBLIC_SQUAD_SECRET_KEY to Cloudflare Pages environment variables and redeploy.',
+          debugUrl: `${new URL(request.url).origin}/api/debug-env`
         }
       }), {
         status: 500,

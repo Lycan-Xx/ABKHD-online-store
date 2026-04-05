@@ -49,12 +49,21 @@ export const GET: APIRoute = async (ctx) => {
   }
   
   // Check if payment would work
-  const secretKey = envInfo.environmentVariables['import.meta.env.SQUAD_SECRET_KEY']?.fullValue || 
-                   envInfo.environmentVariables['import.meta.env.PUBLIC_SQUAD_SECRET_KEY']?.fullValue;
+  const secretKey = envInfo.environmentVariables['import.meta.env.PUBLIC_SQUAD_SECRET_KEY']?.fullValue || 
+                   envInfo.environmentVariables['import.meta.env.SQUAD_SECRET_KEY']?.fullValue;
   
-  envInfo.paymentStatus = secretKey && secretKey !== 'NOT SET' ? 
-    'READY (Secret key found)' : 
-    'BLOCKED (No secret key available)';
+  if (secretKey && secretKey !== 'NOT SET') {
+    envInfo.paymentStatus = 'READY (Secret key found)';
+    envInfo.paymentDetails = {
+      keySource: envInfo.environmentVariables['import.meta.env.PUBLIC_SQUAD_SECRET_KEY']?.exists ? 
+                 'PUBLIC_SQUAD_SECRET_KEY' : 'SQUAD_SECRET_KEY',
+      keyLength: secretKey.length,
+      keyStartsWith: secretKey.substring(0, 6)
+    };
+  } else {
+    envInfo.paymentStatus = 'BLOCKED (No secret key available)';
+    envInfo.suggestedFix = 'Set PUBLIC_SQUAD_SECRET_KEY in Cloudflare Pages environment variables';
+  }
   
   return new Response(JSON.stringify(envInfo, null, 2), {
     status: 200,
