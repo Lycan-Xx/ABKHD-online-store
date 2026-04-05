@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly PUBLIC_APPWRITE_BUCKET_IMAGES: string;
   readonly PUBLIC_SQUAD_PUBLIC_KEY: string;
   readonly SQUAD_SECRET_KEY: string;
+  readonly PUBLIC_SQUAD_SECRET_KEY: string;
   readonly VITE_WHATSAPP_NUMBER: string;
 }
 
