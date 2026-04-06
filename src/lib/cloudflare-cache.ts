@@ -34,9 +34,23 @@ export async function purgeCloudflareCache(urls: string[]): Promise<boolean> {
       body: JSON.stringify({ urls }),
     });
 
-    const result = await response.json();
+    // Check response status before parsing JSON
+    if (!response.ok) {
+      console.error(`Cloudflare cache purge failed with HTTP ${response.status}:`, response.statusText);
+      const text = await response.text();
+      console.error('Response body:', text);
+      return false;
+    }
 
-    if (!response.ok || !result.success) {
+    let result;
+    try {
+      result = await response.json();
+    } catch (parseError) {
+      console.error('Failed to parse API response:', parseError);
+      return false;
+    }
+
+    if (!result.success) {
       console.error('Cloudflare cache purge failed:', result.error || 'Unknown error');
       return false;
     }

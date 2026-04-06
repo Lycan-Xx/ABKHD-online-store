@@ -9,7 +9,7 @@ import type { APIRoute } from 'astro';
 
 // Handle CORS preflight requests
 export const OPTIONS: APIRoute = async () => {
-  return new Response(null, {
+  return new Response('', {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -42,21 +42,49 @@ export const POST: APIRoute = async ({ request }) => {
     const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://abkhdstores.com.ng';
 
     if (!zoneId || !apiToken) {
+      console.error('Missing Cloudflare credentials');
       return new Response(JSON.stringify({ 
         success: false, 
         error: 'Cloudflare credentials not configured' 
-      }), { status: 500 });
+      }), { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
     }
 
     // Parse request body to get URLs to purge
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'Invalid JSON in request body' 
+      }), { 
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
+    }
+
     const { urls } = body;
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       return new Response(JSON.stringify({ 
         success: false, 
         error: 'No URLs provided' 
-      }), { status: 400 });
+      }), { 
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
     }
 
     // Convert relative URLs to absolute URLs
@@ -66,6 +94,8 @@ export const POST: APIRoute = async ({ request }) => {
       }
       return url;
     });
+
+    console.log(`Purging Cloudflare cache for ${absoluteUrls.length} URLs:`, absoluteUrls);
 
     // Call Cloudflare API
     const response = await fetch(
@@ -87,15 +117,23 @@ export const POST: APIRoute = async ({ request }) => {
       console.error('Cloudflare API error:', error);
       return new Response(JSON.stringify({ 
         success: false, 
-        error: error.message || 'Cloudflare API error' 
-      }), { status: response.status });
+        error: error.errors?.[0]?.message || error.message || 'Cloudflare API error' 
+      }), { 
+        status: response.status,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
     }
 
     const result = await response.json();
+    console.log('Cloudflare purge response:', result);
     
     return new Response(JSON.stringify({ 
       success: true, 
-      message: `Purged ${urls.length} URL(s)` 
+      message: `Purged ${urls.length} URL(s)`,
+      cloudflareResponse: result
     }), { 
       status: 200,
       headers: {
