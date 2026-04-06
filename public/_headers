@@ -1,5 +1,10 @@
 # Cloudflare Pages Headers
 
+# Cache purge API - NO CACHE
+/api/purge-cache
+  Cache-Control: no-cache, no-store, must-revalidate, max-age=0
+  Pragma: no-cache
+
 # API routes - allow CORS for frontend calls
 /api/*
   Access-Control-Allow-Origin: *

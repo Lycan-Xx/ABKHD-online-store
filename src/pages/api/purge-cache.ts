@@ -30,6 +30,9 @@ export const GET: APIRoute = async ({ url }) => {
     const urlParams = new URL(url).searchParams;
     const urlsParam = urlParams.get('urls');
 
+    console.log('[GET-PURGE-CACHE] Request URL:', url);
+    console.log('[GET-PURGE-CACHE] urls param:', urlsParam);
+
     // If no urls parameter, return test message
     if (!urlsParam) {
       return new Response(JSON.stringify({ 
@@ -40,12 +43,17 @@ export const GET: APIRoute = async ({ url }) => {
         headers: { 
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
         }
       });
     }
 
     // Parse URLs from query parameter (comma-separated)
     const urls = urlsParam.split(',').map(u => u.trim()).filter(u => u.length > 0);
+
+    console.log('[GET-PURGE-CACHE] Parsed URLs:', urls);
 
     if (urls.length === 0) {
       return new Response(JSON.stringify({
@@ -56,9 +64,12 @@ export const GET: APIRoute = async ({ url }) => {
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
         }
       });
     }
+
+    console.log('[GET-PURGE-CACHE] Calling purgeCache with', urls.length, 'URLs');
 
     // Use shared purge logic
     return await purgeCache(urls, zoneId, apiToken, siteUrl);
@@ -71,8 +82,7 @@ export const GET: APIRoute = async ({ url }) => {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      }
+        'Access-Control-Allow-Origin': '*',        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',      }
     });
   }
 };
@@ -153,6 +163,7 @@ async function purgeCache(
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
         }
       });
     }
@@ -183,6 +194,7 @@ async function purgeCache(
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
         }
       });
     }
@@ -220,6 +232,7 @@ async function purgeCache(
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
           }
         });
       }
@@ -235,6 +248,7 @@ async function purgeCache(
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
         }
       });
     }
@@ -251,6 +265,7 @@ async function purgeCache(
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
       }
     });
 
@@ -266,6 +281,7 @@ async function purgeCache(
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
       }
     });
   }
