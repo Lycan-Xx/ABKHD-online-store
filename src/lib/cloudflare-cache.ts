@@ -11,7 +11,21 @@
  */
 export async function purgeCloudflareCache(urls: string[]): Promise<boolean> {
   try {
-    // Use server-side API route to avoid CORS issues
+    // First, test if the API route is accessible with GET
+    console.log('Testing API route availability...');
+    const testResponse = await fetch('/api/purge-cache', {
+      method: 'GET',
+    });
+    
+    if (!testResponse.ok) {
+      console.error('API route test failed:', testResponse.status, testResponse.statusText);
+      // Continue to try POST anyway
+    } else {
+      const testData = await testResponse.json();
+      console.log('API route test OK:', testData);
+    }
+
+    // Now try the actual POST request
     const response = await fetch('/api/purge-cache', {
       method: 'POST',
       headers: {
