@@ -16,9 +16,10 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Cache control for HTML pages
-/*.html
-  Cache-Control: public, max-age=0, must-revalidate
+# Edge Cache Control for Dynamic HTML
+# We use max-age=0 to ensure Cloudflare checks the Worker (origin) every time for freshness
+/*
+  Cache-Control: public, max-age=0, s-maxage=0, must-revalidate
 
 # Security headers
 /*
