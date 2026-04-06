@@ -113,12 +113,12 @@
   import { toggleDarkMode, $isDarkMode } from '../../stores/dark-mode';
   import { createInitializer } from '../../lib/init';
 
-  createInitializer(() => {
-    const currentPath = window.location.pathname;
+createInitializer(() => {
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
 
     // Mark active link
     document.querySelectorAll('.menu-link').forEach(link => {
-      const href = (link as HTMLAnchorElement).getAttribute('href');
+      const href = (link as HTMLAnchorElement).getAttribute('href')?.replace(/\/$/, '') || '/';
       if (href === currentPath) link.classList.add('active');
     });
 
