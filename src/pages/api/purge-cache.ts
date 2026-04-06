@@ -1,3 +1,5 @@
+export const prerender = false;
+
 /**
  * API Route to purge Cloudflare cache
  * This is needed because the Cloudflare API doesn't support CORS from browser-side calls
