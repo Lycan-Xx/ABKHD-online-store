@@ -32,7 +32,7 @@ const discount = calculateDiscount(product.price, product.originalPrice || 0);
     <!-- ── Image Container ── -->
     <div class="relative aspect-square overflow-hidden pc-img-wrap bg-muted">
       <img
-        src={product.image || 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=800'}
+        src={product.image || product.videoThumbnail || 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=800'}
         alt={product.name}
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
         crossorigin="anonymous"
