@@ -410,6 +410,7 @@ import { formatPrice } from '../../lib/utils';
   import { databases, storage, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, APPWRITE_IMAGES_BUCKET_ID, ID } from '../../lib/appwrite';
   import { Query } from 'appwrite';
   import { compressImage, compressVideo } from '../../lib/utils';
+  import { purgeProductCache } from '../../lib/cloudflare-cache';
   import { 
     saveToCache, 
     loadFromCache, 
@@ -1266,13 +1267,18 @@ import { formatPrice } from '../../lib/utils';
         isArchived: false
       };
 
+      let savedProductId = currentProductId;
       if (currentProductId) {
         await databases.updateDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, currentProductId, productData);
       } else {
-        await databases.createDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, ID.unique(), productData);
+        const newDoc = await databases.createDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, ID.unique(), productData);
+        savedProductId = newDoc.$id;
       }
 
-      // Clear cache on successful submission
+      // Purge Cloudflare cache to ensure product visibility changes immediately
+      purgeProductCache(savedProductId);
+
+      // Clear upload cache on successful submission
       clearCache();
       
       hidePanel();
