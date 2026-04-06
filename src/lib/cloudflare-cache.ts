@@ -55,8 +55,11 @@ export async function purgeCloudflareCache(urls: string[]): Promise<boolean> {
       return false;
     }
 
+    console.log('[CLOUDFLARE-CACHE] API Response:', JSON.stringify(result, null, 2));
+
     if (!result.success) {
       console.error('Cloudflare cache purge failed:', result.error || 'Unknown error');
+      console.error('Full response:', result);
       return false;
     }
 

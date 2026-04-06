@@ -144,6 +144,7 @@ async function purgeCache(
   try {
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
+      console.error('Invalid URLs provided:', urls);
       return new Response(JSON.stringify({ 
         success: false, 
         error: 'No URLs provided' 
@@ -164,29 +165,71 @@ async function purgeCache(
       return url;
     });
 
-    console.log(`Purging Cloudflare cache for ${absoluteUrls.length} URLs:`, absoluteUrls);
+    console.log(`[PURGE-CACHE] Starting purge for ${absoluteUrls.length} URLs:`, absoluteUrls);
+    console.log(`[PURGE-CACHE] Zone ID: ${zoneId ? 'present' : 'MISSING'}`);
+    console.log(`[PURGE-CACHE] API Token: ${apiToken ? 'present' : 'MISSING'}`);
 
-    // Call Cloudflare API
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          files: absoluteUrls
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('Cloudflare API error:', error);
+    if (!zoneId || !apiToken) {
+      console.error('[PURGE-CACHE] Credentials missing - Zone:', !!zoneId, 'Token:', !!apiToken);
       return new Response(JSON.stringify({ 
         success: false, 
-        error: error.errors?.[0]?.message || error.message || 'Cloudflare API error' 
+        error: 'Cloudflare credentials not configured',
+        debug: {
+          zoneIdPresent: !!zoneId,
+          apiTokenPresent: !!apiToken
+        }
+      }), { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
+    }
+
+    // Call Cloudflare API
+    console.log('[PURGE-CACHE] Calling Cloudflare API...');
+    const cfApiUrl = `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`;
+    console.log(`[PURGE-CACHE] CF API URL: ${cfApiUrl}`);
+
+    const response = await fetch(cfApiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        files: absoluteUrls
+      }),
+    });
+
+    console.log(`[PURGE-CACHE] Cloudflare API response status: ${response.status} ${response.statusText}`);
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        const text = await response.text();
+        console.error('[PURGE-CACHE] Failed to parse CF error response:', text);
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: `Cloudflare API returned ${response.status}: ${text}`
+        }), { 
+          status: response.status,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          }
+        });
+      }
+
+      console.error('[PURGE-CACHE] Cloudflare API error:', errorData);
+      const errorMsg = errorData.errors?.[0]?.message || errorData.message || 'Unknown Cloudflare error';
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: errorMsg,
+        cfErrors: errorData.errors
       }), { 
         status: response.status,
         headers: {
@@ -197,7 +240,7 @@ async function purgeCache(
     }
 
     const result = await response.json();
-    console.log('Cloudflare purge response:', result);
+    console.log('[PURGE-CACHE] Cloudflare purge successful:', result);
     
     return new Response(JSON.stringify({ 
       success: true, 
@@ -212,10 +255,12 @@ async function purgeCache(
     });
 
   } catch (error) {
-    console.error('Cache purge error:', error);
+    console.error('[PURGE-CACHE] Unexpected error:', error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ 
       success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+      error: `Server error: ${errorMsg}`,
+      stack: error instanceof Error ? error.stack : undefined
     }), { 
       status: 500,
       headers: {
