@@ -1,7 +1,8 @@
 # Cloudflare Pages Redirects
 
-# API routes are handled automatically by Astro's Cloudflare adapter
-# No redirect rules needed for /api/*
+# API routes - Cloudflare Pages uses Workers
+# Try redirecting to the catch-all that goes to the function
+/api/:path /:path 200
 
 # SPA fallback - uncomment if using client-side routing
 # /_next/static/:path /_next/static/:path 200
