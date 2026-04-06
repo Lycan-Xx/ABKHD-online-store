@@ -22,11 +22,17 @@ export const OPTIONS: APIRoute = async () => {
   });
 };
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async (context) => {
+  const { url, locals } = context;
   try {
-    const zoneId = import.meta.env.CLOUDFLARE_ZONE_ID;
-    const apiToken = import.meta.env.CLOUDFLARE_API_TOKEN;
-    const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://abkhdstores.com.ng';
+    // @ts-ignore
+    const cfEnv = locals.runtime?.env || {};
+    // @ts-ignore
+    const zoneId = cfEnv.CLOUDFLARE_ZONE_ID || cfEnv.PUBLIC_CLOUDFLARE_ZONE_ID || import.meta.env.CLOUDFLARE_ZONE_ID || import.meta.env.PUBLIC_CLOUDFLARE_ZONE_ID;
+    // @ts-ignore
+    const apiToken = cfEnv.CLOUDFLARE_API_TOKEN || cfEnv.PUBLIC_CLOUDFLARE_API_TOKEN || import.meta.env.CLOUDFLARE_API_TOKEN || import.meta.env.PUBLIC_CLOUDFLARE_API_TOKEN;
+    // @ts-ignore
+    const siteUrl = cfEnv.PUBLIC_SITE_URL || import.meta.env.PUBLIC_SITE_URL || 'https://abkhdstores.com.ng';
 
     // Support both test request and cache purging via query parameters
     const urlParams = new URL(url).searchParams;
@@ -89,12 +95,18 @@ export const GET: APIRoute = async ({ url }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
+  const { request, locals } = context;
   try {
     // Get credentials from server-side environment variables
-    const zoneId = import.meta.env.CLOUDFLARE_ZONE_ID;
-    const apiToken = import.meta.env.CLOUDFLARE_API_TOKEN;
-    const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://abkhdstores.com.ng';
+    // @ts-ignore
+    const cfEnv = locals.runtime?.env || {};
+    // @ts-ignore
+    const zoneId = cfEnv.CLOUDFLARE_ZONE_ID || cfEnv.PUBLIC_CLOUDFLARE_ZONE_ID || import.meta.env.CLOUDFLARE_ZONE_ID || import.meta.env.PUBLIC_CLOUDFLARE_ZONE_ID;
+    // @ts-ignore
+    const apiToken = cfEnv.CLOUDFLARE_API_TOKEN || cfEnv.PUBLIC_CLOUDFLARE_API_TOKEN || import.meta.env.CLOUDFLARE_API_TOKEN || import.meta.env.PUBLIC_CLOUDFLARE_API_TOKEN;
+    // @ts-ignore
+    const siteUrl = cfEnv.PUBLIC_SITE_URL || import.meta.env.PUBLIC_SITE_URL || 'https://abkhdstores.com.ng';
 
     if (!zoneId || !apiToken) {
       console.error('Missing Cloudflare credentials');
