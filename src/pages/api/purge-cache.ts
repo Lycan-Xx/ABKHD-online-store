@@ -32,6 +32,8 @@ export const GET: APIRoute = async (context) => {
     // @ts-ignore
     const apiToken = cfEnv.CLOUDFLARE_API_TOKEN || cfEnv.PUBLIC_CLOUDFLARE_API_TOKEN || import.meta.env.CLOUDFLARE_API_TOKEN || import.meta.env.PUBLIC_CLOUDFLARE_API_TOKEN;
     // @ts-ignore
+    const email = cfEnv.CLOUDFLARE_EMAIL || cfEnv.PUBLIC_CLOUDFLARE_EMAIL || import.meta.env.CLOUDFLARE_EMAIL || import.meta.env.PUBLIC_CLOUDFLARE_EMAIL || '';
+    // @ts-ignore
     const siteUrl = cfEnv.PUBLIC_SITE_URL || import.meta.env.PUBLIC_SITE_URL || 'https://abkhdstores.com.ng';
 
     // Support both test request and cache purging via query parameters
@@ -80,7 +82,7 @@ export const GET: APIRoute = async (context) => {
     console.log('[GET-PURGE-CACHE] Calling purgeCache with', urls.length, 'URLs');
 
     // Use shared purge logic
-    return await purgeCache(urls, zoneId, apiToken, siteUrl);
+    return await purgeCache(urls, zoneId, apiToken, siteUrl, email);
   } catch (error) {
     console.error('GET cache purge error:', error);
     return new Response(JSON.stringify({
@@ -105,6 +107,8 @@ export const POST: APIRoute = async (context) => {
     const zoneId = cfEnv.CLOUDFLARE_ZONE_ID || cfEnv.PUBLIC_CLOUDFLARE_ZONE_ID || import.meta.env.CLOUDFLARE_ZONE_ID || import.meta.env.PUBLIC_CLOUDFLARE_ZONE_ID;
     // @ts-ignore
     const apiToken = cfEnv.CLOUDFLARE_API_TOKEN || cfEnv.PUBLIC_CLOUDFLARE_API_TOKEN || import.meta.env.CLOUDFLARE_API_TOKEN || import.meta.env.PUBLIC_CLOUDFLARE_API_TOKEN;
+    // @ts-ignore
+    const email = cfEnv.CLOUDFLARE_EMAIL || cfEnv.PUBLIC_CLOUDFLARE_EMAIL || import.meta.env.CLOUDFLARE_EMAIL || import.meta.env.PUBLIC_CLOUDFLARE_EMAIL || '';
     // @ts-ignore
     const siteUrl = cfEnv.PUBLIC_SITE_URL || import.meta.env.PUBLIC_SITE_URL || 'https://abkhdstores.com.ng';
 
@@ -142,7 +146,7 @@ export const POST: APIRoute = async (context) => {
     const { urls } = body;
     
     // Call the purge handler
-    return await purgeCache(urls, zoneId, apiToken, siteUrl);
+    return await purgeCache(urls, zoneId, apiToken, siteUrl, email);
   } catch (error) {
     console.error('Cache purge error:', error);
     return new Response(JSON.stringify({ 
@@ -163,9 +167,13 @@ async function purgeCache(
   urls: string[],
   zoneId: string,
   apiToken: string,
-  siteUrl: string
+  siteUrl: string,
+  email?: string
 ) {
   try {
+    const cleanZoneId = zoneId?.toString().trim().replace(/^["']|["']$/g, '');
+    const cleanApiToken = apiToken?.toString().trim().replace(/^["']|["']$/g, '');
+    const cleanEmail = email?.toString().trim().replace(/^["']|["']$/g, '');
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       console.error('Invalid URLs provided:', urls);
@@ -191,17 +199,18 @@ async function purgeCache(
     });
 
     console.log(`[PURGE-CACHE] Starting purge for ${absoluteUrls.length} URLs:`, absoluteUrls);
-    console.log(`[PURGE-CACHE] Zone ID: ${zoneId ? 'present' : 'MISSING'}`);
-    console.log(`[PURGE-CACHE] API Token: ${apiToken ? 'present' : 'MISSING'}`);
+    console.log(`[PURGE-CACHE] Zone ID: ${cleanZoneId ? 'present' : 'MISSING'}`);
+    console.log(`[PURGE-CACHE] API Token: ${cleanApiToken ? 'present' : 'MISSING'}`);
+    if (cleanEmail) console.log(`[PURGE-CACHE] Email: ${cleanEmail}`);
 
-    if (!zoneId || !apiToken) {
-      console.error('[PURGE-CACHE] Credentials missing - Zone:', !!zoneId, 'Token:', !!apiToken);
+    if (!cleanZoneId || !cleanApiToken) {
+      console.error('[PURGE-CACHE] Credentials missing - Zone:', !!cleanZoneId, 'Token:', !!cleanApiToken);
       return new Response(JSON.stringify({ 
         success: false, 
         error: 'Cloudflare credentials not configured',
         debug: {
-          zoneIdPresent: !!zoneId,
-          apiTokenPresent: !!apiToken
+          zoneIdPresent: !!cleanZoneId,
+          apiTokenPresent: !!cleanApiToken
         }
       }), { 
         status: 500,
@@ -215,15 +224,25 @@ async function purgeCache(
 
     // Call Cloudflare API
     console.log('[PURGE-CACHE] Calling Cloudflare API...');
-    const cfApiUrl = `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`;
+    const cfApiUrl = `https://api.cloudflare.com/client/v4/zones/${cleanZoneId}/purge_cache`;
     console.log(`[PURGE-CACHE] CF API URL: ${cfApiUrl}`);
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (cleanEmail) {
+      headers['X-Auth-Email'] = cleanEmail;
+      headers['X-Auth-Key'] = cleanApiToken;
+      console.log(`[PURGE-CACHE] Using Global API Key authentication`);
+    } else {
+      headers['Authorization'] = `Bearer ${cleanApiToken}`;
+      console.log(`[PURGE-CACHE] Using Bearer Token authentication`);
+    }
 
     const response = await fetch(cfApiUrl, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiToken}`,
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         files: absoluteUrls
       }),
