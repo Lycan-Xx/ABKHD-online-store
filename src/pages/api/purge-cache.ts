@@ -20,18 +20,61 @@ export const OPTIONS: APIRoute = async () => {
   });
 };
 
-export const GET: APIRoute = async () => {
-  // Test endpoint - if this works, routing is the issue
-  return new Response(JSON.stringify({ 
-    message: 'API is working! This is the purge-cache endpoint',
-    hint: 'Send POST request with { urls: [...] } to purge cache'
-  }), { 
-    status: 200,
-    headers: { 
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
+export const GET: APIRoute = async ({ url }) => {
+  try {
+    const zoneId = import.meta.env.CLOUDFLARE_ZONE_ID;
+    const apiToken = import.meta.env.CLOUDFLARE_API_TOKEN;
+    const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://abkhdstores.com.ng';
+
+    // Support both test request and cache purging via query parameters
+    const urlParams = new URL(url).searchParams;
+    const urlsParam = urlParams.get('urls');
+
+    // If no urls parameter, return test message
+    if (!urlsParam) {
+      return new Response(JSON.stringify({ 
+        message: 'API is working! This is the purge-cache endpoint',
+        hint: 'Send GET request with ?urls=url1,url2,url3 to purge cache, or POST with { urls: [...] }'
+      }), { 
+        status: 200,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
     }
-  });
+
+    // Parse URLs from query parameter (comma-separated)
+    const urls = urlsParam.split(',').map(u => u.trim()).filter(u => u.length > 0);
+
+    if (urls.length === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid or empty urls parameter'
+      }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
+    }
+
+    // Use shared purge logic
+    return await purgeCache(urls, zoneId, apiToken, siteUrl);
+  } catch (error) {
+    console.error('GET cache purge error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    });
+  }
 };
 
 export const POST: APIRoute = async ({ request }) => {
@@ -73,6 +116,32 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const { urls } = body;
+    
+    // Call the purge handler
+    return await purgeCache(urls, zoneId, apiToken, siteUrl);
+  } catch (error) {
+    console.error('Cache purge error:', error);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    }), { 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    });
+  }
+};
+
+// Shared purge logic for both GET and POST
+async function purgeCache(
+  urls: string[],
+  zoneId: string,
+  apiToken: string,
+  siteUrl: string
+) {
+  try {
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       return new Response(JSON.stringify({ 

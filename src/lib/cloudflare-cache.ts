@@ -8,6 +8,7 @@
 
 /**
  * Purge specific URLs from Cloudflare cache via server-side API
+ * Uses GET with query parameters due to Cloudflare Pages POST limitations
  */
 export async function purgeCloudflareCache(urls: string[]): Promise<boolean> {
   try {
@@ -19,19 +20,23 @@ export async function purgeCloudflareCache(urls: string[]): Promise<boolean> {
     
     if (!testResponse.ok) {
       console.error('API route test failed:', testResponse.status, testResponse.statusText);
-      // Continue to try POST anyway
+      return false;
     } else {
       const testData = await testResponse.json();
       console.log('API route test OK:', testData);
     }
 
-    // Now try the actual POST request
-    const response = await fetch('/api/purge-cache', {
-      method: 'POST',
+    // Use GET with query parameters for purging (workaround for Cloudflare Pages POST limitation)
+    const urlsParam = urls.map(u => encodeURIComponent(u)).join(',');
+    const purgeUrl = `/api/purge-cache?urls=${urlsParam}`;
+    
+    console.log(`Purging Cloudflare cache for ${urls.length} URL(s)...`);
+
+    const response = await fetch(purgeUrl, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ urls }),
     });
 
     // Check response status before parsing JSON
