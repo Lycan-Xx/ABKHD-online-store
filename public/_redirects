@@ -1,5 +1,8 @@
 # Cloudflare Pages Redirects
 
+# API routes are handled automatically by Astro's Cloudflare adapter
+# No redirect rules needed for /api/*
+
 # SPA fallback - uncomment if using client-side routing
 # /_next/static/:path /_next/static/:path 200
 # /admin/* /index.html 200

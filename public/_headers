@@ -1,5 +1,11 @@
 # Cloudflare Pages Headers
 
+# API routes - allow CORS for frontend calls
+/api/*
+  Access-Control-Allow-Origin: https://abkhdstores.com.ng
+  Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+  Access-Control-Allow-Headers: Content-Type
+
 # Cache control for static assets
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
