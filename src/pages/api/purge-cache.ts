@@ -2,10 +2,23 @@
  * API Route to purge Cloudflare cache
  * This is needed because the Cloudflare API doesn't support CORS from browser-side calls
  * 
- * Try POST first, fall back to GET for testing routing
+ * Handles GET (test), POST (actual purge), and OPTIONS (CORS preflight)
  */
 
 import type { APIRoute } from 'astro';
+
+// Handle CORS preflight requests
+export const OPTIONS: APIRoute = async () => {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+};
 
 export const GET: APIRoute = async () => {
   // Test endpoint - if this works, routing is the issue
@@ -14,7 +27,10 @@ export const GET: APIRoute = async () => {
     hint: 'Send POST request with { urls: [...] } to purge cache'
   }), { 
     status: 200,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    }
   });
 };
 
@@ -80,13 +96,25 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ 
       success: true, 
       message: `Purged ${urls.length} URL(s)` 
-    }), { status: 200 });
+    }), { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    });
 
   } catch (error) {
     console.error('Cache purge error:', error);
     return new Response(JSON.stringify({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 
-    }), { status: 500 });
+    }), { 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    });
   }
 }
