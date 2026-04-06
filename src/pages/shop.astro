@@ -17,7 +17,8 @@ try {
     [
       Query.equal('isActive', true),
       Query.equal('isArchived', false),
-      Query.limit(100)
+      Query.orderDesc('$createdAt'),
+      Query.limit(200)
     ]
   );
   products = response.documents.map(doc => ({ ...doc, id: doc.$id }));

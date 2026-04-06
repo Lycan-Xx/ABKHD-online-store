@@ -19,7 +19,8 @@ try {
       Query.equal("featured", true),
       Query.equal("isActive", true),
       Query.equal("isArchived", false),
-      Query.limit(8),
+      Query.orderDesc("$createdAt"),
+      Query.limit(20),
     ],
   );
   featuredProducts = response.documents.map((doc) => ({ ...doc, id: doc.$id }));
