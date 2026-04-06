@@ -935,6 +935,9 @@ import { formatPrice } from '../../lib/utils';
           await databases.deleteDocument(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, productId);
         }
         
+        // Purge Cloudflare cache after deletion to remove product from shop immediately
+        purgeProductCache();
+        
         // Clear selection and reload
         selectedProducts.clear();
         updateSelectionUI();

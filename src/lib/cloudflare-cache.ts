@@ -2,51 +2,28 @@
  * Cloudflare Cache Purge Utility
  * Automatically purges Cloudflare cache when products are updated
  * to ensure immediate visibility changes
+ * 
+ * Uses a server-side API route to avoid CORS issues with the Cloudflare API
  */
-
-interface CloudflareConfig {
-  zoneId: string;
-  apiToken: string;
-}
 
 /**
- * Purge specific URLs from Cloudflare cache
- * Call this after updating products to ensure immediate visibility changes
+ * Purge specific URLs from Cloudflare cache via server-side API
  */
 export async function purgeCloudflareCache(urls: string[]): Promise<boolean> {
-  // Get config from environment (check both non-public and public prefixed versions for Cloudflare Pages compatibility)
-  const zoneId = import.meta.env.CLOUDFLARE_ZONE_ID || import.meta.env.PUBLIC_CLOUDFLARE_ZONE_ID;
-  const apiToken = import.meta.env.CLOUDFLARE_API_TOKEN || import.meta.env.PUBLIC_CLOUDFLARE_API_TOKEN;
-
-  if (!zoneId || !apiToken) {
-    console.warn('Cloudflare cache purge skipped: Missing CLOUDFLARE_ZONE_ID or CLOUDFLARE_API_TOKEN');
-    return false;
-  }
-
   try {
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          files: urls.map(url => {
-            // Ensure URL is absolute
-            if (!url.startsWith('http')) {
-              url = `${import.meta.env.PUBLIC_SITE_URL || 'https://abkhdstores.com.ng'}${url}`;
-            }
-            return url;
-          })
-        }),
-      }
-    );
+    // Use server-side API route to avoid CORS issues
+    const response = await fetch('/api/purge-cache', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ urls }),
+    });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('Cloudflare cache purge failed:', error);
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      console.error('Cloudflare cache purge failed:', result.error || 'Unknown error');
       return false;
     }
 
