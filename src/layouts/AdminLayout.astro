@@ -56,6 +56,8 @@ const isActive = (path: string, exact = false) => {
         const isDark = savedTheme !== null ? savedTheme === 'true' : systemPrefersDark;
         if (isDark) {
           document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
         }
       })();
     </script>
@@ -150,27 +152,7 @@ const isActive = (path: string, exact = false) => {
       </main>
     </div>
     <script>
-      // Initialize dark mode
-      const setDarkMode = () => {
-        const savedTheme = localStorage.getItem('darkMode')
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        
-        const isDark = savedTheme !== null 
-          ? savedTheme === 'true' 
-          : systemPrefersDark
-
-        if (isDark) {
-          document.documentElement.classList.add('dark')
-        } else {
-          document.documentElement.classList.remove('dark')
-        }
-      }
-
-      // Initialize on page load
-      setDarkMode()
-
-      // Re-initialize after view transitions
-      document.addEventListener('astro:after-swap', setDarkMode)
+      // Cleaned up redundant theme logic - it's already handled inline and in stores/dark-mode.ts
     </script>
     <script>
       import { account, teams } from '../lib/appwrite';

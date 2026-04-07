@@ -1,15 +1,22 @@
-import { atom } from 'nanostores';
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') return false;
+  const stored = localStorage.getItem('darkMode');
+  if (stored !== null) return stored === 'true';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+};
 
-export const $isDarkMode = atom<boolean>(false);
+export const $isDarkMode = atom<boolean>(getInitialTheme());
 
 export function initDarkMode(): void {
-  const stored = localStorage.getItem('darkMode');
-  if (stored !== null) {
-    $isDarkMode.set(stored === 'true');
-  } else {
-    $isDarkMode.set(window.matchMedia('(prefers-color-scheme: dark)').matches);
-  }
+  // Theme is now initialized directly in the atom
   applyDarkMode();
+  
+  // Listen for system theme changes if no manual preference is set
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (localStorage.getItem('darkMode') === null) {
+      $isDarkMode.set(e.matches);
+    }
+  });
 }
 
 export function toggleDarkMode(): void {

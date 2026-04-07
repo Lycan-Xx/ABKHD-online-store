@@ -54,15 +54,17 @@ const imageUrl = ogImage || `${siteUrl}/android-chrome-512x512.png`;
     <script is:inline>
       // Initialize dark mode before page renders
       (function() {
-        const savedTheme = localStorage.getItem('darkMode')
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        const savedTheme = localStorage.getItem('darkMode');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         
         const isDark = savedTheme !== null 
           ? savedTheme === 'true' 
           : systemPrefersDark
 
         if (isDark) {
-          document.documentElement.classList.add('dark')
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
         }
       })()
     </script>
