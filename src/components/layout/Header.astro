@@ -124,21 +124,114 @@ const isActive = (path: string) => {
   }
 </style>
 
+<script is:inline>
+  // Initialize dark mode immediately
+  (function() {
+    const savedTheme = localStorage.getItem('darkMode');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = savedTheme !== null ? savedTheme === 'true' : systemPrefersDark;
+    if (isDark) document.documentElement.classList.add('dark');
+  })();
+
+  // Mobile menu handler - runs immediately
+  function setupMobileMenu() {
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const menuOverlay = document.getElementById('menu-overlay');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuClose = document.getElementById('menu-close');
+
+    if (!mobileMenuBtn || !menuOverlay || !mobileMenu || !menuClose) {
+      console.warn('Mobile menu elements not found');
+      return;
+    }
+
+    function openMenu() {
+      menuOverlay.classList.remove('opacity-0', 'pointer-events-none');
+      mobileMenu.classList.remove('-translate-x-full');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      menuOverlay.classList.add('opacity-0', 'pointer-events-none');
+      mobileMenu.classList.add('-translate-x-full');
+      document.body.style.overflow = '';
+    }
+
+    mobileMenuBtn.addEventListener('click', openMenu);
+    menuClose.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', closeMenu);
+
+    // Close menu when clicking links
+    document.querySelectorAll('.menu-link').forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+  }
+
+  // Cart handler
+  function setupCart() {
+    const cartToggle = document.getElementById('cart-toggle');
+    if (cartToggle) {
+      cartToggle.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('open-cart'));
+      });
+    }
+  }
+
+  // Dark mode handler
+  function setupDarkMode() {
+    const darkToggle = document.getElementById('dark-mode-toggle');
+    if (darkToggle) {
+      darkToggle.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        if (isDark) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('darkMode', 'false');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('darkMode', 'true');
+        }
+        updateDarkModeIcon();
+      });
+    }
+  }
+
+  function updateDarkModeIcon() {
+    const icon = document.getElementById('dark-mode-icon');
+    const isDark = document.documentElement.classList.contains('dark');
+    if (icon) {
+      icon.className = isDark ? 'bi bi-sun text-lg' : 'bi bi-moon text-lg';
+    }
+  }
+
+  // Run setup when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setupMobileMenu();
+      setupCart();
+      setupDarkMode();
+      updateDarkModeIcon();
+    });
+  } else {
+    setupMobileMenu();
+    setupCart();
+    setupDarkMode();
+    updateDarkModeIcon();
+  }
+
+  // Handle view transitions
+  document.addEventListener('astro:after-swap', () => {
+    setupMobileMenu();
+    setupCart();
+    setupDarkMode();
+    updateDarkModeIcon();
+  });
+</script>
+
 <script>
-  import { initDarkMode, toggleDarkMode, $isDarkMode } from '../../stores/dark-mode';
   import { $cartItems, getCartCount, openCart } from '../../stores/cart';
   import { createInitializer } from '../../lib/init';
 
   createInitializer(() => {
-    initDarkMode();
-
-    function updateDarkModeIcon() {
-      const icon = document.getElementById('dark-mode-icon');
-      if (icon) icon.className = $isDarkMode.get() ? 'bi bi-sun text-lg' : 'bi bi-moon text-lg';
-    }
-    updateDarkModeIcon();
-    const unsubDark = $isDarkMode.subscribe(() => updateDarkModeIcon());
-
     function updateCartBadge() {
       const el = document.getElementById('cart-count');
       if (el) {
@@ -150,32 +243,11 @@ const isActive = (path: string) => {
     updateCartBadge();
     const unsubCart = $cartItems.subscribe(() => updateCartBadge());
 
-    const darkToggle = document.getElementById('dark-mode-toggle');
-    const cartToggle = document.getElementById('cart-toggle');
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    
-    const handleDark = () => toggleDarkMode();
-    const handleCart = () => openCart();
-    const handleMobileMenu = () => {
-      const menu = document.getElementById('mobile-menu');
-      const overlay = document.getElementById('menu-overlay');
-      if (menu && overlay) {
-        overlay.classList.remove('opacity-0', 'pointer-events-none');
-        menu.classList.remove('-translate-x-full');
-        document.body.style.overflow = 'hidden';
-      }
-    };
-    
-    darkToggle?.addEventListener('click', handleDark);
-    cartToggle?.addEventListener('click', handleCart);
-    mobileMenuBtn?.addEventListener('click', handleMobileMenu);
+    // Listen for cart open event
+    window.addEventListener('open-cart', () => openCart());
 
     return () => {
-      unsubDark();
       unsubCart();
-      darkToggle?.removeEventListener('click', handleDark);
-      cartToggle?.removeEventListener('click', handleCart);
-      mobileMenuBtn?.removeEventListener('click', handleMobileMenu);
     };
   });
 </script>
