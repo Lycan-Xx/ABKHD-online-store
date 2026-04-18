@@ -113,7 +113,7 @@
   import { toggleDarkMode, $isDarkMode } from '../../stores/dark-mode';
   import { createInitializer } from '../../lib/init';
 
-createInitializer(() => {
+  createInitializer(() => {
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
 
     // Mark active link
@@ -136,37 +136,32 @@ createInitializer(() => {
     updateDarkMode();
     const unsubDark = $isDarkMode.subscribe(() => updateDarkMode());
 
-    function openMenu() {
-      document.getElementById('menu-overlay')?.classList.remove('opacity-0', 'pointer-events-none');
-      document.getElementById('mobile-menu')?.classList.remove('-translate-x-full');
-      document.body.style.overflow = 'hidden';
-    }
     function closeMenu() {
       document.getElementById('menu-overlay')?.classList.add('opacity-0', 'pointer-events-none');
       document.getElementById('mobile-menu')?.classList.add('-translate-x-full');
       document.body.style.overflow = '';
     }
 
-    const menuBtn     = document.getElementById('mobile-menu-btn');
     const menuClose   = document.getElementById('menu-close');
     const overlay     = document.getElementById('menu-overlay');
     const darkToggle  = document.getElementById('dark-mode-toggle-mobile');
+    const menuLinks   = document.querySelectorAll('.menu-link');
 
-    const handleOpen  = () => openMenu();
     const handleClose = () => closeMenu();
     const handleDark  = () => toggleDarkMode();
+    const handleLinkClick = () => closeMenu();
 
-    menuBtn?.addEventListener('click', handleOpen);
     menuClose?.addEventListener('click', handleClose);
     overlay?.addEventListener('click', handleClose);
     darkToggle?.addEventListener('click', handleDark);
+    menuLinks.forEach(link => link.addEventListener('click', handleLinkClick));
 
     return () => {
       unsubDark();
-      menuBtn?.removeEventListener('click', handleOpen);
       menuClose?.removeEventListener('click', handleClose);
       overlay?.removeEventListener('click', handleClose);
       darkToggle?.removeEventListener('click', handleDark);
+      menuLinks.forEach(link => link.removeEventListener('click', handleLinkClick));
     };
   });
 </script>

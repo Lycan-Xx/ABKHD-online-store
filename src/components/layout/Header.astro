@@ -152,16 +152,30 @@ const isActive = (path: string) => {
 
     const darkToggle = document.getElementById('dark-mode-toggle');
     const cartToggle = document.getElementById('cart-toggle');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    
     const handleDark = () => toggleDarkMode();
     const handleCart = () => openCart();
+    const handleMobileMenu = () => {
+      const menu = document.getElementById('mobile-menu');
+      const overlay = document.getElementById('menu-overlay');
+      if (menu && overlay) {
+        overlay.classList.remove('opacity-0', 'pointer-events-none');
+        menu.classList.remove('-translate-x-full');
+        document.body.style.overflow = 'hidden';
+      }
+    };
+    
     darkToggle?.addEventListener('click', handleDark);
     cartToggle?.addEventListener('click', handleCart);
+    mobileMenuBtn?.addEventListener('click', handleMobileMenu);
 
     return () => {
       unsubDark();
       unsubCart();
       darkToggle?.removeEventListener('click', handleDark);
       cartToggle?.removeEventListener('click', handleCart);
+      mobileMenuBtn?.removeEventListener('click', handleMobileMenu);
     };
   });
 </script>
