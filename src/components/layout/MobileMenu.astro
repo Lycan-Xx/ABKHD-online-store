@@ -38,10 +38,9 @@
       <span class="menu-icon"><i class="bi bi-stars"></i></span>
       <span class="font-medium">Featured</span>
     </a>
-    <a href="/shop" class="menu-link menu-link--shop flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200">
+    <a href="/shop" class="menu-link flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200">
       <span class="menu-icon"><i class="bi bi-bag"></i></span>
       <span class="font-medium">Shop</span>
-      <span class="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">Browse</span>
     </a>
     <a href="/about" class="menu-link flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200">
       <span class="menu-icon"><i class="bi bi-info-circle"></i></span>
@@ -100,13 +99,6 @@
     background: hsl(var(--primary) / 0.08);
     font-weight: 600;
   }
-  .menu-link--shop {
-    border: 1px solid hsl(var(--primary) / 0.2);
-    background: hsl(var(--primary) / 0.05);
-    color: hsl(var(--foreground));
-  }
-  .menu-link--shop .menu-icon { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
-  .menu-link--shop:hover { background: hsl(var(--primary) / 0.1); }
 </style>
 
 <script is:inline>
@@ -155,7 +147,7 @@
   function setupActiveLinks() {
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
     document.querySelectorAll('.menu-link').forEach(link => {
-      const href = (link as HTMLAnchorElement).getAttribute('href')?.replace(/\/$/, '') || '/';
+      const href = link.getAttribute('href')?.replace(/\/$/, '') || '/';
       if (href === currentPath) {
         link.classList.add('active');
       }

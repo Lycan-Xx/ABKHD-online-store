@@ -38,7 +38,7 @@ const isActive = (path: string) => {
       </a>
       <a
         href="/shop"
-        class={`nav-link nav-link--shop ${isActive('/shop') ? 'nav-link--active' : ''}`}
+        class={`nav-link ${isActive('/shop') ? 'nav-link--active' : ''}`}
       >
         <i class="bi bi-bag text-xs mr-1.5 opacity-70"></i>
         Shop
@@ -112,16 +112,6 @@ const isActive = (path: string) => {
     font-weight: 600;
     border-bottom: 2px solid hsl(var(--primary));
   }
-  /* Shop gets a subtle accent so it reads as a CTA */
-  .nav-link--shop:not(.nav-link--active) {
-    color: hsl(var(--foreground));
-    background: hsl(var(--primary) / 0.07);
-    border: 1px solid hsl(var(--primary) / 0.2);
-  }
-  .nav-link--shop:not(.nav-link--active):hover {
-    background: hsl(var(--primary) / 0.14);
-    border-color: hsl(var(--primary) / 0.35);
-  }
 </style>
 
 <script is:inline>
@@ -132,6 +122,21 @@ const isActive = (path: string) => {
     const isDark = savedTheme !== null ? savedTheme === 'true' : systemPrefersDark;
     if (isDark) document.documentElement.classList.add('dark');
   })();
+
+  // Update active nav links
+  function updateActiveLinks() {
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+    
+    // Desktop nav links
+    document.querySelectorAll('nav .nav-link').forEach(link => {
+      const href = link.getAttribute('href')?.replace(/\/$/, '') || '/';
+      if (href === currentPath) {
+        link.classList.add('nav-link--active');
+      } else {
+        link.classList.remove('nav-link--active');
+      }
+    });
+  }
 
   // Mobile menu handler - runs immediately
   function setupMobileMenu() {
@@ -206,12 +211,14 @@ const isActive = (path: string) => {
   // Run setup when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+      updateActiveLinks();
       setupMobileMenu();
       setupCart();
       setupDarkMode();
       updateDarkModeIcon();
     });
   } else {
+    updateActiveLinks();
     setupMobileMenu();
     setupCart();
     setupDarkMode();
@@ -220,6 +227,7 @@ const isActive = (path: string) => {
 
   // Handle view transitions
   document.addEventListener('astro:after-swap', () => {
+    updateActiveLinks();
     setupMobileMenu();
     setupCart();
     setupDarkMode();
