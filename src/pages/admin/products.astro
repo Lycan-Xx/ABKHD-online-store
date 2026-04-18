@@ -1255,7 +1255,7 @@ import { formatPrice } from '../../lib/utils';
         price: parseFloat(formData.get('price') as string),
         originalPrice: parseFloat(formData.get('originalPrice') as string) || null,
         stock: parseInt(formData.get('stock') as string) || 0,
-        image: imageUrls[0] || '',
+        image: imageUrls[0] || videoThumbnailUrl || '',
         images: imageUrls,
         video: videoUrl,
         videoThumbnail: videoThumbnailUrl,

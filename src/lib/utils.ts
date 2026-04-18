@@ -134,7 +134,7 @@ export const compressImage = (file: File, config = DEFAULT_IMAGE_CONFIG) => {
  * "Compress" a video file - creates a high-quality thumbnail preview
  * Note: True video re-encoding on client is complex without WASM.
  * This function handles metadata and thumbnail extraction.
- */
+ */ 
 export const compressVideo = async (file: File): Promise<{thumbnail: string, duration: number, width: number, height: number, size: number}> => {
   return new Promise((resolve, reject) => {
     if (!file || !file.type.startsWith('video/')) {
