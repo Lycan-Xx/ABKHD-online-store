@@ -4,61 +4,39 @@
 @tailwind utilities;
 
 @layer base {
+  /* ============================================================
+     ABKHD "Showroom" design tokens — achromatic (light only).
+     Source of truth: docs/SPEC-showroom-ui-redesign.md §4.1
+     Values are sRGB triplets (oklch-mapped from the mockup) so
+     Tailwind alpha modifiers (bg-background/85 …) keep working.
+     ============================================================ */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 20% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
-    --primary: 173 58% 39%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 20% 10%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 46%;
-    --accent: 220 14% 96%;
-    --accent-foreground: 220 20% 10%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 14% 90%;
-    --input: 220 14% 90%;
-    --ring: 173 58% 39%;
-    --radius: 0.75rem;
+    --background: 255 255 255;          /* oklch(1 0 0)        #ffffff */
+    --foreground: 18 18 18;             /* oklch(0.18 0 0)     #121212 */
+    --card: 255 255 255;                /* oklch(1 0 0)        #ffffff */
+    --card-foreground: 18 18 18;        /* oklch(0.18 0 0)     #121212 */
+    --popover: 255 255 255;             /* oklch(1 0 0)        #ffffff */
+    --popover-foreground: 18 18 18;     /* oklch(0.18 0 0)     #121212 */
+    --primary: 6 6 6;                   /* oklch(0.12 0 0)     #060606 */
+    --primary-foreground: 252 252 252;  /* oklch(0.99 0 0)     #fcfcfc */
+    --secondary: 245 245 245;           /* oklch(0.97 0 0)     #f5f5f5 */
+    --secondary-foreground: 18 18 18;   /* oklch(0.18 0 0)     #121212 */
+    --muted: 243 243 243;               /* oklch(0.965 0 0)    #f3f3f3 */
+    --muted-foreground: 99 99 99;       /* oklch(0.5 0 0)      #636363 */
+    --accent: 242 242 242;              /* oklch(0.96 0 0)     #f2f2f2 */
+    --accent-foreground: 18 18 18;      /* oklch(0.18 0 0)     #121212 */
+    --destructive: 231 0 11;            /* #e7000b */
+    --destructive-foreground: 248 250 252; /* #f8fafc */
+    --border: 228 228 228;              /* oklch(0.92 0 0)     #e4e4e4 */
+    --input: 228 228 228;               /* oklch(0.92 0 0)     #e4e4e4 */
+    --ring: 158 158 158;                /* oklch(0.7 0 0)      #9e9e9e */
+    --radius: 1rem;                     /* mockup --radius     16px */
 
-    /* Custom tokens */
-    --verified: 142 71% 45%;
-    --verified-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-  }
-
-  .dark {
-    --background: 220 20% 7%;
-    --foreground: 220 14% 96%;
-    --card: 220 20% 10%;
-    --card-foreground: 220 14% 96%;
-    --popover: 220 20% 7%;
-    --popover-foreground: 220 14% 96%;
-    --primary: 173 58% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 20% 14%;
-    --secondary-foreground: 220 14% 96%;
-    --muted: 220 20% 14%;
-    --muted-foreground: 220 10% 60%;
-    --accent: 220 20% 14%;
-    --accent-foreground: 220 14% 96%;
-    --destructive: 0 62% 40%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 20% 18%;
-    --input: 220 20% 18%;
-    --ring: 173 58% 45%;
-
-    /* Custom tokens */
-    --verified: 142 71% 45%;
-    --verified-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    /* Ambient stage tints (SPEC §4.5) — kept in oklch, used raw in CSS */
+    --ambient-warm: oklch(0.965 0.012 70);
+    --ambient-cool: oklch(0.975 0.008 250);
+    --ambient-deep: oklch(0.94 0.01 60);
+    --ambient-spot: oklch(0.99 0.005 80 / 0.55);
   }
 
   * {
@@ -68,17 +46,23 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
   }
 
   /* Focus styles */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
+
+  ::selection {
+    background: rgb(var(--foreground));
+    color: rgb(var(--background));
+  }
 }
 
 @layer components {
   .product-card {
-    @apply relative overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:border-primary/30;
+    @apply relative overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:border-foreground/20;
   }
 
   .product-image {
@@ -86,15 +70,15 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-lg border border-border bg-background px-5 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center rounded-full border border-border bg-background px-5 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground;
+    @apply inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground;
   }
 
   .card {
@@ -102,17 +86,11 @@
   }
 
   .input {
-    @apply w-full px-4 py-3 border border-border rounded-md bg-background transition-colors duration-200 focus:border-primary focus:ring-2 focus:ring-ring/20;
-  }
-
-  .verified-badge {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full;
-    background-color: hsl(var(--verified) / 0.1);
-    color: hsl(var(--verified));
+    @apply w-full px-4 py-3 border border-border rounded-md bg-background transition-colors duration-200 focus:border-foreground/40 focus:ring-2 focus:ring-ring/20;
   }
 
   .section-heading {
-    @apply text-3xl md:text-4xl font-bold tracking-tight;
+    @apply text-3xl md:text-4xl font-semibold tracking-tight;
   }
 
   .section-subheading {
@@ -158,9 +136,9 @@
   }
 
   @keyframes node-pulse {
-    0%, 100% { stroke: hsl(var(--border)); }
-    12.5% { stroke: hsl(var(--primary)); }
-    25% { stroke: hsl(var(--border)); }
+    0%, 100% { stroke: rgb(var(--border)); }
+    12.5% { stroke: rgb(var(--primary)); }
+    25% { stroke: rgb(var(--border)); }
   }
 
   @keyframes pulse-ring {
@@ -202,6 +180,73 @@
     }
     to {
       transform: translateX(0);
+    }
+  }
+
+  /* ============================================================
+     Showroom utilities (SPEC §4.5) — ported from the mockup
+     ============================================================ */
+  .glass {
+    background: color-mix(in oklab, white 70%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+
+  .glass-strong {
+    background: color-mix(in oklab, white 88%, transparent);
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+  }
+
+  .nav-shape {
+    border-radius: 9999px;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Ambient stage — cursor-follow spotlight + category tint (SPEC §7.2).
+     The ::before layer is GPU-cheap: two gradients, no repaints on cursor
+     move (position driven via CSS custom properties). */
+  .ambient-stage {
+    position: relative;
+    isolation: isolate;
+    --ambient-x: 50%;
+    --ambient-y: 30%;
+    --ambient-tint: var(--ambient-warm);
+    --ambient-spot: oklch(0.99 0.005 80 / 0.55);
+  }
+
+  .ambient-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(900px 600px at var(--ambient-x) var(--ambient-y), var(--ambient-spot), transparent 60%),
+      linear-gradient(180deg, var(--ambient-tint), var(--background) 90%);
+    transition: background 800ms ease;
+    pointer-events: none;
+  }
+
+  .ambient-stage > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-stage::before {
+      transition: none;
     }
   }
 }

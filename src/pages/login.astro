@@ -85,8 +85,8 @@ import Footer from '../components/layout/Footer.astro';
   }
   .login-card {
     width: 100%; max-width: 400px;
-    background: hsl(var(--card));
-    border: 1.5px solid hsl(var(--border));
+    background: rgb(var(--card));
+    border: 1.5px solid rgb(var(--border));
     border-radius: 16px;
     padding: 40px 36px;
     box-shadow: 0 8px 40px -12px rgba(0,0,0,0.12);
@@ -99,37 +99,37 @@ import Footer from '../components/layout/Footer.astro';
   .login-title {
     font-size: 1.5rem; font-weight: 800;
     letter-spacing: -0.01em; text-align: center;
-    color: hsl(var(--foreground)); margin-bottom: 4px;
+    color: rgb(var(--foreground)); margin-bottom: 4px;
   }
   .login-sub {
-    font-size: 13px; color: hsl(var(--muted-foreground));
+    font-size: 13px; color: rgb(var(--muted-foreground));
     text-align: center; margin-bottom: 28px;
   }
   .login-form { display: flex; flex-direction: column; gap: 16px; }
   .field-group { display: flex; flex-direction: column; gap: 6px; }
-  .field-label { font-size: 13px; font-weight: 500; color: hsl(var(--foreground)); }
+  .field-label { font-size: 13px; font-weight: 500; color: rgb(var(--foreground)); }
   .field-input {
     width: 100%; padding: 10px 14px;
-    border-radius: 9px; border: 1.5px solid hsl(var(--border));
-    background: hsl(var(--background));
-    font-size: 14px; color: hsl(var(--foreground));
+    border-radius: 9px; border: 1.5px solid rgb(var(--border));
+    background: rgb(var(--background));
+    font-size: 14px; color: rgb(var(--foreground));
     transition: border-color 0.15s, box-shadow 0.15s;
     outline: none; box-sizing: border-box;
   }
   .field-input:focus {
-    border-color: hsl(var(--primary) / 0.6);
-    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
+    border-color: rgb(var(--primary) / 0.6);
+    box-shadow: 0 0 0 3px rgb(var(--primary) / 0.12);
   }
   .input-wrap { position: relative; }
   .input-wrap .field-input { padding-right: 42px; }
   .pw-eye {
     position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
     background: none; border: none; cursor: pointer;
-    color: hsl(var(--muted-foreground)); padding: 2px;
+    color: rgb(var(--muted-foreground)); padding: 2px;
     display: flex; align-items: center; justify-content: center;
     transition: color 0.15s;
   }
-  .pw-eye:hover { color: hsl(var(--foreground)); }
+  .pw-eye:hover { color: rgb(var(--foreground)); }
 
   .error-box {
     display: flex; align-items: center; gap: 8px;
@@ -143,27 +143,27 @@ import Footer from '../components/layout/Footer.astro';
   .login-btn {
     width: 100%; padding: 11px 20px;
     border-radius: 10px; border: none; cursor: pointer;
-    background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+    background: rgb(var(--primary)); color: rgb(var(--primary-foreground));
     font-size: 14px; font-weight: 600;
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    box-shadow: 0 2px 12px hsl(var(--primary) / 0.3);
+    box-shadow: 0 2px 12px rgb(var(--primary) / 0.3);
     transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
     margin-top: 4px;
   }
   .login-btn:hover:not(:disabled) {
-    background: hsl(var(--primary) / 0.88);
+    background: rgb(var(--primary) / 0.88);
     transform: translateY(-1px);
-    box-shadow: 0 4px 18px hsl(var(--primary) / 0.38);
+    box-shadow: 0 4px 18px rgb(var(--primary) / 0.38);
   }
   .login-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
   .login-footer { margin-top: 24px; text-align: center; }
   .back-link {
     display: inline-flex; align-items: center; gap: 5px;
-    font-size: 13px; color: hsl(var(--muted-foreground));
+    font-size: 13px; color: rgb(var(--muted-foreground));
     text-decoration: none; transition: color 0.15s;
   }
-  .back-link:hover { color: hsl(var(--foreground)); }
+  .back-link:hover { color: rgb(var(--foreground)); }
 </style>
 
 <script>

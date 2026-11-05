@@ -35,7 +35,8 @@ const isActive = (path: string, exact = false) => {
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#ffffff" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     
     <!-- Cloudflare Insights Beacon -->
@@ -49,16 +50,13 @@ const isActive = (path: string, exact = false) => {
     <title>{title}</title>
     <ViewTransitions />
     <script is:inline>
-      // Initialize dark mode BEFORE page renders to prevent flash
+      // Showroom redesign: light-only UI. One-time cleanup of the retired
+      // dark-mode preference so it can never re-apply a stale theme.
       (function() {
-        const savedTheme = localStorage.getItem('darkMode');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const isDark = savedTheme !== null ? savedTheme === 'true' : systemPrefersDark;
-        if (isDark) {
-          document.documentElement.classList.add('dark');
-        } else {
+        try {
+          localStorage.removeItem('darkMode');
           document.documentElement.classList.remove('dark');
-        }
+        } catch (e) { /* storage unavailable — ignore */ }
       })();
     </script>
   </head>
@@ -151,9 +149,7 @@ const isActive = (path: string, exact = false) => {
         <slot />
       </main>
     </div>
-    <script>
-      // Cleaned up redundant theme logic - it's already handled inline and in stores/dark-mode.ts
-    </script>
+
     <script>
       import { account, teams } from '../lib/appwrite';
 

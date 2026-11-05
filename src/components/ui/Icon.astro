@@ -1,0 +1,56 @@
+---
+// Icon.astro — lucide-static SVG inliner for .astro components (SPEC §4.6).
+//
+// Replaces bootstrap-icons `<i class="bi bi-…">` usage with inline lucide
+// SVGs. Icons are imported as raw strings at build time (only the icons
+// actually referenced are bundled — safe for the Cloudflare worker).
+//
+// Usage:
+//   import Icon from './Icon.astro';
+//   <Icon name="shopping-bag" class="w-5 h-5" />
+//   <Icon name="chevron-right" class="w-4 h-4" strokeWidth={1.5} />
+//
+// Icon names: https://lucide.dev/icons (kebab-case file names).
+
+const modules = import.meta.glob(
+  '/node_modules/lucide-static/icons/*.svg',
+  { query: '?raw', import: 'default' },
+) as Record<string, () => Promise<string>>;
+
+export interface Props {
+  /** lucide icon name, e.g. "shopping-bag" */
+  name: string;
+  /** Tailwind classes applied to the <svg> (default: w-5 h-5) */
+  class?: string;
+  /** stroke-width override (lucide default is 2) */
+  strokeWidth?: number;
+  /** set false when the icon conveys meaning (default true) */
+  'aria-hidden'?: boolean;
+}
+
+const {
+  name,
+  class: className = 'w-5 h-5',
+  strokeWidth,
+  'aria-hidden': ariaHidden = true,
+} = Astro.props;
+
+const loader = modules[`/node_modules/lucide-static/icons/${name}.svg`];
+if (!loader) {
+  throw new Error(`[Icon.astro] Unknown lucide icon: "${name}"`);
+}
+
+let svg: string = await loader();
+
+// Drop the fixed 24×24 raster attributes so sizing is CSS-driven
+// (viewBox is kept so the icon scales inside w-*/h-* boxes).
+svg = svg
+  .replace(/\s(width|height)="24"/g, '')
+  .replace('<svg', `<svg class="${className}"${ariaHidden ? ' aria-hidden="true"' : ''}`);
+
+if (strokeWidth !== undefined && strokeWidth !== 2) {
+  svg = svg.replace('stroke-width="2"', `stroke-width="${strokeWidth}"`);
+}
+---
+
+<Fragment set:html={svg} />

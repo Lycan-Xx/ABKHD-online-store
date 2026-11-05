@@ -51,22 +51,6 @@
       <span class="font-medium">Contact</span>
     </a>
   </nav>
-
-  <!-- Footer: Dark Mode Toggle -->
-  <div class="border-t px-4 py-4">
-    <button
-      id="dark-mode-toggle-mobile"
-      class="flex items-center justify-between w-full px-4 py-3 rounded-xl bg-accent hover:bg-accent/70 transition-colors"
-    >
-      <div class="flex items-center gap-3">
-        <i id="dark-mode-icon-mobile" class="bi bi-moon-fill text-lg text-muted-foreground"></i>
-        <span class="text-sm font-medium" id="dark-mode-text-mobile">Dark Mode</span>
-      </div>
-      <div id="dark-toggle-pill" class="w-10 h-5 rounded-full bg-border relative transition-colors">
-        <div id="dark-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-background shadow transition-transform"></div>
-      </div>
-    </button>
-  </div>
 </div>
 
 <style>
@@ -74,75 +58,34 @@
     width: 32px; height: 32px;
     display: flex; align-items: center; justify-content: center;
     border-radius: 8px;
-    background: hsl(var(--accent));
-    color: hsl(var(--muted-foreground));
+    background: rgb(var(--accent));
+    color: rgb(var(--muted-foreground));
     font-size: 15px;
     flex-shrink: 0;
     transition: background 0.15s, color 0.15s;
   }
   .menu-link {
-    color: hsl(var(--muted-foreground));
+    color: rgb(var(--muted-foreground));
     text-decoration: none;
   }
   .menu-link:hover .menu-icon,
   .menu-link.active .menu-icon {
-    background: hsl(var(--primary) / 0.12);
-    color: hsl(var(--primary));
+    background: rgb(var(--primary) / 0.12);
+    color: rgb(var(--primary));
   }
   .menu-link:hover,
   .menu-link.active {
-    color: hsl(var(--foreground));
-    background: hsl(var(--accent));
+    color: rgb(var(--foreground));
+    background: rgb(var(--accent));
   }
   .menu-link.active {
-    color: hsl(var(--primary));
-    background: hsl(var(--primary) / 0.08);
+    color: rgb(var(--primary));
+    background: rgb(var(--primary) / 0.08);
     font-weight: 600;
   }
 </style>
 
 <script is:inline>
-  // Mobile menu dark mode toggle
-  function setupMobileDarkMode() {
-    const darkToggleMobile = document.getElementById('dark-mode-toggle-mobile');
-    if (!darkToggleMobile) return;
-
-    function updateMobileDarkMode() {
-      const isDark = document.documentElement.classList.contains('dark');
-      const iconEl = document.getElementById('dark-mode-icon-mobile');
-      const textEl = document.getElementById('dark-mode-text-mobile');
-      const pill = document.getElementById('dark-toggle-pill');
-      const dot = document.getElementById('dark-toggle-dot');
-
-      if (iconEl) {
-        iconEl.className = isDark ? 'bi bi-sun-fill text-lg text-yellow-400' : 'bi bi-moon-fill text-lg text-muted-foreground';
-      }
-      if (textEl) {
-        textEl.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-      }
-      if (pill) {
-        pill.style.background = isDark ? 'hsl(var(--primary))' : '';
-      }
-      if (dot) {
-        dot.style.transform = isDark ? 'translateX(20px)' : '';
-      }
-    }
-
-    updateMobileDarkMode();
-
-    darkToggleMobile.addEventListener('click', () => {
-      const isDark = document.documentElement.classList.contains('dark');
-      if (isDark) {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('darkMode', 'false');
-      } else {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('darkMode', 'true');
-      }
-      updateMobileDarkMode();
-    });
-  }
-
   // Mark active menu links
   function setupActiveLinks() {
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
@@ -156,16 +99,13 @@
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      setupMobileDarkMode();
       setupActiveLinks();
     });
   } else {
-    setupMobileDarkMode();
     setupActiveLinks();
   }
 
   document.addEventListener('astro:after-swap', () => {
-    setupMobileDarkMode();
     setupActiveLinks();
   });
 </script>

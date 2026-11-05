@@ -59,15 +59,6 @@ const isActive = (path: string) => {
 
     <!-- Actions -->
     <div class="flex items-center gap-2">
-      <!-- Dark Mode Toggle (Desktop) -->
-      <button
-        id="dark-mode-toggle"
-        class="hidden md:flex p-2 hover:bg-accent rounded-lg transition-colors"
-        aria-label="Toggle dark mode"
-      >
-        <i id="dark-mode-icon" class="bi bi-moon text-lg"></i>
-      </button>
-
       <!-- Cart -->
       <button
         id="cart-toggle"
@@ -97,32 +88,24 @@ const isActive = (path: string) => {
     font-size: 14px;
     font-weight: 500;
     border-radius: 8px;
-    color: hsl(var(--muted-foreground));
+    color: rgb(var(--muted-foreground));
     transition: color 0.15s, background 0.15s;
     text-decoration: none;
     white-space: nowrap;
   }
   .nav-link:hover {
-    color: hsl(var(--foreground));
-    background: hsl(var(--accent));
+    color: rgb(var(--foreground));
+    background: rgb(var(--accent));
   }
   .nav-link--active {
-    color: hsl(var(--primary));
-    background: hsl(var(--primary) / 0.1);
+    color: rgb(var(--primary));
+    background: rgb(var(--primary) / 0.1);
     font-weight: 600;
-    border-bottom: 2px solid hsl(var(--primary));
+    border-bottom: 2px solid rgb(var(--primary));
   }
 </style>
 
 <script is:inline>
-  // Initialize dark mode immediately
-  (function() {
-    const savedTheme = localStorage.getItem('darkMode');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = savedTheme !== null ? savedTheme === 'true' : systemPrefersDark;
-    if (isDark) document.documentElement.classList.add('dark');
-  })();
-
   // Update active nav links
   function updateActiveLinks() {
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
@@ -182,47 +165,17 @@ const isActive = (path: string) => {
     }
   }
 
-  // Dark mode handler
-  function setupDarkMode() {
-    const darkToggle = document.getElementById('dark-mode-toggle');
-    if (darkToggle) {
-      darkToggle.addEventListener('click', () => {
-        const isDark = document.documentElement.classList.contains('dark');
-        if (isDark) {
-          document.documentElement.classList.remove('dark');
-          localStorage.setItem('darkMode', 'false');
-        } else {
-          document.documentElement.classList.add('dark');
-          localStorage.setItem('darkMode', 'true');
-        }
-        updateDarkModeIcon();
-      });
-    }
-  }
-
-  function updateDarkModeIcon() {
-    const icon = document.getElementById('dark-mode-icon');
-    const isDark = document.documentElement.classList.contains('dark');
-    if (icon) {
-      icon.className = isDark ? 'bi bi-sun text-lg' : 'bi bi-moon text-lg';
-    }
-  }
-
   // Run setup when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       updateActiveLinks();
       setupMobileMenu();
       setupCart();
-      setupDarkMode();
-      updateDarkModeIcon();
     });
   } else {
     updateActiveLinks();
     setupMobileMenu();
     setupCart();
-    setupDarkMode();
-    updateDarkModeIcon();
   }
 
   // Handle view transitions
@@ -230,8 +183,6 @@ const isActive = (path: string) => {
     updateActiveLinks();
     setupMobileMenu();
     setupCart();
-    setupDarkMode();
-    updateDarkModeIcon();
   });
 </script>
 
