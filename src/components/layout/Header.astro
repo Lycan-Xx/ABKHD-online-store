@@ -1,192 +1,138 @@
 ---
+// Floating glass pill navbar — mockup Navbar.tsx pattern (SPEC §5.2).
+// Scroll behavior: vanilla script swaps glass/h-14/max-w-960 ↔ glass-strong/h-12/max-w-820
+// at window.scrollY > 24 (exact mockup values).
+import Icon from '../showroom/Icon.astro';
 import CartDrawer from '../cart/CartDrawer.astro';
-import MobileMenu from './MobileMenu.astro';
+import MobileNav from '../showroom/MobileNav';
 
-const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
-const isActive = (path: string) => {
-  const normalizedPath = path.replace(/\/$/, '') || '/';
-  return currentPath === normalizedPath;
-};
+const currentPath = Astro.url.pathname;
+
+const links = [
+  { to: '/', label: 'Home' },
+  { to: '/shop', label: 'Shop' },
+  { to: '/about', label: 'About' },
+  { to: '/contact', label: 'Contact' },
+];
+
+const isActive = (to: string) =>
+  to === '/' ? currentPath === '/' : currentPath.startsWith(to);
 ---
 
-<header class="sticky top-0 z-40 w-full border-b border-border/60 bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75 shadow-sm">
-  <div class="container flex h-16 items-center justify-between gap-4">
-
-    <!-- Mobile: Hamburger -->
-    <button
-      id="mobile-menu-btn"
-      class="md:hidden p-2 -ml-2 hover:bg-accent rounded-lg transition-colors"
-      aria-label="Open menu"
-    >
-      <i class="bi bi-list text-xl"></i>
-    </button>
-
-    <!-- Logo -->
-    <a href="/" class="flex items-center gap-1.5 shrink-0 group" aria-label="ABKHD Home">
-      <span class="font-black text-xl tracking-tight transition-colors group-hover:text-primary">ABKHD</span>
-      <span class="font-light text-xl tracking-tight text-muted-foreground transition-colors group-hover:text-primary/70">Store</span>
+<div class="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 sm:px-4 sm:pt-4">
+  <nav
+    id="site-nav"
+    aria-label="Main navigation"
+    class="glass nav-shape flex h-14 w-full max-w-[960px] items-center gap-8 border border-border/60 px-5 shadow-[0_8px_30px_rgb(0_0_0/0.04)] transition-all duration-500 ease-out sm:px-7"
+  >
+    <a href="/" class="flex items-center gap-2 font-semibold tracking-tight" aria-label="ABKHD home">
+      <span class="grid h-6 w-6 place-items-center rounded-full bg-foreground text-[10px] font-bold text-background">A</span>
+      <span class="text-[15px]">ABKHD</span>
     </a>
 
-    <!-- Desktop Navigation -->
-    <nav class="hidden md:flex items-center gap-1 flex-1 ml-4">
-      <a
-        href="/"
-        class={`nav-link ${isActive('/') ? 'nav-link--active' : ''}`}
-      >
-        <i class="bi bi-stars text-xs mr-1.5 opacity-70"></i>
-        Featured
-      </a>
+    <div class="hidden flex-1 items-center justify-center gap-7 md:flex">
+      {links.map((l) => (
+        <a
+          href={l.to}
+          class={`text-sm transition-colors ${
+            isActive(l.to)
+              ? 'font-semibold text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          {l.label}
+        </a>
+      ))}
+    </div>
+
+    <div class="ml-auto flex items-center gap-1.5">
+      <!-- Interim: search link to /shop — Phase 3 swaps to the live search overlay -->
       <a
         href="/shop"
-        class={`nav-link ${isActive('/shop') ? 'nav-link--active' : ''}`}
+        id="nav-search-btn"
+        class="hidden h-8 w-8 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground sm:grid"
+        aria-label="Search"
       >
-        <i class="bi bi-bag text-xs mr-1.5 opacity-70"></i>
-        Shop
+        <Icon name="search" class="h-4 w-4" />
       </a>
-      <a
-        href="/about"
-        class={`nav-link ${isActive('/about') ? 'nav-link--active' : ''}`}
-      >
-        About
-      </a>
-      <a
-        href="/contact"
-        class={`nav-link ${isActive('/contact') ? 'nav-link--active' : ''}`}
-      >
-        Contact
-      </a>
-    </nav>
-
-    <!-- Actions -->
-    <div class="flex items-center gap-2">
-      <!-- Cart -->
       <button
         id="cart-toggle"
-        class="relative p-2 hover:bg-accent rounded-lg transition-colors"
+        class="relative grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
         aria-label="Open cart"
       >
-        <i class="bi bi-bag text-lg"></i>
-        <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">
+        <Icon name="shopping-bag" class="h-4 w-4" />
+        <span
+          id="cart-count"
+          class="absolute right-1 top-1 hidden h-4 min-w-4 place-items-center rounded-full bg-foreground px-1 text-[10px] font-semibold leading-none text-background"
+        >
           0
         </span>
       </button>
+      <button
+        id="mobile-menu-btn"
+        class="grid h-8 w-8 place-items-center rounded-full text-foreground transition hover:bg-muted md:hidden"
+        aria-label="Menu"
+        aria-expanded="false"
+      >
+        <Icon name="menu" class="h-4 w-4" />
+      </button>
     </div>
-  </div>
-</header>
+  </nav>
+</div>
 
-<!-- Mobile Menu -->
-<MobileMenu />
+<!-- Mobile navigation island (framer-motion drawer) -->
+<MobileNav client:load />
 
-<!-- Cart Drawer -->
+<!-- Cart drawer (restyle-only, logic frozen) -->
 <CartDrawer />
 
-<style>
-  .nav-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 14px;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: 8px;
-    color: rgb(var(--muted-foreground));
-    transition: color 0.15s, background 0.15s;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .nav-link:hover {
-    color: rgb(var(--foreground));
-    background: rgb(var(--accent));
-  }
-  .nav-link--active {
-    color: rgb(var(--primary));
-    background: rgb(var(--primary) / 0.1);
-    font-weight: 600;
-    border-bottom: 2px solid rgb(var(--primary));
-  }
-</style>
-
 <script is:inline>
-  // Update active nav links
-  function updateActiveLinks() {
-    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
-    
-    // Desktop nav links
-    document.querySelectorAll('nav .nav-link').forEach(link => {
-      const href = link.getAttribute('href')?.replace(/\/$/, '') || '/';
-      if (href === currentPath) {
-        link.classList.add('nav-link--active');
-      } else {
-        link.classList.remove('nav-link--active');
-      }
+  // Navbar shrink on scroll — exact mockup behavior (threshold 24px)
+  (function () {
+    var nav = document.getElementById('site-nav');
+    if (!nav) return;
+
+    function onScroll() {
+      var s = window.scrollY > 24;
+      nav.classList.toggle('glass-strong', s);
+      nav.classList.toggle('h-12', s);
+      nav.classList.toggle('px-4', s);
+      nav.classList.toggle('sm:px-5', s);
+      nav.classList.toggle('max-w-[820px]', s);
+      nav.classList.toggle('glass', !s);
+      nav.classList.toggle('h-14', !s);
+      nav.classList.toggle('px-5', !s);
+      nav.classList.toggle('sm:px-7', !s);
+      nav.classList.toggle('max-w-[960px]', !s);
+    }
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+
+  // Mobile menu button → MobileNav island (toggles the drawer)
+  (function () {
+    var btn = document.getElementById('mobile-menu-btn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!expanded));
+      window.dispatchEvent(new CustomEvent('abkhd:mobile-nav'));
     });
-  }
+  })();
 
-  // Mobile menu handler - runs immediately
-  function setupMobileMenu() {
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const menuOverlay = document.getElementById('menu-overlay');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const menuClose = document.getElementById('menu-close');
-
-    if (!mobileMenuBtn || !menuOverlay || !mobileMenu || !menuClose) {
-      console.warn('Mobile menu elements not found');
-      return;
-    }
-
-    function openMenu() {
-      menuOverlay.classList.remove('opacity-0', 'pointer-events-none');
-      mobileMenu.classList.remove('-translate-x-full');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeMenu() {
-      menuOverlay.classList.add('opacity-0', 'pointer-events-none');
-      mobileMenu.classList.add('-translate-x-full');
-      document.body.style.overflow = '';
-    }
-
-    mobileMenuBtn.addEventListener('click', openMenu);
-    menuClose.addEventListener('click', closeMenu);
-    menuOverlay.addEventListener('click', closeMenu);
-
-    // Close menu when clicking links
-    document.querySelectorAll('.menu-link').forEach(link => {
-      link.addEventListener('click', closeMenu);
+  // Cart button → CartDrawer
+  (function () {
+    var cartToggle = document.getElementById('cart-toggle');
+    if (!cartToggle) return;
+    cartToggle.addEventListener('click', function () {
+      window.dispatchEvent(new CustomEvent('open-cart'));
     });
-  }
-
-  // Cart handler
-  function setupCart() {
-    const cartToggle = document.getElementById('cart-toggle');
-    if (cartToggle) {
-      cartToggle.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('open-cart'));
-      });
-    }
-  }
-
-  // Run setup when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      updateActiveLinks();
-      setupMobileMenu();
-      setupCart();
-    });
-  } else {
-    updateActiveLinks();
-    setupMobileMenu();
-    setupCart();
-  }
-
-  // Handle view transitions
-  document.addEventListener('astro:after-swap', () => {
-    updateActiveLinks();
-    setupMobileMenu();
-    setupCart();
-  });
+  })();
 </script>
 
 <script>
+  // Live cart count badge (nanostores — same wiring as before the redesign)
   import { $cartItems, getCartCount, openCart } from '../../stores/cart';
   import { createInitializer } from '../../lib/init';
 
@@ -197,12 +143,12 @@ const isActive = (path: string) => {
         const count = getCartCount();
         el.textContent = count.toString();
         el.classList.toggle('hidden', count === 0);
+        el.classList.toggle('grid', count > 0);
       }
     }
     updateCartBadge();
     const unsubCart = $cartItems.subscribe(() => updateCartBadge());
 
-    // Listen for cart open event
     window.addEventListener('open-cart', () => openCart());
 
     return () => {
