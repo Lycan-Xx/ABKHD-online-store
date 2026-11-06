@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { ViewTransitions } from 'astro:transitions';
+import Icon from '../components/showroom/Icon.astro';
 
 export interface Props {
   title?: string;
@@ -15,9 +16,9 @@ const {
 const currentPath = Astro.url.pathname;
 
 const navItems = [
-  { path: '/admin', label: 'Dashboard', icon: 'bi-grid-1x2-fill', exact: true },
-  { path: '/admin/products', label: 'Products', icon: 'bi-box-seam-fill' },
-  { path: '/admin/orders', label: 'Orders', icon: 'bi-bag-check-fill' }
+  { path: '/admin', label: 'Dashboard', icon: 'layout-dashboard', exact: true },
+  { path: '/admin/products', label: 'Products', icon: 'package' },
+  { path: '/admin/orders', label: 'Orders', icon: 'package-check' }
 ];
 
 const isActive = (path: string, exact = false) => {
@@ -37,8 +38,7 @@ const isActive = (path: string, exact = false) => {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#ffffff" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    
+
     <!-- Cloudflare Insights Beacon -->
     <script
       src="https://static.cloudflareinsights.com/beacon.min.js"
@@ -64,7 +64,7 @@ const isActive = (path: string, exact = false) => {
     <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center">
       <div class="text-center space-y-4">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-foreground border-t-transparent"></div>
         <p class="text-muted-foreground text-sm">Loading please wait or if you can't, GIVE UP. Nigerian network is not for the weak ✌️...</p>
       </div>
     </div>
@@ -85,13 +85,13 @@ const isActive = (path: string, exact = false) => {
               {navItems.map(item => (
                 <a
                   href={item.path}
-                  class={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  class={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     isActive(item.path, item.exact)
-                      ? 'text-primary bg-primary/10' 
+                      ? 'bg-foreground text-background'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
-                  <i class={item.icon}></i>
+                  <Icon name={item.icon} class="h-4 w-4" strokeWidth={1.75} />
                   {item.label}
                 </a>
               ))}
@@ -100,8 +100,8 @@ const isActive = (path: string, exact = false) => {
 
           <div class="flex items-center gap-4">
             <div id="user-info" class="flex items-center gap-2 text-sm">
-              <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <i class="bi bi-person-fill text-primary"></i>
+              <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
+                <Icon name="user" class="h-4 w-4" strokeWidth={1.75} />
               </div>
               <span id="user-name" class="hidden md:inline font-medium"></span>
             </div>
@@ -110,7 +110,7 @@ const isActive = (path: string, exact = false) => {
               href="/" 
               class="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              <i class="bi bi-arrow-left"></i>
+              <Icon name="arrow-left" class="h-4 w-4" strokeWidth={1.75} />
               <span class="hidden md:inline">Back to Store</span>
             </a>
             
@@ -118,7 +118,7 @@ const isActive = (path: string, exact = false) => {
               id="logout-btn"
               class="flex items-center gap-2 text-sm text-red-500 hover:text-red-600 transition-colors"
             >
-              <i class="bi bi-box-arrow-right"></i>
+              <Icon name="log-out" class="h-4 w-4" strokeWidth={1.75} />
               <span class="hidden md:inline">Logout</span>
             </button>
           </div>
@@ -131,13 +131,13 @@ const isActive = (path: string, exact = false) => {
           {navItems.map(item => (
             <a
               href={item.path}
-              class={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              class={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 isActive(item.path, item.exact)
-                  ? 'text-primary bg-primary/10' 
+                  ? 'bg-foreground text-background'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
-              <i class={item.icon}></i>
+              <Icon name={item.icon} class="h-4 w-4" strokeWidth={1.75} />
               {item.label}
             </a>
           ))}

@@ -756,3 +756,15 @@ Work proceeds as stacked commits on `feat/showroom-ui-redesign`, one phase per P
 ---
 
 *End of specification. Any deviation discovered during implementation must be recorded as an amendment in this file (new `## Amendments` section) before the code lands.*
+
+## Amendments
+
+### Phase 5 (secondary pages + admin reskin)
+
+1. **`admin/products/new.astro` + `admin/products/[id].astro` also reskinned (icon swaps + mechanical class edits only).** Not listed in §11 (legacy duplicate form pages superseded by the slide-in panel in `admin/products.astro`), but the Phase 0/5 acceptance grep (`bi bi-`/`bootstrap-icons` → 0 across `src/`) requires them to be converted. No logic changes.
+2. **Icon substitutions where lucide-static 1.69 lacks a 1:1 bootstrap equivalent:** `currency-naira` → `banknote` (no naira glyph in lucide); `bag-check` / `bag-x` → `package-check` / `package-x` (`shopping-bag-check` not published in lucide-static 1.69 — SPEC §4.6 footnote anticipated this).
+3. **Admin status colors retained** (greens/yellows/reds for stat icons, status chips, destructive actions) per §7.9 / R8 recommendation — flagged for owner at review.
+4. **Contact form success state:** the previous simulated handler ended in `alert()`. Per §7.7 ("'Sent — Thank you.' success state") the transport (simulated `setTimeout`) and form ids are preserved verbatim, but the alert is replaced by the mockup success panel. The collapsible-form toggle buttons were dropped (mockup layout has the form permanently visible).
+5. **Login page:** its `is:global` style block became a scoped block and the duplicate bordered `.field-input` definition was removed — the page now uses the global underline `.field-input` utility (§7.6 "underline-style … per mockup contact pattern"). Appwrite logic, element ids and redirect behavior untouched; the eye/arrow-repeat icon swaps are driven by a new tiny client helper `src/lib/lucideIcons.ts` (generated from lucide-static via `scripts` outside the repo; usage mirrors `Icon.astro`).
+6. **`CertificationFlow` animations removed from `global.css`** together with the component (§7.1/§11: content migrated to About as static markup).
+7. **Shipping/Returns policy copy:** §7.8 requires `#shipping`/`#returns` summary cards but no policy copy existed in the repo. Shipping card states the verified delivery fees from `checkout.astro` (Yola ₦1,000 / Jimeta ₦2,000); Returns card summarizes the existing warranty commitments without inventing return windows or durations — owner should review the wording.

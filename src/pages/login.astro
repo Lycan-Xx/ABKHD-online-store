@@ -19,6 +19,7 @@ import Footer from '../components/layout/Footer.astro';
         </a>
       </div>
 
+      <p class="login-eyebrow">— Sign in</p>
       <h1 class="login-title">Welcome back</h1>
       <p class="login-sub">Sign in to continue</p>
 
@@ -49,25 +50,24 @@ import Footer from '../components/layout/Footer.astro';
               placeholder="••••••••"
             />
             <button type="button" id="pw-toggle" class="pw-eye" aria-label="Toggle password visibility">
-              <i class="bi bi-eye" id="pw-icon"></i>
+              <span id="pw-icon"></span>
             </button>
           </div>
         </div>
 
         <div id="error-message" class="error-box hidden">
-          <i class="bi bi-exclamation-circle-fill"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
           <span id="error-text">Invalid email or password.</span>
         </div>
 
         <button type="submit" id="login-button" class="login-btn">
           <span id="btn-label">Sign in</span>
-          <i class="bi bi-arrow-right" id="btn-icon"></i>
+          <span id="btn-icon"></span>
         </button>
       </form>
 
       <div class="login-footer">
         <a href="/" class="back-link">
-          <i class="bi bi-arrow-left text-xs"></i>
           Back to store
         </a>
       </div>
@@ -77,7 +77,7 @@ import Footer from '../components/layout/Footer.astro';
   <Footer slot="footer" />
 </Layout>
 
-<style is:global>
+<style>
   .login-page {
     min-height: calc(100vh - 200px);
     display: flex; align-items: center; justify-content: center;
@@ -86,18 +86,26 @@ import Footer from '../components/layout/Footer.astro';
   .login-card {
     width: 100%; max-width: 400px;
     background: rgb(var(--card));
-    border: 1.5px solid rgb(var(--border));
-    border-radius: 16px;
+    border: 1px solid rgb(var(--border) / 0.7);
+    border-radius: 1.5rem;
     padding: 40px 36px;
-    box-shadow: 0 8px 40px -12px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 40px -12px rgba(0, 0, 0, 0.12);
   }
   .login-logo {
-    text-align: center; margin-bottom: 28px;
+    text-align: center; margin-bottom: 24px;
     text-decoration: none;
   }
   .login-logo a { text-decoration: none; }
+  .login-eyebrow {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgb(var(--muted-foreground));
+    text-align: center;
+    margin-bottom: 6px;
+  }
   .login-title {
-    font-size: 1.5rem; font-weight: 800;
+    font-size: 1.5rem; font-weight: 600;
     letter-spacing: -0.01em; text-align: center;
     color: rgb(var(--foreground)); margin-bottom: 4px;
   }
@@ -105,25 +113,18 @@ import Footer from '../components/layout/Footer.astro';
     font-size: 13px; color: rgb(var(--muted-foreground));
     text-align: center; margin-bottom: 28px;
   }
-  .login-form { display: flex; flex-direction: column; gap: 16px; }
+  .login-form { display: flex; flex-direction: column; gap: 18px; }
   .field-group { display: flex; flex-direction: column; gap: 6px; }
-  .field-label { font-size: 13px; font-weight: 500; color: rgb(var(--foreground)); }
-  .field-input {
-    width: 100%; padding: 10px 14px;
-    border-radius: 9px; border: 1.5px solid rgb(var(--border));
-    background: rgb(var(--background));
-    font-size: 14px; color: rgb(var(--foreground));
-    transition: border-color 0.15s, box-shadow 0.15s;
-    outline: none; box-sizing: border-box;
+  .field-label {
+    font-size: 0.7rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: rgb(var(--muted-foreground));
   }
-  .field-input:focus {
-    border-color: rgb(var(--primary) / 0.6);
-    box-shadow: 0 0 0 3px rgb(var(--primary) / 0.12);
-  }
+  /* `field-input` (underline) comes from global.css — mockup contact pattern. */
   .input-wrap { position: relative; }
-  .input-wrap .field-input { padding-right: 42px; }
+  .input-wrap .field-input { padding-right: 2.75rem; }
   .pw-eye {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
     background: none; border: none; cursor: pointer;
     color: rgb(var(--muted-foreground)); padding: 2px;
     display: flex; align-items: center; justify-content: center;
@@ -133,27 +134,25 @@ import Footer from '../components/layout/Footer.astro';
 
   .error-box {
     display: flex; align-items: center; gap: 8px;
-    padding: 10px 14px; border-radius: 8px;
-    background: hsl(0 84% 60% / 0.08);
-    border: 1px solid hsl(0 84% 60% / 0.25);
-    color: hsl(0 72% 51%); font-size: 13px;
+    padding: 10px 14px; border-radius: 0.75rem;
+    background: rgb(var(--destructive) / 0.08);
+    border: 1px solid rgb(var(--destructive) / 0.25);
+    color: rgb(var(--destructive)); font-size: 13px;
   }
   .error-box.hidden { display: none; }
 
   .login-btn {
-    width: 100%; padding: 11px 20px;
-    border-radius: 10px; border: none; cursor: pointer;
-    background: rgb(var(--primary)); color: rgb(var(--primary-foreground));
-    font-size: 14px; font-weight: 600;
+    width: 100%; padding: 12px 20px;
+    border-radius: 9999px; border: none; cursor: pointer;
+    background: rgb(var(--foreground)); color: rgb(var(--background));
+    font-size: 14px; font-weight: 500;
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    box-shadow: 0 2px 12px rgb(var(--primary) / 0.3);
-    transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+    transition: opacity 0.15s, transform 0.12s;
     margin-top: 4px;
   }
   .login-btn:hover:not(:disabled) {
-    background: rgb(var(--primary) / 0.88);
+    opacity: 0.9;
     transform: translateY(-1px);
-    box-shadow: 0 4px 18px rgb(var(--primary) / 0.38);
   }
   .login-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
@@ -168,6 +167,13 @@ import Footer from '../components/layout/Footer.astro';
 
 <script>
   import { account, teams } from '../lib/appwrite';
+  import { lucideIcon } from '../lib/lucideIcons';
+
+  // ── Initial button icons ──
+  const btnIcon = document.getElementById('btn-icon');
+  const pwIcon = document.getElementById('pw-icon');
+  if (btnIcon) btnIcon.innerHTML = lucideIcon('arrow-right', 'w-4 h-4');
+  if (pwIcon) pwIcon.innerHTML = lucideIcon('eye', 'w-4 h-4');
 
   // ── Redirect if already authenticated ──
   (async () => {
@@ -191,11 +197,10 @@ import Footer from '../components/layout/Footer.astro';
   // ── Password toggle ──
   const pwToggle = document.getElementById('pw-toggle');
   const pwInput  = document.getElementById('password') as HTMLInputElement;
-  const pwIcon   = document.getElementById('pw-icon');
   pwToggle?.addEventListener('click', () => {
     const isHidden = pwInput.type === 'password';
     pwInput.type = isHidden ? 'text' : 'password';
-    if (pwIcon) pwIcon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+    if (pwIcon) pwIcon.innerHTML = lucideIcon(isHidden ? 'eye-off' : 'eye', 'w-4 h-4');
   });
 
   // ── Login form ──
@@ -204,7 +209,6 @@ import Footer from '../components/layout/Footer.astro';
   const errorText = document.getElementById('error-text') as HTMLSpanElement;
   const loginBtn  = document.getElementById('login-button') as HTMLButtonElement;
   const btnLabel  = document.getElementById('btn-label') as HTMLSpanElement;
-  const btnIcon   = document.getElementById('btn-icon') as HTMLElement;
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -216,7 +220,7 @@ import Footer from '../components/layout/Footer.astro';
     errorBox.classList.add('hidden');
     loginBtn.disabled = true;
     btnLabel.textContent = 'Signing in…';
-    btnIcon.className = 'bi bi-arrow-repeat animate-spin';
+    if (btnIcon) btnIcon.innerHTML = lucideIcon('refresh-cw', 'w-4 h-4 animate-spin');
 
     try {
       await account.createEmailPasswordSession(email, password);
@@ -224,7 +228,7 @@ import Footer from '../components/layout/Footer.astro';
     } catch (err: any) {
       loginBtn.disabled = false;
       btnLabel.textContent = 'Sign in';
-      btnIcon.className = 'bi bi-arrow-right';
+      if (btnIcon) btnIcon.innerHTML = lucideIcon('arrow-right', 'w-4 h-4');
       errorText.textContent = err.message || 'Login failed. Please try again.';
       errorBox.classList.remove('hidden');
     }

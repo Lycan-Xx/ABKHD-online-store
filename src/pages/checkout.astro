@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
+import Icon from '../components/showroom/Icon.astro';
 ---
 
 <Layout title="Checkout — ABKHD Store">
@@ -200,15 +201,15 @@ import Footer from '../components/layout/Footer.astro';
             <!-- Trust badges -->
             <div class="co-trust-badges">
               <div class="co-trust-item">
-                <i class="bi bi-shield-check"></i>
+                <Icon name="shield-check" class="h-3.5 w-3.5" strokeWidth={1.75} />
                 <span>Nigeria's trusted payment processor</span>
               </div>
               <div class="co-trust-item">
-                <i class="bi bi-lock"></i>
+                <Icon name="lock" class="h-3.5 w-3.5" strokeWidth={1.75} />
                 <span>256-bit SSL encryption</span>
               </div>
               <div class="co-trust-item">
-                <i class="bi bi-phone"></i>
+                <Icon name="phone" class="h-3.5 w-3.5" strokeWidth={1.75} />
                 <span>Supports USSD, cards &amp; transfers</span>
               </div>
             </div>
@@ -722,9 +723,9 @@ import Footer from '../components/layout/Footer.astro';
     font-size: 11px;
     color: var(--comf);
   }
-  .co-trust-item i {
+  .co-trust-item svg {
     color: var(--cop);
-    font-size: 14px;
+    flex-shrink: 0;
   }
 
   /* WhatsApp */

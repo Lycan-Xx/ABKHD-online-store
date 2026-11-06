@@ -1,331 +1,316 @@
 ---
+// About — mockup editorial skeleton with ABKHD's existing story content
+// preserved (SPEC §7.8). CertificationFlow content (Source → Test → Disclose
+// → Deliver) migrated here; the component was deleted in this phase.
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
-import CertificationFlow from '../components/ui/CertificationFlow.astro';
+import Icon from '../components/showroom/Icon.astro';
+
+const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '2348085657927';
+
+// Story beats — "How Distrust Built Trust" (content preserved from the
+// previous About page).
+const storyBeats = [
+  {
+    title: 'The Problem',
+    desc: 'Fake parts, dead devices, sellers who ghosted us after taking our money.',
+  },
+  {
+    title: 'The Pattern',
+    desc: "Everyone we knew had horror stories. This was just \u201chow things are.\u201d",
+  },
+  {
+    title: 'The Decision',
+    desc: 'In 2024, ABKHD was born. A promise to do things differently.',
+  },
+];
+
+// Three pillars (mockup pattern) — copy lifted from the former
+// Non-Negotiables section + CertificationFlow.
+const pillars = [
+  {
+    title: 'Tested',
+    lead: 'Every device, inspected.',
+    desc: 'Each device passes a multi-point inspection before it is listed — battery health with diagnostics, screen clarity, processor speed and every port verified.',
+  },
+  {
+    title: 'Disclosed',
+    lead: 'If it\u2019s broken, we\u2019ll tell you.',
+    desc: 'Every defect, no matter how small, is disclosed in the product description. Screenshots, photos, everything. You decide if it\u2019s a deal-breaker, not us.',
+  },
+  {
+    title: 'Warranted',
+    lead: 'No fake promises.',
+    desc: 'If we offer a warranty, it\u2019s real and enforceable. No fine-print loopholes. No ghosting after sale. We\u2019re on WhatsApp, we\u2019re here.',
+  },
+];
+
+// What we test (former testing grid, preserved).
+const tested = [
+  { icon: 'battery-charging', title: 'Battery Health', desc: 'With diagnostics' },
+  { icon: 'monitor', title: 'Screen Clarity', desc: 'Every pixel checked' },
+  { icon: 'cpu', title: 'Processor Speed', desc: 'Performance tested' },
+  { icon: 'plug', title: 'Port Function', desc: 'All ports verified' },
+];
+
+// Certification steps — migrated from the deleted CertificationFlow component.
+const certificationSteps = [
+  { icon: 'globe', title: 'Source', desc: 'Trusted UK & China suppliers' },
+  { icon: 'search', title: 'Test', desc: 'Multi-point inspection' },
+  { icon: 'file-text', title: 'Disclose', desc: 'Document all defects' },
+  { icon: 'circle-check', title: 'Deliver', desc: 'Quality guaranteed' },
+];
+
+// Comparison rows (content preserved, restyled per SPEC §7.8.3).
+const comparison: [string, string][] = [
+  ['\u201cUK-used\u201d (source unknown)', 'UK and China-sourced with verification'],
+  ['Hidden defects', 'All defects disclosed with photos'],
+  ['Generic \u201cwarranty included\u201d', 'Specific, enforceable warranty terms'],
+  ['Disappear after sale', 'WhatsApp support, always reachable'],
+  ['\u201cTrust me, it works\u201d', 'Diagnostic reports and battery health shown'],
+  ['Switched-off numbers after issues', 'Permanent contact, we stand behind every sale'],
+];
+
+// Team (content preserved, restyled as rounded-2xl cards).
+const team = [
+  {
+    name: 'Abubakar-Sadieq Abdulazeez',
+    role: 'Founder ABKHD',
+    quote: '\u201cI have the connections and know the products.\u201d',
+    img: 'https://res.cloudinary.com/cloudinary-lycan-xx/image/upload/v1772930158/team1_skylqx.jpg',
+    alt: 'Abubakar-Sadieq',
+  },
+  {
+    name: 'Abduljalal Muhammad',
+    role: '',
+    quote: '\u201cThe watchful eye that sees what dishonest sellers hide.\u201d',
+    img: 'https://res.cloudinary.com/cloudinary-lycan-xx/image/upload/v1772930160/team2_ofiswe.jpg',
+    alt: 'Abduljalal',
+  },
+  {
+    name: 'Mohammad (Sani) Bello',
+    role: '',
+    quote: '\u201cI am your typical tech. guy that bought the faulty phone.\u201d',
+    img: 'https://res.cloudinary.com/cloudinary-lycan-xx/image/upload/v1772930155/team3_hys08b.jpg',
+    alt: 'Mohammad',
+  },
+];
 ---
 
-<Layout title="About Us - ABKHD Store">
+<Layout
+  title="About Us - ABKHD Store"
+  description="We've been cheated too. That's exactly why ABKHD exists — tested, disclosed and warranted devices from Jimeta, Yola."
+>
   <Header slot="header" />
-  
-  <div class="container pt-24 pb-8 md:pb-12">
-    <!-- Back Button -->
-    <div class="mb-12">
-      <a href="/" class="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors">
-        <i class="bi bi-arrow-left text-lg"></i>
-        <span class="text-sm font-medium">Back</span>
-      </a>
+
+  <main class="mx-auto max-w-[1100px] px-6 pt-40 pb-24">
+    <!-- 1. Statement -->
+    <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— About</p>
+    <h1 class="mt-4 text-balance text-5xl font-semibold leading-[1.05] tracking-tight md:text-7xl">
+      We've been cheated too.<br />
+      That's exactly why ABKHD exists.
+    </h1>
+    <p class="mt-8 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+      I'm sure most people have a similar story — I personally once bought a used mobile phone at
+      our local gadget market. The phone looked good, but unbeknownst to me, it had a bad battery,
+      overheated when connected to the internet, had been worked on by an inexperienced technician,
+      and had many more issues. Long story short, the phone died just 2 days after I bought it.
+    </p>
+    <p class="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+      We built <span class="font-semibold text-foreground">ABKHD</span> to be the store we wish
+      existed when we were buyers.
+    </p>
+
+    <!-- How distrust built trust (content preserved, quiet grid) -->
+    <div class="mt-16 grid gap-10 border-t border-border pt-10 md:grid-cols-3">
+      {
+        storyBeats.map((beat) => (
+          <div>
+            <p class="text-sm font-semibold">{beat.title}</p>
+            <p class="mt-2 text-sm text-muted-foreground">{beat.desc}</p>
+          </div>
+        ))
+      }
     </div>
-    
-    <!-- Content Container -->
-    <div class="max-w-6xl mx-auto">
-      <!-- SECTION 1: HERO - Emotional Hook -->
-      <div class="text-center mb-16 max-w-4xl mx-auto">
-        <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-          We've Been Cheated Too.
-        </h1>
-        <p class="text-xl text-primary font-semibold mb-4">
-          That's exactly why ABKHD exists.
-        </p>
-        <p class="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          I'm sure must people might have a similar story, i personally once bought a used mobile phone at our local gadget market. The phone looked good, but unbeknownst to me, it had a bad battery, overheated when connected to the internet, had been worked on by an inexperienced technician, and had many more issues. Long story short, the phone died just 2 days after I bought it.
-          <br />
-          <br />
-          We built <span class="text-primary font-semibold">ABKHD</span> to be the store we wish existed when we were buyers.
-        </p>
-      </div>
 
-      <!-- SECTION 2: OUR STORY - Single Condensed Card -->
-      <div class="mb-20 max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold text-center mb-8">How Distrust Built Trust</h2>
-        
-        <div class="p-8 rounded-xl border border-border bg-card/50">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div>
-              <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-3">
-                <i class="bi bi-x-circle text-red-500 text-2xl"></i>
-              </div>
-              <h3 class="font-semibold mb-2">The Problem</h3>
-              <p class="text-sm text-muted-foreground">
-                Fake parts, dead devices, sellers who ghosted us after taking our money.
-              </p>
-            </div>
-            
-            <div>
-              <div class="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-3">
-                <i class="bi bi-exclamation-triangle text-orange-500 text-2xl"></i>
-              </div>
-              <h3 class="font-semibold mb-2">The Pattern</h3>
-              <p class="text-sm text-muted-foreground">
-                Everyone we knew had horror stories. This was just "how things are."
-              </p>
-            </div>
-            
-            <div>
-              <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <i class="bi bi-arrow-right text-primary text-2xl"></i>
-              </div>
-              <h3 class="font-semibold mb-2">The Decision</h3>
-              <p class="text-sm text-muted-foreground">
-                In 2024, ABKHD was born. A promise to do things differently.
-              </p>
-            </div>
+    <!-- 2. Three pillars -->
+    <div class="mt-24 grid gap-12 md:grid-cols-3">
+      {
+        pillars.map((pillar) => (
+          <div>
+            <p class="text-sm font-semibold">{pillar.title}</p>
+            <p class="mt-1 text-sm font-medium text-foreground">{pillar.lead}</p>
+            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{pillar.desc}</p>
           </div>
-        </div>
+        ))
+      }
+    </div>
+
+    <!-- What we test -->
+    <div class="mt-24">
+      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— What we test</p>
+      <h2 class="mt-4 text-3xl font-semibold tracking-tight">How we certify every device</h2>
+      <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+        Our multi-point inspection ensures you get certified performance.
+      </p>
+
+      <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          tested.map((item) => (
+            <div class="rounded-2xl border border-border bg-card p-6 transition-colors hover:border-foreground/25">
+              <Icon name={item.icon} class="h-6 w-6 text-foreground" strokeWidth={1.5} />
+              <p class="mt-4 text-sm font-medium">{item.title}</p>
+              <p class="mt-1 text-xs text-muted-foreground">{item.desc}</p>
+            </div>
+          ))
+        }
       </div>
 
-      <!-- SECTION 3: TOP 2 NON-NEGOTIABLES -->
-      <div class="mb-20 max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold text-center mb-4">Our Non-Negotiables</h2>
-        <p class="text-center text-muted-foreground mb-10">
-          These aren't just values. They're commitments we make to every customer.
-        </p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- Value 1: Radical Transparency -->
-          <div class="p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-            <div class="flex items-start space-x-4 mb-4">
-              <i class="bi bi-eye text-primary text-2xl mt-1"></i>
+      <!-- Certification flow (migrated from CertificationFlow) -->
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          certificationSteps.map((step) => (
+            <div class="flex items-start gap-3 rounded-2xl border border-border bg-card p-6">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent">
+                <Icon name={step.icon} class="h-4 w-4" strokeWidth={1.75} />
+              </span>
               <div>
-                <h3 class="text-lg font-bold mb-1">Radical Transparency</h3>
-                <p class="text-sm font-semibold text-primary">If it's broken, we'll tell you.</p>
+                <p class="text-sm font-semibold">{step.title}</p>
+                <p class="mt-1 text-xs text-muted-foreground">{step.desc}</p>
               </div>
             </div>
-            <p class="text-sm text-muted-foreground leading-relaxed">
-              Every defect no matter how small is disclosed in the product description. Screenshots, photos, everything. You decide if it's a deal-breaker, not us.
-            </p>
-          </div>
-
-          <!-- Value 2: Real Warranties -->
-          <div class="p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-            <div class="flex items-start space-x-4 mb-4">
-              <i class="bi bi-shield-check text-primary text-2xl mt-1"></i>
-              <div>
-                <h3 class="text-lg font-bold mb-1">Real Warranties</h3>
-                <p class="text-sm font-semibold text-primary">No fake promises.</p>
-              </div>
-            </div>
-            <p class="text-sm text-muted-foreground leading-relaxed">
-              If we offer a warranty, it's real and enforceable. No fine print loopholes. No ghosting after sale. We're on WhatsApp, we're here.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECTION 4: COMPARISON TABLE -->
-      <div class="mb-20 max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold text-center mb-4">How We're Different</h2>
-        <p class="text-center text-muted-foreground mb-10">
-          The contrast is clear. You decide who to trust.
-        </p>
-        
-        <div class="overflow-x-auto">
-          <table class="w-full border-collapse">
-            <thead>
-              <tr class="border-b-2 border-border">
-                <th class="p-4 text-left font-bold">Typical Sellers</th>
-                <th class="p-4 text-left font-bold text-primary">ABKHD</th>
-              </tr>
-            </thead>
-            <tbody class="text-sm">
-              <tr class="border-b border-border hover:bg-muted/20 transition-colors">
-                <td class="p-4">
-                  <i class="bi bi-x-circle text-red-500 mr-2"></i>
-                  <span class="text-muted-foreground">"UK-used" (source unknown)</span>
-                </td>
-                <td class="p-4">
-                  <i class="bi bi-check-circle-fill text-primary mr-2"></i>
-                  <span>UK and China-sourced with verification</span>
-                </td>
-              </tr>
-              <tr class="border-b border-border hover:bg-muted/20 transition-colors">
-                <td class="p-4">
-                  <i class="bi bi-x-circle text-red-500 mr-2"></i>
-                  <span class="text-muted-foreground">Hidden defects</span>
-                </td>
-                <td class="p-4">
-                  <i class="bi bi-check-circle-fill text-primary mr-2"></i>
-                  <span>All defects disclosed with photos</span>
-                </td>
-              </tr>
-              <tr class="border-b border-border hover:bg-muted/20 transition-colors">
-                <td class="p-4">
-                  <i class="bi bi-x-circle text-red-500 mr-2"></i>
-                  <span class="text-muted-foreground">Generic "warranty included"</span>
-                </td>
-                <td class="p-4">
-                  <i class="bi bi-check-circle-fill text-primary mr-2"></i>
-                  <span>Specific, enforceable warranty terms</span>
-                </td>
-              </tr>
-              <tr class="border-b border-border hover:bg-muted/20 transition-colors">
-                <td class="p-4">
-                  <i class="bi bi-x-circle text-red-500 mr-2"></i>
-                  <span class="text-muted-foreground">Disappear after sale</span>
-                </td>
-                <td class="p-4">
-                  <i class="bi bi-check-circle-fill text-primary mr-2"></i>
-                  <span>WhatsApp support, always reachable</span>
-                </td>
-              </tr>
-              <tr class="border-b border-border hover:bg-muted/20 transition-colors">
-                <td class="p-4">
-                  <i class="bi bi-x-circle text-red-500 mr-2"></i>
-                  <span class="text-muted-foreground">"Trust me, it works"</span>
-                </td>
-                <td class="p-4">
-                  <i class="bi bi-check-circle-fill text-primary mr-2"></i>
-                  <span>Diagnostic reports and battery health shown</span>
-                </td>
-              </tr>
-              <tr class="hover:bg-muted/20 transition-colors">
-                <td class="p-4">
-                  <i class="bi bi-x-circle text-red-500 mr-2"></i>
-                  <span class="text-muted-foreground">Switched-off numbers after issues</span>
-                </td>
-                <td class="p-4">
-                  <i class="bi bi-check-circle-fill text-primary mr-2"></i>
-                  <span>Permanent contact, we stand behind every sale</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- SECTION 5: CERTIFICATION PROCESS - Interactive Animation -->
-      <div class="mb-20 max-w-5xl mx-auto">
-        <h2 class="text-3xl font-bold text-center mb-3">How We Certify Every Device</h2>
-        <p class="text-center text-muted-foreground mb-6">
-          Our multi-point inspection ensures you get certified performance
-        </p>
-        
-        <div class="p-6 md:p-8 rounded-xl border border-border bg-card/50">
-          <CertificationFlow />
-        </div>
-      </div>
-
-      <!-- SECTION 6: TESTING GRID -->
-      <div class="mb-20 max-w-5xl mx-auto">
-        <h3 class="text-2xl font-bold text-center mb-8">What We Test</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="text-center p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-            <i class="bi bi-battery-charging text-primary text-3xl mb-3"></i>
-            <p class="text-sm font-medium">Battery Health</p>
-            <p class="text-xs text-muted-foreground mt-1">With diagnostics</p>
-          </div>
-          <div class="text-center p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-            <i class="bi bi-display text-primary text-3xl mb-3"></i>
-            <p class="text-sm font-medium">Screen Clarity</p>
-            <p class="text-xs text-muted-foreground mt-1">Every pixel checked</p>
-          </div>
-          <div class="text-center p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-            <i class="bi bi-cpu text-primary text-3xl mb-3"></i>
-            <p class="text-sm font-medium">Processor Speed</p>
-            <p class="text-xs text-muted-foreground mt-1">Performance tested</p>
-          </div>
-          <div class="text-center p-6 rounded-xl border border-border bg-card/50 hover:border-primary transition-colors">
-            <i class="bi bi-plug text-primary text-3xl mb-3"></i>
-            <p class="text-sm font-medium">Port Function</p>
-            <p class="text-xs text-muted-foreground mt-1">All ports verified</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECTION 7: TEAM -->
-      <div class="mb-20 max-w-5xl mx-auto">
-        <div class="text-center mb-12">
-          <span class="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-            <i class="bi bi-people-fill mr-2"></i>
-            Who We Are
-          </span>
-          <h2 class="text-3xl md:text-4xl font-bold mb-4">Meet the Founders</h2>
-
-          <span class="inline-flex items-center text-primary text-xl font-extrabold mb-6">
-            ABKHD Store
-          </span>
-
-          <p class="text-muted-foreground max-w-xl mx-auto">
-            Real people with real stakes in doing this right.
-          </p>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <!-- Team Member 1 -->
-          <div class="group">
-            <div class="relative rounded-2xl overflow-hidden mb-6 aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200">
-              <img 
-                src="https://res.cloudinary.com/cloudinary-lycan-xx/image/upload/v1772930158/team1_skylqx.jpg" 
-                alt="Abubakar-Sadieq" 
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-              />
-            </div>
-            <div class="text-center">
-              <h3 class="text-xl font-bold mb-1">Abubakar-Sadieq Abdulazeez</h3>
-              <p class="text-sm font-medium text-primary mb-2">Founder ABKHD</p>
-              <p class="text-sm italic text-primary">
-                "I have the connections and know the products."
-              </p>
-            </div>
-          </div>
-
-          <!-- Team Member 2 -->
-          <div class="group">
-            <div class="relative rounded-2xl overflow-hidden mb-6 aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200">
-              <img 
-                src="https://res.cloudinary.com/cloudinary-lycan-xx/image/upload/v1772930160/team2_ofiswe.jpg" 
-                alt="Abduljalal" 
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-              />
-            </div>
-            <div class="text-center">
-              <h3 class="text-xl font-bold mb-1">Abduljalal Muhammad</h3>
-              <p class="text-sm italic text-primary">
-                "The watchful eye that sees what dishonest sellers hide."
-              </p>
-            </div>
-          </div>
-
-          <!-- Team Member 3 -->
-          <div class="group">
-            <div class="relative rounded-2xl overflow-hidden mb-6 aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200">
-              <img 
-                src="https://res.cloudinary.com/cloudinary-lycan-xx/image/upload/v1772930155/team3_hys08b.jpg" 
-                alt="Mohammad" 
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-              />
-            </div>
-            <div class="text-center">
-              <h3 class="text-xl font-bold mb-1">Mohammad (Sani) Bello</h3>
-              <p class="text-sm italic text-primary">
-                "I am your typical tech. guy that bought the faulty phone."
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECTION 8: FINAL CTA -->
-      <div class="text-center p-10 rounded-xl border-2 border-primary/30 bg-card/50 max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold mb-3">Ready to Buy Tech Without the Fear?</h2>
-        <p class="text-muted-foreground mb-6 max-w-xl mx-auto">
-          Join customers who've discovered what honest selling looks like. No games. No tricks. Just quality devices and real transparency.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/shop" class="btn-primary px-8 py-3">
-            Browse Products
-          </a>
-          <a 
-            href="https://wa.me/2348085657927" 
-            class="inline-flex items-center justify-center px-8 py-3 font-medium rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-          >
-            <i class="bi bi-whatsapp mr-2"></i>
-            Contact Us on WhatsApp
-          </a>
-        </div>
+          ))
+        }
       </div>
     </div>
-  </div>
+
+    <!-- 3. Comparison table -->
+    <div class="mt-24">
+      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— How we're different</p>
+      <h2 class="mt-4 text-3xl font-semibold tracking-tight">The contrast is clear</h2>
+      <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+        You decide who to trust.
+      </p>
+
+      <div class="mt-10 overflow-x-auto rounded-2xl border border-border bg-card">
+        <table class="w-full border-collapse text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="p-5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Typical Sellers
+              </th>
+              <th class="p-5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                ABKHD
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              comparison.map(([typical, abkhd]) => (
+                <tr class="border-b border-border/70 last:border-0 hover:bg-muted/40">
+                  <td class="p-5">
+                    <span class="flex items-start gap-3 text-muted-foreground">
+                      <Icon name="circle-x" class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/70" strokeWidth={1.75} />
+                      <span>{typical}</span>
+                    </span>
+                  </td>
+                  <td class="p-5">
+                    <span class="flex items-start gap-3">
+                      <Icon name="circle-check" class="mt-0.5 h-4 w-4 shrink-0 text-foreground" strokeWidth={1.75} />
+                      <span>{abkhd}</span>
+                    </span>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. Shipping & Returns anchors (footer contract) -->
+    <div class="mt-24 grid gap-4 md:grid-cols-2">
+      <section id="shipping" class="scroll-mt-32 rounded-2xl border border-border bg-card p-8">
+        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— Shipping</p>
+        <h2 class="mt-3 text-xl font-semibold tracking-tight">Delivery in Yola &amp; Jimeta</h2>
+        <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+          We deliver within Yola (₦1,000) and Jimeta (₦2,000) — the delivery fee is shown at
+          checkout based on your address. Orders are confirmed on WhatsApp before dispatch, and we
+          arrange a time that works for you.
+        </p>
+      </section>
+
+      <section id="returns" class="scroll-mt-32 rounded-2xl border border-border bg-card p-8">
+        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— Returns</p>
+        <h2 class="mt-3 text-xl font-semibold tracking-tight">Backed by real warranty terms</h2>
+        <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Every device ships with the specific warranty terms stated on its product page — no
+          generic promises, no fine-print loopholes. If a covered fault appears, reach out on
+          WhatsApp with your order reference and we'll make it right.
+        </p>
+      </section>
+    </div>
+
+    <!-- 5. Team -->
+    <div class="mt-24">
+      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— Who we are</p>
+      <h2 class="mt-4 text-3xl font-semibold tracking-tight">Meet the founders</h2>
+      <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+        ABKHD Store — real people with real stakes in doing this right.
+      </p>
+
+      <div class="mt-10 grid gap-8 md:grid-cols-3">
+        {
+          team.map((member) => (
+            <div class="group">
+              <div class="relative mb-6 aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-muted">
+                <img
+                  src={member.img}
+                  alt={member.alt}
+                  loading="lazy"
+                  class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                />
+              </div>
+              <div class="text-center">
+                <h3 class="text-lg font-semibold tracking-tight">{member.name}</h3>
+                {member.role && <p class="mt-1 text-sm font-medium">{member.role}</p>}
+                <p class="mt-2 text-sm italic text-muted-foreground">{member.quote}</p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- 6. Final CTA -->
+    <div class="mt-24 rounded-2xl border border-border bg-card p-10 text-center md:p-14">
+      <h2 class="text-balance text-3xl font-semibold tracking-tight md:text-4xl">
+        Ready to buy tech without the fear?
+      </h2>
+      <p class="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
+        Join customers who've discovered what honest selling looks like. No games. No tricks. Just
+        quality devices and real transparency.
+      </p>
+      <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <a
+          href="/shop"
+          class="inline-flex items-center justify-center rounded-full bg-foreground px-8 py-3 text-sm font-medium text-background transition hover:opacity-90"
+        >
+          Browse products
+        </a>
+        <a
+          href={`https://wa.me/${whatsappNumber}`}
+          class="inline-flex items-center justify-center gap-2 rounded-full border border-border px-8 py-3 text-sm font-medium transition-colors hover:bg-accent"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+            <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"></path>
+          </svg>
+          Contact us on WhatsApp
+        </a>
+      </div>
+    </div>
+  </main>
 
   <Footer slot="footer" />
 </Layout>
