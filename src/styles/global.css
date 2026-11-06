@@ -273,6 +273,23 @@
     text-wrap: balance;
   }
 
+  /* Underline text input — mockup contact `field-input` pattern (SPEC §6.6),
+     adapted to ABKHD's rgb-triplet tokens. */
+  .field-input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgb(var(--border));
+    padding: 0.6rem 0;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field-input:focus {
+    border-color: rgb(var(--foreground));
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

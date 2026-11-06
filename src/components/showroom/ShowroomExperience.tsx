@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
 import type { ShowroomProduct } from '../../lib/showroom';
 import { ProductCard } from './ProductCard';
 import { CategorySidebar, type CategoryKey, type FlagKey } from './CategorySidebar';
@@ -112,7 +112,17 @@ export function ShowroomExperience({
             <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
               The Showroom
             </h2>
-            <p className="mt-2 text-xs text-muted-foreground">{status}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2.5">
+              <p className="text-xs text-muted-foreground">{status}</p>
+              {query && (
+                <a
+                  href="/shop"
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-[11px] font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                >
+                  Clear “{query}” <X className="h-3 w-3" />
+                </a>
+              )}
+            </div>
           </div>
           <button
             onClick={() => setDrawer(true)}

@@ -56,14 +56,16 @@ export default function MobileNav() {
         </ul>
         <div className="my-4 h-px bg-border/70" />
         <div className="flex gap-2">
-          {/* Interim: search goes to /shop — Phase 3 swaps to the live search overlay */}
-          <a
-            href="/shop"
-            onClick={() => setOpen(false)}
+          {/* Search — opens the live SearchOverlay island (SPEC §6.6) */}
+          <button
+            onClick={() => {
+              setOpen(false);
+              window.dispatchEvent(new CustomEvent('abkhd:search'));
+            }}
             className="flex flex-1 items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-muted"
           >
             <Search className="h-4 w-4" /> Search
-          </a>
+          </button>
           <button
             onClick={() => {
               setOpen(false);

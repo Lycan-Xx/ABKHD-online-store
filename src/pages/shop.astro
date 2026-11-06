@@ -3,13 +3,22 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
-import ProductGrid from '../components/ui/ProductGrid.astro';
+import Hero from '../components/showroom/Hero.astro';
+import CtaBanner from '../components/showroom/CtaBanner.astro';
+import { ShowroomExperience } from '../components/showroom/ShowroomExperience';
+import { RecommendationsRail } from '../components/showroom/RecommendationsRail';
+import { toShowroomProduct, type ShowroomProduct } from '../lib/showroom';
+import { searchProducts } from '../lib/search-match';
 import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../lib/appwrite';
 import { Query } from 'appwrite';
 
 const url = Astro.url;
-const selectedCategory = url.searchParams.get('category');
+// `?category=` URL contract preserved (SPEC §7.2); `?q=` is the new
+// search param, pre-filtered server-side with the shared matcher (§9.3).
+const categoryParam = url.searchParams.get('category');
+const qParam = url.searchParams.get('q')?.trim() || null;
 
+// SSR fetch — existing query, verbatim.
 let products = [];
 try {
   const response = await databases.listDocuments(
@@ -27,244 +36,43 @@ try {
   console.error('Error fetching products from Appwrite:', error);
 }
 
-const filteredProducts = selectedCategory && selectedCategory !== 'all'
-  ? products.filter(p => p.category === selectedCategory)
-  : products;
+const mapped: ShowroomProduct[] = products.map(toShowroomProduct);
 
-const categoryFilters = [
-  { name: 'All',          icon: 'bi-grid-3x3-gap-fill', value: 'all'          },
-  { name: 'Computers',    icon: 'bi-laptop',             value: 'Computers'    },
-  { name: 'Mobile Phones',icon: 'bi-phone',              value: 'Mobile Phones'},
-  { name: 'Accessories',  icon: 'bi-headphones',         value: 'Accessories'  },
-];
+// `?q=` — same matcher + ranking as /api/search, so the shop grid and
+// the navbar overlay always agree (SPEC §9.3).
+const showroomProducts = qParam ? searchProducts(mapped, qParam) : mapped;
+
+// Newest 8 feed the recommendations rail (fetch is already newest-first).
+const railProducts = mapped.slice(0, 8);
+
+const title = qParam
+  ? `Search “${qParam}” – ABKHD Store`
+  : 'Shop – ABKHD Store';
+const description = qParam
+  ? `Search results for “${qParam}” in the ABKHD catalog of premium, tested tech.`
+  : 'Browse the full ABKHD catalog of premium, tested tech.';
 ---
 
-<Layout title="Shop – ABKHD Store" description="Browse the full ABKHD catalog of premium, tested tech.">
+<Layout title={title} description={description}>
   <Header slot="header" />
 
-  <!-- ═══ HERO STRIP ═══ -->
-  <section class="border-b bg-gradient-to-br from-background via-primary/5 to-background pt-24">
-    <div class="container py-10 md:py-14">
-      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          <p class="text-xs font-semibold tracking-widest uppercase text-primary/70 mb-2">ABKHD Store</p>
-          <h1 class="text-4xl md:text-5xl font-black tracking-tight">Shop</h1>
-          <p class="text-muted-foreground mt-2 text-sm md:text-base">
-            Honestly priced. Rigorously tested. Ready to ship.
-          </p>
-        </div>
-        <p id="shop-count-text" class="text-sm text-muted-foreground shrink-0">
-          {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
-        </p>
-      </div>
-    </div>
-  </section>
+  <Hero
+    word="Shop"
+    eyebrow="The Full Showroom"
+    subtitle="Every device, curated. Filter by space and discover your next essential."
+  />
 
-  <!-- ═══ FILTER PILL BAR ═══ -->
-  <div class="sticky top-16 z-30 border-b bg-background/90 backdrop-blur-sm">
-    <div class="container">
-      <div class="flex items-center gap-2 py-3 overflow-x-auto scrollbar-hide">
-        {categoryFilters.map(cat => (
-          <button
-            data-category={cat.value}
-            class={`pill-btn shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
-              (!selectedCategory && cat.value === 'all') || selectedCategory === cat.value
-                ? 'pill-btn--active'
-                : ''
-            }`}
-          >
-            <i class={`bi ${cat.icon} text-xs`}></i>
-            {cat.name}
-          </button>
-        ))}
-      </div>
-    </div>
-  </div>
+  <ShowroomExperience
+    client:visible
+    deep
+    products={showroomProducts}
+    initialCategory={categoryParam}
+    initialQuery={qParam}
+  />
 
-  <!-- ═══ PRODUCT GRID ═══ -->
-  <main class="container py-8 md:py-10">
-    <div id="products-container">
-      {filteredProducts.length === 0 ? (
-        <div class="text-center py-20 border border-dashed rounded-2xl">
-          <i class="bi bi-inbox text-5xl text-muted-foreground mb-4 block"></i>
-          <p class="text-lg font-semibold mb-2">No products found</p>
-          <p class="text-sm text-muted-foreground mb-6">Try a different category filter</p>
-          <button id="clear-filters-empty" class="btn-secondary px-6 py-2">Clear Filters</button>
-        </div>
-      ) : (
-        <ProductGrid products={filteredProducts} />
-      )}
-    </div>
-  </main>
+  <RecommendationsRail client:visible products={railProducts} />
+
+  <CtaBanner />
 
   <Footer slot="footer" />
 </Layout>
-
-<style is:global>
-  /* Pill filter buttons */
-  .pill-btn {
-    background: rgb(var(--background));
-    border-color: rgb(var(--border));
-    color: rgb(var(--muted-foreground));
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .pill-btn:hover:not(.pill-btn--active) {
-    border-color: rgb(var(--primary) / 0.45);
-    color: rgb(var(--foreground));
-    background: rgb(var(--primary) / 0.06);
-  }
-  .pill-btn--active {
-    background: rgb(var(--primary));
-    border-color: rgb(var(--primary));
-    color: rgb(var(--primary-foreground));
-    box-shadow: 0 2px 10px rgb(var(--primary) / 0.3);
-  }
-  /* Hide scrollbar for pill bar */
-  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
-
-  /* JS-rendered card grid (mirrors ProductGrid for client-side filter) */
-  #products-container .shop-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-  @media (min-width: 640px) {
-    #products-container .shop-grid { gap: 16px; }
-  }
-  @media (min-width: 768px) {
-    #products-container .shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-  }
-  @media (min-width: 1280px) {
-    #products-container .shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  }
-
-  /* JS-rendered card fixes: show description on sm+, hide feat label text on mobile */
-  @media (min-width: 640px) {
-    #products-container .product-desc { display: -webkit-box !important; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-    #products-container .feat-label   { display: inline !important; }
-  }
-  #products-container .feat-label { display: none; }
-</style>
-
-<script is:inline define:vars={{ initialProducts: products }}>
-  const fmt = n => '₦' + Number(n).toLocaleString('en-NG');
-
-  let currentCategory = (new URLSearchParams(window.location.search)).get('category') || 'all';
-
-  const pillBtns    = document.querySelectorAll('.pill-btn');
-  const container   = document.getElementById('products-container');
-  const countText   = document.getElementById('shop-count-text');
-
-  /* ── Render ── */
-  function renderProducts(list) {
-    if (!list.length) {
-      container.innerHTML = `
-        <div class="text-center py-20 border border-dashed rounded-2xl">
-          <i class="bi bi-inbox text-5xl text-muted-foreground mb-4 block"></i>
-          <p class="text-lg font-semibold mb-2">No products found</p>
-          <p class="text-sm text-muted-foreground mb-6">Try a different category filter</p>
-          <button onclick="applyFilter('all')" class="btn-secondary px-6 py-2">Clear Filters</button>
-        </div>`;
-      return;
-    }
-
-    /* Re-use ProductCard visual style via inline HTML */
-    const cards = list.map(p => {
-      const discount = p.originalPrice && p.originalPrice > p.price
-        ? Math.round((1 - p.price / p.originalPrice) * 100) : null;
-      const stockClass = p.stock === 0 ? 'badge-out' : p.stock <= 5 ? 'badge-low' : 'badge-stock';
-      const stockIcon  = p.stock === 0 ? 'bi-x-circle-fill' : p.stock <= 5 ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill';
-      const stockLabel = p.stock === 0 ? 'Out of Stock' : p.isUnique ? 'Unique Item' : `${p.stock} in stock`;
-      return `
-        <a href="/products/${p.id}" class="product-card group block" aria-label="${p.name}">
-          <div class="card-inner">
-            <div class="relative aspect-square overflow-hidden pc-img-wrap bg-muted">
-              <img src="${p.image || p.videoThumbnail || ''}" alt="${p.name}"
-                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy" crossorigin="anonymous"
-                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22%3E%3Crect fill=%22%23ccc%22 width=%22400%22 height=%22400%22/%3E%3C/svg%3E'">
-              <div class="shimmer-overlay"></div>
-              ${p.stock !== undefined && p.stock !== null ? `
-                <div class="absolute bottom-2.5 left-2.5">
-                  <span class="badge-glass ${stockClass}">
-                    <i class="bi ${stockIcon} text-[10px]"></i>
-                    <span class="text-[10px] font-semibold">${stockLabel}</span>
-                  </span>
-                </div>` : ''}
-              ${discount ? `
-                <div class="absolute bottom-2.5 right-2.5">
-                  <span class="badge-discount">-${discount}%</span>
-                </div>` : ''}
-            </div>
-            <div class="card-body">
-              ${p.brand ? `<p class="brand-label">${p.brand}</p>` : ''}
-              <h3 class="product-title">${p.name}</h3>
-              <p class="product-desc" style="display:none" class="sm-desc">${p.description || ''}</p>
-              <div class="price-col">
-                <span class="price-main">${fmt(p.price)}</span>
-                ${p.originalPrice ? `<span class="price-original">${fmt(p.originalPrice)}</span>` : ''}
-              </div>
-              <div class="card-actions">
-                ${p.featured ? `<span class="feat-pill"><i class="bi bi-star-fill" style="font-size:9px"></i> <span class="feat-label">Featured</span></span>` : ''}
-                ${p.stock !== 0 ? `
-                  <button class="quick-add-btn" style="margin-left:auto"
-                    data-product-id="${p.id}" data-product-name="${p.name}"
-                    data-product-price="${p.price}" data-product-image="${p.image || ''}"
-                    aria-label="Add ${p.name} to cart">
-                    <i class="bi bi-bag-plus"></i>
-                  </button>` : ''}
-              </div>
-            </div>
-          </div>
-        </a>`;
-    }).join('');
-
-    container.innerHTML = `<div class="shop-grid">${cards}</div>`;
-
-    /* Re-bind quick-add listeners */
-    container.querySelectorAll('.quick-add-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.preventDefault(); e.stopPropagation();
-        const t = e.currentTarget;
-        window.dispatchEvent(new CustomEvent('add-to-cart', {
-          detail: { product: {
-            id: t.dataset.productId,
-            name: t.dataset.productName,
-            price: parseFloat(t.dataset.productPrice),
-            image: t.dataset.productImage
-          }, quantity: 1 }
-        }));
-        const orig = t.innerHTML;
-        t.innerHTML = '<i class="bi bi-check-lg"></i>';
-        t.classList.add('!bg-green-500');
-        setTimeout(() => { t.innerHTML = orig; t.classList.remove('!bg-green-500'); }, 1500);
-      });
-    });
-  }
-
-  /* ── Filter ── */
-  window.applyFilter = function(cat) {
-    currentCategory = cat;
-    const filtered = cat === 'all' ? initialProducts : initialProducts.filter(p => p.category === cat);
-
-    pillBtns.forEach(btn => {
-      const isActive = btn.dataset.category === cat;
-      btn.classList.toggle('pill-btn--active', isActive);
-    });
-
-    if (countText) countText.textContent = `${filtered.length} ${filtered.length === 1 ? 'product' : 'products'}`;
-
-    window.history.replaceState({}, '', cat === 'all' ? '/shop' : `/shop?category=${encodeURIComponent(cat)}`);
-    renderProducts(filtered);
-  };
-
-  pillBtns.forEach(btn => btn.addEventListener('click', () => window.applyFilter(btn.dataset.category)));
-  document.getElementById('clear-filters-empty')?.addEventListener('click', () => window.applyFilter('all'));
-
-  /* ── Sync initial URL ── */
-  if (currentCategory && currentCategory !== 'all') {
-    pillBtns.forEach(btn => btn.classList.toggle('pill-btn--active', btn.dataset.category === currentCategory));
-  }
-</script>

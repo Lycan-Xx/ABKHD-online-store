@@ -5,6 +5,7 @@
 import Icon from '../showroom/Icon.astro';
 import CartDrawer from '../cart/CartDrawer.astro';
 import MobileNav from '../showroom/MobileNav';
+import SearchOverlay from '../showroom/SearchOverlay';
 
 const currentPath = Astro.url.pathname;
 
@@ -46,15 +47,14 @@ const isActive = (to: string) =>
     </div>
 
     <div class="ml-auto flex items-center gap-1.5">
-      <!-- Interim: search link to /shop — Phase 3 swaps to the live search overlay -->
-      <a
-        href="/shop"
+      <!-- Search — opens the live SearchOverlay island (SPEC §6.6) -->
+      <button
         id="nav-search-btn"
         class="hidden h-8 w-8 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground sm:grid"
         aria-label="Search"
       >
         <Icon name="search" class="h-4 w-4" />
-      </a>
+      </button>
       <button
         id="cart-toggle"
         class="relative grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
@@ -82,6 +82,9 @@ const isActive = (to: string) =>
 
 <!-- Mobile navigation island (framer-motion drawer) -->
 <MobileNav client:load />
+
+<!-- Live search overlay island (SPEC §6.6) -->
+<SearchOverlay client:idle />
 
 <!-- Cart drawer (restyle-only, logic frozen) -->
 <CartDrawer />
@@ -118,6 +121,15 @@ const isActive = (to: string) =>
       var expanded = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', String(!expanded));
       window.dispatchEvent(new CustomEvent('abkhd:mobile-nav'));
+    });
+  })();
+
+  // Search button → SearchOverlay island
+  (function () {
+    var searchBtn = document.getElementById('nav-search-btn');
+    if (!searchBtn) return;
+    searchBtn.addEventListener('click', function () {
+      window.dispatchEvent(new CustomEvent('abkhd:search'));
     });
   })();
 
