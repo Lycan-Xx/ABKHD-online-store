@@ -26,6 +26,7 @@ export interface ShowroomProduct {
   image: string; // images[0] || image || videoThumbnail (fallback chain preserved)
   images: string[]; // images (PDP rail)
   video?: string; // video
+  videoThumbnail?: string; // videoThumbnail (PDP video poster)
   stock: number; // stock
   verified: boolean; // verified
   featured: boolean; // featured → "Best Seller" flag
@@ -62,6 +63,7 @@ export function toShowroomProduct(doc: ProductDoc): ShowroomProduct {
     image: images[0] || doc.image || doc.videoThumbnail || FALLBACK_IMAGE,
     images,
     video: doc.video || undefined,
+    videoThumbnail: doc.videoThumbnail || undefined,
     stock: Number(doc.stock) || 0,
     verified: doc.verified === true,
     featured: doc.featured === true,
