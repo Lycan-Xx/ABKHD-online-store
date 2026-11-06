@@ -184,6 +184,63 @@
     animation: slideInRight 0.3s ease-out forwards;
   }
 
+  /* ============================================================
+     Hero entrance (SPEC §6.1) — the mockup drives these with
+     framer-motion, but the hero is static markup, so they are
+     ported as pure CSS: image zoom 1.08→1 (1.6s expo-out), word
+     fade-up (0.9s), bottom panel fade-up (0.7s, 0.25s delay).
+     ============================================================ */
+  .animate-hero-zoom {
+    animation: heroZoom 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes heroZoom {
+    from {
+      transform: scale(1.08);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .animate-hero-word {
+    animation: heroWord 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes heroWord {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-hero-panel {
+    animation: heroPanel 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+  }
+
+  @keyframes heroPanel {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-hero-zoom,
+    .animate-hero-word,
+    .animate-hero-panel {
+      animation: none;
+    }
+  }
+
   @keyframes slideInRight {
     from {
       transform: translateX(100%);
