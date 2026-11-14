@@ -5,9 +5,9 @@
  * is hydrated for the hero. The search form is a real GET form that
  * lands on `/shop?q=…` (Phase 3 wires the query into the shop page).
  *
- * The backdrop is a 4-slide crossfade of landscape device photography.
- * The rotation is pure CSS (`hero-fade` / `hero-dot` in global.css), so it
- * costs no JavaScript and honours `prefers-reduced-motion`.
+ * The backdrop is a 4-slide rotation of landscape device photography. Only the
+ * first image is requested up front; the rest are fetched one slide ahead, so
+ * the home page never pulls the whole set at once.
  *
  * Photo credits (Pexels License, free for commercial use):
  *   hero-01.jpg  Laptop, Smartphone and Smartwatch by Phuc Pham
@@ -29,69 +29,63 @@ const {
   subtitle = 'A curated showroom of devices designed for calm, modern living.',
 } = Astro.props;
 
+const slides = [
+  {
+    src: '/assets/hero-01.webp',
+    srcset: '/assets/hero-01-sm.webp 900w, /assets/hero-01.webp 1600w',
+    alt: 'Smartwatch and smartphone beside a laptop on a desk',
+  },
+  {
+    src: '/assets/hero-02.webp',
+    srcset: '/assets/hero-02-sm.webp 900w, /assets/hero-02.webp 1600w',
+    alt: 'Smartphone with a camera gimbal and accessories laid out on a desk',
+  },
+  {
+    src: '/assets/hero-03.webp',
+    srcset: '/assets/hero-03-sm.webp 900w, /assets/hero-03.webp 1600w',
+    alt: 'Smartphone beside smart home devices on a studio backdrop',
+  },
+  {
+    src: '/assets/hero-04.webp',
+    srcset: '/assets/hero-04-sm.webp 900w, /assets/hero-04.webp 1600w',
+    alt: 'Phone, earbuds, charger and cables arranged on a dark desk',
+  },
+];
+
 const SLIDE_CLASS = 'hero-slide absolute inset-0 h-full w-full object-cover';
 ---
 
 <section class="relative mx-auto mt-28 max-w-[1240px] overflow-hidden rounded-[28px] px-3 sm:mt-32 sm:px-4">
   <div class="relative h-[52vh] min-h-[420px] overflow-hidden rounded-[24px] sm:rounded-[28px] md:h-[58vh] md:min-h-[460px]">
-    <div class="absolute inset-0">
-      <img
-        src="/assets/hero-01.jpg"
-        alt="Smartwatch and smartphone beside a laptop on a desk"
-        width={1920}
-        height={1024}
-        class={`${SLIDE_CLASS} animate-hero-zoom`}
-        loading="eager"
-        decoding="async"
-      />
-      <img
-        src="/assets/hero-02.jpg"
-        alt="Smartphone with a camera gimbal and accessories laid out on a desk"
-        width={1920}
-        height={1024}
-        class={SLIDE_CLASS}
-        style="animation-delay: 6s"
-        loading="lazy"
-        decoding="async"
-      />
-      <img
-        src="/assets/hero-03.jpg"
-        alt="Smartphone beside smart home devices on a studio backdrop"
-        width={1920}
-        height={1024}
-        class={SLIDE_CLASS}
-        style="animation-delay: 12s"
-        loading="lazy"
-        decoding="async"
-      />
-      <img
-        src="/assets/hero-04.jpg"
-        alt="Phone, earbuds, charger and cables arranged on a dark desk"
-        width={1920}
-        height={1024}
-        class={SLIDE_CLASS}
-        style="animation-delay: 18s"
-        loading="lazy"
-        decoding="async"
-      />
+    <div class="absolute inset-0" id="hero-slides">
+      {
+        slides.map((slide, i) => (
+          <img
+            src={i === 0 ? slide.src : undefined}
+            srcset={i === 0 ? slide.srcset : undefined}
+            data-src={i === 0 ? undefined : slide.src}
+            data-srcset={i === 0 ? undefined : slide.srcset}
+            sizes="(max-width: 640px) 100vw, 1200px"
+            alt={slide.alt}
+            width={1600}
+            height={854}
+            class={`${SLIDE_CLASS} ${i === 0 ? 'is-active animate-hero-zoom' : ''}`}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : 'low'}
+            decoding="async"
+          />
+        ))
+      }
     </div>
     <div class="absolute inset-0 bg-gradient-to-b from-background/40 via-background/10 to-background/80"></div>
 
     <!-- Slide position indicator -->
-    <div class="absolute top-4 right-4 z-10 flex items-center gap-1.5" aria-hidden="true">
-      <span class="hero-dot block h-1.5 w-1.5 origin-left rounded-full bg-background/70"></span>
-      <span
-        class="hero-dot block h-1.5 w-1.5 origin-left rounded-full bg-background/70"
-        style="animation-delay: 6s"
-      ></span>
-      <span
-        class="hero-dot block h-1.5 w-1.5 origin-left rounded-full bg-background/70"
-        style="animation-delay: 12s"
-      ></span>
-      <span
-        class="hero-dot block h-1.5 w-1.5 origin-left rounded-full bg-background/70"
-        style="animation-delay: 18s"
-      ></span>
+    <div class="absolute top-4 right-4 z-10 flex items-center gap-1.5" aria-hidden="true" data-hero-dots>
+      {
+        slides.map((_, i) => (
+          <span class={`hero-dot ${i === 0 ? 'is-active' : ''}`} />
+        ))
+      }
     </div>
 
     <!-- Giant editorial word -->
@@ -136,3 +130,74 @@ const SLIDE_CLASS = 'hero-slide absolute inset-0 h-full w-full object-cover';
     </div>
   </div>
 </section>
+
+<script is:inline>
+  // Hero backdrop rotation. The slides are plain images, so the rotation is a
+  // small inline script rather than a hydrated island. Only the visible slide
+  // (and the next one, kept warm) is ever downloaded.
+  (function () {
+    var root = document.getElementById('hero-slides');
+    if (!root) return;
+
+    var slides = Array.prototype.slice.call(root.querySelectorAll('.hero-slide'));
+    if (slides.length < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var dotWrap = document.querySelector('[data-hero-dots]');
+    var dots = dotWrap ? Array.prototype.slice.call(dotWrap.querySelectorAll('.hero-dot')) : [];
+    var index = 0;
+    var timer = null;
+
+    function request(el) {
+      if (!el || !el.dataset.src || el.getAttribute('src')) return;
+      el.setAttribute('src', el.dataset.src);
+      if (el.dataset.srcset) el.setAttribute('srcset', el.dataset.srcset);
+    }
+
+    function show(next) {
+      var el = slides[next];
+      if (!el) return;
+      request(el);
+
+      var apply = function () {
+        slides[index].classList.remove('is-active');
+        el.classList.add('is-active');
+        for (var i = 0; i < dots.length; i++) {
+          dots[i].classList.toggle('is-active', i === next);
+        }
+        index = next;
+      };
+
+      if (el.complete) apply();
+      else el.addEventListener('load', apply, { once: true });
+    }
+
+    function advance() {
+      var next = (index + 1) % slides.length;
+      request(slides[next]);
+      show(next);
+      // keep one slide ahead warm so the swap never shows an empty frame
+      request(slides[(next + 1) % slides.length]);
+    }
+
+    function stop() {
+      if (timer) {
+        window.clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    function start() {
+      stop();
+      timer = window.setInterval(advance, 6000);
+    }
+
+    request(slides[1]);
+    start();
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop();
+      else start();
+    });
+  })();
+</script>

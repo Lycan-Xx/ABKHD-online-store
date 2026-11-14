@@ -4,9 +4,9 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import { ShopExperience } from '../components/showroom/ShopExperience';
-import { toShowroomProduct, type ShowroomProduct } from '../lib/showroom';
+import { toShowroomProduct, type ShowroomProduct, type ProductDoc } from '../lib/showroom';
 import { searchProducts } from '../lib/search-match';
-import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../lib/appwrite';
+import { listProductsCached } from '../lib/product-cache';
 import { Query } from 'appwrite';
 
 const url = Astro.url;
@@ -14,19 +14,14 @@ const categoryParam = url.searchParams.get('category');
 const qParam = url.searchParams.get('q')?.trim() || null;
 const sortParam = url.searchParams.get('sort');
 
-let products = [];
+let products: ProductDoc[] = [];
 try {
-  const response = await databases.listDocuments(
-    APPWRITE_DB_ID,
-    APPWRITE_PRODUCTS_COLLECTION_ID,
-    [
-      Query.equal('isActive', true),
-      Query.equal('isArchived', false),
-      Query.orderDesc('$createdAt'),
-      Query.limit(200)
-    ]
-  );
-  products = response.documents.map(doc => ({ ...doc, id: doc.$id }));
+  const documents = await listProductsCached([
+    Query.equal('isActive', true),
+    Query.equal('isArchived', false),
+    Query.orderDesc('$createdAt'),
+  ]);
+  products = documents.map((doc) => ({ ...doc, id: doc.$id }));
 } catch (error) {
   console.error('Error fetching products from Appwrite:', error);
 }

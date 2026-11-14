@@ -61,12 +61,17 @@ const imageUrl = ogImage || `${siteUrl}/android-chrome-512x512.png`;
       })()
     </script>
     
-    <!-- Cloudflare Insights Beacon -->
-    <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon='{"token": "8c78df7c7c0f484497ecbca7046644da1771523124516"}'
-    ></script>
+    <!-- Cloudflare Insights Beacon (production only, so dev never hits the CDN) -->
+    {
+      import.meta.env.PROD && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "8c78df7c7c0f484497ecbca7046644da1771523124516"}'
+        />
+      )
+    }
   </head>
   <body>
     <div class="min-h-screen flex flex-col">
