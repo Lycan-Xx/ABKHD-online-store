@@ -19,5 +19,20 @@ export default defineConfig({
   }),
   build: {
     assets: 'assets'
+  },
+  vite: {
+    resolve: {
+      // @astrojs/cloudflare aliases "react-dom/server" -> "react-dom/server.browser".
+      // React 19's browser server build evaluates `new MessageChannel()` at module
+      // scope, which the Workers runtime does not implement -> worker fails to
+      // publish ("MessageChannel is not defined"). The edge build provides the
+      // same web-stream API (renderToReadableStream) without MessageChannel.
+      alias: [
+        {
+          find: 'react-dom/server',
+          replacement: 'react-dom/server.edge'
+        }
+      ]
+    }
   }
 });
