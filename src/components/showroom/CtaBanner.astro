@@ -1,0 +1,59 @@
+---
+/**
+ * CTA banner (SPEC §6.7) — exact mockup split panel (`rounded-3xl
+ * bg-foreground text-background`). The email form is intentionally
+ * decorative for now (no newsletter backend exists); it gives an inline
+ * "thank you" state instead of submitting — noted as future work.
+ */
+---
+
+<section class="mx-auto max-w-[1240px] px-3 sm:px-4">
+  <div class="grid gap-8 rounded-3xl bg-foreground p-6 text-background sm:p-8 md:grid-cols-2 md:p-12">
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
+        Ready for your<br />next device?
+      </h2>
+      <form id="cta-banner-form" class="mt-6 flex w-full max-w-md items-center gap-2 rounded-full bg-background/10 p-1.5 ring-1 ring-background/20">
+        <input
+          type="email"
+          required
+          placeholder="Your email"
+          aria-label="Your email"
+          class="flex-1 bg-transparent px-4 py-2 text-sm text-background outline-none placeholder:text-background/50"
+        />
+        <button
+          type="submit"
+          class="rounded-full bg-background px-5 py-2 text-sm font-medium text-foreground transition hover:opacity-90"
+        >
+          Send
+        </button>
+      </form>
+      <p
+        id="cta-banner-thanks"
+        class="mt-3 hidden text-xs text-background/60"
+        aria-live="polite"
+      >
+        Thank you — you're on the list.
+      </p>
+    </div>
+    <div class="flex flex-col justify-end">
+      <p class="text-xs uppercase tracking-[0.2em] text-background/60">ABKHD for Homes and Needs</p>
+      <p class="mt-3 max-w-md text-sm leading-relaxed text-background/70">
+        We listen to your needs, identify the best devices, and curate a calm
+        collection of tested tech — transparently sourced, honestly priced.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Decorative no-op submit (SPEC §6.7): clears the field and shows an
+  // inline thank-you. A real newsletter backend is future work.
+  const form = document.getElementById('cta-banner-form') as HTMLFormElement | null;
+  const thanks = document.getElementById('cta-banner-thanks');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    form.reset();
+    thanks?.classList.remove('hidden');
+  });
+</script>

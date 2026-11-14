@@ -9,6 +9,7 @@ coverage
 # Production
 dist
 build
+.astro
 
 # Environment files
 # .env
@@ -38,3 +39,6 @@ Thumbs.db
 .tmp
 .temp 
 .env
+
+# npm lockfile (this repo uses yarn)
+package-lock.json

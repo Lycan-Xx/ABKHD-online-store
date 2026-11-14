@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
+import Icon from '../components/showroom/Icon.astro';
 ---
 
 <Layout title="Checkout — ABKHD Store">
@@ -94,6 +95,7 @@ import Footer from '../components/layout/Footer.astro';
         <!-- ── TAB 1: Details ── -->
         <div class="co-panel co-panel--active" id="co-tab-details">
           <div class="co-panel-hdr">
+            <p class="co-panel-eyebrow">&mdash; Shipping</p>
             <h2 class="co-panel-title">Shipping Details</h2>
             <p class="co-panel-sub">Where should we deliver your order?</p>
           </div>
@@ -167,6 +169,7 @@ import Footer from '../components/layout/Footer.astro';
         <!-- ── TAB 2: Payment ── -->
         <div class="co-panel co-hidden" id="co-tab-payment">
           <div class="co-panel-hdr">
+            <p class="co-panel-eyebrow">&mdash; Payment</p>
             <h2 class="co-panel-title">Choose Payment</h2>
             <p class="co-panel-sub">Select how you'd like to complete your purchase.</p>
           </div>
@@ -200,15 +203,15 @@ import Footer from '../components/layout/Footer.astro';
             <!-- Trust badges -->
             <div class="co-trust-badges">
               <div class="co-trust-item">
-                <i class="bi bi-shield-check"></i>
+                <Icon name="shield-check" class="h-3.5 w-3.5" strokeWidth={1.75} />
                 <span>Nigeria's trusted payment processor</span>
               </div>
               <div class="co-trust-item">
-                <i class="bi bi-lock"></i>
+                <Icon name="lock" class="h-3.5 w-3.5" strokeWidth={1.75} />
                 <span>256-bit SSL encryption</span>
               </div>
               <div class="co-trust-item">
-                <i class="bi bi-phone"></i>
+                <Icon name="phone" class="h-3.5 w-3.5" strokeWidth={1.75} />
                 <span>Supports USSD, cards &amp; transfers</span>
               </div>
             </div>
@@ -245,6 +248,7 @@ import Footer from '../components/layout/Footer.astro';
         <!-- ── TAB 3: Confirmed ── -->
         <div class="co-panel co-hidden" id="co-tab-confirmed">
           <div class="co-success">
+            <p class="co-panel-eyebrow">&mdash; Confirmed</p>
             <div class="co-success-ring">
               <div class="co-success-ring-bg"></div>
               <svg class="co-success-ico" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -344,23 +348,23 @@ import Footer from '../components/layout/Footer.astro';
 <style is:global>
   /* ── Tokens ── */
   .co-root {
-    --cob: hsl(var(--background));
-    --coc: hsl(var(--card));
-    --cobr: hsl(var(--border));
-    --cop: hsl(var(--primary));
-    --copf: hsl(var(--primary-foreground));
-    --com: hsl(var(--muted));
-    --comf: hsl(var(--muted-foreground));
-    --cof: hsl(var(--foreground));
+    --cob: rgb(var(--background));
+    --coc: rgb(var(--card));
+    --cobr: rgb(var(--border));
+    --cop: rgb(var(--primary));
+    --copf: rgb(var(--primary-foreground));
+    --com: rgb(var(--muted));
+    --comf: rgb(var(--muted-foreground));
+    --cof: rgb(var(--foreground));
     --cos: #16a34a;
     --cos-bg: #f0fdf4;
     --cos-bd: #bbf7d0;
-    --co-r: 10px;
-    --co-rl: 14px;
+    --co-r: 20px;
+    --co-rl: 24px;
 
     max-width: 1240px;
     margin: 0 auto;
-    padding: 0 20px 80px;
+    padding: 84px 20px 80px;
     min-height: 70vh;
     box-sizing: border-box;
   }
@@ -427,7 +431,7 @@ import Footer from '../components/layout/Footer.astro';
     transition: background 0.3s, width 0.3s;
   }
   .co-dot--active { background: var(--cop); width: 18px; border-radius: 3px; }
-  .co-dot--done   { background: var(--cos); }
+  .co-dot--done   { background: var(--cop); }
 
   /* ═══ EMPTY STATE ═══ */
   .co-empty { text-align: center; padding: 90px 24px; }
@@ -492,7 +496,7 @@ import Footer from '../components/layout/Footer.astro';
     transition: border-color 0.18s, color 0.18s;
   }
   .co-back-link:hover { border-color: var(--cop); color: var(--cof); }
-  .co-desk-title { font-size: 21px; font-weight: 800; color: var(--cof); margin: 0; }
+  .co-desk-title { font-size: 21px; font-weight: 700; color: var(--cof); margin: 0; }
 
   /* ═══ STEPS BAR ═══ */
   .co-steps { display: flex; align-items: center; margin-bottom: 30px; }
@@ -514,9 +518,9 @@ import Footer from '../components/layout/Footer.astro';
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--cop) 14%, transparent);
   }
   .co-step--done .co-step-circle {
-    border-color: var(--cos);
-    background: var(--cos);
-    color: #fff;
+    border-color: var(--cop);
+    background: var(--cop);
+    color: var(--copf);
   }
   .co-step--done .co-step-num  { display: none; }
   .co-step--done .co-step-check { display: block !important; }
@@ -527,23 +531,24 @@ import Footer from '../components/layout/Footer.astro';
     color: var(--comf);
   }
   .co-step--active .co-step-lbl { color: var(--cop); }
-  .co-step--done   .co-step-lbl { color: var(--cos); }
+  .co-step--done   .co-step-lbl { color: var(--cop); }
   .co-step-line {
     flex: 1; height: 2px;
     background: var(--cobr);
     margin: 0 6px 18px;
     transition: background 0.35s ease;
   }
-  .co-step-line--done { background: var(--cos); }
+  .co-step-line--done { background: var(--cop); }
 
   /* ═══ PANELS ═══ */
-  .co-panel { animation: co-up 0.26s ease; }
+  .co-panel { animation: co-up 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
   @keyframes co-up {
     from { opacity:0; transform:translateY(8px); }
     to   { opacity:1; transform:translateY(0);   }
   }
   .co-panel-hdr { margin-bottom: 20px; }
-  .co-panel-title { font-size: 19px; font-weight: 700; color: var(--cof); margin: 0 0 4px; }
+  .co-panel-eyebrow { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: var(--comf); margin: 0 0 6px; }
+  .co-panel-title { font-size: 21px; font-weight: 600; letter-spacing: -0.01em; color: var(--cof); margin: 0 0 4px; }
   .co-panel-sub   { font-size: 13px; color: var(--comf); margin: 0; }
 
   /* ═══ FORM ═══ */
@@ -604,10 +609,10 @@ import Footer from '../components/layout/Footer.astro';
     gap: 9px;
     padding: 10px 13px;
     border-radius: var(--co-r);
-    background: color-mix(in srgb, var(--cop) 9%, var(--cob));
-    border: 1px solid color-mix(in srgb, var(--cop) 28%, transparent);
+    background: color-mix(in srgb, var(--cof) 6%, var(--cob));
+    border: 1px solid color-mix(in srgb, var(--cof) 22%, transparent);
     font-size: 13px; font-weight: 600;
-    color: var(--cop);
+    color: var(--cof);
   }
 
   /* ═══ BUTTONS — unique names, !important on critical props ═══ */
@@ -620,7 +625,7 @@ import Footer from '../components/layout/Footer.astro';
     background: var(--cop) !important;
     color: var(--copf) !important;
     border: none !important;
-    border-radius: var(--co-r) !important;
+    border-radius: 9999px !important;
     font-size: 14px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
@@ -641,7 +646,7 @@ import Footer from '../components/layout/Footer.astro';
     gap: 6px !important;
     padding: 8px 15px !important;
     border: 1.5px solid var(--cobr) !important;
-    border-radius: var(--co-r) !important;
+    border-radius: 9999px !important;
     background: transparent !important;
     color: var(--comf) !important;
     font-size: 13px !important;
@@ -722,9 +727,9 @@ import Footer from '../components/layout/Footer.astro';
     font-size: 11px;
     color: var(--comf);
   }
-  .co-trust-item i {
+  .co-trust-item svg {
     color: var(--cop);
-    font-size: 14px;
+    flex-shrink: 0;
   }
 
   /* WhatsApp */
@@ -735,22 +740,22 @@ import Footer from '../components/layout/Footer.astro';
     align-items: center !important;
     gap: 7px !important;
     padding: 8px 15px !important;
-    border: 1.5px solid #22c55e !important;
+    border: 1.5px solid var(--cobr) !important;
     border-radius: var(--co-r) !important;
-    color: #22c55e !important;
+    color: var(--cof) !important;
     font-size: 13px !important; font-weight: 600 !important;
     text-decoration: none !important;
     background: transparent !important;
     transition: background 0.18s !important;
   }
-  .co-wa-btn:hover { background: color-mix(in srgb, #22c55e 8%, transparent) !important; }
+  .co-wa-btn:hover { background: color-mix(in srgb, var(--cop) 6%, transparent) !important; }
 
   /* ═══ SUCCESS ═══ */
   .co-success { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; padding: 6px 0; }
   .co-success-ring { position: relative; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; }
   .co-success-ring-bg {
     position: absolute; inset: 0; border-radius: 50%;
-    background: var(--cos-bg); border: 2px solid var(--cos-bd);
+    background: var(--com); border: 2px solid var(--cobr);
     animation: co-ring-pop 0.42s ease;
   }
   @keyframes co-ring-pop {
@@ -758,7 +763,7 @@ import Footer from '../components/layout/Footer.astro';
     65%  { transform: scale(1.1); }
     100% { transform: scale(1);   opacity: 1; }
   }
-  .co-success-ico   { position: relative; z-index: 1; color: var(--cos); }
+  .co-success-ico   { position: relative; z-index: 1; color: var(--cof); }
   .co-success-title { font-size: 21px; font-weight: 800; color: var(--cof); margin: 0; }
   .co-success-msg   { font-size: 13px; color: var(--comf); max-width: 360px; line-height: 1.65; margin: 0; }
   .co-ref-card {
@@ -769,7 +774,7 @@ import Footer from '../components/layout/Footer.astro';
   .co-ref-val   { font-size: 14px; font-weight: 700; font-family: monospace; color: var(--cof); word-break: break-all; }
   .co-next-steps { width: 100%; display: flex; flex-direction: column; gap: 11px; text-align: left; }
   .co-next-step { display: flex; align-items: flex-start; gap: 11px; font-size: 13px; color: var(--cof); }
-  .co-next-step svg { color: var(--cos); flex-shrink: 0; margin-top: 2px; }
+  .co-next-step svg { color: var(--cof); flex-shrink: 0; margin-top: 2px; }
   .co-success-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
 
   /* ═══ CART PANE ═══ */
@@ -814,8 +819,8 @@ import Footer from '../components/layout/Footer.astro';
     overflow: visible !important;
   }
   .co-item.co-item--success {
-    border-color: var(--cos-bd) !important;
-    background: var(--cos-bg) !important;
+    border-color: var(--cobr) !important;
+    background: var(--com) !important;
   }
 
   /* Thumbnail — maximum specificity, immovable */
@@ -882,11 +887,11 @@ import Footer from '../components/layout/Footer.astro';
     justify-content: center !important;
     width: 26px !important;
     height: 26px !important;
-    border-radius: 6px !important;
+    border-radius: 9999px !important;
     border: none !important;
     outline: none !important;
-    background: color-mix(in srgb, var(--cop) 13%, var(--cob)) !important;
-    color: var(--cop) !important;
+    background: var(--com) !important;
+    color: var(--cof) !important;
     font-size: 15px !important;
     font-weight: 700 !important;
     cursor: pointer !important;
@@ -898,7 +903,7 @@ import Footer from '../components/layout/Footer.astro';
     box-shadow: none !important;
   }
   .co-qty-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--cop) 24%, var(--cob)) !important;
+    background: color-mix(in srgb, var(--cof) 12%, var(--cob)) !important;
     transform: scale(1.07) !important;
   }
   .co-qty-btn:active:not(:disabled) { transform: scale(0.96) !important; }
@@ -947,12 +952,12 @@ import Footer from '../components/layout/Footer.astro';
     justify-content: center !important;
     gap: 8px !important;
     padding: 11px 14px !important;
-    background: var(--cos-bg) !important;
-    border: 1.5px solid var(--cos-bd) !important;
+    background: color-mix(in srgb, var(--cof) 5%, var(--cob)) !important;
+    border: 1.5px solid color-mix(in srgb, var(--cof) 20%, transparent) !important;
     border-radius: var(--co-r) !important;
     font-size: 14px !important;
     font-weight: 700 !important;
-    color: var(--cos) !important;
+    color: var(--cof) !important;
     margin-bottom: 12px !important;
   }
 
@@ -972,7 +977,7 @@ import Footer from '../components/layout/Footer.astro';
     transition: border-color 0.18s, color 0.18s !important;
     margin-top: 2px !important;
   }
-  .co-wa-cart:hover { border-color: #22c55e !important; color: #22c55e !important; }
+  .co-wa-cart:hover { border-color: var(--cop) !important; color: var(--cop) !important; }
 </style>
 
 <!-- ═══════════════════════════════════════════════════════════════
