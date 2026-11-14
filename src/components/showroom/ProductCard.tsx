@@ -5,7 +5,7 @@ import type { ShowroomProduct } from '../../lib/showroom';
 import { addFromCard, buyNowFromCard } from './cardActions';
 
 /**
- * Showroom product card (SPEC §6.3) — mockup card structure verbatim
+ * Showroom product card (SPEC §6.3) - mockup card structure verbatim
  * (rounded-2xl / border-border/70 / hover lift / image scale 1.04 / dual
  * pill CTAs) minus the ratings row (D3). ABKHD-only enrichment chips
  * (Verified, -N%, stock) reuse the mockup's glass chip treatment.
@@ -34,26 +34,26 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
         href={`/products/${product.id}`}
         className="relative block aspect-square overflow-hidden rounded-xl bg-muted/60"
       >
-        {/* Category chip — exact mockup position (top-right) */}
+        {/* Category chip - exact mockup position (top-right) */}
         <span className="absolute right-3 top-3 z-10 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
           {product.category}
         </span>
 
-        {/* Verified chip — ABKHD-only, mockup glass treatment (top-left) */}
+        {/* Verified chip - ABKHD-only, mockup glass treatment (top-left) */}
         {product.verified && (
           <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full border border-border/70 bg-background/90 px-2.5 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
             <BadgeCheck className="h-3 w-3" /> Verified
           </span>
         )}
 
-        {/* Discount chip — bottom-left */}
+        {/* Discount chip - bottom-left */}
         {discount !== null && (
           <span className="absolute bottom-3 left-3 z-10 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
             -{discount}%
           </span>
         )}
 
-        {/* Stock chip — bottom-right (replaces "Out of stock" CTA context) */}
+        {/* Stock chip - bottom-right (replaces "Out of stock" CTA context) */}
         {outOfStock && (
           <span className="absolute bottom-3 right-3 z-10 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
             Out of stock
@@ -81,7 +81,7 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
             {formatPrice(product.price)}
           </span>
         </div>
-        {/* Ratings row dropped (D3) — mockup line replaced by a subtle
+        {/* Ratings row dropped (D3) - mockup line replaced by a subtle
             variant hint so the layout rhythm is preserved. */}
         <div className="mt-1 text-xs text-muted-foreground">
           {outOfStock

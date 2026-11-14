@@ -19,7 +19,7 @@ const DEBOUNCE_MS = 250;
 const MIN_CHARS = 2;
 
 /**
- * Search overlay (SPEC §6.6, D4) — mockup-language top sheet opened from
+ * Search overlay (SPEC §6.6, D4) - mockup-language top sheet opened from
  * the navbar search button and the mobile nav via the `abkhd:search`
  * window event. Debounced live queries against `/api/search` with
  * request abortion; keyboard-navigable results.
@@ -125,7 +125,7 @@ export default function SearchOverlay() {
 
   return (
     <DrawerPanel open={open} onClose={close} title="Search">
-      {/* Query row — underline input, mockup contact pattern */}
+      {/* Query row - underline input, mockup contact pattern */}
       <div className="flex items-center gap-3 px-1">
         <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
         <input
@@ -186,7 +186,7 @@ export default function SearchOverlay() {
 
         {status === 'error' && (
           <div className="px-2 py-6 text-center">
-            <p className="text-xs text-muted-foreground">Search is unavailable — try again</p>
+            <p className="text-xs text-muted-foreground">Search is unavailable. Try again.</p>
             <button
               onClick={() => {
                 const t = term;

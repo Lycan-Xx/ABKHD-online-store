@@ -15,7 +15,7 @@ import {
 } from "../lib/appwrite";
 import { Query } from "appwrite";
 
-// Featured products — existing query, verbatim.
+// Featured products - existing query, verbatim.
 let featuredProducts = [];
 try {
   const response = await databases.listDocuments(
@@ -34,7 +34,7 @@ try {
   console.error("Error fetching featured products:", error);
 }
 
-// Newest 8 — always fills the recommendations rail (SPEC §7.1).
+// Newest 8 - always fills the recommendations rail (SPEC §7.1).
 let newestProducts: ReturnType<typeof toShowroomProduct>[] = [];
 try {
   const response = await databases.listDocuments(
@@ -56,7 +56,7 @@ const showroomFeatured = featuredProducts.map(toShowroomProduct);
 ---
 
 <Layout
-  title="Featured – ABKHD Store"
+  title="Featured | ABKHD Store"
   description="Hand-picked, tested tech at smarter prices. Browse this week's featured devices."
 >
   <Header slot="header" />
@@ -64,7 +64,7 @@ const showroomFeatured = featuredProducts.map(toShowroomProduct);
   <Hero
     word="ABKHD"
     eyebrow="Premium Tech. Smarter Prices."
-    subtitle="UK & China-sourced devices, rigorously tested and transparently disclosed — quality you can trust at prices that actually make sense."
+    subtitle="UK & China-sourced devices, rigorously tested and transparently disclosed, quality you can trust at prices that actually make sense."
   />
 
   <ShowroomExperience client:visible products={showroomFeatured} />

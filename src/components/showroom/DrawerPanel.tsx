@@ -11,7 +11,7 @@ type Props = {
   topClass?: string;
 };
 
-/** Slide-down-from-top glass sheet — exact port of the mockup DrawerPanel
+/** Slide-down-from-top glass sheet - exact port of the mockup DrawerPanel
  *  (motion: 0.45s expo-out, overlay 0.3s fade, scroll-lock while open). */
 export function DrawerPanel({ open, onClose, title, children, topClass = 'top-20' }: Props) {
   useEffect(() => {

@@ -1,5 +1,5 @@
 /**
- * Shared card CTA logic (SPEC §6.3) — used by ProductCard (grid) and
+ * Shared card CTA logic (SPEC §6.3) - used by ProductCard (grid) and
  * RecommendationsRail cards. Talks to the existing nanostores cart
  * directly, exactly like the rest of the app; no commerce behavior
  * changes, only presentation.
@@ -31,7 +31,7 @@ export function addFromCard(product: ShowroomProduct): void {
   openCart();
 }
 
-/** Buy Now — same guard, then straight to checkout. */
+/** Buy Now - same guard, then straight to checkout. */
 export function buyNowFromCard(product: ShowroomProduct): void {
   if (product.stock <= 0) return;
   if (product.hasVariants) {

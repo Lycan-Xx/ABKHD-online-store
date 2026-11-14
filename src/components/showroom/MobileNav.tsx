@@ -11,7 +11,7 @@ const links = [
 ] as const;
 
 /**
- * Mobile navigation — mockup Navbar mobile drawer pattern (SPEC §5.3).
+ * Mobile navigation - mockup Navbar mobile drawer pattern (SPEC §5.3).
  * Opened from the floating navbar's menu button via the `abkhd:mobile-nav`
  * window event; auto-closes on navigation (`astro:page-load`).
  */
@@ -56,7 +56,7 @@ export default function MobileNav() {
         </ul>
         <div className="my-4 h-px bg-border/70" />
         <div className="flex gap-2">
-          {/* Search — opens the live SearchOverlay island (SPEC §6.6) */}
+          {/* Search - opens the live SearchOverlay island (SPEC §6.6) */}
           <button
             onClick={() => {
               setOpen(false);
@@ -75,6 +75,14 @@ export default function MobileNav() {
           >
             <ShoppingBag className="h-4 w-4" /> Cart
           </button>
+        </div>
+        <div className="mt-4 flex gap-4 px-1 text-xs text-muted-foreground">
+          <a href="/terms" onClick={() => setOpen(false)} className="hover:text-foreground">
+            Terms of Service
+          </a>
+          <a href="/privacy" onClick={() => setOpen(false)} className="hover:text-foreground">
+            Privacy Policy
+          </a>
         </div>
       </DrawerPanel>
     </div>

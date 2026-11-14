@@ -1,18 +1,18 @@
 ---
-// Footer — mockup Footer.tsx pattern with ABKHD content (SPEC §5.4).
+// Footer - mockup Footer.tsx pattern with ABKHD content (SPEC §5.4).
 const year = new Date().getFullYear();
 const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '2348085657927';
 ---
 
 <footer class="mx-auto mt-16 max-w-[1240px] px-3 pb-10 sm:px-4">
-  <div class="grid grid-cols-2 gap-8 border-t border-border pt-10 md:grid-cols-[1fr_auto_auto_auto]">
+  <div class="grid grid-cols-2 gap-8 border-t border-border pt-10 md:grid-cols-[1fr_auto_auto_auto_auto]">
     <div>
       <a href="/" class="flex items-center gap-2 font-semibold tracking-tight">
         <span class="grid h-6 w-6 place-items-center rounded-full bg-foreground text-[10px] font-bold text-background">A</span>
         <span>ABKHD</span>
       </a>
       <p class="mt-3 max-w-xs text-sm text-muted-foreground">
-        Premium tech at smarter prices. Every device tested &amp; certified. Jimeta, Yola — Nigeria.
+        Premium tech at smarter prices. Every device tested &amp; certified. Jimeta, Yola, Nigeria.
       </p>
     </div>
 
@@ -32,6 +32,15 @@ const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '2348085657927';
         <li><a href="/about#shipping" class="hover:text-foreground">Shipping</a></li>
         <li><a href="/about#returns" class="hover:text-foreground">Returns</a></li>
         <li><a href="/contact" class="hover:text-foreground">FAQ</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="text-sm font-semibold">Legal</p>
+      <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+        <li><a href="/terms" class="hover:text-foreground">Terms of Service</a></li>
+        <li><a href="/privacy" class="hover:text-foreground">Privacy Policy</a></li>
+        <li><a href="/contact" class="hover:text-foreground">Contact Us</a></li>
       </ul>
     </div>
 
@@ -66,9 +75,6 @@ const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '2348085657927';
 
   <div class="mt-8 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
     <p>&copy; {year} ABKHD. All rights reserved.</p>
-    <div class="flex gap-4">
-      <a href="#" class="hover:text-foreground">Terms of Service</a>
-      <a href="#" class="hover:text-foreground">Privacy Policy</a>
-    </div>
+    <p class="text-xs text-muted-foreground">Jimeta, Yola, Nigeria</p>
   </div>
 </footer>

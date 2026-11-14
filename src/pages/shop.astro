@@ -35,8 +35,8 @@ const mapped: ShowroomProduct[] = products.map(toShowroomProduct);
 const showroomProducts = qParam ? searchProducts(mapped, qParam) : mapped;
 
 const title = qParam
-  ? 'Search "' + qParam + '" - ABKHD Store'
-  : 'Shop - ABKHD Store';
+  ? 'Search "' + qParam + '" | ABKHD Store'
+  : 'Shop | ABKHD Store';
 const description = qParam
   ? 'Search results for "' + qParam + '" in the ABKHD catalog of premium, tested tech.'
   : 'Browse the full ABKHD catalog of premium, tested tech.';

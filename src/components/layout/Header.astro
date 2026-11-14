@@ -1,5 +1,5 @@
 ---
-// Floating glass pill navbar — mockup Navbar.tsx pattern (SPEC §5.2).
+// Floating glass pill navbar - mockup Navbar.tsx pattern (SPEC §5.2).
 // Scroll behavior: vanilla script swaps glass/h-14/max-w-960 ↔ glass-strong/h-12/max-w-820
 // at window.scrollY > 24 (exact mockup values).
 import Icon from '../showroom/Icon.astro';
@@ -47,7 +47,7 @@ const isActive = (to: string) =>
     </div>
 
     <div class="ml-auto flex items-center gap-1.5">
-      <!-- Search — opens the live SearchOverlay island (SPEC §6.6) -->
+      <!-- Search - opens the live SearchOverlay island (SPEC §6.6) -->
       <button
         id="nav-search-btn"
         class="hidden h-8 w-8 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground sm:grid"
@@ -90,7 +90,7 @@ const isActive = (to: string) =>
 <CartDrawer />
 
 <script is:inline>
-  // Navbar shrink on scroll — exact mockup behavior (threshold 24px)
+  // Navbar shrink on scroll - exact mockup behavior (threshold 24px)
   (function () {
     var nav = document.getElementById('site-nav');
     if (!nav) return;
@@ -144,7 +144,7 @@ const isActive = (to: string) =>
 </script>
 
 <script>
-  // Live cart count badge (nanostores — same wiring as before the redesign)
+  // Live cart count badge (nanostores - same wiring as before the redesign)
   import { $cartItems, getCartCount, openCart } from '../../stores/cart';
   import { createInitializer } from '../../lib/init';
 

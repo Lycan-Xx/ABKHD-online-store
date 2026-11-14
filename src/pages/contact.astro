@@ -1,8 +1,8 @@
 ---
-// Contact — mockup split layout (SPEC §7.7): statement left, card form right
+// Contact - mockup split layout (SPEC §7.7): statement left, card form right
 // with `field-input` underline fields. The form submission handler below is
 // preserved verbatim from the previous page (same ids, same simulated
-// transport), only its success state now renders the mockup "Sent — Thank
+// transport), only its success state now renders the mockup "Sent - Thank
 // you." panel instead of an alert().
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
@@ -12,20 +12,20 @@ const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '2348085657927';
 ---
 
 <Layout
-  title="Contact Us - ABKHD Store"
-  description="Get in touch with the ABKHD team — questions about a product, an order, or anything else."
+  title="Contact Us | ABKHD Store"
+  description="Get in touch with the ABKHD team. Questions about a product, an order, or anything else."
 >
   <Header slot="header" />
 
   <main class="mx-auto grid max-w-[1100px] gap-16 px-6 pt-40 pb-24 md:grid-cols-2">
     <!-- Left: statement + contact rows -->
     <div>
-      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— Contact</p>
+      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">- Contact</p>
       <h1 class="mt-4 text-balance text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
         Say hello.
       </h1>
       <p class="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
-        Questions about a product, an order, or the brand? Drop a line — we read every message.
+        Questions about a product, an order, or the brand? Drop a line, we read every message.
       </p>
 
       <div class="mt-10 space-y-4 text-sm text-muted-foreground">
@@ -118,9 +118,9 @@ const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '2348085657927';
 </Layout>
 
 <script>
-  // Contact form — submission handler preserved verbatim from the previous
+  // Contact form - submission handler preserved verbatim from the previous
   // page (same ids, same simulated transport). Only the presentation of the
-  // success state changed (mockup "Sent — Thank you." panel).
+  // success state changed (mockup "Sent - Thank you." panel).
   const formElement = document.getElementById('contact-form-element');
 
   if (formElement) {

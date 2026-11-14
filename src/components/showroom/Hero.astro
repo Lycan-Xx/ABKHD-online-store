@@ -1,11 +1,20 @@
 ---
 /**
- * Showroom Hero (SPEC §6.1) — static port of the mockup `Hero.tsx`.
+ * Showroom Hero (SPEC §6.1) - static port of the mockup `Hero.tsx`.
  * Entrances are pure CSS (`hero-zoom` / fade-up utilities) so no island
  * is hydrated for the hero. The search form is a real GET form that
  * lands on `/shop?q=…` (Phase 3 wires the query into the shop page).
+ *
+ * The backdrop is a 4-slide crossfade of landscape device photography.
+ * The rotation is pure CSS (`hero-fade` / `hero-dot` in global.css), so it
+ * costs no JavaScript and honours `prefers-reduced-motion`.
+ *
+ * Photo credits (Pexels License, free for commercial use):
+ *   hero-01.jpg  Laptop, Smartphone and Smartwatch by Phuc Pham
+ *   hero-02.jpg  Modern digital gadgets for travelling and shooting by Pok Rie
+ *   hero-03.jpg  Smartphone, Camera and Sensors by Jakub Zerdzicki
+ *   hero-04.jpg  Set of modern equipment for smartphone and camera by Chelsey Horne
  */
-import heroBg from '../../assets/hero-bg.jpg';
 import Icon from './Icon.astro';
 
 interface Props {
@@ -19,19 +28,71 @@ const {
   eyebrow = 'Premium Tech. Smarter Prices.',
   subtitle = 'A curated showroom of devices designed for calm, modern living.',
 } = Astro.props;
+
+const SLIDE_CLASS = 'hero-slide absolute inset-0 h-full w-full object-cover';
 ---
 
-<section class="relative mx-auto mt-20 max-w-[1240px] overflow-hidden rounded-[28px] px-3 sm:mt-24 sm:px-4">
+<section class="relative mx-auto mt-28 max-w-[1240px] overflow-hidden rounded-[28px] px-3 sm:mt-32 sm:px-4">
   <div class="relative h-[52vh] min-h-[420px] overflow-hidden rounded-[24px] sm:rounded-[28px] md:h-[58vh] md:min-h-[460px]">
-    <img
-      src={heroBg}
-      alt=""
-      width={1920}
-      height={1024}
-      class="animate-hero-zoom absolute inset-0 h-full w-full object-cover"
-      loading="eager"
-    />
+    <div class="absolute inset-0">
+      <img
+        src="/assets/hero-01.jpg"
+        alt="Smartwatch and smartphone beside a laptop on a desk"
+        width={1920}
+        height={1024}
+        class={`${SLIDE_CLASS} animate-hero-zoom`}
+        loading="eager"
+        decoding="async"
+      />
+      <img
+        src="/assets/hero-02.jpg"
+        alt="Smartphone with a camera gimbal and accessories laid out on a desk"
+        width={1920}
+        height={1024}
+        class={SLIDE_CLASS}
+        style="animation-delay: 6s"
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        src="/assets/hero-03.jpg"
+        alt="Smartphone beside smart home devices on a studio backdrop"
+        width={1920}
+        height={1024}
+        class={SLIDE_CLASS}
+        style="animation-delay: 12s"
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        src="/assets/hero-04.jpg"
+        alt="Phone, earbuds, charger and cables arranged on a dark desk"
+        width={1920}
+        height={1024}
+        class={SLIDE_CLASS}
+        style="animation-delay: 18s"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
     <div class="absolute inset-0 bg-gradient-to-b from-background/40 via-background/10 to-background/80"></div>
+
+    <!-- Slide position indicator -->
+    <div class="absolute top-4 right-4 z-10 flex items-center gap-1.5" aria-hidden="true">
+      <span class="hero-dot block h-1.5 w-1.5 origin-left rounded-full bg-background/70"></span>
+      <span
+        class="hero-dot block h-1.5 w-1.5 origin-left rounded-full bg-background/70"
+        style="animation-delay: 6s"
+      ></span>
+      <span
+        class="hero-dot block h-1.5 w-1.5 origin-left rounded-full bg-background/70"
+        style="animation-delay: 12s"
+      ></span>
+      <span
+        class="hero-dot block h-1.5 w-1.5 origin-left rounded-full bg-background/70"
+        style="animation-delay: 18s"
+      ></span>
+    </div>
 
     <!-- Giant editorial word -->
     <h1
@@ -46,7 +107,7 @@ const {
       class="animate-hero-panel absolute inset-x-3 bottom-3 flex flex-col gap-4 rounded-2xl bg-background/85 p-4 backdrop-blur sm:inset-x-6 sm:bottom-6 sm:p-5 md:inset-x-8 md:bottom-8 md:flex-row md:items-center md:justify-between md:p-6"
     >
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— ABKHD 2026</p>
+        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">ABKHD 2026</p>
         <h2 class="mt-1 text-xl font-semibold tracking-tight sm:text-2xl md:text-[28px]">
           {eyebrow}
         </h2>

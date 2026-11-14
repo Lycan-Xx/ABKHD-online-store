@@ -11,7 +11,7 @@ type Props = {
   onFlag: (f: FlagKey | null) => void;
 };
 
-/** Category + flag sidebar — exact mockup styling, ABKHD categories (SPEC §6.2). */
+/** Category + flag sidebar - exact mockup styling, ABKHD categories (SPEC §6.2). */
 export function CategorySidebar({ active, onChange, flag, onFlag }: Props) {
   const entries: { key: CategoryKey; label: string }[] = [
     { key: 'All', label: 'All Products' },

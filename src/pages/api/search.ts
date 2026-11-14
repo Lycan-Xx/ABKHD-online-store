@@ -15,7 +15,7 @@ import { toShowroomProduct, type ShowroomProduct } from '../../lib/showroom';
  * like /shop does (no schema/index changes), then scores + ranks in
  * memory with the shared matcher (§9.3).
  *
- * Documented ceiling: matches within the newest 200 active products —
+ * Documented ceiling: matches within the newest 200 active products -
  * identical to the /shop page fetch, so search never returns less than
  * the shop already shows.
  */
@@ -46,7 +46,7 @@ export const GET: APIRoute = async ({ url }) => {
     );
 
     const hits = searchProducts(response.documents.map(toShowroomProduct), q, limit).map(
-      // Card fields only — keep the payload lean for the overlay rows.
+      // Card fields only - keep the payload lean for the overlay rows.
       (p: ShowroomProduct) => ({
         id: p.id,
         name: p.name,

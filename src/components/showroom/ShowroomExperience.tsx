@@ -16,7 +16,7 @@ type Props = {
   initialQuery?: string | null;
 };
 
-/** Per-category ambient tint — same room, different lighting (SPEC §6.2). */
+/** Per-category ambient tint - same room, different lighting (SPEC §6.2). */
 const TINTS: Record<string, string> = {
   All: 'oklch(0.97 0.008 80)',
   Computers: 'oklch(0.965 0.01 240)',
@@ -83,7 +83,7 @@ export function ShowroomExperience({
 
   const filtered = useMemo(() => {
     // The SSR layer may already have pre-filtered `products` (e.g. `?q=`
-    // search on /shop) — the sidebar keeps working on top of that list.
+    // search on /shop) - the sidebar keeps working on top of that list.
     let list = products.filter((p) => active === 'All' || p.category === active);
     if (flag) list = list.filter((p) => matchesFlag(p, flag));
     return list;
@@ -108,7 +108,7 @@ export function ShowroomExperience({
       <div className="mx-auto max-w-[1240px] px-3 sm:px-4">
         <div className="mb-8 flex items-end justify-between gap-6 md:mb-10">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">— Collection</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Collection</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
               The Showroom
             </h2>
@@ -156,7 +156,7 @@ export function ShowroomExperience({
                 <p className="text-sm font-semibold">Nothing here yet</p>
                 <p className="mt-1 max-w-xs text-xs text-muted-foreground">
                   {query
-                    ? 'No products matched your search — try another term or clear the query.'
+                    ? 'No products matched your search. Try another term or clear the query.'
                     : 'This corner of the showroom is being restocked. Check back soon.'}
                 </p>
                 {query && (
@@ -222,7 +222,7 @@ export function ShowroomExperience({
         </div>
       </div>
 
-      {/* Mobile filter drawer — same slide-down pattern as nav */}
+      {/* Mobile filter drawer - same slide-down pattern as nav */}
       <div className="md:hidden">
         <DrawerPanel open={drawer} onClose={() => setDrawer(false)} title="Filter">
           <CategorySidebar

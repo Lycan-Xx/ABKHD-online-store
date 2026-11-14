@@ -4,7 +4,7 @@ import { Play } from 'lucide-react';
 import type { ShowroomProduct } from '../../lib/showroom';
 
 /**
- * PDP image stage (SPEC §6.5) — left column. Mockup stage verbatim:
+ * PDP image stage (SPEC §6.5) - left column. Mockup stage verbatim:
  * `rounded-3xl bg-secondary/50` + radial spotlight, floating image
  * (y:[0,-8,0], 6s loop, disabled under reduced motion), thumbnail rail
  * from real product images. ABKHD extension: a `play` chip toggles the
@@ -59,7 +59,7 @@ export function ProductStage({ product }: { product: ShowroomProduct }) {
           />
         )}
 
-        {/* Video toggle chip — ABKHD-only extension, mockup chip treatment */}
+        {/* Video toggle chip - ABKHD-only extension, mockup chip treatment */}
         {product.video && (
           <button
             onClick={() => setShowVideo((v) => !v)}
@@ -74,7 +74,7 @@ export function ProductStage({ product }: { product: ShowroomProduct }) {
         )}
       </div>
 
-      {/* Thumbnail rail — real images, hidden when there's less than 2 */}
+      {/* Thumbnail rail - real images, hidden when there's less than 2 */}
       {images.length > 1 && (
         <div className="no-scrollbar mt-4 flex gap-3 overflow-x-auto">
           {images.map((src, i) => (

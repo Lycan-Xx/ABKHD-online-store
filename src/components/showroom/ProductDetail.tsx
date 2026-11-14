@@ -5,18 +5,18 @@ import { formatPrice, calculateDiscount, parseDescription } from '../../lib/util
 import type { ShowroomProduct } from '../../lib/showroom';
 import { addToCart, openCart } from '../../stores/cart';
 
-/** Store policy defaults (SPEC §6.5) — owner to confirm final wording. */
+/** Store policy defaults (SPEC §6.5) - owner to confirm final wording. */
 const SHIPPING_TEXT =
-  'We deliver within Adamawa: ₦1,000 to Yola and ₦2,000 to Jimeta. Orders are confirmed and dispatched after payment verification — we will reach out on WhatsApp to arrange a delivery slot that suits you.';
+  'We deliver within Adamawa: ₦1,000 to Yola and ₦2,000 to Jimeta. Orders are confirmed and dispatched after payment verification, then we reach out on WhatsApp to arrange a delivery slot that suits you.';
 const RETURNS_TEXT =
-  'Every device is multi-point tested and its condition is disclosed upfront. If a device does not match what was described, contact us within 7 days of delivery and we will make it right — that is the whole policy.';
+  'Every device is multi-point tested and its condition is disclosed upfront. If a device does not match what was described, contact us within 7 days of delivery and we will make it right. That is the whole policy.';
 
 type Props = {
   product: ShowroomProduct;
 };
 
 /**
- * PDP info column + mobile action bar (SPEC §6.5) — exact mockup layout
+ * PDP info column + mobile action bar (SPEC §6.5) - exact mockup layout
  * with the ratings row replaced by a stock line (D3), real variants
  * (Finish = colors, Size = sizes), and CTAs wired to the existing cart
  * store including the selected variant (key: id-size-color).
@@ -37,7 +37,7 @@ export function ProductDetail({ product }: Props) {
       : 'In stock';
 
   const maxQty = product.stock > 0 ? product.stock : 1;
-  // Functional update — safe against stale closures on rapid clicks.
+  // Functional update - safe against stale closures on rapid clicks.
   const stepQty = (fn: (q: number) => number) =>
     setQty((q) => Math.max(1, Math.min(maxQty, fn(q))));
 
@@ -137,7 +137,7 @@ export function ProductDetail({ product }: Props) {
             : 'A tested, honestly disclosed device from the ABKHD showroom.'}
         </p>
 
-        {/* Variants — Finish (colors) */}
+        {/* Variants - Finish (colors) */}
         {product.colors && product.colors.length > 0 && (
           <div className="mt-8">
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -161,7 +161,7 @@ export function ProductDetail({ product }: Props) {
           </div>
         )}
 
-        {/* Variants — Size */}
+        {/* Variants - Size */}
         {product.sizes && product.sizes.length > 0 && (
           <div className="mt-6">
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -209,7 +209,7 @@ export function ProductDetail({ product }: Props) {
         </div>
         {outOfStock && (
           <p className="mt-3 hidden text-xs text-muted-foreground md:block">
-            This item is currently out of stock — check back soon.
+            This item is currently out of stock. Check back soon.
           </p>
         )}
 
@@ -244,7 +244,7 @@ export function ProductDetail({ product }: Props) {
         </div>
       </motion.div>
 
-      {/* Sticky mobile action bar — exact mockup */}
+      {/* Sticky mobile action bar - exact mockup */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 p-3 backdrop-blur-xl md:hidden">
         <div className="mx-auto flex max-w-[1240px] items-center gap-2">
           <QtyStepper qty={qty} onDecrement={() => stepQty((q) => q - 1)} onIncrement={() => stepQty((q) => q + 1)} compact disabled={outOfStock} />
@@ -272,7 +272,7 @@ export function ProductDetail({ product }: Props) {
   );
 }
 
-/** Exact mockup QtyStepper — pill border, round h-9 buttons, min 1, max = stock. */
+/** Exact mockup QtyStepper - pill border, round h-9 buttons, min 1, max = stock. */
 function QtyStepper({
   qty,
   onIncrement,

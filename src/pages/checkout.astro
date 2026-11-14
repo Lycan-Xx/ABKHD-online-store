@@ -5,7 +5,7 @@ import Footer from '../components/layout/Footer.astro';
 import Icon from '../components/showroom/Icon.astro';
 ---
 
-<Layout title="Checkout — ABKHD Store">
+<Layout title="Checkout | ABKHD Store">
   <Header slot="header" />
 
   <div class="co-root">
@@ -95,7 +95,7 @@ import Icon from '../components/showroom/Icon.astro';
         <!-- ── TAB 1: Details ── -->
         <div class="co-panel co-panel--active" id="co-tab-details">
           <div class="co-panel-hdr">
-            <p class="co-panel-eyebrow">&mdash; Shipping</p>
+            <p class="co-panel-eyebrow">Shipping</p>
             <h2 class="co-panel-title">Shipping Details</h2>
             <p class="co-panel-sub">Where should we deliver your order?</p>
           </div>
@@ -169,7 +169,7 @@ import Icon from '../components/showroom/Icon.astro';
         <!-- ── TAB 2: Payment ── -->
         <div class="co-panel co-hidden" id="co-tab-payment">
           <div class="co-panel-hdr">
-            <p class="co-panel-eyebrow">&mdash; Payment</p>
+            <p class="co-panel-eyebrow">Payment</p>
             <h2 class="co-panel-title">Choose Payment</h2>
             <p class="co-panel-sub">Select how you'd like to complete your purchase.</p>
           </div>
@@ -180,7 +180,7 @@ import Icon from '../components/showroom/Icon.astro';
               <span>Subtotal</span><span id="co-pss-sub">₦0</span>
             </div>
             <div class="co-mini-row">
-              <span>Delivery</span><span id="co-pss-ship">—</span>
+              <span>Delivery</span><span id="co-pss-ship">-</span>
             </div>
             <div class="co-mini-row co-mini-row--total">
               <span>Total due</span><span id="co-pss-total">₦0</span>
@@ -248,7 +248,7 @@ import Icon from '../components/showroom/Icon.astro';
         <!-- ── TAB 3: Confirmed ── -->
         <div class="co-panel co-hidden" id="co-tab-confirmed">
           <div class="co-success">
-            <p class="co-panel-eyebrow">&mdash; Confirmed</p>
+            <p class="co-panel-eyebrow">Confirmed</p>
             <div class="co-success-ring">
               <div class="co-success-ring-bg"></div>
               <svg class="co-success-ico" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -260,13 +260,13 @@ import Icon from '../components/showroom/Icon.astro';
 
             <div class="co-ref-card">
               <span class="co-ref-label">Order Reference</span>
-              <span class="co-ref-val" id="co-order-ref">—</span>
+              <span class="co-ref-val" id="co-order-ref">-</span>
             </div>
 
             <div class="co-next-steps">
               <div class="co-next-step">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                <span>Confirmation sent to <strong id="co-confirm-email">—</strong></span>
+                <span>Confirmation sent to <strong id="co-confirm-email">-</strong></span>
               </div>
               <div class="co-next-step">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
@@ -278,7 +278,7 @@ import Icon from '../components/showroom/Icon.astro';
               </div>
             </div>
 
-            <!-- Receipt slot — drop a <button> or <a> here when ready -->
+            <!-- Receipt slot - drop a <button> or <a> here when ready -->
             <div id="co-receipt-slot"></div>
 
             <div class="co-success-actions">
@@ -342,7 +342,7 @@ import Icon from '../components/showroom/Icon.astro';
 </Layout>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     STYLES — all selectors prefixed co- to avoid any global clash
+     STYLES - all selectors prefixed co- to avoid any global clash
      Bootstrap Icons, Tailwind, and global.css cannot override these
 ═══════════════════════════════════════════════════════════════ -->
 <style is:global>
@@ -565,7 +565,7 @@ import Icon from '../components/showroom/Icon.astro';
   .co-req { color: var(--cop); }
   .co-optional { font-weight: 400; text-transform: none; letter-spacing: 0; opacity: 0.65; }
 
-  /* Override EVERYTHING — these inputs must look the same regardless of global CSS */
+  /* Override EVERYTHING - these inputs must look the same regardless of global CSS */
   .co-input,
   .co-select {
     -webkit-appearance: none;
@@ -615,7 +615,7 @@ import Icon from '../components/showroom/Icon.astro';
     color: var(--cof);
   }
 
-  /* ═══ BUTTONS — unique names, !important on critical props ═══ */
+  /* ═══ BUTTONS - unique names, !important on critical props ═══ */
   .co-cta {
     display: inline-flex !important;
     align-items: center !important;
@@ -796,7 +796,7 @@ import Icon from '../components/showroom/Icon.astro';
   .co-cart-title { font-size: 15px; font-weight: 700; color: var(--cof); margin: 0; }
   .co-cart-count { font-size: 11px; color: var(--comf); }
 
-  /* ═══ CART ITEMS — the problem area, locked down hard ═══ */
+  /* ═══ CART ITEMS - the problem area, locked down hard ═══ */
   .co-items {
     display: flex !important;
     flex-direction: column !important;
@@ -804,7 +804,7 @@ import Icon from '../components/showroom/Icon.astro';
     margin-bottom: 18px !important;
   }
 
-  /* Injected via innerHTML — use data attribute targeting too */
+  /* Injected via innerHTML - use data attribute targeting too */
   .co-item {
     display: flex !important;
     flex-direction: row !important;
@@ -823,7 +823,7 @@ import Icon from '../components/showroom/Icon.astro';
     background: var(--com) !important;
   }
 
-  /* Thumbnail — maximum specificity, immovable */
+  /* Thumbnail - maximum specificity, immovable */
   .co-item > .co-thumb {
     display: block !important;
     width: 62px !important;
@@ -1140,7 +1140,7 @@ import Icon from '../components/showroom/Icon.astro';
     const te = $('co-sum-total'); if (te) te.textContent = city ? fmt(total) : fmt(s);
 
     const ps = $('co-pss-sub');   if (ps) ps.textContent = fmt(s);
-    const ph = $('co-pss-ship');  if (ph) ph.textContent = city ? fmt(ship) : '—';
+    const ph = $('co-pss-ship');  if (ph) ph.textContent = city ? fmt(ship) : '-';
     const pt = $('co-pss-total'); if (pt) pt.textContent = city ? fmt(total) : fmt(s);
   }
 
@@ -1320,7 +1320,7 @@ import Icon from '../components/showroom/Icon.astro';
     const emailEl = $('co-confirm-email');
     const titleEl = $('co-cart-title');
     if (refEl)   refEl.textContent   = paymentRef;
-    if (emailEl) emailEl.textContent = emailFromUrl || pending?.email || '—';
+    if (emailEl) emailEl.textContent = emailFromUrl || pending?.email || '-';
     if (titleEl) titleEl.textContent = 'Your Order';
 
     window.history.replaceState({}, '', window.location.pathname);
