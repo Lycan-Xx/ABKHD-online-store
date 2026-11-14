@@ -31,6 +31,7 @@ export interface ShowroomProduct {
   verified: boolean; // verified
   featured: boolean; // featured → "Best Seller" flag
   isNew: boolean; // $createdAt within NEW_WINDOW_DAYS → "New Arrival" flag
+  createdAt?: string; // $createdAt (ISO) — raw value for "Newest" sorting
   hasVariants: boolean; // !!(sizes?.length || colors?.length)
   sizes?: string[]; // sizes
   colors?: string[]; // colors
@@ -68,6 +69,7 @@ export function toShowroomProduct(doc: ProductDoc): ShowroomProduct {
     verified: doc.verified === true,
     featured: doc.featured === true,
     isNew,
+    createdAt: doc.$createdAt ?? undefined,
     hasVariants: sizes.length > 0 || colors.length > 0,
     sizes: sizes.length ? sizes : undefined,
     colors: colors.length ? colors : undefined,

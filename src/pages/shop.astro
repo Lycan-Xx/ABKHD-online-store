@@ -3,22 +3,17 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
-import Hero from '../components/showroom/Hero.astro';
-import CtaBanner from '../components/showroom/CtaBanner.astro';
-import { ShowroomExperience } from '../components/showroom/ShowroomExperience';
-import { RecommendationsRail } from '../components/showroom/RecommendationsRail';
+import { ShopExperience } from '../components/showroom/ShopExperience';
 import { toShowroomProduct, type ShowroomProduct } from '../lib/showroom';
 import { searchProducts } from '../lib/search-match';
 import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../lib/appwrite';
 import { Query } from 'appwrite';
 
 const url = Astro.url;
-// `?category=` URL contract preserved (SPEC §7.2); `?q=` is the new
-// search param, pre-filtered server-side with the shared matcher (§9.3).
 const categoryParam = url.searchParams.get('category');
 const qParam = url.searchParams.get('q')?.trim() || null;
+const sortParam = url.searchParams.get('sort');
 
-// SSR fetch — existing query, verbatim.
 let products = [];
 try {
   const response = await databases.listDocuments(
@@ -37,42 +32,26 @@ try {
 }
 
 const mapped: ShowroomProduct[] = products.map(toShowroomProduct);
-
-// `?q=` — same matcher + ranking as /api/search, so the shop grid and
-// the navbar overlay always agree (SPEC §9.3).
 const showroomProducts = qParam ? searchProducts(mapped, qParam) : mapped;
 
-// Newest 8 feed the recommendations rail (fetch is already newest-first).
-const railProducts = mapped.slice(0, 8);
-
 const title = qParam
-  ? `Search “${qParam}” – ABKHD Store`
-  : 'Shop – ABKHD Store';
+  ? 'Search "' + qParam + '" - ABKHD Store'
+  : 'Shop - ABKHD Store';
 const description = qParam
-  ? `Search results for “${qParam}” in the ABKHD catalog of premium, tested tech.`
+  ? 'Search results for "' + qParam + '" in the ABKHD catalog of premium, tested tech.'
   : 'Browse the full ABKHD catalog of premium, tested tech.';
 ---
 
 <Layout title={title} description={description}>
   <Header slot="header" />
 
-  <Hero
-    word="Shop"
-    eyebrow="The Full Showroom"
-    subtitle="Every device, curated. Filter by space and discover your next essential."
-  />
-
-  <ShowroomExperience
+  <ShopExperience
     client:visible
-    deep
     products={showroomProducts}
     initialCategory={categoryParam}
     initialQuery={qParam}
+    initialSort={sortParam}
   />
-
-  <RecommendationsRail client:visible products={railProducts} />
-
-  <CtaBanner />
 
   <Footer slot="footer" />
 </Layout>
