@@ -316,6 +316,14 @@
     border-color: rgb(var(--foreground));
   }
 
+  /* The global :focus-visible rule draws a rectangular ring around the focused
+     element. On underline inputs that ring reads as a stray box around the
+     field, so it is suppressed here. The bottom border darkening above is the
+     focus affordance for this pattern. */
+  .field-input:focus-visible {
+    box-shadow: none;
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
