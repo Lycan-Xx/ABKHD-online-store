@@ -4,8 +4,8 @@
 // at window.scrollY > 24 (exact mockup values).
 import Icon from '../showroom/Icon.astro';
 import CartDrawer from '../cart/CartDrawer.astro';
-import MobileNav from '../showroom/MobileNav';
-import SearchOverlay from '../showroom/SearchOverlay';
+import MobileNav from './MobileNav.astro';
+import SearchOverlay from './SearchOverlay.astro';
 
 const currentPath = Astro.url.pathname;
 
@@ -80,11 +80,11 @@ const isActive = (to: string) =>
   </nav>
 </div>
 
-<!-- Mobile navigation island (framer-motion drawer) -->
-<MobileNav client:load />
+<!-- Mobile navigation drawer (vanilla JS, no React) -->
+<MobileNav />
 
-<!-- Live search overlay island (SPEC §6.6) -->
-<SearchOverlay client:idle />
+<!-- Live search overlay (vanilla JS, no React) -->
+<SearchOverlay />
 
 <!-- Cart drawer (restyle-only, logic frozen) -->
 <CartDrawer />

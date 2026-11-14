@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
 import type { ShowroomProduct } from '../../lib/showroom';
 import { ProductCard } from './ProductCard';
@@ -171,11 +170,9 @@ export function ShowroomExperience({
             ) : (
               <>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-                  <AnimatePresence mode="popLayout">
-                    {current.map((p) => (
+                                      {current.map((p) => (
                       <ProductCard key={p.id} product={p} />
                     ))}
-                  </AnimatePresence>
                 </div>
 
                 {/* Pagination */}

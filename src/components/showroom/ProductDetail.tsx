@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { BadgeCheck, ChevronDown, Minus, Plus } from 'lucide-react';
 import { formatPrice, calculateDiscount, parseDescription } from '../../lib/utils';
 import type { ShowroomProduct } from '../../lib/showroom';
@@ -85,12 +84,7 @@ export function ProductDetail({ product }: Props) {
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col"
-      >
+      <div className="animate-rise-delayed flex flex-col">
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
           {product.category}
           {product.brand ? ` · ${product.brand}` : ''}
@@ -242,7 +236,7 @@ export function ProductDetail({ product }: Props) {
             );
           })}
         </div>
-      </motion.div>
+      </div>
 
       {/* Sticky mobile action bar - exact mockup */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 p-3 backdrop-blur-xl md:hidden">

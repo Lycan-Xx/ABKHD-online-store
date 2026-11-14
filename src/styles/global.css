@@ -195,6 +195,126 @@
   }
 
   /* ============================================================
+     Motion utilities.
+     These replace framer-motion across the showroom islands: CSS
+     keyframes and transitions cost nothing to download and keep the
+     120 kB motion runtime out of the island chunks entirely.
+     Fill mode is `backwards` so an enter animation hands the
+     transform back to the element (hover transforms keep working).
+     ============================================================ */
+  .animate-rise {
+    animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-rise-delayed {
+    animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+  }
+
+  .animate-card-rise {
+    animation: cardRise 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  @keyframes cardRise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .card-lift {
+    transition:
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.5s ease;
+  }
+
+  .card-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  .animate-float {
+    animation: floatY 6s ease-in-out infinite;
+  }
+
+  @keyframes floatY {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  /* Drawer panel (mobile nav, search, filters) */
+  .panel-surface {
+    transition:
+      opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.45s;
+  }
+
+  .panel-surface[data-open='false'] {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.98);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .panel-overlay {
+    transition: opacity 0.3s ease;
+  }
+
+  .panel-overlay[data-open='false'] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Popover menu (sort) */
+  .menu-surface {
+    transition:
+      opacity 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.18s;
+  }
+
+  .menu-surface[data-open='false'] {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-rise,
+    .animate-rise-delayed,
+    .animate-card-rise,
+    .animate-float {
+      animation: none;
+    }
+
+    .panel-surface,
+    .panel-overlay,
+    .menu-surface {
+      transition: none;
+    }
+  }
+
+  /* ============================================================
      Hero backdrop rotation (4 landscape device shots).
      A fade transition rather than a keyframe cycle, so the JS
      rotation can swap slides one at a time and only the visible

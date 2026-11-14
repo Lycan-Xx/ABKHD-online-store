@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { BadgeCheck } from 'lucide-react';
 import { formatPrice, calculateDiscount } from '../../lib/utils';
 import type { ShowroomProduct } from '../../lib/showroom';
@@ -21,14 +20,8 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
     : 'flex-1 rounded-full bg-foreground px-3 py-2 text-xs font-medium text-background transition hover:opacity-90';
 
   return (
-    <motion.article
-      layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -4 }}
-      className="group flex flex-col rounded-2xl border border-border/70 bg-card p-3 shadow-[0_1px_0_rgb(0_0_0/0.02)] transition-shadow hover:shadow-[0_18px_40px_-20px_rgb(0_0_0/0.18)]"
+    <article
+      className="card-lift animate-card-rise group flex flex-col rounded-2xl border border-border/70 bg-card p-3 shadow-[0_1px_0_rgb(0_0_0/0.02)] hover:shadow-[0_18px_40px_-20px_rgb(0_0_0/0.18)]"
     >
       <a
         href={`/products/${product.id}`}
@@ -60,7 +53,7 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
           </span>
         )}
 
-        <motion.img
+        <img
           src={product.image}
           alt={product.name}
           loading="lazy"
@@ -110,6 +103,6 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
           Buy Now
         </button>
       </div>
-    </motion.article>
+    </article>
   );
 }

@@ -1,0 +1,268 @@
+---
+// Search overlay - vanilla JS (no React).
+//
+// This used to be a React island, which pulled react-dom and framer-motion
+// onto every page. The overlay is a top sheet with a debounced query against
+// `/api/search`, so it is plain markup plus a small script.
+import Icon from '../showroom/Icon.astro';
+---
+
+<div>
+  <div
+    id="search-overlay-backdrop"
+    data-open="false"
+    aria-hidden="true"
+    class="panel-overlay fixed inset-0 z-40 bg-foreground/20 backdrop-blur-[2px]"
+  ></div>
+
+  <div
+    id="search-overlay-panel"
+    role="dialog"
+    aria-label="Search"
+    data-open="false"
+    inert
+    class="panel-surface fixed inset-x-4 top-20 z-50 origin-top overflow-hidden rounded-3xl border border-border/70 bg-background/95 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.25)] backdrop-blur-xl"
+  >
+    <div class="flex items-center justify-between px-5 pt-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Search</p>
+      <button
+        id="search-overlay-close"
+        type="button"
+        aria-label="Close"
+        class="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+      >
+        <Icon name="x" class="h-4 w-4" />
+      </button>
+    </div>
+
+    <div class="px-5 pb-6 pt-2">
+      <div class="flex items-center gap-3 px-1">
+        <Icon name="search" class="h-4 w-4 shrink-0 text-muted-foreground" />
+        <input
+          id="search-overlay-input"
+          type="search"
+          role="combobox"
+          aria-expanded="false"
+          aria-controls="search-overlay-results"
+          aria-label="Search products"
+          placeholder="Search devices…"
+          class="field-input"
+          autocomplete="off"
+        />
+        <button
+          id="search-overlay-clear"
+          type="button"
+          aria-label="Clear query"
+          class="hidden h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+        >
+          <Icon name="x" class="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      <div id="search-overlay-body" class="mt-4"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { formatPrice } from '../../lib/utils';
+
+  const DEBOUNCE_MS = 250;
+  const MIN_CHARS = 2;
+
+  const panel = document.getElementById('search-overlay-panel') as HTMLElement;
+  const backdrop = document.getElementById('search-overlay-backdrop') as HTMLElement;
+  const input = document.getElementById('search-overlay-input') as HTMLInputElement;
+  const body = document.getElementById('search-overlay-body') as HTMLElement;
+  const clearBtn = document.getElementById('search-overlay-clear');
+  const closeBtn = document.getElementById('search-overlay-close');
+
+  type SearchHit = { id: string; name: string; category: string; price: number; image: string; stock: number };
+
+  let hits: SearchHit[] = [];
+  let activeIndex = -1;
+  let timer = 0;
+  let controller: AbortController | null = null;
+  let scrollLocked = false;
+
+  function setOpen(open: boolean) {
+    panel.dataset.open = open ? 'true' : 'false';
+    backdrop.dataset.open = open ? 'true' : 'false';
+    panel.toggleAttribute('inert', !open);
+
+    if (open) {
+      if (!scrollLocked) {
+        document.body.style.overflow = 'hidden';
+        scrollLocked = true;
+      }
+      requestAnimationFrame(() => input.focus());
+    } else if (scrollLocked) {
+      document.body.style.overflow = '';
+      scrollLocked = false;
+    }
+  }
+
+  function setResults(list: SearchHit[], index: number) {
+    hits = list;
+    activeIndex = index;
+    render();
+  }
+
+  function render() {
+    const term = input.value.trim();
+
+    if (term.length < MIN_CHARS) {
+      body.innerHTML =
+        '<p class="px-2 py-6 text-center text-xs text-muted-foreground">Type at least ' +
+        MIN_CHARS +
+        ' characters</p>';
+      return;
+    }
+
+    if (!hits.length) {
+      body.innerHTML =
+        '<p class="px-2 py-6 text-center text-xs text-muted-foreground">No products found for “' +
+        term.replace(/[<>&]/g, '') +
+        '”</p>';
+      return;
+    }
+
+    const rows = hits
+      .map((hit, i) => {
+        const selected = i === activeIndex;
+        return (
+          '<li role="option" aria-selected="' +
+          selected +
+          '"><a href="/products/' +
+          hit.id +
+          '" class="flex items-center gap-3 rounded-2xl p-2 transition ' +
+          (selected ? 'bg-muted' : 'hover:bg-muted/60') +
+          '">' +
+          '<span class="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-muted/60">' +
+          '<img src="' +
+          String(hit.image).replace(/"/g, '') +
+          '" alt="" loading="lazy" class="h-full w-full object-cover" /></span>' +
+          '<span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold tracking-tight">' +
+          String(hit.name).replace(/[<>&]/g, '') +
+          '</span><span class="mt-0.5 block text-[11px] uppercase tracking-[0.18em] text-muted-foreground">' +
+          String(hit.category).replace(/[<>&]/g, '') +
+          '</span></span>' +
+          '<span class="shrink-0 text-sm font-semibold">' +
+          formatPrice(hit.price) +
+          '</span></a></li>'
+        );
+      })
+      .join('');
+
+    body.innerHTML =
+      '<ul id="search-overlay-results" role="listbox" class="max-h-[50vh] space-y-1 overflow-y-auto">' +
+      rows +
+      '</ul>';
+  }
+
+  function renderLoading() {
+    body.innerHTML =
+      '<ul class="space-y-1.5" aria-hidden="true">' +
+      [0, 1, 2]
+        .map(
+          () =>
+            '<li class="flex animate-pulse items-center gap-3 rounded-2xl p-2">' +
+            '<span class="h-14 w-14 shrink-0 rounded-xl bg-muted"></span>' +
+            '<span class="flex-1 space-y-2"><span class="block h-3.5 w-3/5 rounded-full bg-muted"></span>' +
+            '<span class="block h-3 w-2/5 rounded-full bg-muted/70"></span></span>' +
+            '<span class="h-3.5 w-14 rounded-full bg-muted"></span></li>',
+        )
+        .join('') +
+      '</ul>';
+  }
+
+  function renderError() {
+    body.innerHTML =
+      '<div class="px-2 py-6 text-center"><p class="text-xs text-muted-foreground">Search is unavailable. Try again.</p>' +
+      '<button type="button" id="search-overlay-retry" class="mt-3 rounded-full border border-border bg-background px-4 py-2 text-xs font-medium hover:bg-muted">Retry</button></div>';
+    body.querySelector('#search-overlay-retry')?.addEventListener('click', () => {
+      const term = input.value;
+      input.value = '';
+      input.value = term;
+      input.dispatchEvent(new Event('input'));
+    });
+  }
+
+  async function runSearch(term: string) {
+    controller?.abort();
+    controller = new AbortController();
+    renderLoading();
+
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(term)}`, {
+        signal: controller.signal,
+      });
+      if (!res.ok) throw new Error(`search failed: ${res.status}`);
+      const data = await res.json();
+      const list = data.results ?? [];
+      setResults(list, list.length > 0 ? 0 : -1);
+    } catch (err) {
+      if ((err as Error)?.name === 'AbortError') return;
+      hits = [];
+      activeIndex = -1;
+      renderError();
+    }
+  }
+
+  input.addEventListener('input', () => {
+    clearBtn?.classList.toggle('hidden', !input.value);
+    const term = input.value.trim();
+
+    window.clearTimeout(timer);
+    if (term.length < MIN_CHARS) {
+      controller?.abort();
+      hits = [];
+      activeIndex = -1;
+      render();
+      return;
+    }
+
+    timer = window.setTimeout(() => runSearch(term), DEBOUNCE_MS);
+  });
+
+  clearBtn?.addEventListener('click', () => {
+    input.value = '';
+    clearBtn.classList.add('hidden');
+    hits = [];
+    activeIndex = -1;
+    render();
+    input.focus();
+  });
+
+  // Open triggers: navbar search button + mobile nav (window event).
+  window.addEventListener('abkhd:search', () => setOpen(true));
+
+  backdrop.addEventListener('click', () => setOpen(false));
+  closeBtn?.addEventListener('click', () => setOpen(false));
+
+  document.addEventListener('keydown', (event) => {
+    if (panel.dataset.open !== 'true') return;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setOpen(false);
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (hits.length) {
+        activeIndex = Math.min(activeIndex + 1, hits.length - 1);
+        render();
+      }
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (hits.length) {
+        activeIndex = Math.max(activeIndex - 1, 0);
+        render();
+      }
+    } else if (event.key === 'Enter') {
+      const hit = hits[activeIndex];
+      if (hit) window.location.href = `/products/${hit.id}`;
+    }
+  });
+
+  document.addEventListener('astro:page-load', () => setOpen(false));
+</script>
