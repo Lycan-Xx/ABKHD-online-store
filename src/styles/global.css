@@ -441,3 +441,22 @@
     }
   }
 }
+
+/* ── Receipt printing: only the cloned receipt reaches the paper ── */
+#abkhd-print-root {
+  display: none;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  html.abkhd-printing body > *:not(#abkhd-print-root) {
+    display: none !important;
+  }
+
+  html.abkhd-printing #abkhd-print-root {
+    display: block !important;
+  }
+}

@@ -115,7 +115,7 @@ import Icon from '../components/showroom/Icon.astro';
             <div class="co-field">
               <label class="co-label" for="co-phone">Phone Number <span class="co-req">*</span></label>
               <input class="co-input" type="tel" id="co-phone" name="phone" placeholder="phone number" required />
-            </div>you
+            </div>
 
             <div class="co-field">
               <label class="co-label" for="co-address">Delivery Address <span class="co-req">*</span></label>
@@ -278,7 +278,7 @@ import Icon from '../components/showroom/Icon.astro';
               </div>
             </div>
 
-            <!-- Receipt slot - drop a <button> or <a> here when ready -->
+            <!-- Receipt Component - Mounts as React Island -->
             <div id="co-receipt-slot"></div>
 
             <div class="co-success-actions">
@@ -777,6 +777,23 @@ import Icon from '../components/showroom/Icon.astro';
   .co-next-step svg { color: var(--cof); flex-shrink: 0; margin-top: 2px; }
   .co-success-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
 
+  /* Receipt pending / unavailable notice */
+  .co-receipt-note {
+    width: 100%;
+    max-width: 794px;
+    margin: 0 auto;
+    padding: 16px 18px;
+    border: 1.5px solid #fcd34d;
+    background: #fffbeb;
+    border-radius: var(--co-r);
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #78350f;
+  }
+  .co-receipt-note-title { font-size: 14px; font-weight: 700; margin: 0 0 4px; }
+  .co-receipt-note-ref { margin: 8px 0 0; font-family: monospace; word-break: break-all; }
+
   /* ═══ CART PANE ═══ */
   .co-cart-pane { position: sticky; top: 88px; }
   @media (max-width: 960px) { .co-cart-pane { position: static; } }
@@ -992,6 +1009,9 @@ import Icon from '../components/showroom/Icon.astro';
   const STEP_LABELS   = ['Shipping Details', 'Choose Payment', 'Order Confirmed'];
   const STEP_PROGRESS = ['8%', '50%', '100%'];
 
+  /* Items snapshot of the just-paid order, for the success screen. */
+  let successSnapshot: any[] | null = null;
+
   /* ── Helpers ── */
   const $  = (id: string) => document.getElementById(id);
   const fmt = (n: number) => '₦' + Number(n).toLocaleString('en-NG');
@@ -1036,7 +1056,7 @@ import Icon from '../components/showroom/Icon.astro';
 
   /* ── Render cart items ── */
   function renderCart(successMode = false) {
-    const items  = getCart();
+    const items  = successMode && successSnapshot ? successSnapshot : getCart();
     const box    = $('co-items')!;
     const empty  = $('co-empty')!;
     const layout = $('co-layout')!;
@@ -1117,7 +1137,7 @@ import Icon from '../components/showroom/Icon.astro';
   }
 
   function updateSummary(successMode = false) {
-    const items = getCart();
+    const items = successMode && successSnapshot ? successSnapshot : getCart();
     const s     = sub(items);
     const ship  = shipFee();
     const city  = getCity();
@@ -1288,32 +1308,20 @@ import Icon from '../components/showroom/Icon.astro';
     let pending: any = null;
     try { pending = JSON.parse(sessionStorage.getItem('pendingOrder') || 'null'); } catch {}
 
-    if (pending) {
-      try {
-        const { databases, APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID } = await import('../lib/appwrite');
-        await databases.createDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID.unique(), {
-          customer:       JSON.stringify({ email: emailFromUrl || pending.email, name: pending.name, phone: pending.phone }),
-          customerEmail:  emailFromUrl || pending.email,
-          customerName:   pending.name,
-          items:          JSON.stringify(pending.items),
-          total:          pending.total,
-          totalAmount:    pending.total,
-          paymentRef,
-          customerPhone:  pending.phone,
-          address:        pending.address,
-          city:           pending.city,
-          state:          pending.state,
-          postalCode:     pending.postalCode || '',
-          status:         'paid',
-          paymentMethod:  'card',
-        });
-        try {
-          const { reduceMultipleProductsStock } = await import('../lib/stock-manager');
-          await reduceMultipleProductsStock(pending.items.map((i: any) => ({ productId: i.id, quantity: i.quantity })));
-        } catch (e) { console.error('Stock reduction (non-critical):', e); }
-        localStorage.removeItem('cart');
-        window.dispatchEvent(new Event('cart-updated'));
-      } catch (e) { console.error('Order save error:', e); }
+    /* Never trust the URL alone: ask the server to confirm with Squad. */
+    let verified = false;
+    let verifyStatus = '';
+    try {
+      const res  = await fetch('/api/squad-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reference: paymentRef }),
+      });
+      const info = await res.json();
+      verified     = info?.verified === true;
+      verifyStatus = info?.status || '';
+    } catch (e) {
+      console.error('Payment verification failed:', e);
     }
 
     const refEl   = $('co-order-ref');
@@ -1323,9 +1331,137 @@ import Icon from '../components/showroom/Icon.astro';
     if (emailEl) emailEl.textContent = emailFromUrl || pending?.email || '-';
     if (titleEl) titleEl.textContent = 'Your Order';
 
+    let receipt: any = null;
+
+    if (pending) {
+      const items: any[] = Array.isArray(pending.items) ? pending.items : [];
+      successSnapshot = items;
+
+      try {
+        const { databases, APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID } = await import('../lib/appwrite');
+        const { deriveReceiptNumber, buildReceiptFromCheckout } = await import('../lib/receiptUtils');
+
+        const subtotal    = items.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
+        const deliveryFee = Math.max(0, Number(pending.total || 0) - subtotal);
+        const receiptId   = deriveReceiptNumber(paymentRef);
+        const recordKey   = `abkhd:order:${paymentRef}`;
+
+        /* Build the receipt before touching the database so a storage error
+           never hides a confirmed payment from the customer. */
+        if (verified) {
+          receipt = buildReceiptFromCheckout(
+            {
+              fullName:   pending.name,
+              email:      emailFromUrl || pending.email,
+              phone:      pending.phone,
+              address:    pending.address,
+              city:       pending.city,
+              state:      pending.state,
+              postalCode: pending.postalCode,
+            },
+            items,
+            paymentRef,
+            { receiptId, deliveryFee, paymentStatus: 'paid' }
+          );
+        }
+
+        if (!localStorage.getItem(recordKey)) {
+          const doc: Record<string, any> = {
+            customer:       JSON.stringify({ email: emailFromUrl || pending.email, name: pending.name, phone: pending.phone }),
+            customerEmail:  emailFromUrl || pending.email,
+            customerName:   pending.name,
+            items:          JSON.stringify(items),
+            total:          pending.total,
+            totalAmount:    pending.total,
+            paymentRef,
+            customerPhone:  pending.phone,
+            address:        pending.address,
+            city:           pending.city,
+            state:          pending.state,
+            postalCode:     pending.postalCode || '',
+            status:         verified ? 'paid' : 'pending',
+            paymentMethod:  'card',
+          };
+
+          if (verified) {
+            doc.receiptId          = receiptId;
+            doc.receiptGeneratedAt = new Date().toISOString();
+          }
+
+          await databases.createDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, ID.unique(), doc);
+          localStorage.setItem(recordKey, verified ? receiptId : 'pending');
+
+          if (verified) {
+            try {
+              const { reduceMultipleProductsStock } = await import('../lib/stock-manager');
+              await reduceMultipleProductsStock(items.map((i: any) => ({ productId: i.id, quantity: i.quantity })));
+            } catch (e) { console.error('Stock reduction (non-critical):', e); }
+          }
+        }
+
+        if (verified) {
+          localStorage.removeItem('cart');
+          window.dispatchEvent(new Event('cart-updated'));
+        }
+      } catch (e) { console.error('Order save error:', e); }
+    }
+
+    /* Mount the React receipt, or explain why there is none yet. */
+    const receiptSlot = $('co-receipt-slot');
+    if (receiptSlot) {
+      if (receipt) {
+        try {
+          const React = await import('react');
+          const { createRoot } = await import('react-dom/client');
+          const { CheckoutReceipt } = await import('../components/receipt/CheckoutReceipt');
+          createRoot(receiptSlot).render(
+            React.createElement(CheckoutReceipt, { data: receipt })
+          );
+        } catch (e) {
+          console.error('Receipt component mount error:', e);
+        }
+      } else {
+        const note = document.createElement('div');
+        note.className = 'co-receipt-note';
+
+        const heading = document.createElement('p');
+        heading.className = 'co-receipt-note-title';
+        heading.textContent = pending ? 'Payment not confirmed yet' : 'Order details unavailable';
+
+        const body = document.createElement('p');
+        if (!pending) {
+          body.textContent = 'This browser no longer holds the order details. Contact us with the reference below and we will send your receipt.';
+        } else if (verified) {
+          body.textContent = 'Your payment is confirmed. The receipt could not be rendered on this device; contact us with the reference below.';
+        } else {
+          body.textContent = `We could not confirm this payment${verifyStatus ? ` (status: ${verifyStatus})` : ''}. If you were debited, contact us with the reference below and we will issue your receipt.`;
+        }
+
+        const refLine = document.createElement('p');
+        refLine.className = 'co-receipt-note-ref';
+        refLine.textContent = 'Reference: ';
+        const strong = document.createElement('strong');
+        strong.textContent = paymentRef;
+        refLine.appendChild(strong);
+
+        note.append(heading, body, refLine);
+        receiptSlot.replaceChildren(note);
+      }
+    }
+
+    if (!verified) {
+      const successTitle = document.querySelector('.co-success-title');
+      const successMsg   = document.querySelector('.co-success-msg');
+      if (successTitle) successTitle.textContent = 'Awaiting Confirmation';
+      if (successMsg)   successMsg.textContent   = 'We are waiting for the payment provider to confirm this transaction.';
+    }
+
     window.history.replaceState({}, '', window.location.pathname);
     sessionStorage.removeItem('pendingOrder');
     goToTab(3);
+
+    const paidBanner = $('co-paid');
+    if (paidBanner) paidBanner.classList.toggle('co-hidden', !verified);
 
   } else {
     renderCart();

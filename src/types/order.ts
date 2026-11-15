@@ -15,4 +15,6 @@ export interface Order {
   status: 'pending' | 'paid' | 'shipped' | 'delivered';
   paymentMethod: 'card' | 'bank' | 'ussd' | 'transfer';
   createdAt: string;
+  receiptId?: string;
+  receiptGeneratedAt?: string;
 }

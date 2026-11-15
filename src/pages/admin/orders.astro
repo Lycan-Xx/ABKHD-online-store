@@ -219,6 +219,14 @@ import { formatPrice } from '../../lib/utils';
             <span class="text-muted-foreground">Transaction Reference</span>
             <span class="font-mono text-sm">${order.paymentRef || order.paymentReference || 'N/A'}</span>
           </div>
+          ${
+            order.receiptId
+              ? `<div class="flex justify-between">
+                   <span class="text-muted-foreground">Receipt No.</span>
+                   <span class="font-mono text-sm">${order.receiptId}</span>
+                 </div>`
+              : ''
+          }
           <div class="flex justify-between">
             <span class="text-muted-foreground">Status</span>
             <span class="px-2 py-1 rounded-full text-xs uppercase font-bold ${
