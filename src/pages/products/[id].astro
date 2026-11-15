@@ -45,13 +45,13 @@ try {
 const showroomProduct = toShowroomProduct(product);
 const related = relatedProducts.map(toShowroomProduct);
 
-// OG meta — preserved (SPEC §7.4)
+// OG meta - preserved (SPEC §7.4)
 const ogImage = product.images?.[0] || product.image;
 const ogDescription = product.description || `Buy ${product.name} for ₦${product.price.toLocaleString()}`;
 ---
 
 <Layout
-  title={`${product.name} - ABKHD Store`}
+  title={`${product.name} | ABKHD Store`}
   description={ogDescription}
   ogImage={ogImage}
   ogType="product"

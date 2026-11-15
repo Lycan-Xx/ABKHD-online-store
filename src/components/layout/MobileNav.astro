@@ -1,0 +1,153 @@
+---
+// Mobile navigation drawer - vanilla JS (no React).
+//
+// This used to be a React island (`client:load`), which forced react-dom and
+// framer-motion onto every page of the store. The drawer is a simple sheet,
+// so it is plain markup plus a small script: open/close, scroll lock and the
+// same window events the rest of the header uses.
+import Icon from '../showroom/Icon.astro';
+
+const currentPath = Astro.url.pathname;
+
+const links = [
+  { to: '/', label: 'Home' },
+  { to: '/shop', label: 'Shop' },
+  { to: '/about', label: 'About' },
+  { to: '/contact', label: 'Contact' },
+];
+
+const isActive = (to: string) =>
+  to === '/' ? currentPath === '/' : currentPath.startsWith(to);
+---
+
+<div class="md:hidden">
+  <div
+    id="mobile-nav-overlay"
+    data-open="false"
+    aria-hidden="true"
+    class="panel-overlay fixed inset-0 z-40 bg-foreground/20 backdrop-blur-[2px]"
+  ></div>
+
+  <div
+    id="mobile-nav-panel"
+    role="dialog"
+    aria-label="Menu"
+    data-open="false"
+    inert
+    class="panel-surface fixed inset-x-4 top-20 z-50 origin-top overflow-hidden rounded-3xl border border-border/70 bg-background/95 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.25)] backdrop-blur-xl"
+  >
+    <div class="flex items-center justify-between px-5 pt-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Menu</p>
+      <button
+        id="mobile-nav-close"
+        type="button"
+        aria-label="Close"
+        class="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+      >
+        <Icon name="x" class="h-4 w-4" />
+      </button>
+    </div>
+
+    <div class="px-5 pb-6 pt-2">
+      <ul class="space-y-2">
+        {
+          links.map((l) => (
+            <li>
+              <a
+                href={l.to}
+                data-mobile-nav-link
+                class={`block rounded-2xl px-4 py-3.5 text-[15px] transition ${
+                  isActive(l.to)
+                    ? 'bg-muted font-semibold text-foreground shadow-[inset_0_0_0_1px_var(--border)]'
+                    : 'text-foreground/80 hover:bg-muted/60'
+                }`}
+              >
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="my-4 h-px bg-border/70" />
+
+      <div class="flex gap-2">
+        <button
+          id="mobile-nav-search"
+          type="button"
+          class="flex flex-1 items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-muted"
+        >
+          <Icon name="search" class="h-4 w-4" /> Search
+        </button>
+        <button
+          id="mobile-nav-cart"
+          type="button"
+          class="flex flex-1 items-center justify-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:opacity-90"
+        >
+          <Icon name="shopping-bag" class="h-4 w-4" /> Cart
+        </button>
+      </div>
+
+      <div class="mt-4 flex gap-4 px-1 text-xs text-muted-foreground">
+        <a href="/terms" data-mobile-nav-link class="hover:text-foreground">Terms of Service</a>
+        <a href="/privacy" data-mobile-nav-link class="hover:text-foreground">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const panel = document.getElementById('mobile-nav-panel') as HTMLElement;
+  const overlay = document.getElementById('mobile-nav-overlay') as HTMLElement;
+  const closeBtn = document.getElementById('mobile-nav-close');
+  const searchBtn = document.getElementById('mobile-nav-search');
+  const cartBtn = document.getElementById('mobile-nav-cart');
+
+  let scrollLocked = false;
+
+  function setOpen(open: boolean) {
+    panel.dataset.open = open ? 'true' : 'false';
+    overlay.dataset.open = open ? 'true' : 'false';
+    panel.toggleAttribute('inert', !open);
+
+    if (open) {
+      if (!scrollLocked) {
+        document.body.style.overflow = 'hidden';
+        scrollLocked = true;
+      }
+    } else if (scrollLocked) {
+      document.body.style.overflow = '';
+      scrollLocked = false;
+    }
+  }
+
+  // The navbar menu button dispatches this event (same contract as before).
+  window.addEventListener('abkhd:mobile-nav', () => {
+    setOpen(panel.dataset.open !== 'true');
+  });
+
+  overlay.addEventListener('click', () => setOpen(false));
+  closeBtn?.addEventListener('click', () => setOpen(false));
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && panel.dataset.open === 'true') {
+      setOpen(false);
+    }
+  });
+
+  // Close on navigation.
+  document.addEventListener('astro:page-load', () => setOpen(false));
+  panel.querySelectorAll('[data-mobile-nav-link]').forEach((link) => {
+    link.addEventListener('click', () => setOpen(false));
+  });
+
+  searchBtn?.addEventListener('click', () => {
+    setOpen(false);
+    window.dispatchEvent(new CustomEvent('abkhd:search'));
+  });
+
+  cartBtn?.addEventListener('click', () => {
+    setOpen(false);
+    window.dispatchEvent(new CustomEvent('open-cart'));
+  });
+</script>

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
 import type { ShowroomProduct } from '../../lib/showroom';
 import { ProductCard } from './ProductCard';
 import { CategorySidebar, type CategoryKey, type FlagKey } from './CategorySidebar';
 import { DrawerPanel } from './DrawerPanel';
+import { SortMenu } from './SortMenu';
 
 export type ShopSortKey = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
@@ -131,13 +131,13 @@ export function ShopExperience({
   return (
     <section
       ref={stageRef}
-      className="ambient-stage relative py-14 md:py-24"
+      className="ambient-stage relative py-20 md:py-28"
       style={{ ['--ambient-tint' as string]: tint }}
     >
       <div className="mx-auto max-w-[1240px] px-3 sm:px-4">
         <div className="mb-8 flex items-end justify-between gap-6 md:mb-10">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">&mdash; Collection</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Collection</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
               The Showroom
             </h2>
@@ -185,22 +185,13 @@ export function ShopExperience({
                 {filtered.length} {filtered.length === 1 ? 'product' : 'products'}
               </p>
               <div className="relative">
-                <label htmlFor="shop-sort" className="sr-only">
-                  Sort products
-                </label>
-                <select
+                <SortMenu
                   id="shop-sort"
+                  label="Sort products"
                   value={sort}
-                  onChange={(e) => selectSort(e.target.value as ShopSortKey)}
-                  className="appearance-none rounded-full border border-border bg-background py-2 pr-9 pl-4 text-sm font-medium text-foreground outline-none transition hover:bg-muted focus:ring-2 focus:ring-ring"
-                >
-                  {SORTS.map((s) => (
-                    <option key={s.key} value={s.key}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  options={SORTS}
+                  onChange={selectSort}
+                />
               </div>
             </div>
 
@@ -209,7 +200,7 @@ export function ShopExperience({
                 <p className="text-sm font-semibold">Nothing here yet</p>
                 <p className="mt-1 max-w-xs text-xs text-muted-foreground">
                   {query
-                    ? 'No products matched your search - try another term or clear the query.'
+                    ? 'No products matched your search. Try another term or clear the query.'
                     : 'This corner of the showroom is being restocked. Check back soon.'}
                 </p>
                 {query && (
@@ -224,11 +215,9 @@ export function ShopExperience({
             ) : (
               <>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-                  <AnimatePresence mode="popLayout">
-                    {current.map((p) => (
+                                      {current.map((p) => (
                       <ProductCard key={p.id} product={p} />
                     ))}
-                  </AnimatePresence>
                 </div>
 
                 {pages > 1 && (

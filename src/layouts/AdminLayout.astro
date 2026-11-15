@@ -39,12 +39,17 @@ const isActive = (path: string, exact = false) => {
     <meta name="theme-color" content="#ffffff" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Cloudflare Insights Beacon -->
-    <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon='{"token": "8c78df7c7c0f484497ecbca7046644da1771523124516"}'
-    ></script>
+    <!-- Cloudflare Insights Beacon (production only, so dev never hits the CDN) -->
+    {
+      import.meta.env.PROD && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "8c78df7c7c0f484497ecbca7046644da1771523124516"}'
+        />
+      )
+    }
     
     <title>{title}</title>
     <ViewTransitions />
@@ -55,7 +60,7 @@ const isActive = (path: string, exact = false) => {
         try {
           localStorage.removeItem('darkMode');
           document.documentElement.classList.remove('dark');
-        } catch (e) { /* storage unavailable — ignore */ }
+        } catch (e) { /* storage unavailable - ignore */ }
       })();
     </script>
   </head>

@@ -1,11 +1,10 @@
-import { motion } from 'framer-motion';
 import { BadgeCheck } from 'lucide-react';
 import { formatPrice, calculateDiscount } from '../../lib/utils';
 import type { ShowroomProduct } from '../../lib/showroom';
 import { addFromCard, buyNowFromCard } from './cardActions';
 
 /**
- * Showroom product card (SPEC §6.3) — mockup card structure verbatim
+ * Showroom product card (SPEC §6.3) - mockup card structure verbatim
  * (rounded-2xl / border-border/70 / hover lift / image scale 1.04 / dual
  * pill CTAs) minus the ratings row (D3). ABKHD-only enrichment chips
  * (Verified, -N%, stock) reuse the mockup's glass chip treatment.
@@ -21,46 +20,40 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
     : 'flex-1 rounded-full bg-foreground px-3 py-2 text-xs font-medium text-background transition hover:opacity-90';
 
   return (
-    <motion.article
-      layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -4 }}
-      className="group flex flex-col rounded-2xl border border-border/70 bg-card p-3 shadow-[0_1px_0_rgb(0_0_0/0.02)] transition-shadow hover:shadow-[0_18px_40px_-20px_rgb(0_0_0/0.18)]"
+    <article
+      className="card-lift animate-card-rise group flex flex-col rounded-2xl border border-border/70 bg-card p-3 shadow-[0_1px_0_rgb(0_0_0/0.02)] hover:shadow-[0_18px_40px_-20px_rgb(0_0_0/0.18)]"
     >
       <a
         href={`/products/${product.id}`}
         className="relative block aspect-square overflow-hidden rounded-xl bg-muted/60"
       >
-        {/* Category chip — exact mockup position (top-right) */}
+        {/* Category chip - exact mockup position (top-right) */}
         <span className="absolute right-3 top-3 z-10 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
           {product.category}
         </span>
 
-        {/* Verified chip — ABKHD-only, mockup glass treatment (top-left) */}
+        {/* Verified chip - ABKHD-only, mockup glass treatment (top-left) */}
         {product.verified && (
           <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full border border-border/70 bg-background/90 px-2.5 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
             <BadgeCheck className="h-3 w-3" /> Verified
           </span>
         )}
 
-        {/* Discount chip — bottom-left */}
+        {/* Discount chip - bottom-left */}
         {discount !== null && (
           <span className="absolute bottom-3 left-3 z-10 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
             -{discount}%
           </span>
         )}
 
-        {/* Stock chip — bottom-right (replaces "Out of stock" CTA context) */}
+        {/* Stock chip - bottom-right (replaces "Out of stock" CTA context) */}
         {outOfStock && (
           <span className="absolute bottom-3 right-3 z-10 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
             Out of stock
           </span>
         )}
 
-        <motion.img
+        <img
           src={product.image}
           alt={product.name}
           loading="lazy"
@@ -81,7 +74,7 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
             {formatPrice(product.price)}
           </span>
         </div>
-        {/* Ratings row dropped (D3) — mockup line replaced by a subtle
+        {/* Ratings row dropped (D3) - mockup line replaced by a subtle
             variant hint so the layout rhythm is preserved. */}
         <div className="mt-1 text-xs text-muted-foreground">
           {outOfStock
@@ -110,6 +103,6 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
           Buy Now
         </button>
       </div>
-    </motion.article>
+    </article>
   );
 }

@@ -1,11 +1,11 @@
 ---
-// Floating glass pill navbar — mockup Navbar.tsx pattern (SPEC §5.2).
+// Floating glass pill navbar - mockup Navbar.tsx pattern (SPEC §5.2).
 // Scroll behavior: vanilla script swaps glass/h-14/max-w-960 ↔ glass-strong/h-12/max-w-820
 // at window.scrollY > 24 (exact mockup values).
 import Icon from '../showroom/Icon.astro';
 import CartDrawer from '../cart/CartDrawer.astro';
-import MobileNav from '../showroom/MobileNav';
-import SearchOverlay from '../showroom/SearchOverlay';
+import MobileNav from './MobileNav.astro';
+import SearchOverlay from './SearchOverlay.astro';
 
 const currentPath = Astro.url.pathname;
 
@@ -47,7 +47,7 @@ const isActive = (to: string) =>
     </div>
 
     <div class="ml-auto flex items-center gap-1.5">
-      <!-- Search — opens the live SearchOverlay island (SPEC §6.6) -->
+      <!-- Search - opens the live SearchOverlay island (SPEC §6.6) -->
       <button
         id="nav-search-btn"
         class="hidden h-8 w-8 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground sm:grid"
@@ -80,17 +80,17 @@ const isActive = (to: string) =>
   </nav>
 </div>
 
-<!-- Mobile navigation island (framer-motion drawer) -->
-<MobileNav client:load />
+<!-- Mobile navigation drawer (vanilla JS, no React) -->
+<MobileNav />
 
-<!-- Live search overlay island (SPEC §6.6) -->
-<SearchOverlay client:idle />
+<!-- Live search overlay (vanilla JS, no React) -->
+<SearchOverlay />
 
 <!-- Cart drawer (restyle-only, logic frozen) -->
 <CartDrawer />
 
 <script is:inline>
-  // Navbar shrink on scroll — exact mockup behavior (threshold 24px)
+  // Navbar shrink on scroll - exact mockup behavior (threshold 24px)
   (function () {
     var nav = document.getElementById('site-nav');
     if (!nav) return;
@@ -124,12 +124,19 @@ const isActive = (to: string) =>
     });
   })();
 
-  // Search button → SearchOverlay island
+  // Search button → search overlay. On the shop page the overlay opens in
+  // place; anywhere else we go to /shop first (the overlay opens on arrival
+  // via the ?search=1 flag). Navigating from here also means the button still
+  // does something useful if the overlay script has not loaded yet.
   (function () {
     var searchBtn = document.getElementById('nav-search-btn');
     if (!searchBtn) return;
     searchBtn.addEventListener('click', function () {
-      window.dispatchEvent(new CustomEvent('abkhd:search'));
+      if (window.location.pathname === '/shop') {
+        window.dispatchEvent(new CustomEvent('abkhd:search'));
+      } else {
+        window.location.assign('/shop?search=1');
+      }
     });
   })();
 
@@ -144,7 +151,7 @@ const isActive = (to: string) =>
 </script>
 
 <script>
-  // Live cart count badge (nanostores — same wiring as before the redesign)
+  // Live cart count badge (nanostores - same wiring as before the redesign)
   import { $cartItems, getCartCount, openCart } from '../../stores/cart';
   import { createInitializer } from '../../lib/init';
 

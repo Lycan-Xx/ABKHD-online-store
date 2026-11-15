@@ -21,7 +21,7 @@ export interface ShowroomProduct {
   id: string; // product.$id
   name: string; // name
   category: string; // category ('Computers' | 'Mobile Phones' | 'Accessories')
-  price: number; // price — displayed via formatPrice → ₦
+  price: number; // price - displayed via formatPrice → ₦
   originalPrice?: number; // originalPrice (discount chip + "sale" flag)
   image: string; // images[0] || image || videoThumbnail (fallback chain preserved)
   images: string[]; // images (PDP rail)
@@ -31,7 +31,7 @@ export interface ShowroomProduct {
   verified: boolean; // verified
   featured: boolean; // featured → "Best Seller" flag
   isNew: boolean; // $createdAt within NEW_WINDOW_DAYS → "New Arrival" flag
-  createdAt?: string; // $createdAt (ISO) — raw value for "Newest" sorting
+  createdAt?: string; // $createdAt (ISO) - raw value for "Newest" sorting
   hasVariants: boolean; // !!(sizes?.length || colors?.length)
   sizes?: string[]; // sizes
   colors?: string[]; // colors
@@ -39,7 +39,7 @@ export interface ShowroomProduct {
   brand?: string; // brand
 }
 
-/** Raw Appwrite product document (loose-typed — attributes arrive as-is). */
+/** Raw Appwrite product document (loose-typed - attributes arrive as-is). */
 export type ProductDoc = Record<string, any> & { $id: string; $createdAt?: string };
 
 function normalizeList(value: unknown): string[] {

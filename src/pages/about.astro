@@ -1,5 +1,5 @@
 ---
-// About — mockup editorial skeleton with ABKHD's existing story content
+// About - mockup editorial skeleton with ABKHD's existing story content
 // preserved (SPEC §7.8). CertificationFlow content (Source → Test → Disclose
 // → Deliver) migrated here; the component was deleted in this phase.
 import Layout from '../layouts/Layout.astro';
@@ -9,7 +9,7 @@ import Icon from '../components/showroom/Icon.astro';
 
 const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '2348085657927';
 
-// Story beats — "How Distrust Built Trust" (content preserved from the
+// Story beats - "How Distrust Built Trust" (content preserved from the
 // previous About page).
 const storyBeats = [
   {
@@ -26,13 +26,13 @@ const storyBeats = [
   },
 ];
 
-// Three pillars (mockup pattern) — copy lifted from the former
+// Three pillars (mockup pattern) - copy lifted from the former
 // Non-Negotiables section + CertificationFlow.
 const pillars = [
   {
     title: 'Tested',
     lead: 'Every device, inspected.',
-    desc: 'Each device passes a multi-point inspection before it is listed — battery health with diagnostics, screen clarity, processor speed and every port verified.',
+    desc: 'Each device passes a multi-point inspection before it is listed: battery health with diagnostics, screen clarity, processor speed and every port verified.',
   },
   {
     title: 'Disclosed',
@@ -54,7 +54,7 @@ const tested = [
   { icon: 'plug', title: 'Port Function', desc: 'All ports verified' },
 ];
 
-// Certification steps — migrated from the deleted CertificationFlow component.
+// Certification steps - migrated from the deleted CertificationFlow component.
 const certificationSteps = [
   { icon: 'globe', title: 'Source', desc: 'Trusted UK & China suppliers' },
   { icon: 'search', title: 'Test', desc: 'Multi-point inspection' },
@@ -99,20 +99,20 @@ const team = [
 ---
 
 <Layout
-  title="About Us - ABKHD Store"
-  description="We've been cheated too. That's exactly why ABKHD exists — tested, disclosed and warranted devices from Jimeta, Yola."
+  title="About Us | ABKHD Store"
+  description="We've been cheated too. That's exactly why ABKHD exists: tested, disclosed and warranted devices from Jimeta, Yola."
 >
   <Header slot="header" />
 
   <main class="mx-auto max-w-[1100px] px-6 pt-40 pb-24">
     <!-- 1. Statement -->
-    <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— About</p>
+    <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">About</p>
     <h1 class="mt-4 text-balance text-5xl font-semibold leading-[1.05] tracking-tight md:text-7xl">
       We've been cheated too.<br />
       That's exactly why ABKHD exists.
     </h1>
     <p class="mt-8 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-      I'm sure most people have a similar story — I personally once bought a used mobile phone at
+      I'm sure most people have a similar story. I personally once bought a used mobile phone at
       our local gadget market. The phone looked good, but unbeknownst to me, it had a bad battery,
       overheated when connected to the internet, had been worked on by an inexperienced technician,
       and had many more issues. Long story short, the phone died just 2 days after I bought it.
@@ -149,7 +149,7 @@ const team = [
 
     <!-- What we test -->
     <div class="mt-24">
-      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— What we test</p>
+      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">What we test</p>
       <h2 class="mt-4 text-3xl font-semibold tracking-tight">How we certify every device</h2>
       <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
         Our multi-point inspection ensures you get certified performance.
@@ -187,7 +187,7 @@ const team = [
 
     <!-- 3. Comparison table -->
     <div class="mt-24">
-      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— How we're different</p>
+      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">How we're different</p>
       <h2 class="mt-4 text-3xl font-semibold tracking-tight">The contrast is clear</h2>
       <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
         You decide who to trust.
@@ -232,20 +232,20 @@ const team = [
     <!-- 4. Shipping & Returns anchors (footer contract) -->
     <div class="mt-24 grid gap-4 md:grid-cols-2">
       <section id="shipping" class="scroll-mt-32 rounded-2xl border border-border bg-card p-8">
-        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— Shipping</p>
+        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Shipping</p>
         <h2 class="mt-3 text-xl font-semibold tracking-tight">Delivery in Yola &amp; Jimeta</h2>
         <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
-          We deliver within Yola (₦1,000) and Jimeta (₦2,000) — the delivery fee is shown at
+          We deliver within Yola (₦1,000) and Jimeta (₦2,000). The delivery fee is shown at
           checkout based on your address. Orders are confirmed on WhatsApp before dispatch, and we
           arrange a time that works for you.
         </p>
       </section>
 
       <section id="returns" class="scroll-mt-32 rounded-2xl border border-border bg-card p-8">
-        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— Returns</p>
+        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Returns</p>
         <h2 class="mt-3 text-xl font-semibold tracking-tight">Backed by real warranty terms</h2>
         <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Every device ships with the specific warranty terms stated on its product page — no
+          Every device ships with the specific warranty terms stated on its product page. No
           generic promises, no fine-print loopholes. If a covered fault appears, reach out on
           WhatsApp with your order reference and we'll make it right.
         </p>
@@ -254,10 +254,10 @@ const team = [
 
     <!-- 5. Team -->
     <div class="mt-24">
-      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">— Who we are</p>
+      <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Who we are</p>
       <h2 class="mt-4 text-3xl font-semibold tracking-tight">Meet the founders</h2>
       <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-        ABKHD Store — real people with real stakes in doing this right.
+        ABKHD Store: real people with real stakes in doing this right.
       </p>
 
       <div class="mt-10 grid gap-8 md:grid-cols-3">

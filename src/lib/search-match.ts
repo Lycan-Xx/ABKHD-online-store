@@ -1,5 +1,5 @@
 /**
- * Shared search matcher (SPEC §9.3) — the single source of truth used by
+ * Shared search matcher (SPEC §9.3) - the single source of truth used by
  * BOTH the `/api/search` endpoint and the `/shop` SSR pre-filter, so the
  * navbar overlay and the shop page always return identical results for
  * the same term.

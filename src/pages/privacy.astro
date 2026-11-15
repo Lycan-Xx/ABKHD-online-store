@@ -1,0 +1,248 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+
+const updated = '12 November 2026';
+
+const sections = [
+  { id: 'who-we-are', label: 'Who we are' },
+  { id: 'what-we-collect', label: 'What we collect' },
+  { id: 'how-we-use-it', label: 'How we use it' },
+  { id: 'payments', label: 'Payments' },
+  { id: 'sharing', label: 'Who we share it with' },
+  { id: 'storage', label: 'Cookies and local storage' },
+  { id: 'retention', label: 'How long we keep it' },
+  { id: 'your-rights', label: 'Your rights' },
+  { id: 'security', label: 'Security' },
+  { id: 'children', label: "Children's privacy" },
+  { id: 'changes', label: 'Changes to this policy' },
+  { id: 'contact', label: 'Contact us' },
+];
+---
+
+<Layout
+  title="Privacy Policy | ABKHD Store"
+  description="How ABKHD Store collects, uses, stores and protects your personal information when you browse or buy from our store."
+>
+  <Header slot="header" />
+
+  <main class="mx-auto max-w-[900px] px-6 pt-40 pb-24">
+    <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Privacy</p>
+    <h1 class="mt-4 text-balance text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+      Privacy Policy
+    </h1>
+    <p class="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+      We sell tested, disclosed and warranted tech in Yola and Jimeta. This policy explains exactly
+      what we collect when you use this site, why we collect it, and what you can ask us to do with
+      it. We keep it plain because we expect the same in return.
+    </p>
+    <p class="mt-4 text-xs text-muted-foreground">Last updated: {updated}</p>
+
+    <nav class="mt-10 flex flex-wrap gap-2" aria-label="Policy sections">
+      {
+        sections.map((section) => (
+          <a
+            href={`#${section.id}`}
+            class="inline-flex items-center rounded-full border border-border bg-background px-4 py-2 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            {section.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <section id="who-we-are" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Who we are</h2>
+      <div class="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
+        <p>
+          ABKHD Store ("ABKHD", "we", "us") is a technology retailer based in Jimeta, Yola, Adamawa
+          State, Nigeria. We operate this website and sell devices through our online storefront and
+          our WhatsApp line.
+        </p>
+        <p>
+          For any question about this policy or about your personal information, reach us at
+          <a href="mailto:abkhdtechgadgets@gmail.com" class="font-medium text-foreground underline underline-offset-4 hover:text-foreground/70">abkhdtechgadgets@gmail.com</a>
+          or on WhatsApp at
+          <a href="https://wa.me/2348085657927" class="font-medium text-foreground underline underline-offset-4 hover:text-foreground/70">+234 808 565 7927</a>.
+        </p>
+      </div>
+    </section>
+
+    <section id="what-we-collect" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">What we collect</h2>
+      <div class="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
+        <p>We only collect what we need to sell you a device and support you afterwards.</p>
+
+        <div class="rounded-2xl border border-border bg-card p-6">
+          <p class="text-sm font-semibold text-foreground">Information you give us</p>
+          <ul class="mt-3 list-disc space-y-2 pl-5">
+            <li>Contact details: your name, email address and phone or WhatsApp number.</li>
+            <li>Delivery details: the recipient name, phone number and delivery address in Yola or Jimeta.</li>
+            <li>Order details: the products you ordered, the amount paid and the payment reference.</li>
+            <li>Account details, if you create one: your email address and password (stored in encrypted form, never in plain text).</li>
+            <li>Messages: anything you send us through the contact form, WhatsApp or email, including warranty claims and return requests.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-2xl border border-border bg-card p-6">
+          <p class="text-sm font-semibold text-foreground">Information collected automatically</p>
+          <ul class="mt-3 list-disc space-y-2 pl-5">
+            <li>Device and browser details such as browser type, device type, screen size and the pages you visit, collected by our hosting and analytics provider to keep the site working and to understand which products get attention.</li>
+            <li>Your cart contents, saved in your own browser so the cart survives a page refresh. It stays on your device until you clear it or complete an order.</li>
+            <li>Basic, aggregated traffic statistics such as visit counts and referrer sources.</li>
+          </ul>
+        </div>
+
+        <p>
+          We do not collect sensitive personal data such as health records, political opinions,
+          religious beliefs or biometric data. We never ask for your card number, CVV or PIN.
+        </p>
+      </div>
+    </section>
+
+    <section id="how-we-use-it" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">How we use it</h2>
+      <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
+        <li>To process, deliver and support your order, including warranty claims and return requests.</li>
+        <li>To take payment and issue a receipt or order reference.</li>
+        <li>To contact you about your order, delivery slot, returns or warranty service.</li>
+        <li>To keep our store secure, prevent fraud and detect abuse of the checkout.</li>
+        <li>To understand which products and pages are useful, so we stock and build better.</li>
+        <li>To send order updates and, only if you ask for it, occasional offers about new arrivals.</li>
+        <li>To meet our legal, tax and accounting obligations as a business registered in Nigeria.</li>
+      </ul>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        We use your information to serve you. We do not sell it, and we do not rent it out to
+        advertisers.
+      </p>
+    </section>
+
+    <section id="payments" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Payments</h2>
+      <div class="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
+        <p>
+          Payments are processed by our payment service provider. When you pay, they receive the
+          amount, the reference and the transaction status so they can confirm the transfer.
+        </p>
+        <p>
+          Card details are entered on the provider's secure payment page and never pass through, or
+          get stored on, our servers. We only receive confirmation of the payment, such as the
+          amount, the reference and the time.
+        </p>
+      </div>
+    </section>
+
+    <section id="sharing" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Who we share it with</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        We share only the information each party needs to do their part, and only with these
+        categories of recipient:
+      </p>
+      <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
+        <li>Our payment service provider, to confirm and process payments.</li>
+        <li>Our hosting, backend and analytics providers, which process data on our instructions to run the store.</li>
+        <li>Our delivery partners and riders, who receive the recipient name, phone number and delivery address.</li>
+        <li>WhatsApp, when you choose to talk to us there.</li>
+        <li>Law enforcement, regulators or courts, but only where the law requires it or where we need to protect our rights.</li>
+      </ul>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        We do not sell, trade or rent your personal information to third parties for their own
+        marketing.
+      </p>
+    </section>
+
+    <section id="storage" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Cookies and local storage</h2>
+      <div class="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
+        <p>
+          Our own code does not set advertising cookies. We use the browser's local storage to keep
+          your cart between visits, and we remove any retired preference data the first time you
+          load the site.
+        </p>
+        <p>
+          Our analytics provider may set its own cookies or similar identifiers to measure visits and
+          understand which pages are used. You can block or delete cookies and site data in your
+          browser settings; the store still works, though your cart will not survive a refresh.
+        </p>
+      </div>
+    </section>
+
+    <section id="retention" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">How long we keep it</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        We keep order and payment records for as long as needed to meet our legal, tax and accounting
+        obligations, and to handle warranty claims or disputes. Order records are typically retained
+        for seven years. If you open an account, we keep your details until you ask us to delete
+        them. If you just browse, your locally stored cart stays on your device until you clear it.
+      </p>
+    </section>
+
+    <section id="your-rights" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Your rights</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Under the Nigeria Data Protection Act, you have the right to:
+      </p>
+      <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
+        <li>Ask us for a copy of the personal information we hold about you.</li>
+        <li>Ask us to correct information that is wrong or out of date.</li>
+        <li>Ask us to delete your information when we no longer have a lawful reason to keep it.</li>
+        <li>Object to us processing your information, and withdraw consent where we rely on it.</li>
+        <li>Stop receiving marketing messages at any time.</li>
+        <li>Complain to the Nigeria Data Protection Commission if you believe we have handled your information improperly.</li>
+      </ul>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Send any request to
+        <a href="mailto:abkhdtechgadgets@gmail.com" class="font-medium text-foreground underline underline-offset-4 hover:text-foreground/70">abkhdtechgadgets@gmail.com</a>
+        and we will respond within a reasonable time.
+      </p>
+    </section>
+
+    <section id="security" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Security</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        We use HTTPS for every page, store data with reputable providers, restrict access to customer
+        information to the people who need it for their work, and never store full payment card
+        details. No system is perfect, but if a breach affects your information we will tell you
+        promptly and explain what we are doing about it.
+      </p>
+    </section>
+
+    <section id="children" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Children's privacy</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Our store is not directed at children, and we do not knowingly collect information from
+        anyone under 18. If you believe a child has given us information, contact us and we will
+        delete it.
+      </p>
+    </section>
+
+    <section id="changes" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Changes to this policy</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        We update this page when our practices change. The "last updated" date at the top always
+        reflects the current version. Material changes will be announced on the site or through
+        WhatsApp before they take effect.
+      </p>
+    </section>
+
+    <section id="contact" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Contact us</h2>
+      <div class="mt-4 rounded-2xl border border-border bg-card p-6">
+        <p class="text-sm leading-relaxed text-muted-foreground">
+          ABKHD Store, Jimeta, Yola, Adamawa State, Nigeria.
+        </p>
+        <div class="mt-4 flex flex-col gap-2 text-sm">
+          <a href="mailto:abkhdtechgadgets@gmail.com" class="font-medium text-foreground hover:text-foreground/70">
+            abkhdtechgadgets@gmail.com
+          </a>
+          <a href="https://wa.me/2348085657927" class="font-medium text-foreground hover:text-foreground/70">
+            WhatsApp +234 808 565 7927
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer slot="footer" />
+</Layout>

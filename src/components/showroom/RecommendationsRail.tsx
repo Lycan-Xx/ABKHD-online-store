@@ -11,7 +11,7 @@ type Props = {
 };
 
 /**
- * Recommendations rail (SPEC §6.4) — exact mockup: pill arrow buttons,
+ * Recommendations rail (SPEC §6.4) - exact mockup: pill arrow buttons,
  * `no-scrollbar snap-x snap-mandatory` rail, 280–320px cards with the
  * same hover treatment. Reused on the PDP for "From the same room".
  */
@@ -32,7 +32,7 @@ export function RecommendationsRail({
     <section className="mx-auto max-w-[1240px] px-3 py-14 sm:px-4 md:py-20">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">— {eyebrow}</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{eyebrow}</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
             {title}
           </h2>

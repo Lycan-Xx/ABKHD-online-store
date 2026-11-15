@@ -7,47 +7,39 @@ import Hero from "../components/showroom/Hero.astro";
 import CtaBanner from "../components/showroom/CtaBanner.astro";
 import { ShowroomExperience } from "../components/showroom/ShowroomExperience";
 import { RecommendationsRail } from "../components/showroom/RecommendationsRail";
-import { toShowroomProduct } from "../lib/showroom";
-import {
-  databases,
-  APPWRITE_DB_ID,
-  APPWRITE_PRODUCTS_COLLECTION_ID,
-} from "../lib/appwrite";
+import { toShowroomProduct, type ProductDoc } from "../lib/showroom";
+import { listProductsCached } from "../lib/product-cache";
 import { Query } from "appwrite";
 
-// Featured products — existing query, verbatim.
-let featuredProducts = [];
+// Featured products - existing query, verbatim.
+let featuredProducts: ProductDoc[] = [];
 try {
-  const response = await databases.listDocuments(
-    APPWRITE_DB_ID,
-    APPWRITE_PRODUCTS_COLLECTION_ID,
+  const documents = await listProductsCached(
     [
       Query.equal("featured", true),
       Query.equal("isActive", true),
       Query.equal("isArchived", false),
       Query.orderDesc("$createdAt"),
-      Query.limit(20),
     ],
+    20,
   );
-  featuredProducts = response.documents.map((doc) => ({ ...doc, id: doc.$id }));
+  featuredProducts = documents.map((doc) => ({ ...doc, id: doc.$id }));
 } catch (error) {
   console.error("Error fetching featured products:", error);
 }
 
-// Newest 8 — always fills the recommendations rail (SPEC §7.1).
+// Newest 8 - always fills the recommendations rail (SPEC §7.1).
 let newestProducts: ReturnType<typeof toShowroomProduct>[] = [];
 try {
-  const response = await databases.listDocuments(
-    APPWRITE_DB_ID,
-    APPWRITE_PRODUCTS_COLLECTION_ID,
+  const documents = await listProductsCached(
     [
       Query.equal("isActive", true),
       Query.equal("isArchived", false),
       Query.orderDesc("$createdAt"),
-      Query.limit(8),
     ],
+    8,
   );
-  newestProducts = response.documents.map(toShowroomProduct);
+  newestProducts = documents.map(toShowroomProduct);
 } catch (error) {
   console.error("Error fetching newest products:", error);
 }
@@ -56,7 +48,7 @@ const showroomFeatured = featuredProducts.map(toShowroomProduct);
 ---
 
 <Layout
-  title="Featured – ABKHD Store"
+  title="Featured | ABKHD Store"
   description="Hand-picked, tested tech at smarter prices. Browse this week's featured devices."
 >
   <Header slot="header" />
@@ -64,7 +56,7 @@ const showroomFeatured = featuredProducts.map(toShowroomProduct);
   <Hero
     word="ABKHD"
     eyebrow="Premium Tech. Smarter Prices."
-    subtitle="UK & China-sourced devices, rigorously tested and transparently disclosed — quality you can trust at prices that actually make sense."
+    subtitle="UK & China-sourced devices, rigorously tested and transparently disclosed, quality you can trust at prices that actually make sense."
   />
 
   <ShowroomExperience client:visible products={showroomFeatured} />

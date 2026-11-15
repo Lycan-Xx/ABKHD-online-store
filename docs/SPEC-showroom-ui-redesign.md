@@ -1,11 +1,11 @@
-# ABKHD Store — "Showroom" UI Redesign: Modification & Refactor Specification
+# ABKHD Store - "Showroom" UI Redesign: Modification & Refactor Specification
 
 | | |
 |---|---|
 | **Spec version** | 1.0 |
 | **Date** | 2026-11-06 |
 | **Branch** | `feat/showroom-ui-redesign` (branched from `main`) |
-| **Design source** | `Lycan-Xx/curated-showroom` ("Stuffus" mockup) — copied **exactly**: motion, colors, layout, product detail pattern |
+| **Design source** | `Lycan-Xx/curated-showroom` ("Stuffus" mockup) - copied **exactly**: motion, colors, layout, product detail pattern |
 | **Target app** | `Lycan-Xx/ABKHD-online-store` (Astro 5 + Appwrite + Squad, Cloudflare) |
 | **Status** | Approved for implementation pending owner sign-off |
 
@@ -13,7 +13,7 @@
 
 ## 1. Purpose & Scope
 
-This document specifies every change required to restyle the ABKHD storefront so that its user interface **matches the curated-showroom mockup exactly** — layout, monochrome palette, typography, iconography, motion language, and page composition — **without altering any backend behavior**:
+This document specifies every change required to restyle the ABKHD storefront so that its user interface **matches the curated-showroom mockup exactly** - layout, monochrome palette, typography, iconography, motion language, and page composition - **without altering any backend behavior**:
 
 - Appwrite (database, storage, auth) integration remains byte-for-byte identical in behavior.
 - Squad Co payment flow, order creation, and stock management are untouched logically.
@@ -45,8 +45,8 @@ This document specifies every change required to restyle the ABKHD storefront so
 ### 2.1 ABKHD (target app)
 
 - **Stack:** Astro `^5.7` (`output: 'server'`), `@astrojs/cloudflare` adapter, Tailwind CSS `3.4.19` (via `@astrojs/tailwind`, `applyBaseStyles: false`), TypeScript.
-- **State:** `nanostores` — `src/stores/cart.ts` (cart map + persistence) and `src/stores/dark-mode.ts` (to be removed).
-- **Backend:** Appwrite SDK (`src/lib/appwrite.ts`) — products/orders collections, `product-images` bucket, account/teams for admin auth. All product fetching happens **server-side in `.astro` frontmatter** (SSR).
+- **State:** `nanostores` - `src/stores/cart.ts` (cart map + persistence) and `src/stores/dark-mode.ts` (to be removed).
+- **Backend:** Appwrite SDK (`src/lib/appwrite.ts`) - products/orders collections, `product-images` bucket, account/teams for admin auth. All product fetching happens **server-side in `.astro` frontmatter** (SSR).
 - **Payments:** Squad Co (`src/lib/squad.ts` + `src/pages/api/squad-initiate.ts`, `squad-webhook.ts`, `src/lib/stock-manager.ts`).
 - **Styling:** shadcn-style HSL CSS variables in `src/styles/global.css`, mapped in `tailwind.config.js` via `hsl(var(--x))`. Component classes (`.btn-primary`, `.card`, `.product-card`, …) in `@layer components`. Bootstrap Icons via CDN + npm package.
 - **Pages:** `/` (hero + featured + certification flow), `/shop` (SSR fetch, category pills, client filter), `/products/[id]` (SSR product + related), `/checkout` (3-step wizard, own scoped `co-*` CSS, 1,329 lines), `/login`, `/about`, `/contact`, `/admin/*` (dashboard, products CRUD, orders), `/api/*`.
@@ -55,14 +55,14 @@ This document specifies every change required to restyle the ABKHD storefront so
 ### 2.2 Mockup (design source)
 
 - **Stack:** TanStack Start, React 19, Tailwind 4 (oklch `@theme` tokens), shadcn/ui components (mostly unused scaffolding), **Framer Motion 12**, lucide-react. No backend; 12 hardcoded products in `src/lib/products.ts`.
-- **Design language ("quiet editorial minimalism")** — detailed in §5.
+- **Design language ("quiet editorial minimalism")** - detailed in §5.
 - **What it does NOT have** (we must design in the mockup's language, not copy code): cart, checkout, payments, auth, admin, search backend, real stock/variants, dark mode in practice.
 
 ### 2.3 Key architectural facts driving this spec
 
-1. Both apps use **identical shadcn semantic token names** (`background`, `foreground`, `card`, `muted`, `border`, …) — the reskin is largely token-level.
+1. Both apps use **identical shadcn semantic token names** (`background`, `foreground`, `card`, `muted`, `border`, …) - the reskin is largely token-level.
 2. Mockup interactivity (filtering, drawers, floats) is Framer-Motion-based; ABKHD has no React. Astro supports **React islands**, so the exact mockup components can run inside ABKHD pages while data still comes from Astro SSR frontmatter.
-3. ABKHD's checkout and admin read theme colors through CSS variables — changing `:root` tokens restyles them automatically with zero logic risk.
+3. ABKHD's checkout and admin read theme colors through CSS variables - changing `:root` tokens restyles them automatically with zero logic risk.
 
 ---
 
@@ -81,13 +81,13 @@ All pages remain **Astro pages with SSR Appwrite fetches in frontmatter** (uncha
 | `RecommendationsRail` | `src/components/showroom/RecommendationsRail.tsx` | `client:visible` | `/`, `/shop`, `/products/[id]` | `Recommendations.tsx` |
 | `ProductDetail` | `src/components/showroom/ProductDetail.tsx` | `client:load` | `/products/[id]` | `product.$id.tsx` info column + mobile bar |
 | `ProductStage` | `src/components/showroom/ProductStage.tsx` | `client:visible` | `/products/[id]` | `product.$id.tsx` image stage |
-| `SearchOverlay` | `src/components/showroom/SearchOverlay.tsx` | `client:idle` | all pages (via Header) | — (new, mockup-styled) |
+| `SearchOverlay` | `src/components/showroom/SearchOverlay.tsx` | `client:idle` | all pages (via Header) | - (new, mockup-styled) |
 | `MobileNav` | `src/components/showroom/MobileNav.tsx` | `client:idle` | all pages (via Header) | `Navbar.tsx` mobile drawer |
 | `DrawerPanel` | `src/components/showroom/DrawerPanel.tsx` | (child) | `MobileNav`, `ShowroomExperience` | `DrawerPanel.tsx` |
 
 **Rules for islands:**
-- Props must be **plain serializable objects** (see mapping §8). No Appwrite SDK objects cross the island boundary; islands may import `stores/cart.ts` (nanostores) directly — it is client-side by design.
-- Islands must be SSR-safe (Framer Motion `initial` props render fine server-side; the Astro React renderer executes the component on the server for initial HTML — no `typeof window` guards needed except in effects, matching mockup code which already complies).
+- Props must be **plain serializable objects** (see mapping §8). No Appwrite SDK objects cross the island boundary; islands may import `stores/cart.ts` (nanostores) directly - it is client-side by design.
+- Islands must be SSR-safe (Framer Motion `initial` props render fine server-side; the Astro React renderer executes the component on the server for initial HTML - no `typeof window` guards needed except in effects, matching mockup code which already complies).
 - One React runtime is shared by all islands on a page (Astro deduplicates).
 
 **Non-island (pure Astro + CSS/vanilla) components:** floating navbar shell + scroll shrink, `Hero`, `CtaBanner`, `Footer`, `CartDrawer` (restyle of existing), `404`, contact/about/login/admin shells.
@@ -108,11 +108,11 @@ All pages remain **Astro pages with SSR Appwrite fetches in frontmatter** (uncha
 
 ### 3.3 `astro.config.mjs`
 
-Add `react()` to `integrations` (after `tailwind`). Nothing else changes — adapter, `output: 'server'`, image service stay identical.
+Add `react()` to `integrations` (after `tailwind`). Nothing else changes - adapter, `output: 'server'`, image service stay identical.
 
 ---
 
-## 4. Design System — Tokens & Utilities (exact values)
+## 4. Design System - Tokens & Utilities (exact values)
 
 ### 4.1 Color tokens
 
@@ -143,7 +143,7 @@ The mockup defines colors in **oklch**. Tailwind 3 alpha modifiers (`bg-backgrou
   --ring: 158 158 158;                /* oklch(0.7 0 0)      #9e9e9e */
   --radius: 1rem;                     /* mockup --radius     16px */
 
-  /* Ambient stage tints (see §4.5) — kept in oklch, used raw in CSS */
+  /* Ambient stage tints (see §4.5) - kept in oklch, used raw in CSS */
   --ambient-warm: oklch(0.965 0.012 70);
   --ambient-cool: oklch(0.975 0.008 250);
   --ambient-deep: oklch(0.94 0.01 60);
@@ -165,7 +165,7 @@ lg: var(--radius), xl: calc(var(--radius) + 4px), 2xl: calc(var(--radius) + 8px)
 3xl: calc(var(--radius) + 12px), 4xl: calc(var(--radius) + 16px)
 ```
 
-(Existing `rounded-xl`/`rounded-2xl`/`rounded-3xl` usages in checkout/admin silently upgrade to the mockup's softer radii — intended.)
+(Existing `rounded-xl`/`rounded-2xl`/`rounded-3xl` usages in checkout/admin silently upgrade to the mockup's softer radii - intended.)
 
 ### 4.3 Typography
 
@@ -173,7 +173,7 @@ lg: var(--radius), xl: calc(var(--radius) + 4px), 2xl: calc(var(--radius) + 8px)
 - **Body:** `font-feature-settings: 'cv11', 'ss01'`; `-webkit-font-smoothing: antialiased` (already present).
 - **Signature type patterns (Tailwind classes used verbatim from mockup):**
   - Editorial giant word: `font-extrabold leading-none tracking-[-0.06em]` with `font-size: clamp(3.75rem, 18vw, 16rem)`, `mix-blend-overlay` on hero.
-  - Micro-labels: `text-xs uppercase tracking-[0.2em] text-muted-foreground` prefixed with `—` (em-dash), e.g. `— Collection`, `— Curated for you`.
+  - Micro-labels: `text-xs uppercase tracking-[0.2em] text-muted-foreground` prefixed with `-` (em-dash), e.g. `- Collection`, `- Curated for you`.
   - Headings: `font-semibold tracking-tight` at `text-2xl → md:text-4xl`.
   - Page statement (about/contact): `text-balance text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tight`.
 - Add `text-balance` utility class (`text-wrap: balance`) to global.css (Tailwind 3 lacks it natively).
@@ -194,7 +194,7 @@ New components use the mockup container: `mx-auto max-w-[1240px] px-3 sm:px-4` (
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Ambient stage — cursor-follow spotlight + category tint (see §7.2) */
+/* Ambient stage - cursor-follow spotlight + category tint (see §7.2) */
 .ambient-stage { position: relative; isolation: isolate;
   --ambient-x: 50%; --ambient-y: 30%;
   --ambient-tint: var(--ambient-warm); --ambient-spot: oklch(0.99 0.005 80 / 0.55); }
@@ -211,8 +211,8 @@ New components use the mockup container: `mx-auto max-w-[1240px] px-3 sm:px-4` (
 
 ### 4.6 Iconography (D5)
 
-- **Islands:** `lucide-react` (identical imports to mockup: `Search`, `ShoppingBag`, `Menu`, `X`, `ChevronLeft/Right/Down`, `Star` (unused — ratings dropped), `ArrowLeft/Right`, `Minus`, `Plus`, `SlidersHorizontal`, `Sparkles`, `Trophy`, `Tag`, `BadgeCheck`, `Play`, `Trash2`, `CircleCheck`, `CircleX`, `CircleAlert` …).
-- **`.astro` components:** `lucide-static` — import SVGs and inline them (small helper `Icon.astro` that renders an SVG string with `set:html`, applying `class` for sizing).
+- **Islands:** `lucide-react` (identical imports to mockup: `Search`, `ShoppingBag`, `Menu`, `X`, `ChevronLeft/Right/Down`, `Star` (unused - ratings dropped), `ArrowLeft/Right`, `Minus`, `Plus`, `SlidersHorizontal`, `Sparkles`, `Trophy`, `Tag`, `BadgeCheck`, `Play`, `Trash2`, `CircleCheck`, `CircleX`, `CircleAlert` …).
+- **`.astro` components:** `lucide-static` - import SVGs and inline them (small helper `Icon.astro` that renders an SVG string with `set:html`, applying `class` for sizing).
 - **Bootstrap → Lucide mapping for existing usages:**
 
 | Bootstrap (current) | Lucide (new) | Locations |
@@ -246,7 +246,7 @@ New components use the mockup container: `mx-auto max-w-[1240px] px-3 sm:px-4` (
 
 ### 4.7 Motion system (exact values)
 
-**Easing token** — the mockup uses a single expo-out curve everywhere:
+**Easing token** - the mockup uses a single expo-out curve everywhere:
 
 - Framer (islands): `export const EASE = [0.22, 1, 0.36, 1] as const;`
 - CSS (astro components): `--ease-showroom: cubic-bezier(0.22, 1, 0.36, 1);`
@@ -259,8 +259,8 @@ New components use the mockup container: `mx-auto max-w-[1240px] px-3 sm:px-4` (
 | Hero headline fade-up (`y:40→0`) | 0.9s | 0 | EASE |
 | Hero search panel fade-up (`y:24→0`) | 0.7s | 0.25s | EASE |
 | Product card enter (`y:16→0`) / exit (`y:0→-8`) | 0.5s | 0 | EASE |
-| Card hover lift `y:-4px` (whileHover) | spring | — | — |
-| Card image hover scale `1 → 1.04` | 700ms | — | ease-out |
+| Card hover lift `y:-4px` (whileHover) | spring | - | - |
+| Card image hover scale `1 → 1.04` | 700ms | - | ease-out |
 | Drawer panel in (`y:-16, scale .98→1`) | 0.45s | 0 | EASE |
 | Drawer overlay fade | 0.3s | 0 | linear |
 | Navbar `glass→glass-strong` + shrink h-14→h-12 | 500ms | 0 | ease-out |
@@ -268,7 +268,7 @@ New components use the mockup container: `mx-auto max-w-[1240px] px-3 sm:px-4` (
 | PDP info column fade-up | 0.7s | 0.1s | EASE |
 | PDP product image float loop `y:[0,-8,0]` | 6s infinite | 0 | easeInOut |
 | Ambient tint/spotlight background shift | 800ms | 0 | ease |
-| Recommendations rail scroll | native `scrollBy` smooth | — | — |
+| Recommendations rail scroll | native `scrollBy` smooth | - | - |
 
 **Reduced motion:** every Framer element wrapped so `useReducedMotion()` disables transforms (mockup already does this for the ambient stage; we extend the same policy). CSS animations get `@media (prefers-reduced-motion: reduce)` no-op overrides.
 
@@ -305,16 +305,16 @@ Replace `src/components/layout/Header.astro` contents with the mockup pattern, a
 ```
 
 - **Logo:** mockup mark = `h-6 w-6 rounded-full bg-foreground text-[10px] font-bold text-background` containing **"A"**, followed by `ABKHD` (`text-[15px] font-semibold tracking-tight`). (Replaces "ABKHD Store" two-tone wordmark; keeps brand name.)
-- **Links (desktop, centered):** `Home /` `Featured → Shop` decision: keep current IA — **Home, Shop, About, Contact** (mockup's exact link set). Active state: `font-semibold text-foreground`, inactive `text-muted-foreground hover:text-foreground` (no icons in links, matching mockup).
+- **Links (desktop, centered):** `Home /` `Featured → Shop` decision: keep current IA - **Home, Shop, About, Contact** (mockup's exact link set). Active state: `font-semibold text-foreground`, inactive `text-muted-foreground hover:text-foreground` (no icons in links, matching mockup).
 - **Actions (right):**
   - Search icon button (`h-8 w-8 rounded-full`) → mounts/opens `SearchOverlay` island.
-  - Cart button with **real count** (functionality preservation): mockup's dot becomes a count badge — `absolute right-1 top-1 h-4 min-w-4 rounded-full bg-foreground text-background text-[10px]` shown only when count > 0 (from `$cartItems`).
+  - Cart button with **real count** (functionality preservation): mockup's dot becomes a count badge - `absolute right-1 top-1 h-4 min-w-4 rounded-full bg-foreground text-background text-[10px]` shown only when count > 0 (from `$cartItems`).
   - Mobile: `menu` button (≤md) → opens `MobileNav` island.
 - **Scroll behavior:** vanilla script toggles `scrolled` (window.scrollY > 24): swaps `glass h-14 max-w-[960px] px-7` → `glass-strong h-12 max-w-[820px] px-5`. Exact mockup values.
 - **Because the navbar is `fixed` + floating, every page's first section needs top padding** (`pt-20/pt-24` like mockup pages; handled per-page in §7).
 - `CartDrawer` stays mounted below the nav (restyle §5.5).
 
-### 5.3 Mobile navigation — `MobileNav` island
+### 5.3 Mobile navigation - `MobileNav` island
 
 Replaces `src/components/layout/MobileMenu.astro` (deleted). Exact mockup pattern: `DrawerPanel` slide-down sheet (`fixed inset-x-4 top-20 z-50 origin-top rounded-3xl bg-background/95 backdrop-blur-xl`), containing:
 
@@ -327,20 +327,20 @@ Replaces `src/components/layout/MobileMenu.astro` (deleted). Exact mockup patter
 
 4-column grid `grid-cols-2 md:grid-cols-[1fr_auto_auto_auto]` inside `max-w-[1240px]`, `border-t`:
 
-1. Brand block: "A" mark + **ABKHD** + line: *"Premium tech at smarter prices. Every device tested & certified. Jimeta, Yola — Nigeria."*
+1. Brand block: "A" mark + **ABKHD** + line: *"Premium tech at smarter prices. Every device tested & certified. Jimeta, Yola - Nigeria."*
 2. **About:** Blog→`/about`, Meet the Team→`/about`, Contact Us→`/contact`.
-3. **Support:** Contact Us→`/contact`, Shipping→`/about#shipping`, Returns→`/about#returns`, FAQ→`/contact`. (Anchor targets added on About — §7.8.)
+3. **Support:** Contact Us→`/contact`, Shipping→`/about#shipping`, Returns→`/about#returns`, FAQ→`/contact`. (Anchor targets added on About - §7.8.)
 4. **Social:** WhatsApp + Facebook as mockup-style pill buttons (`h-8 w-8 rounded-full bg-foreground text-background`), using custom inline SVGs with the **existing real links** (`wa.me/${VITE_WHATSAPP_NUMBER}`, current Facebook URL). 
 5. Bottom row: `© {year} ABKHD. All rights reserved.` + Terms / Privacy placeholders (mockup parity).
 
-### 5.5 CartDrawer — restyle only (functionality preserved)
+### 5.5 CartDrawer - restyle only (functionality preserved)
 
 Keep `src/components/cart/CartDrawer.astro` structure, nanostores wiring, `renderCart()`, and all IDs **exactly** (other scripts depend on them). Visual changes only:
 
 - Panel: `max-w-md bg-background` → add `rounded-l-3xl` (or full `rounded-3xl inset-y-3 right-3` floating sheet) + `border border-border/70` + softer shadow `0_30px_80px_-30px_rgb(0_0_0/0.25)`.
 - Overlay: `bg-black/50` → `bg-foreground/20 backdrop-blur-[2px]` (mockup).
 - Item rows: `rounded-lg` → `rounded-2xl border-border/70`, image `rounded-xl`, remove button → `h-9 w-9 rounded-full hover:bg-muted`.
-- Header/footer: micro-label "— Your Cart" (`text-xs uppercase tracking-[0.2em]`), close button `rounded-full`.
+- Header/footer: micro-label "- Your Cart" (`text-xs uppercase tracking-[0.2em]`), close button `rounded-full`.
 - Checkout CTA: `.btn-primary` becomes mockup pill: `rounded-full bg-foreground text-background px-6 py-3 hover:opacity-90`. `Trash2` icon replaces `bi-trash`.
 - Empty state: `ShoppingBag` lucide icon, "Your cart is empty", pill ghost button "Browse the showroom" → `/shop`.
 
@@ -353,7 +353,7 @@ Keep `src/components/cart/CartDrawer.astro` structure, nanostores wiring, `rende
 | `Header.astro` desktop toggle, `MobileMenu.astro` toggle | removed with those components' rewrites |
 | `global.css` `.dark { … }` block | delete |
 | `tailwind.config.js` `darkMode: 'class'` | remove the key |
-| `lib/utils.ts` `initializeDarkMode()` | delete function + call sites (grep: `login.astro`, possibly others — verify with `rg initializeDarkMode`) |
+| `lib/utils.ts` `initializeDarkMode()` | delete function + call sites (grep: `login.astro`, possibly others - verify with `rg initializeDarkMode`) |
 | `<meta name="theme-color">` | `#ffffff` |
 | Any `dark:` utility classes remaining | grep `dark:` → remove (checkout/admin may contain some) |
 
@@ -367,25 +367,25 @@ Props: `word` (default `"Shop"`), `eyebrow`, `subtitle`, `image` (src). Home: `w
 
 - Outer: `relative mx-auto mt-20 max-w-[1240px] overflow-hidden rounded-[28px] px-3 sm:mt-24 sm:px-4` (the `mt-20` compensates the fixed navbar).
 - Inner: `h-[52vh] min-h-[420px] md:h-[58vh] md:min-h-[460px] rounded-[24px] sm:rounded-[28px] overflow-hidden`.
-- `<img>`: CSS animation `hero-zoom` (scale 1.08→1, 1.6s, EASE) — no island needed.
+- `<img>`: CSS animation `hero-zoom` (scale 1.08→1, 1.6s, EASE) - no island needed.
 - Gradient scrim: `bg-gradient-to-b from-background/40 via-background/10 to-background/80`.
 - Giant word: absolutely positioned `top-[18%]`, `mix-blend-overlay`, `text-background`, `clamp(3.75rem, 18vw, 16rem)`, fade-up 0.9s.
 - Bottom panel: `absolute inset-x-3 bottom-3 … rounded-2xl bg-background/85 backdrop-blur p-4→md:p-6`; contains eyebrow `text-xs uppercase tracking-[0.2em]` + headline + subtitle + **search form**.
 - **Search form (D4):** real `<form method="get" action="/shop">` with `<input name="q">` (pill input + `bg-foreground text-background` pill submit with `arrow-right` icon). Zero JS; lands on `/shop?q=…` (§7.3).
-- **Hero image asset:** new `src/assets/hero-bg.jpg` — owner to supply brand photography (dark tech flat-lay, ≥1920px). Interim: keep a placeholder from the existing public assets; flagged in PR description.
+- **Hero image asset:** new `src/assets/hero-bg.jpg` - owner to supply brand photography (dark tech flat-lay, ≥1920px). Interim: keep a placeholder from the existing public assets; flagged in PR description.
 
 ### 6.2 `ShowroomExperience.tsx` island (exact mockup `ProductExperience.tsx`)
 
 Props: `products: ShowroomProduct[]`, `deep?: boolean`, `initialCategory?`, `initialQuery?`.
 
-- Section gets `ambient-stage` + cursor-follow spotlight effect (desktop, fine pointer, reduced-motion-gated) and per-category tint via CSS var — copied verbatim.
-- Header block: `— Collection` micro-label, `The Showroom` H2, "Now browsing · {category}" status line, mobile `Filter` pill button.
+- Section gets `ambient-stage` + cursor-follow spotlight effect (desktop, fine pointer, reduced-motion-gated) and per-category tint via CSS var - copied verbatim.
+- Header block: `- Collection` micro-label, `The Showroom` H2, "Now browsing · {category}" status line, mobile `Filter` pill button.
 - Desktop grid: `md:grid-cols-[260px_1fr]` with sticky (`top-24`) `CategorySidebar`.
 - **`CategorySidebar` (adapted data, exact styling):** pill rows `rounded-xl`, active = `bg-foreground text-background`; lucide icons `Sparkles/Trophy/Tag` for flags. Categories:
 
   | Sidebar entry | Source |
   |---|---|
-  | All Products | — |
+  | All Products | - |
   | Computers | `category === 'Computers'` |
   | Mobile Phones | `category === 'Mobile Phones'` |
   | Accessories | `category === 'Accessories'` |
@@ -394,9 +394,9 @@ Props: `products: ShowroomProduct[]`, `deep?: boolean`, `initialCategory?`, `ini
   | **On Discount** (flag) | `originalPrice > price` |
 
   Category tint mapping: All → warm default; Computers → `oklch(0.965 0.01 240)`; Mobile Phones → `oklch(0.965 0.012 200)`; Accessories → `oklch(0.965 0.012 100)`.
-- Grid: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5`, cards inside `<AnimatePresence mode="popLayout">` — **this is why the grid is an island**.
+- Grid: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5`, cards inside `<AnimatePresence mode="popLayout">` - **this is why the grid is an island**.
 - Pagination: exact mockup (Previous/Next text buttons + `h-8 w-8` pill number buttons, active `bg-foreground text-background`), `PER_PAGE = 6`.
-- Mobile filter `DrawerPanel` with Reset/Apply pill buttons — exact mockup.
+- Mobile filter `DrawerPanel` with Reset/Apply pill buttons - exact mockup.
 - `deep` prop: on `/shop`, raise `PER_PAGE` to 9 and drop the mockup's list-duplication hack (real catalog is large enough).
 
 ### 6.3 `ProductCard.tsx` island (exact mockup, ABKHD data)
@@ -405,12 +405,12 @@ Mockup card structure verbatim (`rounded-2xl border border-border/70 bg-card p-3
 
 - **Add to Cart:** if `sizes`/`colors` exist → navigate to PDP (variant must be chosen there); else `addToCart({id, name, price, image, quantity: 1})` and open drawer. Stock 0 → both buttons disabled (`opacity-40 pointer-events-none`), chip shows "Out of stock".
 - **Buy Now:** same guard, then `addToCart(...)` + `location.href = '/checkout'`.
-- **Extra chips vs mockup (functionality preservation, mockup styling):** Verified (`badge-check` glass chip, top-left), `-N%` discount chip (bottom-left) replacing mockup's category chip position conflict — category chip stays top-right exactly as mockup; verified/discount chips use the same `rounded-full border border-border/70 bg-background/90 backdrop-blur` treatment.
+- **Extra chips vs mockup (functionality preservation, mockup styling):** Verified (`badge-check` glass chip, top-left), `-N%` discount chip (bottom-left) replacing mockup's category chip position conflict - category chip stays top-right exactly as mockup; verified/discount chips use the same `rounded-full border border-border/70 bg-background/90 backdrop-blur` treatment.
 - Whole image and title are links to `/products/{id}` (mockup behavior).
 
 ### 6.4 `RecommendationsRail.tsx` island
 
-Exact mockup: `— Curated for you` label, heading "Explore our recommendations", `h-10 w-10` pill arrow buttons, `no-scrollbar snap-x snap-mandatory` rail, 280–320px cards with the same hover treatment. Props: `products`, `title?`, `eyebrow?`. On PDP reused for "From the same room" related rail (mockup PDP pattern).
+Exact mockup: `- Curated for you` label, heading "Explore our recommendations", `h-10 w-10` pill arrow buttons, `no-scrollbar snap-x snap-mandatory` rail, 280–320px cards with the same hover treatment. Props: `products`, `title?`, `eyebrow?`. On PDP reused for "From the same room" related rail (mockup PDP pattern).
 
 ### 6.5 `ProductDetail.tsx` + `ProductStage.tsx` islands (PDP)
 
@@ -418,29 +418,29 @@ Split mockup `product.$id.tsx` into two islands around SSR-fetched product:
 
 **`ProductStage` (left column):** `rounded-3xl bg-secondary/50 p-6 md:p-10` stage with radial spotlight `radial-gradient(60% 50% at 50% 35%, oklch(1 0 0 / 0.7), transparent 70%)`, floating image (`y:[0,-8,0]`, 6s loop, disabled under reduced motion), `aspect-square max-w-[520px] rounded-2xl`. Thumbnail rail from `product.images` (hidden when < 2 images; active thumb `border-foreground`). **Video support (ABKHD-only extension):** if `product.video`, a `play` chip toggles `<video>` into the stage in place of the image; video poster uses `videoThumbnail`.
 
-**`ProductDetail` (right column + mobile bar):** exact mockup layout — category micro-label, `text-3xl→5xl font-semibold tracking-tight` title, **stock line replacing ratings** (`In stock` / `Only N left` / `Out of stock`, dot separator), price `text-3xl md:text-4xl`, description paragraph, **variants**:
+**`ProductDetail` (right column + mobile bar):** exact mockup layout - category micro-label, `text-3xl→5xl font-semibold tracking-tight` title, **stock line replacing ratings** (`In stock` / `Only N left` / `Out of stock`, dot separator), price `text-3xl md:text-4xl`, description paragraph, **variants**:
 
 - `colors` → "Finish" pill group (mockup styling: active `border-foreground bg-foreground text-background`).
 - `sizes` → "Size" pill group (same styling, only if present).
 - Qty stepper (exact mockup `QtyStepper`: pill border, `h-9 w-9` round buttons, min 1, max = stock).
 - Desktop actions row: Add to Cart (outline pill) / Buy Now (filled pill), both wired to existing cart store incl. selected variant; disabled at stock 0.
 - Accordion (Details / Shipping / Returns): mockup exact (`border-t`, chevron rotate-180). Content: Details = `parseDescription(product.description)` (existing rich text); Shipping + Returns = current store policy text sourced from about page copy (owner to confirm final wording; defaults provided in PR).
-- **Sticky mobile action bar** (`fixed inset-x-0 bottom-0 z-40 border-t bg-background/90 backdrop-blur-xl md:hidden`) with compact stepper + both CTAs — exact mockup.
+- **Sticky mobile action bar** (`fixed inset-x-0 bottom-0 z-40 border-t bg-background/90 backdrop-blur-xl md:hidden`) with compact stepper + both CTAs - exact mockup.
 
-SSR page (`products/[id].astro`) keeps: Appwrite fetch + related fetch (existing queries verbatim), OG meta generation, `Astro.redirect('/404')` on miss, back link (`arrow-left` "Back to Showroom" — mockup pattern).
+SSR page (`products/[id].astro`) keeps: Appwrite fetch + related fetch (existing queries verbatim), OG meta generation, `Astro.redirect('/404')` on miss, back link (`arrow-left` "Back to Showroom" - mockup pattern).
 
-### 6.6 `SearchOverlay.tsx` island (new, mockup-styled — D4)
+### 6.6 `SearchOverlay.tsx` island (new, mockup-styled - D4)
 
 Opened from navbar search button and mobile nav. Design in mockup language:
 
 - `DrawerPanel`-style top sheet (`inset-x-4 top-20 rounded-3xl bg-background/95 backdrop-blur-xl`) with `search` icon + underline input (`field-input` pattern from mockup contact: transparent, `border-bottom 1px var(--border)`, focus → foreground).
 - Debounced (250ms) `fetch('/api/search?q=' + encodeURIComponent(q))` with `AbortController`; triggers at ≥ 2 chars.
-- Results: `rounded-2xl` rows (image `rounded-xl h-14 w-14`, name, category micro-label, `formatPrice`), max 8, link to PDP; states: idle hint ("Type at least 2 characters"), loading skeleton rows (`animate-pulse` mockup-style), empty ("No products found for “{q}”"), error ("Search is unavailable — try again").
+- Results: `rounded-2xl` rows (image `rounded-xl h-14 w-14`, name, category micro-label, `formatPrice`), max 8, link to PDP; states: idle hint ("Type at least 2 characters"), loading skeleton rows (`animate-pulse` mockup-style), empty ("No products found for “{q}”"), error ("Search is unavailable - try again").
 - `Esc` closes; overlay click closes; focus returns to trigger; basic arrow-key navigation.
 
 ### 6.7 `CtaBanner.astro` (exact mockup)
 
-`rounded-3xl bg-foreground text-background` split panel: "Ready to get our new stuff?" → **"Ready for your next device?"**; email pill form inside `bg-background/10 ring-1 ring-background/20` (visual parity; submit is intentionally decorative for now — no backend exists for newsletter; noted in PR as future work, button gives inline "Thank you" state like mockup's `setEmail("")` no-op).
+`rounded-3xl bg-foreground text-background` split panel: "Ready to get our new stuff?" → **"Ready for your next device?"**; email pill form inside `bg-background/10 ring-1 ring-background/20` (visual parity; submit is intentionally decorative for now - no backend exists for newsletter; noted in PR as future work, button gives inline "Thank you" state like mockup's `setEmail("")` no-op).
 
 ---
 
@@ -451,8 +451,8 @@ Opened from navbar search button and mobile nav. Design in mockup language:
 Keep SSR featured-products fetch (existing query verbatim). New structure:
 
 1. `Hero` (§6.1)
-2. `ShowroomExperience` island with featured products (`deep=false`) — replaces current hero-blob section + featured grid + category strip.
-3. `RecommendationsRail` — items: featured list rotated (or newest 8 via second SSR query `orderDesc($createdAt) limit 8`; choose newest to always fill).
+2. `ShowroomExperience` island with featured products (`deep=false`) - replaces current hero-blob section + featured grid + category strip.
+3. `RecommendationsRail` - items: featured list rotated (or newest 8 via second SSR query `orderDesc($createdAt) limit 8`; choose newest to always fill).
 4. `CtaBanner`
 5. `Footer`
 
@@ -460,19 +460,19 @@ Retired sections: gradient-blob hero, trust strip, category strip, **Certificati
 
 ### 7.2 Shop `/shop`
 
-Keep SSR fetch (isActive/isArchived/orderDesc/limit 200 — verbatim). New structure: `Hero word="Shop" eyebrow="The Full Showroom" subtitle="Every device, curated. Filter by space and discover your next essential."` + `ShowroomExperience deep products={...} initialCategory={categoryParam}` + `RecommendationsRail` + `CtaBanner` + `Footer`.
+Keep SSR fetch (isActive/isArchived/orderDesc/limit 200 - verbatim). New structure: `Hero word="Shop" eyebrow="The Full Showroom" subtitle="Every device, curated. Filter by space and discover your next essential."` + `ShowroomExperience deep products={...} initialCategory={categoryParam}` + `RecommendationsRail` + `CtaBanner` + `Footer`.
 
-- Existing `?category=` param maps to `initialCategory` (sidebar active state) — URL contract preserved.
-- **New: `?q=` param** (§9): when present, SSR pre-filters the product list with the same matcher as the API, shows a "— Search results for “{q}”" status line + clear chip, and syncs the query into the overlay-free experience (no island text input needed on shop page).
+- Existing `?category=` param maps to `initialCategory` (sidebar active state) - URL contract preserved.
+- **New: `?q=` param** (§9): when present, SSR pre-filters the product list with the same matcher as the API, shows a "- Search results for “{q}”" status line + clear chip, and syncs the query into the overlay-free experience (no island text input needed on shop page).
 - Retired: sticky pill filter bar, `shop-count-text`, product count line (mockup shows "Now browsing · X" instead).
 
-### 7.3 Search (new) — see §9 for endpoint spec.
+### 7.3 Search (new) - see §9 for endpoint spec.
 
 ### 7.4 Product `/products/[id]`
 
-Composition: back link → `md:grid-cols-2 md:gap-14` → `ProductStage` + `ProductDetail` → related `RecommendationsRail` (title "From the same room", eyebrow "— You may also like") → `Footer`. All data fetching, meta tags, redirect behavior preserved (§6.5).
+Composition: back link → `md:grid-cols-2 md:gap-14` → `ProductStage` + `ProductDetail` → related `RecommendationsRail` (title "From the same room", eyebrow "- You may also like") → `Footer`. All data fetching, meta tags, redirect behavior preserved (§6.5).
 
-### 7.5 Checkout `/checkout` — **restyle-only, hard rules**
+### 7.5 Checkout `/checkout` - **restyle-only, hard rules**
 
 The 3-step wizard, all form logic, Squad initiation (`squad-initiate`), stock management, order creation, validation, and every element ID stay **byte-identical**. Because its scoped `co-*` CSS reads `hsl(var(--primary))` etc., the token swap restyles it automatically. Allowed targeted edits (CSS/class-level only):
 
@@ -481,35 +481,35 @@ The 3-step wizard, all form logic, Squad initiation (`squad-initiate`), stock ma
 - Step circles/pills → `rounded-full` monochrome (active `bg-foreground text-background`).
 - Inputs → keep bordered style but `rounded-xl`, focus ring → `--ring`.
 - Any `dark:` classes → removed.
-- Icons: its inline SVGs are already lucide-style strokes — keep (no bootstrap dependency here).
+- Icons: its inline SVGs are already lucide-style strokes - keep (no bootstrap dependency here).
 
 **Verification:** full E2E walkthrough on the Squad sandbox must pass before merge (§13).
 
 ### 7.6 Login `/login`
 
-Restyle only: card → `rounded-3xl border-border/70` + mockup shadow; "— Sign in" micro-label; pill submit button; `eye/eye-off` toggle via lucide; underline-style or bordered inputs per mockup contact pattern; Appwrite `account` logic untouched.
+Restyle only: card → `rounded-3xl border-border/70` + mockup shadow; "- Sign in" micro-label; pill submit button; `eye/eye-off` toggle via lucide; underline-style or bordered inputs per mockup contact pattern; Appwrite `account` logic untouched.
 
 ### 7.7 Contact `/contact`
 
-Adopt mockup's split layout: left = `— Contact` micro-label, `Say hello.` statement (`text-5xl md:text-6xl`), copy, contact rows (WhatsApp number `text-foreground`, "Mon–Fri · 9:00–18:00" → keep current business hours from existing page content); right = `rounded-3xl border bg-card p-6 md:p-8` form with `field-input` underline fields (exact mockup CSS) + pill submit + "Sent — Thank you." success state. **Existing form submission handler is preserved verbatim** (whatever transport it currently uses).
+Adopt mockup's split layout: left = `- Contact` micro-label, `Say hello.` statement (`text-5xl md:text-6xl`), copy, contact rows (WhatsApp number `text-foreground`, "Mon–Fri · 9:00–18:00" → keep current business hours from existing page content); right = `rounded-3xl border bg-card p-6 md:p-8` form with `field-input` underline fields (exact mockup CSS) + pill submit + "Sent - Thank you." success state. **Existing form submission handler is preserved verbatim** (whatever transport it currently uses).
 
 ### 7.8 About `/about`
 
 Mockup editorial skeleton with ABKHD's existing story content preserved:
 
-1. `— About` + giant statement: **"We've been cheated too."** / "That's exactly why ABKHD exists." (`text-5xl md:text-7xl`, story paragraph below).
+1. `- About` + giant statement: **"We've been cheated too."** / "That's exactly why ABKHD exists." (`text-5xl md:text-7xl`, story paragraph below).
 2. Mockup 3-pillar grid (`Curated / Quiet / Considered` pattern) → **Tested / Disclosed / Warranted** with copy lifted from current Non-Negotiables + CertificationFlow.
 3. Comparison table ("Typical Sellers" vs "ABKHD") retained, restyled (`rounded-2xl` card, monochrome check/x lucide icons).
 4. `id="shipping"` and `id="returns"` anchors added (footer links) with policy summary cards.
 5. Team block (existing team images/copy) restyled as `rounded-2xl` cards.
 
-### 7.9 Admin `/admin/*` — **token-level reskin only**
+### 7.9 Admin `/admin/*` - **token-level reskin only**
 
 - `AdminLayout.astro`: remove dark-mode init script; bootstrap CDN link → lucide-static icons in nav (mapping §4.6); active nav item `text-primary bg-primary/10` becomes `bg-foreground text-background` (rounded-full pill); loading spinner border → `border-foreground border-t-transparent`.
-- `admin/index.astro` (dashboard), `admin/products.astro` (CRUD, 1,306 lines), `admin/orders.astro`: **logic untouched**; mechanical class swaps only (teal `text-primary` accents → monochrome; `rounded-lg` → `rounded-xl`+; badge colors for status chips may keep semantic greens/reds for operational clarity — documented exception to strict monochrome, flagged for owner: *recommend keeping status colors in admin for usability*).
+- `admin/index.astro` (dashboard), `admin/products.astro` (CRUD, 1,306 lines), `admin/orders.astro`: **logic untouched**; mechanical class swaps only (teal `text-primary` accents → monochrome; `rounded-lg` → `rounded-xl`+; badge colors for status chips may keep semantic greens/reds for operational clarity - documented exception to strict monochrome, flagged for owner: *recommend keeping status colors in admin for usability*).
 - Keep all `console.log` debugging as-is (out of scope; zero-risk policy).
 
-### 7.10 404 — new `src/pages/404.astro`
+### 7.10 404 - new `src/pages/404.astro`
 
 Mockup pattern: centered, `404` micro-label, "Page not found" `text-3xl font-semibold`, pill button "Go home". (Store currently has no dedicated 404 page; product-miss redirect target exists after this.)
 
@@ -548,7 +548,7 @@ export interface ShowroomProduct {
 | `price` (`$X.toFixed(2)`) | `price` via `formatPrice` | **₦ NGN**, never `$` |
 | `image` | `images[0] \|\| image \|\| videoThumbnail` | fallback chain preserved |
 | `category` chip | `category` | exact mockup chip styling |
-| `rating` / `reviews` | **— dropped (D3)** | row removed from cards + PDP |
+| `rating` / `reviews` | **- dropped (D3)** | row removed from cards + PDP |
 | `tags: "new"` | `isNew` (computed) | 30-day window constant `NEW_WINDOW_DAYS = 30` |
 | `tags: "best"` | `featured === true` | honest signal; order-count is a future enhancement (needs new query, out of scope) |
 | `tags: "sale"` | `originalPrice > price` | discount % via existing `calculateDiscount` |
@@ -560,9 +560,9 @@ export interface ShowroomProduct {
 
 ---
 
-## 9. Search Implementation (D4) — `/api/search`
+## 9. Search Implementation (D4) - `/api/search`
 
-### 9.1 Endpoint — `src/pages/api/search.ts` (new)
+### 9.1 Endpoint - `src/pages/api/search.ts` (new)
 
 ```
 GET /api/search?q=<term>&limit=8
@@ -579,7 +579,7 @@ Logic (server-side, runs on Cloudflare worker via existing SSR runtime):
 4. Map hits through the `ShowroomProduct` mapper, slice to `limit`.
 5. `Cache-Control: public, max-age=30` (cheap response caching; catalog is small).
 
-**Documented ceiling:** matches within the newest 200 active products — identical to the existing `/shop` page behavior, so search never returns less than the shop already shows. If the catalog exceeds ~200 SKUs, the follow-up is a fulltext index on `name` (`Query.search`) — **explicitly deferred** because it requires an Appwrite attribute index change (violates the no-backend-change constraint); noted as future work.
+**Documented ceiling:** matches within the newest 200 active products - identical to the existing `/shop` page behavior, so search never returns less than the shop already shows. If the catalog exceeds ~200 SKUs, the follow-up is a fulltext index on `name` (`Query.search`) - **explicitly deferred** because it requires an Appwrite attribute index change (violates the no-backend-change constraint); noted as future work.
 
 ### 9.2 Consumers
 
@@ -604,9 +604,9 @@ The following are **out of bounds for logic changes**; any PR touching them beyo
 | `src/lib/stock-manager.ts` | Stock decrement on order |
 | `src/lib/upload-cache.ts`, `scripts/check-*.ts` | Admin upload pipeline + schema tooling |
 | `src/stores/cart.ts` | Cart state machine (islands only *call* it) |
-| `src/pages/checkout.astro` — all `<script>` logic, form IDs, Squad flow | Payment integrity (CSS-only edits allowed, §7.5) |
-| `src/pages/admin/*.astro` — all scripts, CRUD, auth | Admin integrity (class-only edits allowed, §7.9) |
-| `src/layouts/AdminLayout.astro` — auth check script | Admin auth |
+| `src/pages/checkout.astro` - all `<script>` logic, form IDs, Squad flow | Payment integrity (CSS-only edits allowed, §7.5) |
+| `src/pages/admin/*.astro` - all scripts, CRUD, auth | Admin integrity (class-only edits allowed, §7.9) |
+| `src/layouts/AdminLayout.astro` - auth check script | Admin auth |
 | `src/lib/init.ts` (`createInitializer`) | Astro lifecycle helper used by cart drawer |
 | `.env` / `PUBLIC_APPWRITE_*` / `VITE_WHATSAPP_NUMBER` contracts | Deployment config |
 | Cloudflare adapter config, `wrangler`/Pages settings | Infra |
@@ -675,25 +675,25 @@ Explicitly **allowed** to change: anything in `src/styles/`, `src/components/` (
 
 Work proceeds as stacked commits on `feat/showroom-ui-redesign`, one phase per PR-able unit. Each phase must leave `astro build` green and the app deployable.
 
-**Phase 0 — Foundations** (deps, tokens, utilities, icon infra)
-✅ `astro build` succeeds; app renders in monochrome (teal eliminated — verified by screenshot diff of key pages); `rg "bi bi-|bootstrap-icons" src` → 0 after full Phase 5; Inter 300–900 loads; glass/ambient utilities present; dark-mode code fully removed (`rg "darkMode|dark-mode|\.dark\b" src` → only allowed hits).
+**Phase 0 - Foundations** (deps, tokens, utilities, icon infra)
+✅ `astro build` succeeds; app renders in monochrome (teal eliminated - verified by screenshot diff of key pages); `rg "bi bi-|bootstrap-icons" src` → 0 after full Phase 5; Inter 300–900 loads; glass/ambient utilities present; dark-mode code fully removed (`rg "darkMode|dark-mode|\.dark\b" src` → only allowed hits).
 
-**Phase 1 — Shell** (navbar, mobile nav, footer, cart drawer restyle, 404)
+**Phase 1 - Shell** (navbar, mobile nav, footer, cart drawer restyle, 404)
 ✅ Floating navbar shrinks on scroll (24px threshold); mobile drawer opens/closes with exact motion; cart count updates live; cart drawer opens with items persisting from localStorage; 404 renders.
 
-**Phase 2 — Home**
+**Phase 2 - Home**
 ✅ Hero (image zoom, overlay word, search form submits to `/shop?q=`); showroom island filters + paginates featured products; ambient spotlight follows cursor on desktop; recommendations rail scrolls with arrows; CTA banner renders.
 
-**Phase 3 — Shop + Search**
+**Phase 3 - Shop + Search**
 ✅ `/shop` matches mockup layout; `?category=` still works (URL contract); `?q=` filters server-side; `/api/search` returns ranked results; overlay debounces, aborts stale requests, keyboard-navigable; empty/loading/error states correct.
 
-**Phase 4 — Product Detail**
+**Phase 4 - Product Detail**
 ✅ Exact mockup PDP layout; variants from real `colors`/`sizes` add to cart with correct variant keys; qty stepper respects stock; video toggles in stage; related rail populated; mobile action bar works; 404 redirect on bad ID.
 
-**Phase 5 — Secondary pages + Admin reskin**
+**Phase 5 - Secondary pages + Admin reskin**
 ✅ About/Contact/Login restyled with content preserved; admin CRUD passes manual smoke test (create/edit/archive product, mark featured, view order); admin icons all lucide; bootstrap fully removed.
 
-**Phase 6 — Checkout reskin + polish + QA**
+**Phase 6 - Checkout reskin + polish + QA**
 ✅ Checkout passes full sandbox E2E (§13); motion polish pass; `prefers-reduced-motion` verified; Lighthouse (home): Performance ≥ 85 mobile, no CLS regressions > 0.05; contrast AA on all text.
 
 ---
@@ -723,7 +723,7 @@ Work proceeds as stacked commits on `feat/showroom-ui-redesign`, one phase per P
 **Platform**
 - [ ] Dark mode gone: no flash, no toggle, stale `darkMode` localStorage cleaned
 - [ ] All nav links + footer links resolve (incl. `/about#shipping`, `#returns`)
-- [ ] Mobile: 375px — navbar, drawers, PDP sticky bar, checkout wizard usable
+- [ ] Mobile: 375px - navbar, drawers, PDP sticky bar, checkout wizard usable
 - [ ] `prefers-reduced-motion`: floats/spotlight/transitions disabled
 - [ ] OG tags on home/shop/PDP render correct product images (₦, titles)
 - [ ] No console errors on any page; Appwrite connection ping OK in dev
@@ -735,7 +735,7 @@ Work proceeds as stacked commits on `feat/showroom-ui-redesign`, one phase per P
 | # | Risk | Likelihood | Mitigation |
 |---|---|---|---|
 | R1 | React + Framer island payload (~90KB gz) hurts LCP on shop/home | Medium | Islands hydrate `client:idle`/`client:visible` where possible; SSR HTML renders instantly (Astro renders islands server-side); mockup parity accepted as trade-off; monitor Lighthouse in Phase 6 |
-| R2 | Astro 5 + React 19 + framer-motion 12 integration quirks (SSR of `AnimatePresence`) | Low | `AnimatePresence` renders fine SSR (children render, exit animations are client-only); fallback: `client:only="react"` for `ShowroomExperience` (costs SSR HTML for grid — avoid) |
+| R2 | Astro 5 + React 19 + framer-motion 12 integration quirks (SSR of `AnimatePresence`) | Low | `AnimatePresence` renders fine SSR (children render, exit animations are client-only); fallback: `client:only="react"` for `ShowroomExperience` (costs SSR HTML for grid - avoid) |
 | R3 | Checkout regression breaks payments | Low (CSS-only edits) | Hard rule §7.5 (IDs/logic frozen) + mandatory sandbox E2E before merge |
 | R4 | Missed `dark:` class or dark-mode script causes flash/regression | Low | Acceptance grep in Phase 0 + checklist item |
 | R5 | Search result quality (200-doc ceiling, no index) | Medium | Documented ceiling; shared matcher keeps overlay/shop consistent; deferred fulltext index is a config-only follow-up |
@@ -748,7 +748,7 @@ Work proceeds as stacked commits on `feat/showroom-ui-redesign`, one phase per P
 ## 15. Branch, Review & Rollout Plan
 
 1. **Branch:** `feat/showroom-ui-redesign` (already created from `main`). All work committed here; phases as logical commits (`phase-0: tokens & foundations`, …).
-2. **Preview deploys:** Cloudflare Pages/GitHub integration gives per-branch preview URLs — owner reviews each phase on the preview before the next begins.
+2. **Preview deploys:** Cloudflare Pages/GitHub integration gives per-branch preview URLs - owner reviews each phase on the preview before the next begins.
 3. **Squad testing:** sandbox (`SQUAD_BASE_URL_DEV`) until final sign-off; production cutover is a config flag already in place (`isProd`).
 4. **Merge:** single PR `feat/showroom-ui-redesign → main` after Phase 6 checklist is fully green, or phase-by-phase PRs if owner prefers smaller reviews (recommended given checkout is in scope).
 5. **Post-merge follow-ups (explicitly out of scope):** fulltext search index, newsletter backend for CTA form, order-count-based "Best Seller", optional storefront View Transitions.
@@ -762,9 +762,9 @@ Work proceeds as stacked commits on `feat/showroom-ui-redesign`, one phase per P
 ### Phase 5 (secondary pages + admin reskin)
 
 1. **`admin/products/new.astro` + `admin/products/[id].astro` also reskinned (icon swaps + mechanical class edits only).** Not listed in §11 (legacy duplicate form pages superseded by the slide-in panel in `admin/products.astro`), but the Phase 0/5 acceptance grep (`bi bi-`/`bootstrap-icons` → 0 across `src/`) requires them to be converted. No logic changes.
-2. **Icon substitutions where lucide-static 1.69 lacks a 1:1 bootstrap equivalent:** `currency-naira` → `banknote` (no naira glyph in lucide); `bag-check` / `bag-x` → `package-check` / `package-x` (`shopping-bag-check` not published in lucide-static 1.69 — SPEC §4.6 footnote anticipated this).
-3. **Admin status colors retained** (greens/yellows/reds for stat icons, status chips, destructive actions) per §7.9 / R8 recommendation — flagged for owner at review.
-4. **Contact form success state:** the previous simulated handler ended in `alert()`. Per §7.7 ("'Sent — Thank you.' success state") the transport (simulated `setTimeout`) and form ids are preserved verbatim, but the alert is replaced by the mockup success panel. The collapsible-form toggle buttons were dropped (mockup layout has the form permanently visible).
-5. **Login page:** its `is:global` style block became a scoped block and the duplicate bordered `.field-input` definition was removed — the page now uses the global underline `.field-input` utility (§7.6 "underline-style … per mockup contact pattern"). Appwrite logic, element ids and redirect behavior untouched; the eye/arrow-repeat icon swaps are driven by a new tiny client helper `src/lib/lucideIcons.ts` (generated from lucide-static via `scripts` outside the repo; usage mirrors `Icon.astro`).
+2. **Icon substitutions where lucide-static 1.69 lacks a 1:1 bootstrap equivalent:** `currency-naira` → `banknote` (no naira glyph in lucide); `bag-check` / `bag-x` → `package-check` / `package-x` (`shopping-bag-check` not published in lucide-static 1.69 - SPEC §4.6 footnote anticipated this).
+3. **Admin status colors retained** (greens/yellows/reds for stat icons, status chips, destructive actions) per §7.9 / R8 recommendation - flagged for owner at review.
+4. **Contact form success state:** the previous simulated handler ended in `alert()`. Per §7.7 ("'Sent - Thank you.' success state") the transport (simulated `setTimeout`) and form ids are preserved verbatim, but the alert is replaced by the mockup success panel. The collapsible-form toggle buttons were dropped (mockup layout has the form permanently visible).
+5. **Login page:** its `is:global` style block became a scoped block and the duplicate bordered `.field-input` definition was removed - the page now uses the global underline `.field-input` utility (§7.6 "underline-style … per mockup contact pattern"). Appwrite logic, element ids and redirect behavior untouched; the eye/arrow-repeat icon swaps are driven by a new tiny client helper `src/lib/lucideIcons.ts` (generated from lucide-static via `scripts` outside the repo; usage mirrors `Icon.astro`).
 6. **`CertificationFlow` animations removed from `global.css`** together with the component (§7.1/§11: content migrated to About as static markup).
-7. **Shipping/Returns policy copy:** §7.8 requires `#shipping`/`#returns` summary cards but no policy copy existed in the repo. Shipping card states the verified delivery fees from `checkout.astro` (Yola ₦1,000 / Jimeta ₦2,000); Returns card summarizes the existing warranty commitments without inventing return windows or durations — owner should review the wording.
+7. **Shipping/Returns policy copy:** §7.8 requires `#shipping`/`#returns` summary cards but no policy copy existed in the repo. Shipping card states the verified delivery fees from `checkout.astro` (Yola ₦1,000 / Jimeta ₦2,000); Returns card summarizes the existing warranty commitments without inventing return windows or durations - owner should review the wording.

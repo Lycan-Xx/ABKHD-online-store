@@ -1,0 +1,253 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+
+const updated = '12 November 2026';
+
+const sections = [
+  { id: 'agreement', label: 'Acceptance' },
+  { id: 'about-us', label: 'About us' },
+  { id: 'products', label: 'Products' },
+  { id: 'orders', label: 'Orders' },
+  { id: 'pricing', label: 'Pricing and payment' },
+  { id: 'delivery', label: 'Delivery' },
+  { id: 'inspection', label: 'Checking your order' },
+  { id: 'warranty', label: 'Warranty' },
+  { id: 'returns', label: 'Returns and refunds' },
+  { id: 'acceptable-use', label: 'Acceptable use' },
+  { id: 'intellectual-property', label: 'Intellectual property' },
+  { id: 'liability', label: 'Limitation of liability' },
+  { id: 'indemnity', label: 'Indemnity' },
+  { id: 'law', label: 'Governing law' },
+  { id: 'changes', label: 'Changes' },
+  { id: 'contact', label: 'Contact us' },
+];
+---
+
+<Layout
+  title="Terms of Service | ABKHD Store"
+  description="The terms that apply when you browse, order or buy devices from ABKHD Store in Yola and Jimeta, Nigeria."
+>
+  <Header slot="header" />
+
+  <main class="mx-auto max-w-[900px] px-6 pt-40 pb-24">
+    <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Terms</p>
+    <h1 class="mt-4 text-balance text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+      Terms of Service
+    </h1>
+    <p class="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+      These terms cover your use of this site and any order you place with ABKHD Store. They are
+      written to be read once and understood, because a fair shop should not need lawyers to explain
+      it.
+    </p>
+    <p class="mt-4 text-xs text-muted-foreground">Last updated: {updated}</p>
+
+    <nav class="mt-10 flex flex-wrap gap-2" aria-label="Terms sections">
+      {
+        sections.map((section) => (
+          <a
+            href={`#${section.id}`}
+            class="inline-flex items-center rounded-full border border-border bg-background px-4 py-2 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            {section.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <section id="agreement" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Acceptance of these terms</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        By browsing this site, placing an order or using our WhatsApp line, you agree to these terms,
+        our
+        <a href="/privacy" class="font-medium text-foreground underline underline-offset-4 hover:text-foreground/70">Privacy Policy</a>
+        and the delivery, warranty and returns policies published on each product page. If you do not
+        agree, please do not order from us.
+      </p>
+    </section>
+
+    <section id="about-us" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">About us</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        ABKHD Store is a technology retailer operating from Jimeta, Yola, Adamawa State, Nigeria. We
+        sell tested and disclosed devices, mostly phones, computers and accessories. We can be reached
+        on
+        <a href="mailto:abkhdtechgadgets@gmail.com" class="font-medium text-foreground underline underline-offset-4 hover:text-foreground/70">abkhdtechgadgets@gmail.com</a>
+        and on WhatsApp at
+        <a href="https://wa.me/2348085657927" class="font-medium text-foreground underline underline-offset-4 hover:text-foreground/70">+234 808 565 7927</a>.
+      </p>
+    </section>
+
+    <section id="products" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Products</h2>
+      <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
+        <li>Every device is inspected before it is listed, and its condition is disclosed on the product page. Where a device is pre-owned or refurbished, that is stated clearly.</li>
+        <li>Product images are photographs of the actual item unless the page says otherwise. Small marks from normal use may be present and are part of the disclosed condition.</li>
+        <li>Specifications, accessories and colour options can change without notice. Where a detail matters to you, confirm it with us on WhatsApp before you order.</li>
+        <li>All prices are shown in Nigerian Naira (₦) and exclude any delivery charge, which is shown separately at checkout.</li>
+        <li>Colour and shade on screen can differ slightly from the physical device depending on your display settings.</li>
+      </ul>
+    </section>
+
+    <section id="orders" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Orders and acceptance</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Placing an order is an offer to buy. A contract is formed only when we confirm the order and
+        the payment has been verified. We may decline an order, for example when an item is out of
+        stock, when a price was listed in error, or when we cannot deliver to the address given. If
+        we decline after you have paid, we refund you in full using the same method you paid with.
+      </p>
+    </section>
+
+    <section id="pricing" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Pricing and payment</h2>
+      <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
+        <li>Payments are made through our payment provider's secure page. We never receive or store your card number, CVV or PIN.</li>
+        <li>We only dispatch an order once payment has been confirmed and we have verified it on our side. Orders are confirmed on WhatsApp.</li>
+        <li>Prices can change without notice, and we are not responsible for prices shown on third-party sites or price comparison tools.</li>
+        <li>You are responsible for the payment details you give us. If a transfer is made with the wrong details, we will work with you to resolve it, but the outcome depends on the provider's process.</li>
+        <li>We may cancel and refund an order where we suspect fraud or where the payment cannot be verified.</li>
+      </ul>
+    </section>
+
+    <section id="delivery" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Delivery</h2>
+      <div class="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
+        <p>
+          We deliver within Adamawa State. Delivery is ₦1,000 to Yola and ₦2,000 to Jimeta. The fee
+          is shown at checkout and is not refundable once a rider has been dispatched.
+        </p>
+        <ul class="list-disc space-y-2 pl-5">
+          <li>After payment is confirmed, we contact you on WhatsApp to agree a delivery slot that suits you.</li>
+          <li>Delivery is subject to rider availability, weather and road conditions, so times are estimates rather than guarantees.</li>
+          <li>The risk of the device passes to you when the order is handed over and you have had the chance to check it.</li>
+          <li>If nobody is available to receive the order, the rider will contact you and the order will be rescheduled. Repeated failed attempts may result in the order being cancelled and the product returned, with any delivery fee already paid being non-refundable.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="inspection" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Checking your order</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Please check the device in front of the rider before they leave: confirm it is the right
+        model, that it powers on, that the display is clean, that the ports work and that the
+        condition matches the listing. If something is wrong, do not accept the delivery. Tell the
+        rider and message us immediately, and we will sort it out the same day where we can.
+      </p>
+    </section>
+
+    <section id="warranty" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Warranty</h2>
+      <div class="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
+        <p>
+          Each product page states the warranty that applies to that device. That warranty is the
+          promise, and this section explains its limits.
+        </p>
+        <ul class="list-disc space-y-2 pl-5">
+          <li>A warranty claim needs proof of purchase: your order reference and the device condition as delivered.</li>
+          <li>Warranty does not cover physical damage, liquid damage, drop damage, pressure damage, theft, or damage from unauthorised repair or opening the device.</li>
+          <li>It also does not cover normal battery wear, cosmetic wear, or faults caused by third-party software, rooting, or modifications.</li>
+          <li>Devices that fail under warranty are assessed by us. Where a fault is covered, we repair or replace the item, or refund the purchase price of the affected item.</li>
+          <li>Warranty is a service commitment from ABKHD. It does not affect any right you have under Nigerian consumer law for goods that are not of merchantable quality.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="returns" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Returns and refunds</h2>
+      <div class="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
+        <p>
+          If a device does not match how it was described, contact us within 7 days of delivery and
+          we will make it right. Our aim is to fix the problem, not to argue about it.
+        </p>
+        <ul class="list-disc space-y-2 pl-5">
+          <li>Tell us within 7 days of delivery. After that window, returns are not accepted except where a defect falls under warranty or under consumer law.</li>
+          <li>For a return to be accepted, the device must be in the condition it was delivered in, with the accessories, box and charger it came with. Missing accessories are deducted from the refund.</li>
+          <li>Where a device has been activated, used, or shows wear beyond the disclosed condition, we may decline the return.</li>
+          <li>Approved refunds are returned to the original payment method. Delivery fees are not refundable unless the fault is ours.</li>
+          <li>If we sent the wrong item, or an item is faulty on arrival, we collect it from you and cover the return leg.</li>
+          <li>Refunds are processed within 7 working days of approval, and your bank or provider may take a further few days to show it.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="acceptable-use" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Acceptable use</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        You agree not to misuse this site or our services. That means no unlawful material, no
+        attempts to breach or overload our systems, no scraping or bulk extraction of the catalogue,
+        no impersonation of anyone else, and no fraudulent orders or payment claims. We may suspend
+        access where we have reasonable grounds to believe these terms have been broken.
+      </p>
+    </section>
+
+    <section id="intellectual-property" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Intellectual property</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        The ABKHD name, logo, site layout, product descriptions, photographs and other content on
+        this site belong to ABKHD Store or are used with permission. You may browse, share links to
+        our pages and quote short extracts with credit. You may not copy the site, republish our
+        content in bulk or use our brand in a way that suggests we endorse you.
+      </p>
+    </section>
+
+    <section id="liability" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Limitation of liability</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        We do our job carefully and we stand behind what we sell. Subject to that, and to any
+        liability that cannot lawfully be excluded, our total liability arising from any order is
+        limited to the amount you paid for that order. We are not liable for indirect or
+        consequential loss such as lost profits, lost data or loss of business. Nothing here limits
+        your rights under Nigerian consumer law or limits our liability for death or personal injury
+        caused by our negligence, or for fraud.
+      </p>
+    </section>
+
+    <section id="indemnity" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Indemnity</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        You agree to indemnify us against claims, losses and reasonable costs arising from your
+        breach of these terms, your misuse of the site, or your breach of the law.
+      </p>
+    </section>
+
+    <section id="law" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Governing law</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        These terms are governed by the laws of the Federal Republic of Nigeria. The courts of Adamawa
+        State have jurisdiction over any dispute that arises from them. If you are not satisfied with
+        how a dispute was handled, please talk to us first on WhatsApp or email. We would much rather
+        sort it out with you.
+      </p>
+    </section>
+
+    <section id="changes" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Changes to these terms</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+        We may update these terms as the store or the law changes. The "last updated" date shows the
+        current version. Continuing to use the site after an update means you accept the revised
+        terms.
+      </p>
+    </section>
+
+    <section id="contact" class="mt-14 scroll-mt-32">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Contact us</h2>
+      <div class="mt-4 rounded-2xl border border-border bg-card p-6">
+        <p class="text-sm leading-relaxed text-muted-foreground">
+          ABKHD Store, Jimeta, Yola, Adamawa State, Nigeria.
+        </p>
+        <div class="mt-4 flex flex-col gap-2 text-sm">
+          <a href="mailto:abkhdtechgadgets@gmail.com" class="font-medium text-foreground hover:text-foreground/70">
+            abkhdtechgadgets@gmail.com
+          </a>
+          <a href="https://wa.me/2348085657927" class="font-medium text-foreground hover:text-foreground/70">
+            WhatsApp +234 808 565 7927
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer slot="footer" />
+</Layout>
