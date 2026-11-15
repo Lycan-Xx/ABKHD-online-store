@@ -234,8 +234,31 @@ import Icon from '../showroom/Icon.astro';
     input.focus();
   });
 
-  // Open triggers: navbar search button + mobile nav (window event).
-  window.addEventListener('abkhd:search', () => setOpen(true));
+  // Search lives on the shop page. Every trigger (navbar icon, mobile nav)
+  // dispatches `abkhd:search`; if we are not on the shop page we navigate
+  // there with `?search=1` and open the overlay on arrival.
+  function requestSearch() {
+    if (window.location.pathname !== '/shop') {
+      window.location.assign('/shop?search=1');
+      return;
+    }
+    setOpen(true);
+  }
+
+  window.addEventListener('abkhd:search', requestSearch);
+
+  // Arrived from another page via /shop?search=1: open, then drop the flag so
+  // a refresh does not reopen the overlay.
+  (function openFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('search') !== '1') return;
+
+    setOpen(true);
+
+    params.delete('search');
+    const qs = params.toString();
+    history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash);
+  })();
 
   backdrop.addEventListener('click', () => setOpen(false));
   closeBtn?.addEventListener('click', () => setOpen(false));

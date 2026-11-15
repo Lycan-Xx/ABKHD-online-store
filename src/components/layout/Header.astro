@@ -124,12 +124,19 @@ const isActive = (to: string) =>
     });
   })();
 
-  // Search button → SearchOverlay island
+  // Search button → search overlay. On the shop page the overlay opens in
+  // place; anywhere else we go to /shop first (the overlay opens on arrival
+  // via the ?search=1 flag). Navigating from here also means the button still
+  // does something useful if the overlay script has not loaded yet.
   (function () {
     var searchBtn = document.getElementById('nav-search-btn');
     if (!searchBtn) return;
     searchBtn.addEventListener('click', function () {
-      window.dispatchEvent(new CustomEvent('abkhd:search'));
+      if (window.location.pathname === '/shop') {
+        window.dispatchEvent(new CustomEvent('abkhd:search'));
+      } else {
+        window.location.assign('/shop?search=1');
+      }
     });
   })();
 

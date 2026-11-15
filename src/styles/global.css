@@ -260,18 +260,18 @@
     }
   }
 
-  /* Drawer panel (mobile nav, search, filters) */
+  /* Drawer panel (mobile nav, search, filters). Hidden panels stay mounted so
+     the close animation can play; `inert` keeps them out of the tab order and
+     the accessibility tree, so no visibility transition is needed. */
   .panel-surface {
     transition:
       opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0s linear 0.45s;
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .panel-surface[data-open='false'] {
     opacity: 0;
     transform: translateY(-16px) scale(0.98);
-    visibility: hidden;
     pointer-events: none;
   }
 
@@ -288,14 +288,12 @@
   .menu-surface {
     transition:
       opacity 0.18s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0s linear 0.18s;
+      transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .menu-surface[data-open='false'] {
     opacity: 0;
     transform: translateY(-6px) scale(0.98);
-    visibility: hidden;
     pointer-events: none;
   }
 
