@@ -458,5 +458,8 @@
 
   html.abkhd-printing #abkhd-print-root {
     display: block !important;
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
   }
 }

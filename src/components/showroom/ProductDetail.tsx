@@ -50,6 +50,7 @@ export function ProductDetail({ product }: Props) {
       quantity: qty,
       size: product.sizes?.length ? (size ?? product.sizes[0]) : null,
       color: product.colors?.length ? (color ?? product.colors[0]) : null,
+      category: product.category,
     });
   };
 

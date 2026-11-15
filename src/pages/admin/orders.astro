@@ -115,7 +115,52 @@ import { formatPrice } from '../../lib/utils';
     return '₦' + price.toLocaleString();
   }
 
-  function showOrderDetails(order: any) {
+  let activeOrder: any = null;
+  let receiptRoot: any = null;
+
+  async function unmountReceipt() {
+    if (receiptRoot) {
+      try {
+        receiptRoot.unmount();
+      } catch (e) {
+        console.error('Failed to unmount receipt:', e);
+      }
+      receiptRoot = null;
+    }
+  }
+
+  async function mountReceipt(order: any, items: any[]) {
+    const slot = document.getElementById('admin-receipt-slot');
+    if (!slot) return;
+
+    await unmountReceipt();
+
+    const [{ mapOrderToReceipt }, React, { createRoot }, { ReceiptDisplay }] =
+      await Promise.all([
+        import('../../lib/receiptUtils'),
+        import('react'),
+        import('react-dom/client'),
+        import('../../components/receipt/ReceiptDisplay'),
+      ]);
+
+    const total = order.totalAmount || order.total || 0;
+    const subtotal = items.reduce(
+      (sum: number, item: any) => sum + (item.price || 0) * (item.quantity || 0),
+      0
+    );
+    const deliveryFee = total > 0 && subtotal >= 0 && total !== subtotal ? total - subtotal : undefined;
+
+    const data = mapOrderToReceipt(order, items, {
+      receiptId: order.receiptId || undefined,
+      deliveryFee,
+    });
+
+    receiptRoot = createRoot(slot);
+    receiptRoot.render(React.createElement(ReceiptDisplay, { data }));
+  }
+
+  async function showOrderDetails(order: any) {
+    activeOrder = order;
     const panel = document.getElementById('order-details-panel');
     const overlay = document.getElementById('details-overlay');
     const content = document.getElementById('order-details-content');
@@ -242,6 +287,18 @@ import { formatPrice } from '../../lib/utils';
         </div>
       </div>
 
+      ${
+        order.status === 'paid'
+          ? `<div class="space-y-4">
+               <h3 class="text-lg font-semibold flex items-center gap-2">
+                 ${lucideIcon('file-text', 'w-5 h-5')}
+                 Receipt
+               </h3>
+               <div id="admin-receipt-slot" class="rounded-lg border bg-background"></div>
+             </div>`
+          : ''
+      }
+
       <!-- Actions -->
       <div class="flex gap-3">
         <button 
@@ -258,14 +315,50 @@ import { formatPrice } from '../../lib/utils';
           ${lucideIcon('clipboard', 'w-4 h-4')}
           Copy Reference
         </button>
+        <button
+          id="delete-order-btn"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-red-500/40 text-red-500 hover:bg-red-500/10 transition-colors"
+        >
+          ${lucideIcon('trash-2', 'w-4 h-4')}
+          Delete Order
+        </button>
       </div>
     `;
+
+    const deleteBtn = content.querySelector<HTMLButtonElement>('#delete-order-btn');
+    deleteBtn?.addEventListener('click', async () => {
+      const orderId = activeOrder?.$id;
+      if (!orderId) return;
+      if (!window.confirm('Delete this order? This cannot be undone.')) return;
+      try {
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Deleting...';
+        await databases.deleteDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, orderId);
+        hideOrderDetails();
+        loadOrders();
+      } catch (err) {
+        console.error('Failed to delete order:', err);
+        window.alert(
+          'Failed to delete order: ' + (err instanceof Error ? err.message : 'Unknown error')
+        );
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = 'Delete Order';
+      }
+    });
 
     // Show panel and overlay
     overlay.classList.remove('hidden');
     setTimeout(() => {
       panel.classList.remove('translate-x-full');
     }, 10);
+
+    if (order.status === 'paid') {
+      mountReceipt(order, Array.isArray(items) ? items : []).catch((e) =>
+        console.error('Failed to render receipt:', e)
+      );
+    } else {
+      unmountReceipt();
+    }
   }
 
   function hideOrderDetails() {

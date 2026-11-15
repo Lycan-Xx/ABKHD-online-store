@@ -119,6 +119,7 @@ if (typeof window !== 'undefined') {
       quantity,
       size,
       color,
+      category: product.category,
     });
   }) as EventListener);
 }

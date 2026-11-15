@@ -7,6 +7,7 @@ export interface CartItem {
   quantity: number;
   size?: string | null;
   color?: string | null;
+  category?: string;
 }
 
 export interface Cart {

@@ -78,6 +78,45 @@ function toReceiptItems(items: CartItem[]): ReceiptLineItem[] {
 }
 
 /**
+ * Warranty depends on what was bought: mobile phones and accessories carry
+ * 2 days, laptops/computers carry 7 days. Mixed or unknown carts get a
+ * receipt line that states both.
+ */
+function resolveWarranty(items: CartItem[]): { title: string; subtitle: string } {
+  const categories = items
+    .map((item) => (item.category || '').toLowerCase())
+    .filter(Boolean);
+
+  if (categories.length === 0) {
+    return {
+      title: '2 / 7-Day Warranty',
+      subtitle: '2 days mobile & accessories · 7 days laptops',
+    };
+  }
+
+  const isComputer = (category: string) =>
+    category.includes('computer') ||
+    category.includes('laptop') ||
+    category.includes('desktop');
+
+  const computers = categories.filter(isComputer).length;
+  const others = categories.length - computers;
+
+  if (computers > 0 && others === 0) {
+    return { title: '7-Day Warranty', subtitle: 'laptops & computers' };
+  }
+
+  if (others > 0 && computers === 0) {
+    return { title: '2-Day Warranty', subtitle: 'mobile & accessories' };
+  }
+
+  return {
+    title: '2 / 7-Day Warranty',
+    subtitle: '2 days mobile & accessories · 7 days laptops',
+  };
+}
+
+/**
  * Map a stored order + cart items into the receipt component's data model.
  */
 export function mapOrderToReceipt(
@@ -109,6 +148,7 @@ export function mapOrderToReceipt(
     (order.city === 'Jimeta' ? 2000 : order.city ? 1000 : 0);
 
   const totalAmount = subtotal + deliveryFee + vatAmount;
+  const warranty = resolveWarranty(orderItems);
 
   const paymentRef = order.paymentRef || '';
   const receiptId =
@@ -162,8 +202,8 @@ export function mapOrderToReceipt(
       tagline: 'SMARTER TECH. BETTER LIVING.',
       hoursLine1: 'Mon – Sat: 9AM – 8PM',
       hoursLine2: 'Sun: 10AM – 6PM',
-      warrantyTitle: '30-Day Warranty',
-      warrantySubtitle: 'on all devices',
+      warrantyTitle: warranty.title,
+      warrantySubtitle: warranty.subtitle,
       returnsTitle: 'Returns within',
       returnsSubtitle: '7 days',
       supportMessage: 'Questions? Message us on our store for support.',

@@ -13,8 +13,8 @@ const DEFAULT_STORE_CONFIG: StoreBrandingConfig = {
   tagline: 'SMARTER TECH. BETTER LIVING.',
   hoursLine1: 'Mon – Sat: 9AM – 8PM',
   hoursLine2: 'Sun: 10AM – 6PM',
-  warrantyTitle: '30-Day Warranty',
-  warrantySubtitle: 'on all devices',
+  warrantyTitle: '2 / 7-Day Warranty',
+  warrantySubtitle: '2 days mobile & accessories · 7 days laptops',
   returnsTitle: 'Returns within',
   returnsSubtitle: '7 days',
   supportMessage: 'Questions? Message us on our store for support.',
@@ -95,7 +95,7 @@ export const ABKHDReceipt = forwardRef<HTMLDivElement, ABKHDReceiptProps>(
           WebkitPrintColorAdjust: 'exact',
           printColorAdjust: 'exact',
         }}
-        className={`relative w-[794px] min-h-[1123px] bg-white text-[#111c33] overflow-hidden flex flex-col justify-between shadow-xl select-none ${className}`}
+        className={`relative w-[793px] min-h-[1122px] bg-white text-[#111c33] overflow-hidden flex flex-col justify-between shadow-xl select-none ${className}`}
       >
         {/* Top subtle cool gradient & top-right circuit trace graphic */}
         <div
@@ -487,7 +487,7 @@ export const ABKHDReceipt = forwardRef<HTMLDivElement, ABKHDReceiptProps>(
               </div>
             </div>
 
-            {/* 30-Day Warranty */}
+            {/* Warranty */}
             <div className="flex items-start gap-3 px-5 border-r border-[#cbd5e1]">
               <svg
                 className="w-6 h-6 text-[#132035] mt-0.5 shrink-0"

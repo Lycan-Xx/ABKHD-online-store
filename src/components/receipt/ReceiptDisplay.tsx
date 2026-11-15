@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ABKHDReceipt } from './ABKHDReceipt';
 import type { ReceiptData } from './receipt.types';
 
-const A4_WIDTH = 794;
-const A4_HEIGHT = 1123;
+const A4_WIDTH = 793;
+const A4_HEIGHT = 1122;
 
 export interface ReceiptDisplayProps {
   data: ReceiptData;
@@ -56,7 +56,25 @@ export function ReceiptDisplay({ data }: ReceiptDisplayProps) {
     style.textContent =
       '@page{size:A4 portrait;margin:0}html,body{background:#fff!important;margin:0!important;padding:0!important}';
     root.appendChild(style);
-    root.appendChild(receipt.cloneNode(true));
+
+    const clone = receipt.cloneNode(true) as HTMLElement;
+
+    // A couple of pixels of overflow is what turns a one-page receipt into two
+    // pages with a blank sheet. Shrink marginally in that case only; genuinely
+    // long receipts are still allowed to flow onto extra pages.
+    const naturalHeight = receipt.scrollHeight;
+    if (naturalHeight > A4_HEIGHT && naturalHeight <= A4_HEIGHT * 1.2) {
+      clone.style.zoom = String(A4_HEIGHT / naturalHeight);
+    }
+
+    root.appendChild(clone);
+
+    // Chrome/Safari suggest the document title as the PDF filename.
+    const fileName =
+      (data.footerReceiptNumber || data.receiptNumber).replace(/^#/, '').trim() ||
+      'ABKHD-receipt';
+    const previousTitle = document.title;
+    document.title = fileName;
 
     document.documentElement.classList.add('abkhd-printing');
 
@@ -65,6 +83,7 @@ export function ReceiptDisplay({ data }: ReceiptDisplayProps) {
       if (cleaned) return;
       cleaned = true;
       document.documentElement.classList.remove('abkhd-printing');
+      document.title = previousTitle;
       root!.innerHTML = '';
       window.removeEventListener('afterprint', cleanup);
     };
@@ -72,7 +91,7 @@ export function ReceiptDisplay({ data }: ReceiptDisplayProps) {
     window.addEventListener('afterprint', cleanup);
     window.print();
     window.setTimeout(cleanup, 3000);
-  }, []);
+  }, [data.footerReceiptNumber, data.receiptNumber]);
 
   return (
     <div className="w-full flex flex-col items-center gap-4">
