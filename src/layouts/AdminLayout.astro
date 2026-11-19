@@ -18,7 +18,8 @@ const currentPath = Astro.url.pathname;
 const navItems = [
   { path: '/admin', label: 'Dashboard', icon: 'layout-dashboard', exact: true },
   { path: '/admin/products', label: 'Products', icon: 'package' },
-  { path: '/admin/orders', label: 'Orders', icon: 'package-check' }
+  { path: '/admin/orders', label: 'Orders', icon: 'package-check' },
+  { path: '/admin/promo', label: 'Promo', icon: 'ticket' }
 ];
 
 const isActive = (path: string, exact = false) => {

@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "check-schema": "tsx scripts/update-products-schema.ts",
-    "check-bucket": "tsx scripts/check-bucket-settings.ts"
+    "check-bucket": "tsx scripts/check-bucket-settings.ts",
+    "setup-promo": "tsx scripts/setup-promo.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -23,6 +24,7 @@
     "lucide-react": "^0.575.0",
     "lucide-static": "^1.69.0",
     "nanostores": "^1.2.0",
+    "qrcode": "^1.5.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "tailwind-merge": "^1.14.0",
@@ -34,6 +36,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^25.3.5",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.14",

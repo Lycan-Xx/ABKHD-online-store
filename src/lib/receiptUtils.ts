@@ -1,5 +1,6 @@
 import type { Order } from '../types/order';
 import type { CartItem } from '../types/cart';
+import { isPromoRef } from './promo';
 import type {
   PaymentConfirmationStatus,
   ReceiptBadgeStatus,
@@ -143,9 +144,12 @@ export function mapOrderToReceipt(
   const vatRate = options.vatRate ?? 0;
   const vatAmount = Math.round(subtotal * vatRate);
 
+  // Promo event orders use a free-text address and no city-based delivery fee.
+  const promo = isPromoRef(order.paymentRef);
+
   const deliveryFee =
     options.deliveryFee ??
-    (order.city === 'Jimeta' ? 2000 : order.city ? 1000 : 0);
+    (promo ? 0 : order.city === 'Jimeta' ? 2000 : order.city ? 1000 : 0);
 
   const totalAmount = subtotal + deliveryFee + vatAmount;
   const warranty = resolveWarranty(orderItems);
@@ -172,14 +176,14 @@ export function mapOrderToReceipt(
     deliveryAddress: {
       street: order.address || '',
       city: order.city || '',
-      stateCountry: `${order.state || 'Adamawa'}, Nigeria`,
+      stateCountry: promo ? 'Nigeria' : `${order.state || 'Adamawa'}, Nigeria`,
     },
     location: options.location ?? {
       city: order.city || 'Yola',
       state: order.state || 'Adamawa',
     },
     items: receiptItems,
-    deliveryAreaLabel: order.city || 'Yola',
+    deliveryAreaLabel: promo ? 'arranged on delivery' : order.city || 'Yola',
     deliveryFee,
     vatRate,
     currencySymbol: '₦',
