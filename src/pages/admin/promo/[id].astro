@@ -1,0 +1,583 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import Icon from '../../../components/showroom/Icon.astro';
+
+const { id } = Astro.params;
+const CATEGORIES = ['Computers', 'Mobile Phones', 'Accessories'];
+const input =
+  'w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring';
+---
+
+<AdminLayout title="Promo event | ABKHD Admin">
+  <div id="promo-root" data-event-id={id} class="space-y-6 max-w-5xl">
+    <div class="flex items-center gap-4">
+      <a href="/admin/promo" class="p-2 rounded-lg hover:bg-muted transition-colors" data-astro-reload>
+        <Icon name="arrow-left" class="h-5 w-5" strokeWidth={1.75} />
+      </a>
+      <div class="min-w-0">
+        <h1 id="ev-heading" class="text-2xl md:text-3xl font-bold truncate">Loading…</h1>
+        <p id="ev-phase" class="text-muted-foreground mt-1 text-sm"></p>
+      </div>
+    </div>
+
+    <p id="load-error" class="hidden rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-500"></p>
+
+    <!-- Share / QR -->
+    <section id="share-section" class="hidden rounded-xl border bg-card p-6">
+      <h2 class="text-lg font-semibold">Share</h2>
+      <p class="text-sm text-muted-foreground mt-1">
+        This QR code is the only way into the page. Print it on the flyer at 3 × 3 cm or larger.
+      </p>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-6 items-start">
+        <img id="qr-img" alt="Promo QR code" class="w-[220px] h-[220px] rounded-lg border bg-white" />
+        <div class="space-y-3 min-w-0">
+          <label class="block text-sm font-medium">Secret link</label>
+          <input id="promo-url" readonly class={input + ' font-mono text-xs'} />
+          <div class="flex flex-wrap gap-2">
+            <button id="copy-url" class="btn-secondary">Copy link</button>
+            <button id="dl-png" class="btn-secondary">Download PNG</button>
+            <button id="dl-svg" class="btn-secondary">Download SVG</button>
+            <a id="open-url" target="_blank" rel="noopener noreferrer" class="btn-secondary">Open page</a>
+          </div>
+          <p class="text-xs text-muted-foreground">
+            Anyone holding this code can open the page. To retire it, set the end date or switch the event off:
+            scanners then see an "event ended" notice.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <form id="settings-form" class="hidden rounded-xl border bg-card p-6 space-y-4">
+      <h2 class="text-lg font-semibold">Event settings</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="md:col-span-3">
+          <label for="s-title" class="block text-sm font-medium mb-2">Title</label>
+          <input id="s-title" required maxlength="120" class={input} />
+        </div>
+        <div>
+          <label for="s-start" class="block text-sm font-medium mb-2">Starts</label>
+          <input id="s-start" type="datetime-local" class={input} />
+        </div>
+        <div>
+          <label for="s-end" class="block text-sm font-medium mb-2">Ends</label>
+          <input id="s-end" type="datetime-local" class={input} />
+        </div>
+        <div class="flex items-end">
+          <label class="inline-flex items-center gap-2 text-sm font-medium">
+            <input id="s-active" type="checkbox" class="h-4 w-4" /> Event switched on
+          </label>
+        </div>
+      </div>
+      <p id="settings-msg" class="hidden text-sm"></p>
+      <div class="flex flex-wrap gap-2">
+        <button type="submit" class="btn-primary">Save settings</button>
+        <button type="button" id="delete-event" class="inline-flex items-center justify-center rounded-full border border-red-500/40 px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500/10">
+          Delete event
+        </button>
+      </div>
+    </form>
+
+    <!-- Items -->
+    <section id="items-section" class="hidden space-y-4">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-semibold">Items</h2>
+          <p id="items-summary" class="text-sm text-muted-foreground"></p>
+        </div>
+        <div class="flex flex-wrap gap-2 justify-end">
+          <button id="import-btn" class="btn-secondary">Import from products</button>
+          <button id="add-item-btn" class="btn-primary">
+            <Icon name="plus" class="mr-2 h-4 w-4" strokeWidth={2} />
+            Add item
+          </button>
+        </div>
+      </div>
+
+      <!-- Product picker -->
+      <div id="import-panel" class="hidden rounded-xl border bg-card p-6 space-y-4">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 class="text-base font-semibold">Import from products</h3>
+            <p class="text-xs text-muted-foreground mt-1">
+              Copies the name, description, category, price and photos into a new promo item. The shop product is not changed
+              and its stock is not reduced when a promo item sells.
+            </p>
+          </div>
+          <button type="button" id="import-close" class="btn-secondary !px-4 !py-2">Close</button>
+        </div>
+        <input id="import-search" type="search" placeholder="Search products…" class={input} />
+        <div id="import-list" class="max-h-96 overflow-y-auto space-y-2"></div>
+      </div>
+
+      <form id="item-form" class="hidden rounded-xl border bg-card p-6 space-y-4">
+        <h3 id="item-form-title" class="text-base font-semibold">New item</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="md:col-span-2">
+            <label for="i-name" class="block text-sm font-medium mb-2">Name <span class="text-red-500">*</span></label>
+            <input id="i-name" required maxlength="255" class={input} placeholder="e.g. iPhone 13 128GB" />
+          </div>
+          <div class="md:col-span-2">
+            <label for="i-desc" class="block text-sm font-medium mb-2">Short description</label>
+            <textarea id="i-desc" rows="2" maxlength="1000" class={input + ' resize-none'}></textarea>
+          </div>
+          <div>
+            <label for="i-cat" class="block text-sm font-medium mb-2">Category <span class="text-red-500">*</span></label>
+            <select id="i-cat" required class={input}>
+              {CATEGORIES.map((c) => <option value={c}>{c}</option>)}
+            </select>
+            <p class="text-xs text-muted-foreground mt-1">Sets the warranty printed on the receipt.</p>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="i-orig" class="block text-sm font-medium mb-2">Normal price (₦) <span class="text-red-500">*</span></label>
+              <input id="i-orig" type="number" min="1" step="1" required class={input} />
+            </div>
+            <div>
+              <label for="i-promo" class="block text-sm font-medium mb-2">Promo price (₦) <span class="text-red-500">*</span></label>
+              <input id="i-promo" type="number" min="1" step="1" required class={input} />
+            </div>
+          </div>
+          <div class="md:col-span-2">
+            <label for="i-files" class="block text-sm font-medium mb-2">Photos (up to 4, first is the cover)</label>
+            <input id="i-files" type="file" accept="image/*" multiple class="block w-full text-sm" />
+            <p id="i-import-note" class="hidden text-xs text-muted-foreground mt-1">
+              Photos from the imported product will be copied. Choose files here to use different ones instead.
+            </p>
+            <div id="i-previews" class="mt-3 flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+        <p id="item-msg" class="hidden text-sm"></p>
+        <div class="flex gap-2">
+          <button type="submit" id="item-save" class="btn-primary">Save item</button>
+          <button type="button" id="item-cancel" class="btn-secondary">Cancel</button>
+        </div>
+      </form>
+
+      <div id="items-list" class="space-y-3"></div>
+    </section>
+  </div>
+</AdminLayout>
+
+<script>
+  import { Query } from 'appwrite';
+  import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, ID } from '../../../lib/appwrite';
+  import {
+    PROMO_CLAIMS_COLLECTION,
+    PROMO_EVENTS_COLLECTION,
+    PROMO_ITEMS_COLLECTION,
+    eventPhase,
+    itemState,
+    promoUrl,
+    type PromoClaim,
+    type PromoEvent,
+    type PromoItem,
+  } from '../../../lib/promo';
+  import {
+    deletePromoImage,
+    downloadDataUrl,
+    downloadText,
+    esc,
+    fromLocalInput,
+    qrPngDataUrl,
+    qrSvgString,
+    toLocalInput,
+    uploadPromoImage,
+  } from '../../../lib/promo-admin';
+  import { formatPrice } from '../../../lib/utils';
+
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  async function init() {
+    const root = document.getElementById('promo-root');
+    if (!root) return;
+    const eventId = root.dataset.eventId!;
+
+    let event: PromoEvent;
+    let items: PromoItem[] = [];
+    let claims: PromoClaim[] = [];
+    let editing: PromoItem | null = null;
+    let pendingFiles: File[] = [];
+    /** Photo URLs of an imported product; copied into new files on save. */
+    let importUrls: string[] = [];
+
+    const note = (el: HTMLElement, text: string, ok = false) => {
+      el.textContent = text;
+      el.className = `text-sm ${ok ? 'text-green-600' : 'text-red-500'}`;
+    };
+
+    /* ---------- load ---------- */
+    async function loadAll() {
+      event = (await databases.getDocument(APPWRITE_DB_ID, PROMO_EVENTS_COLLECTION, eventId)) as unknown as PromoEvent;
+      const [itemsRes, claimsRes] = await Promise.all([
+        databases.listDocuments(APPWRITE_DB_ID, PROMO_ITEMS_COLLECTION, [Query.equal('eventId', eventId), Query.limit(100)]),
+        databases.listDocuments(APPWRITE_DB_ID, PROMO_CLAIMS_COLLECTION, [Query.equal('eventId', eventId), Query.limit(500)]),
+      ]);
+      items = (itemsRes.documents as unknown as PromoItem[]).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+      claims = claimsRes.documents as unknown as PromoClaim[];
+    }
+
+    async function render() {
+      $('ev-heading').textContent = event.title;
+      const phase = eventPhase(event);
+      $('ev-phase').textContent =
+        phase === 'live' ? 'Live now' : phase === 'upcoming' ? 'Not started yet' : event.active ? 'Ended' : 'Switched off';
+
+      ['share-section', 'settings-form', 'items-section'].forEach((id) => $(id).classList.remove('hidden'));
+
+      const url = promoUrl(window.location.origin, event.token);
+      ($('promo-url') as HTMLInputElement).value = url;
+      ($('open-url') as HTMLAnchorElement).href = url;
+      ($('qr-img') as HTMLImageElement).src = await qrPngDataUrl(url, 440);
+
+      ($('s-title') as HTMLInputElement).value = event.title;
+      ($('s-start') as HTMLInputElement).value = toLocalInput(event.startsAt);
+      ($('s-end') as HTMLInputElement).value = toLocalInput(event.endsAt);
+      ($('s-active') as HTMLInputElement).checked = event.active;
+
+      renderItems();
+    }
+
+    function renderItems() {
+      const byItem = new Map<string, PromoClaim[]>();
+      claims.forEach((c) => byItem.set(c.itemId, [...(byItem.get(c.itemId) ?? []), c]));
+
+      const sold = items.filter((i) => itemState(byItem.get(i.$id) ?? []) === 'claimed').length;
+      $('items-summary').textContent = `${items.length} item${items.length === 1 ? '' : 's'} · ${sold} claimed`;
+
+      $('items-list').innerHTML =
+        items
+          .map((item) => {
+            const ic = byItem.get(item.$id) ?? [];
+            const state = itemState(ic);
+            const paid = ic.find((c) => c.status === 'paid');
+            const refunds = ic.filter((c) => c.status === 'refund_due');
+            const badge =
+              state === 'claimed'
+                ? '<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-600">Claimed</span>'
+                : state === 'reserved'
+                  ? '<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-600">On hold</span>'
+                  : '<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">Available</span>';
+            return `
+              <div class="rounded-xl border bg-card p-4 flex gap-4 items-start" data-item="${esc(item.$id)}">
+                <img src="${esc(item.image)}" alt="" class="h-20 w-20 rounded-lg object-cover bg-muted shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="font-semibold truncate">${esc(item.name)}</h3>${badge}
+                  </div>
+                  <p class="text-sm mt-1">
+                    <span class="font-semibold">${formatPrice(item.promoPrice)}</span>
+                    <span class="text-muted-foreground line-through ml-1">${formatPrice(item.originalPrice)}</span>
+                    <span class="text-muted-foreground ml-2">${esc(item.category)}</span>
+                  </p>
+                  ${paid ? `<p class="text-xs text-muted-foreground mt-1">Bought by ${esc(paid.email || 'unknown')} · ref ${esc(paid.paymentRef)} (see Orders)</p>` : ''}
+                  ${refunds.map((r) => `<p class="text-xs text-red-500 mt-1">⚠ Refund due: ${esc(r.email || '')} · ref ${esc(r.paymentRef)}</p>`).join('')}
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2 shrink-0">
+                  <button class="btn-secondary !px-4 !py-2" data-edit="${esc(item.$id)}">Edit</button>
+                  <button class="inline-flex items-center justify-center rounded-full border border-red-500/40 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-500/10 disabled:opacity-40 disabled:pointer-events-none" data-delete="${esc(item.$id)}" ${state !== 'available' ? 'disabled' : ''}>Delete</button>
+                </div>
+              </div>`;
+          })
+          .join('') || '<p class="text-sm text-muted-foreground py-6 text-center">No items yet. Add the first one.</p>';
+    }
+
+    /* ---------- QR actions ---------- */
+    $('copy-url').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(($('promo-url') as HTMLInputElement).value);
+      $('copy-url').textContent = 'Copied';
+      setTimeout(() => ($('copy-url').textContent = 'Copy link'), 1500);
+    });
+    const slug = () => event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'promo';
+    $('dl-png').addEventListener('click', async () => {
+      downloadDataUrl(await qrPngDataUrl(promoUrl(window.location.origin, event.token), 1600), `abkhd-${slug()}-qr.png`);
+    });
+    $('dl-svg').addEventListener('click', async () => {
+      downloadText(await qrSvgString(promoUrl(window.location.origin, event.token)), `abkhd-${slug()}-qr.svg`, 'image/svg+xml');
+    });
+
+    /* ---------- settings ---------- */
+    $('settings-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = $('settings-msg');
+      const startsAt = fromLocalInput(($('s-start') as HTMLInputElement).value);
+      const endsAt = fromLocalInput(($('s-end') as HTMLInputElement).value);
+      if (startsAt && endsAt && endsAt <= startsAt) {
+        note(msg, 'The end must be after the start.');
+        return;
+      }
+      try {
+        const updated = await databases.updateDocument(APPWRITE_DB_ID, PROMO_EVENTS_COLLECTION, eventId, {
+          title: ($('s-title') as HTMLInputElement).value.trim(),
+          startsAt,
+          endsAt,
+          active: ($('s-active') as HTMLInputElement).checked,
+        });
+        event = updated as unknown as PromoEvent;
+        note(msg, 'Saved.', true);
+        await render();
+      } catch (err: any) {
+        note(msg, 'Could not save: ' + (err?.message || 'unknown error'));
+      }
+    });
+
+    $('delete-event').addEventListener('click', async () => {
+      const msg = $('settings-msg');
+      if (claims.some((c) => c.status === 'paid')) {
+        note(msg, 'This event has paid orders. Switch it off instead of deleting it.');
+        return;
+      }
+      if (!confirm('Delete this event, its items and photos? The QR code will stop working.')) return;
+      try {
+        for (const item of items) {
+          for (const url of item.images?.length ? item.images : [item.image]) await deletePromoImage(url);
+          await databases.deleteDocument(APPWRITE_DB_ID, PROMO_ITEMS_COLLECTION, item.$id);
+        }
+        await databases.deleteDocument(APPWRITE_DB_ID, PROMO_EVENTS_COLLECTION, eventId);
+        window.location.href = '/admin/promo';
+      } catch (err: any) {
+        note(msg, 'Could not delete: ' + (err?.message || 'unknown error'));
+      }
+    });
+
+    /* ---------- item form ---------- */
+    const form = $('item-form') as HTMLFormElement;
+    const previews = $('i-previews');
+
+    function showPreviews(existing: string[] = []) {
+      previews.innerHTML = [...existing, ...pendingFiles.map((f) => URL.createObjectURL(f))]
+        .map((src) => `<img src="${esc(src)}" alt="" class="h-16 w-16 rounded-lg object-cover border" />`)
+        .join('');
+    }
+
+    /** Photos to preview when no new files are chosen. */
+    function existingPhotos(): string[] {
+      if (pendingFiles.length) return [];
+      if (editing) return editing.images?.length ? editing.images : [editing.image];
+      return importUrls;
+    }
+
+    type Prefill = { name: string; description: string; category: string; price: number; photos: string[] };
+
+    function openForm(item: PromoItem | null, prefill?: Prefill) {
+      editing = item;
+      pendingFiles = [];
+      importUrls = prefill?.photos ?? [];
+      form.reset();
+      $('item-msg').className = 'hidden';
+      $('i-import-note').classList.toggle('hidden', !importUrls.length);
+      $('item-form-title').textContent = item ? `Edit ${item.name}` : prefill ? 'New item (from product)' : 'New item';
+      if (prefill) {
+        const sel = $('i-cat') as HTMLSelectElement;
+        if (prefill.category && !Array.from(sel.options).some((o) => o.value === prefill.category)) {
+          sel.add(new Option(prefill.category, prefill.category));
+        }
+        ($('i-name') as HTMLInputElement).value = prefill.name;
+        ($('i-desc') as HTMLTextAreaElement).value = prefill.description;
+        if (prefill.category) sel.value = prefill.category;
+        ($('i-orig') as HTMLInputElement).value = String(Math.round(prefill.price));
+      }
+      if (item) {
+        ($('i-name') as HTMLInputElement).value = item.name;
+        ($('i-desc') as HTMLTextAreaElement).value = item.description || '';
+        ($('i-cat') as HTMLSelectElement).value = item.category;
+        ($('i-orig') as HTMLInputElement).value = String(item.originalPrice);
+        ($('i-promo') as HTMLInputElement).value = String(item.promoPrice);
+      }
+      showPreviews(existingPhotos());
+      form.classList.remove('hidden');
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    $('add-item-btn').addEventListener('click', () => openForm(null));
+    $('item-cancel').addEventListener('click', () => form.classList.add('hidden'));
+
+    ($('i-files') as HTMLInputElement).addEventListener('change', (e) => {
+      pendingFiles = Array.from((e.target as HTMLInputElement).files ?? []).slice(0, 4);
+      showPreviews(existingPhotos());
+    });
+
+    /* ---------- import from products ---------- */
+    type ShopProduct = {
+      $id: string;
+      name: string;
+      description?: string;
+      category?: string;
+      price: number;
+      stock?: number;
+      image?: string;
+      images?: string[];
+      isArchived?: boolean;
+    };
+    let products: ShopProduct[] | null = null;
+    const panel = $('import-panel');
+    const importList = $('import-list');
+
+    function renderProducts() {
+      const term = ($('import-search') as HTMLInputElement).value.trim().toLowerCase();
+      const shown = (products ?? []).filter((p) => !term || p.name.toLowerCase().includes(term));
+      importList.innerHTML =
+        shown
+          .map((p) => {
+            const photo = p.images?.[0] || p.image || '';
+            return `
+              <button type="button" data-import="${esc(p.$id)}" class="w-full text-left flex items-center gap-3 rounded-lg border p-3 hover:bg-muted transition-colors">
+                ${photo ? `<img src="${esc(photo)}" alt="" class="h-12 w-12 rounded-md object-cover bg-muted shrink-0" />` : '<div class="h-12 w-12 rounded-md bg-muted shrink-0"></div>'}
+                <span class="min-w-0 flex-1">
+                  <span class="block text-sm font-medium truncate">${esc(p.name)}</span>
+                  <span class="block text-xs text-muted-foreground">${esc(p.category || '')} · ${formatPrice(p.price)} · stock ${p.stock ?? 0}</span>
+                </span>
+              </button>`;
+          })
+          .join('') || '<p class="text-sm text-muted-foreground py-4 text-center">No products found.</p>';
+    }
+
+    $('import-btn').addEventListener('click', async () => {
+      form.classList.add('hidden');
+      panel.classList.remove('hidden');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (products) return;
+      importList.innerHTML = '<p class="text-sm text-muted-foreground py-4 text-center">Loading products…</p>';
+      try {
+        const res = await databases.listDocuments(APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID, [
+          Query.orderDesc('$createdAt'),
+          Query.limit(200),
+        ]);
+        products = (res.documents as unknown as ShopProduct[]).filter((p) => !p.isArchived);
+        renderProducts();
+      } catch (err: any) {
+        importList.innerHTML = `<p class="text-sm text-red-500 py-4">Could not load products. ${esc(err?.message || '')}</p>`;
+      }
+    });
+    $('import-close').addEventListener('click', () => panel.classList.add('hidden'));
+    $('import-search').addEventListener('input', renderProducts);
+    importList.addEventListener('click', (e) => {
+      const id = (e.target as HTMLElement).closest<HTMLElement>('[data-import]')?.dataset.import;
+      const p = products?.find((x) => x.$id === id);
+      if (!p) return;
+      const photos = (p.images?.length ? p.images : p.image ? [p.image] : []).filter(Boolean).slice(0, 4);
+      panel.classList.add('hidden');
+      openForm(null, {
+        name: p.name,
+        description: p.description || '',
+        category: p.category || '',
+        price: p.price,
+        photos,
+      });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = $('item-msg');
+      const save = $('item-save') as HTMLButtonElement;
+
+      const originalPrice = Number(($('i-orig') as HTMLInputElement).value);
+      const promoPrice = Number(($('i-promo') as HTMLInputElement).value);
+      if (!Number.isInteger(originalPrice) || !Number.isInteger(promoPrice) || promoPrice <= 0 || promoPrice >= originalPrice) {
+        note(msg, 'Prices must be whole naira, and the promo price must be lower than the normal price.');
+        return;
+      }
+      if (!editing && pendingFiles.length === 0 && importUrls.length === 0) {
+        note(msg, 'Add at least one photo.');
+        return;
+      }
+
+      save.disabled = true;
+      save.textContent = 'Saving…';
+      try {
+        const data: Record<string, any> = {
+          name: ($('i-name') as HTMLInputElement).value.trim(),
+          description: ($('i-desc') as HTMLTextAreaElement).value.trim(),
+          category: ($('i-cat') as HTMLSelectElement).value,
+          originalPrice,
+          promoPrice,
+        };
+
+        // Imported photos are copied so the promo item owns its own files:
+        // deleting the item later never touches the shop product's images.
+        let toUpload = pendingFiles;
+        if (!toUpload.length && !editing && importUrls.length) {
+          save.textContent = 'Copying photos…';
+          try {
+            toUpload = await Promise.all(
+              importUrls.map(async (url, i) => {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const blob = await res.blob();
+                return new File([blob], `product-${i + 1}`, { type: blob.type || 'image/jpeg' });
+              })
+            );
+          } catch {
+            note(msg, 'Could not copy the product photos. Choose photos from your device instead.');
+            return;
+          }
+          save.textContent = 'Saving…';
+        }
+
+        if (toUpload.length) {
+          const urls: string[] = [];
+          for (const file of toUpload) urls.push(await uploadPromoImage(file));
+          if (editing) {
+            for (const old of editing.images?.length ? editing.images : [editing.image]) await deletePromoImage(old);
+          }
+          data.image = urls[0];
+          data.images = urls;
+        }
+
+        if (editing) {
+          await databases.updateDocument(APPWRITE_DB_ID, PROMO_ITEMS_COLLECTION, editing.$id, data);
+        } else {
+          await databases.createDocument(APPWRITE_DB_ID, PROMO_ITEMS_COLLECTION, ID.unique(), {
+            ...data,
+            eventId,
+            sortOrder: items.length * 10,
+          });
+        }
+        form.classList.add('hidden');
+        await loadAll();
+        renderItems();
+      } catch (err: any) {
+        note(msg, 'Could not save: ' + (err?.message || 'unknown error'));
+      } finally {
+        save.disabled = false;
+        save.textContent = 'Save item';
+      }
+    });
+
+    $('items-list').addEventListener('click', async (e) => {
+      const target = e.target as HTMLElement;
+      const editId = target.closest<HTMLElement>('[data-edit]')?.dataset.edit;
+      const delId = target.closest<HTMLElement>('[data-delete]')?.dataset.delete;
+      if (editId) {
+        const item = items.find((i) => i.$id === editId);
+        if (item) openForm(item);
+      } else if (delId) {
+        const item = items.find((i) => i.$id === delId);
+        if (!item || !confirm(`Delete "${item.name}"?`)) return;
+        try {
+          for (const url of item.images?.length ? item.images : [item.image]) await deletePromoImage(url);
+          await databases.deleteDocument(APPWRITE_DB_ID, PROMO_ITEMS_COLLECTION, item.$id);
+          await loadAll();
+          renderItems();
+        } catch (err: any) {
+          alert('Could not delete: ' + (err?.message || 'unknown error'));
+        }
+      }
+    });
+
+    /* ---------- go ---------- */
+    try {
+      await loadAll();
+      await render();
+    } catch (err: any) {
+      console.error('Promo detail load failed:', err);
+      $('ev-heading').textContent = 'Event not found';
+      const box = $('load-error');
+      box.textContent = 'Could not load this event. ' + (err?.message || '');
+      box.classList.remove('hidden');
+    }
+  }
+
+  document.addEventListener('astro:page-load', init);
+</script>

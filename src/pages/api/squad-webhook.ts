@@ -4,6 +4,8 @@ import type { APIRoute } from 'astro';
 import { handleAPIError } from '../../lib/errors';
 import { deriveReceiptNumber } from '../../lib/receiptUtils';
 import { getSquadSecretKey } from '../../lib/squad';
+import { isPromoRef } from '../../lib/promo';
+import { verifyAndFinalize } from '../../lib/promo-server';
 import {
   findOrdersByPaymentRef,
   hasServerKey,
@@ -91,6 +93,23 @@ export const POST: APIRoute = async ({ request }) => {
       console.warn(
         'Squad webhook: APPWRITE_API_KEY is not configured, skipping order update'
       );
+      return ok();
+    }
+
+    // Promo event purchases settle through the claim lock, not the generic
+    // path. Ask Squad directly instead of trusting the webhook body alone.
+    if (isPromoRef(transactionRef)) {
+      try {
+        const result = await verifyAndFinalize(transactionRef, new URL(request.url).hostname);
+        console.log('Promo payment settled by webhook:', transactionRef, result.state);
+      } catch (error) {
+        console.error('Promo webhook finalize failed:', error);
+        // Non-2xx so Squad retries; the item stays held until it succeeds.
+        return new Response(JSON.stringify({ success: false }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
       return ok();
     }
 

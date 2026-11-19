@@ -79,3 +79,84 @@ export async function updateOrder(
     );
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Generic collection helpers (used by the promo event feature).       */
+/* They return the HTTP status so callers can act on 404 / 409.        */
+/* ------------------------------------------------------------------ */
+
+export interface DbResult<T = any> {
+  ok: boolean;
+  status: number;
+  data: T | null;
+}
+
+function docsUrl(collection: string): string {
+  return `${ENDPOINT}/databases/${DB_ID}/collections/${collection}/documents`;
+}
+
+async function call<T>(url: string, init: RequestInit): Promise<DbResult<T>> {
+  const response = await fetch(url, { ...init, headers: headers() });
+  const text = await response.text();
+  let data: any = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = null;
+  }
+  return { ok: response.ok, status: response.status, data };
+}
+
+/** `queries` are Appwrite JSON query objects, e.g. { method: 'equal', ... }. */
+export async function dbList<T = any>(
+  collection: string,
+  queries: Array<Record<string, unknown>> = []
+): Promise<T[]> {
+  const qs = queries
+    .map((q) => `queries[]=${encodeURIComponent(JSON.stringify(q))}`)
+    .join('&');
+  const res = await call<{ documents: T[] }>(`${docsUrl(collection)}${qs ? `?${qs}` : ''}`, {});
+  if (!res.ok) {
+    throw new Error(`Appwrite list ${collection} failed (${res.status})`);
+  }
+  return res.data?.documents ?? [];
+}
+
+export function dbGet<T = any>(collection: string, id: string): Promise<DbResult<T>> {
+  return call<T>(`${docsUrl(collection)}/${encodeURIComponent(id)}`, {});
+}
+
+export function dbCreate<T = any>(
+  collection: string,
+  id: string,
+  data: Record<string, any>
+): Promise<DbResult<T>> {
+  return call<T>(docsUrl(collection), {
+    method: 'POST',
+    body: JSON.stringify({ documentId: id, data }),
+  });
+}
+
+export function dbUpdate<T = any>(
+  collection: string,
+  id: string,
+  data: Record<string, any>
+): Promise<DbResult<T>> {
+  return call<T>(`${docsUrl(collection)}/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ data }),
+  });
+}
+
+export function dbDelete(collection: string, id: string): Promise<DbResult> {
+  return call(`${docsUrl(collection)}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+/** Query builders so route code stays readable. */
+export const q = {
+  equal: (attribute: string, ...values: unknown[]) => ({ method: 'equal', attribute, values }),
+  limit: (n: number) => ({ method: 'limit', values: [n] }),
+  orderAsc: (attribute: string) => ({ method: 'orderAsc', attribute }),
+};
+
+export { ORDERS_ID };
