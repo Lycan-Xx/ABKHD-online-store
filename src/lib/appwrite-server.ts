@@ -6,11 +6,19 @@
  * this module from server code (API routes) so keys never reach the client.
  */
 
+import { pickEnv } from './runtime-env';
+
 const ENDPOINT =
   import.meta.env.PUBLIC_APPWRITE_ENDPOINT || 'https://fra.cloud.appwrite.io/v1';
 const PROJECT = import.meta.env.PUBLIC_APPWRITE_PROJECT_ID || '';
-const API_KEY =
-  import.meta.env.APPWRITE_API_KEY || import.meta.env.APPWRITE_ADMIN_KEY || '';
+
+/** Resolved per call: a runtime secret is not available when the build runs. */
+function apiKey(): string {
+  return (
+    pickEnv('APPWRITE_API_KEY', import.meta.env.APPWRITE_API_KEY) ||
+    pickEnv('APPWRITE_ADMIN_KEY', import.meta.env.APPWRITE_ADMIN_KEY)
+  );
+}
 
 const DB_ID = import.meta.env.PUBLIC_APPWRITE_DATABASE_ID || 'abkhd_db';
 const ORDERS_ID = import.meta.env.PUBLIC_APPWRITE_COLLECTION_ORDERS || 'orders';
@@ -21,13 +29,13 @@ export interface ServerOrder {
 }
 
 export function hasServerKey(): boolean {
-  return typeof API_KEY === 'string' && API_KEY.trim().length > 0;
+  return apiKey().length > 0;
 }
 
 function headers(): Record<string, string> {
   return {
     'X-Appwrite-Project': PROJECT,
-    'X-Appwrite-Key': API_KEY,
+    'X-Appwrite-Key': apiKey(),
     'Content-Type': 'application/json',
   };
 }
@@ -117,7 +125,10 @@ export async function dbList<T = any>(
     .join('&');
   const res = await call<{ documents: T[] }>(`${docsUrl(collection)}${qs ? `?${qs}` : ''}`, {});
   if (!res.ok) {
-    throw new Error(`Appwrite list ${collection} failed (${res.status})`);
+    // Status + Appwrite's error type/message only (never the key) so the
+    // Cloudflare log says *why*: 401 = no/invalid key, 404 = missing collection.
+    const detail = (res.data as any)?.message ? `: ${String((res.data as any).message).slice(0, 160)}` : '';
+    throw new Error(`Appwrite list ${collection} failed (${res.status})${detail}`);
   }
   return res.data?.documents ?? [];
 }
