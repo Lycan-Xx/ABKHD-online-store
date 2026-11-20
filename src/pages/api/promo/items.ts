@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { hasServerKey } from '../../../lib/appwrite-server';
 import { eventPhase } from '../../../lib/promo';
+import { runtimeEnvNames } from '../../../lib/runtime-env';
 import { getEventByToken, loadPublicItems } from '../../../lib/promo-server';
 
 const HEADERS = {
@@ -26,7 +27,7 @@ export const GET: APIRoute = async ({ url }) => {
     // failing deploy can be diagnosed without dashboard access.
     const status = String((error as Error)?.message ?? '').match(/failed \((\d{3})\)/)?.[1];
     const hint = !hasServerKey() ? 'no_server_key' : status ? `appwrite_${status}` : 'network_or_other';
-    return new Response(JSON.stringify({ error: 'backend_unavailable', hint }), {
+    return new Response(JSON.stringify({ error: 'backend_unavailable', hint, runtime: runtimeEnvNames(['APPWRITE']) }), {
       status: 500,
       headers: HEADERS,
     });

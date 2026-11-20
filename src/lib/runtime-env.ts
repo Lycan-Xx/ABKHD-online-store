@@ -23,3 +23,13 @@ export function pickEnv(name: string, buildTime?: unknown): string {
   }
   return '';
 }
+
+/** Names only (never values) of runtime bindings with these prefixes; for diagnostics. */
+export function runtimeEnvNames(prefixes: string[]): { bound: boolean; count: number; names: string[] } {
+  const keys = Object.keys(runtimeEnv);
+  return {
+    bound: keys.length > 0,
+    count: keys.length,
+    names: keys.filter((k) => prefixes.some((p) => k.startsWith(p))).sort(),
+  };
+}
