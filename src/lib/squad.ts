@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { pickEnv } from './runtime-env';
 
 const SQUAD_BASE_URL_PROD = 'https://api-d.squadco.com';
 const SQUAD_BASE_URL_DEV = 'https://sandbox-api-d.squadco.com';
@@ -9,6 +10,9 @@ const SQUAD_BASE_URL_DEV = 'https://sandbox-api-d.squadco.com';
  */
 export function getSquadSecretKey(): string | null {
   const candidates = [
+    // Runtime bindings first (works for encrypted secrets), then build-time values.
+    pickEnv('SQUAD_SECRET_KEY'),
+    pickEnv('PUBLIC_SQUAD_SECRET_KEY'),
     // @ts-ignore Cloudflare Pages exposes server vars via import.meta.env
     import.meta.env?.PUBLIC_SQUAD_SECRET_KEY,
     // @ts-ignore

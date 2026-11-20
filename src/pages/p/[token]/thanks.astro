@@ -14,8 +14,17 @@ Astro.response.headers.set('Cache-Control', 'no-store');
 Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
 Astro.response.headers.set('Referrer-Policy', 'no-referrer');
 
-const event = await getEventByToken(token).catch(() => null);
-if (!event || !isPromoRef(reference)) return Astro.rewrite('/404');
+// A buyer who has just paid must never land on a 404 because of a backend
+// hiccup: only a genuinely unknown token/reference is "not found".
+let event = null;
+let lookupFailed = false;
+try {
+  event = await getEventByToken(token);
+} catch (error) {
+  console.error('Promo thanks lookup failed:', error);
+  lookupFailed = true;
+}
+if (!isPromoRef(reference) || (!lookupFailed && !event)) return Astro.rewrite('/404');
 
 let result: Awaited<ReturnType<typeof verifyAndFinalize>> = { state: 'unknown' };
 try {
