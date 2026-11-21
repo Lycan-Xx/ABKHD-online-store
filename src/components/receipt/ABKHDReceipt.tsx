@@ -6,6 +6,9 @@ import type {
   StoreBrandingConfig,
 } from './receipt.types';
 
+/** Official ABKHD logo, served from /public (built from brand/abkhd-logo-original.png). */
+const DEFAULT_LOGO_URL = '/logo.png';
+
 const DEFAULT_STORE_CONFIG: StoreBrandingConfig = {
   brandPrimary: 'ABKHD',
   brandAccent: 'Store',
@@ -148,15 +151,11 @@ export const ABKHDReceipt = forwardRef<HTMLDivElement, ABKHDReceiptProps>(
           <header className="flex items-center gap-5 mb-6">
             {/* Brand Logo */}
             <div className="w-[96px] h-[84px] flex items-center justify-center shrink-0">
-              {store.logoUrl ? (
-                <img
-                  src={store.logoUrl}
-                  alt={`${store.brandPrimary} Logo`}
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <DefaultBrandLogoSvg />
-              )}
+              <img
+                src={store.logoUrl || DEFAULT_LOGO_URL}
+                alt={`${store.brandPrimary} Logo`}
+                className="w-full h-full object-contain"
+              />
             </div>
 
             {/* Vertical Divider */}
@@ -569,56 +568,6 @@ export const ABKHDReceipt = forwardRef<HTMLDivElement, ABKHDReceiptProps>(
 );
 
 ABKHDReceipt.displayName = 'ABKHDReceipt';
-
-/* Fallback Vector Logo matching the circuit-board shopping bag "AS" monogram */
-function DefaultBrandLogoSvg() {
-  return (
-    <svg className="w-[86px] h-[82px]" viewBox="0 0 100 96" fill="none">
-      {/* Bag Handle */}
-      <path
-        d="M35 28V20C35 11.7157 41.7157 5 50 5C58.2843 5 65 11.7157 65 20V28"
-        stroke="#1e3a5f"
-        strokeWidth="5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M38 28V20C38 13.3726 43.3726 8 50 8C56.6274 8 62 13.3726 62 20V28"
-        stroke="#94a3b8"
-        strokeWidth="1.5"
-      />
-      {/* Bag Body */}
-      <path
-        d="M21 28H79L85 83C85.5 87.5 82 91 77.5 91H22.5C18 91 14.5 87.5 15 83L21 28Z"
-        fill="#f1f5f9"
-        stroke="#1e3a5f"
-        strokeWidth="4"
-        strokeLinejoin="round"
-      />
-      {/* Circuit Traces */}
-      <path
-        d="M26 38H36L42 44M74 38H64L58 44M24 76H36L42 70M76 76H64L58 70"
-        stroke="#38bdf8"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      {/* Monogram "AS" */}
-      <text
-        x="50"
-        y="69"
-        textAnchor="middle"
-        fill="#0f294a"
-        stroke="#38bdf8"
-        strokeWidth="1.2"
-        fontSize="34"
-        fontWeight="900"
-        fontFamily="Inter, sans-serif"
-        letterSpacing="-1"
-      >
-        AS
-      </text>
-    </svg>
-  );
-}
 
 function DefaultProductIcon() {
   return (

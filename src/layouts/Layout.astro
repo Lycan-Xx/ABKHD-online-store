@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import BrandIcons from '../components/layout/BrandIcons.astro';
 
 export interface Props {
   title?: string;
@@ -16,7 +17,31 @@ const {
 } = Astro.props;
 
 const siteUrl = 'https://abkhd.pages.dev';
-const imageUrl = ogImage || `${siteUrl}/android-chrome-512x512.png`;
+const siteName = 'ABKHD Store';
+// Default share card: the logo on a 1200x630 canvas (public/og-image.png).
+const defaultImage = `${siteUrl}/og-image.png`;
+// Product pages pass their own photo; make sure whatever we got is absolute,
+// because crawlers (WhatsApp, X, Facebook) will not resolve a relative path.
+const absolute = (value: string) => {
+  try {
+    return new URL(value, siteUrl).toString();
+  } catch {
+    return defaultImage;
+  }
+};
+const imageUrl = ogImage ? absolute(ogImage) : defaultImage;
+const usingDefaultImage = !ogImage;
+// Canonical URL without query/hash so shared and tracked links collapse to one page.
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const imageAlt = usingDefaultImage ? 'ABKHD logo: a circuit-board shopping bag' : title;
+
+const organizationJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'ABKHD',
+  url: siteUrl,
+  logo: `${siteUrl}/logo-512.png`,
+});
 ---
 
 <!DOCTYPE html>
@@ -25,29 +50,39 @@ const imageUrl = ogImage || `${siteUrl}/android-chrome-512x512.png`;
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" />
-    
-    <!-- Favicon & Icons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
-    
-    <!-- Open Graph / Facebook -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Favicon, touch icons, manifest, theme colour -->
+    <BrandIcons />
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn, iMessage, Telegram...) -->
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="en_NG" />
     <meta property="og:type" content={ogType} />
-    <meta property="og:url" content={Astro.url} />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={imageUrl} />
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={Astro.url} />
-    <meta property="twitter:title" content={title} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={imageUrl} />
-    
+    <meta property="og:image:alt" content={imageAlt} />
+    {
+      usingDefaultImage && (
+        <>
+          <meta property="og:image:type" content="image/png" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+        </>
+      )
+    }
+
+    <!-- X / Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+
+    <script type="application/ld+json" set:html={organizationJsonLd} is:inline />
+
     <title>{title}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script is:inline>
