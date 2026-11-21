@@ -5,13 +5,17 @@ import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import Hero from "../components/showroom/Hero.astro";
 import CtaBanner from "../components/showroom/CtaBanner.astro";
-import { ShowroomExperience } from "../components/showroom/ShowroomExperience";
-import { RecommendationsRail } from "../components/showroom/RecommendationsRail";
+import { FeaturedDeals } from "../components/showroom/FeaturedDeals";
 import { toShowroomProduct, type ProductDoc } from "../lib/showroom";
 import { listProductsCached } from "../lib/product-cache";
 import { Query } from "appwrite";
 
-// Featured products - existing query, verbatim.
+// The grid shows 6 featured products and rotates through up to 12 of them.
+// Everything else lives on /shop.
+const TEASER_VISIBLE = 6;
+const TEASER_POOL = 12;
+
+// Featured products, newest first.
 let featuredProducts: ProductDoc[] = [];
 try {
   const documents = await listProductsCached(
@@ -21,30 +25,14 @@ try {
       Query.equal("isArchived", false),
       Query.orderDesc("$createdAt"),
     ],
-    20,
+    TEASER_POOL,
   );
   featuredProducts = documents.map((doc) => ({ ...doc, id: doc.$id }));
 } catch (error) {
   console.error("Error fetching featured products:", error);
 }
 
-// Newest 8 - always fills the recommendations rail (SPEC §7.1).
-let newestProducts: ReturnType<typeof toShowroomProduct>[] = [];
-try {
-  const documents = await listProductsCached(
-    [
-      Query.equal("isActive", true),
-      Query.equal("isArchived", false),
-      Query.orderDesc("$createdAt"),
-    ],
-    8,
-  );
-  newestProducts = documents.map(toShowroomProduct);
-} catch (error) {
-  console.error("Error fetching newest products:", error);
-}
-
-const showroomFeatured = featuredProducts.map(toShowroomProduct);
+const teaserProducts = featuredProducts.slice(0, TEASER_POOL).map(toShowroomProduct);
 ---
 
 <Layout
@@ -59,9 +47,7 @@ const showroomFeatured = featuredProducts.map(toShowroomProduct);
     subtitle="UK & China-sourced devices, rigorously tested and transparently disclosed, quality you can trust at prices that actually make sense."
   />
 
-  <ShowroomExperience client:visible products={showroomFeatured} />
-
-  <RecommendationsRail client:visible products={newestProducts} />
+  <FeaturedDeals client:visible products={teaserProducts} visible={TEASER_VISIBLE} />
 
   <CtaBanner />
 
