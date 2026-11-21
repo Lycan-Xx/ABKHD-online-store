@@ -10,8 +10,10 @@ import { toShowroomProduct, type ProductDoc } from "../lib/showroom";
 import { listProductsCached } from "../lib/product-cache";
 import { Query } from "appwrite";
 
-// How many featured products the homepage teases (the rest live on /shop).
-const TEASER_COUNT = 6;
+// The grid shows 6 featured products and rotates through up to 12 of them.
+// Everything else lives on /shop.
+const TEASER_VISIBLE = 6;
+const TEASER_POOL = 12;
 
 // Featured products, newest first.
 let featuredProducts: ProductDoc[] = [];
@@ -23,15 +25,14 @@ try {
       Query.equal("isArchived", false),
       Query.orderDesc("$createdAt"),
     ],
-    TEASER_COUNT,
+    TEASER_POOL,
   );
   featuredProducts = documents.map((doc) => ({ ...doc, id: doc.$id }));
 } catch (error) {
   console.error("Error fetching featured products:", error);
 }
 
-// The homepage is a teaser: a few featured deals, then /shop for everything else.
-const teaserProducts = featuredProducts.slice(0, TEASER_COUNT).map(toShowroomProduct);
+const teaserProducts = featuredProducts.slice(0, TEASER_POOL).map(toShowroomProduct);
 ---
 
 <Layout
@@ -46,7 +47,7 @@ const teaserProducts = featuredProducts.slice(0, TEASER_COUNT).map(toShowroomPro
     subtitle="UK & China-sourced devices, rigorously tested and transparently disclosed, quality you can trust at prices that actually make sense."
   />
 
-  <FeaturedDeals client:visible products={teaserProducts} />
+  <FeaturedDeals client:visible products={teaserProducts} visible={TEASER_VISIBLE} />
 
   <CtaBanner />
 
