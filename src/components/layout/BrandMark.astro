@@ -1,0 +1,33 @@
+---
+// The official ABKHD logo (circuit-board shopping bag) plus optional wordmark.
+// Source: public/logo.png, built from brand/abkhd-logo-original.png.
+export interface Props {
+  /** Height of the mark in pixels (width follows the artwork's ratio). */
+  size?: number;
+  /** Show the "ABKHD" wordmark beside the mark. */
+  showName?: boolean;
+  /** Wordmark classes, to let the caller match its surrounding type size. */
+  nameClass?: string;
+  /** Mark only: alt text. Ignored when the name is shown (the text names it). */
+  alt?: string;
+  loading?: 'eager' | 'lazy';
+}
+
+const { size = 32, showName = true, nameClass = 'text-[15px]', alt = 'ABKHD', loading = 'eager' } =
+  Astro.props;
+// public/logo.png is 296:374 once trimmed.
+const width = Math.round(size * (296 / 374));
+---
+
+<img
+  src="/logo.png"
+  alt={showName ? '' : alt}
+  aria-hidden={showName ? 'true' : undefined}
+  width={width}
+  height={size}
+  loading={loading}
+  decoding="async"
+  class="shrink-0 object-contain"
+  style={`height:${size}px;width:auto`}
+/>
+{showName && <span class={nameClass}>ABKHD</span>}

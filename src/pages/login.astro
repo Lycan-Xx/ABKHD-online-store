@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
+import BrandMark from '../components/layout/BrandMark.astro';
 
 // Redirect away if already authenticated
 ---
@@ -13,9 +14,12 @@ import Footer from '../components/layout/Footer.astro';
     <div class="login-card">
       <!-- Logo -->
       <div class="login-logo">
-        <a href="/" aria-label="Back to ABKHD Store">
-          <span class="font-black text-2xl tracking-tight">ABKHD</span>
-          <span class="font-light text-2xl text-muted-foreground">Store</span>
+        <a href="/" aria-label="Back to ABKHD Store" class="inline-flex items-center gap-3">
+          <BrandMark size={48} showName={false} alt="" />
+          <span>
+            <span class="font-black text-2xl tracking-tight">ABKHD</span>
+            <span class="font-light text-2xl text-muted-foreground">Store</span>
+          </span>
         </a>
       </div>
 

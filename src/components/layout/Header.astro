@@ -3,6 +3,7 @@
 // Scroll behavior: vanilla script swaps glass/h-14/max-w-960 ↔ glass-strong/h-12/max-w-820
 // at window.scrollY > 24 (exact mockup values).
 import Icon from '../showroom/Icon.astro';
+import BrandMark from './BrandMark.astro';
 import CartDrawer from '../cart/CartDrawer.astro';
 import MobileNav from './MobileNav.astro';
 import SearchOverlay from './SearchOverlay.astro';
@@ -27,8 +28,7 @@ const isActive = (to: string) =>
     class="glass nav-shape flex h-14 w-full max-w-[960px] items-center gap-8 border border-border/60 px-5 shadow-[0_8px_30px_rgb(0_0_0/0.04)] transition-all duration-500 ease-out sm:px-7"
   >
     <a href="/" class="flex items-center gap-2 font-semibold tracking-tight" aria-label="ABKHD home">
-      <span class="grid h-6 w-6 place-items-center rounded-full bg-foreground text-[10px] font-bold text-background">A</span>
-      <span class="text-[15px]">ABKHD</span>
+      <BrandMark size={32} />
     </a>
 
     <div class="hidden flex-1 items-center justify-center gap-7 md:flex">

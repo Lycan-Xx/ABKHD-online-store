@@ -2,6 +2,8 @@
 import '../styles/global.css';
 import { ViewTransitions } from 'astro:transitions';
 import Icon from '../components/showroom/Icon.astro';
+import BrandIcons from '../components/layout/BrandIcons.astro';
+import BrandMark from '../components/layout/BrandMark.astro';
 
 export interface Props {
   title?: string;
@@ -36,8 +38,8 @@ const isActive = (path: string, exact = false) => {
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="robots" content="noindex, nofollow" />
+    <BrandIcons />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Cloudflare Insights Beacon (production only, so dev never hits the CDN) -->
@@ -81,7 +83,7 @@ const isActive = (path: string, exact = false) => {
         <div class="container flex h-16 items-center justify-between">
           <div class="flex items-center gap-6">
             <a href="/admin" class="flex items-center gap-2">
-              <span class="text-xl font-bold text-primary">ABKHD</span>
+              <BrandMark size={32} nameClass="text-xl font-bold text-primary" />
               <span class="text-sm font-medium text-muted-foreground">Admin</span>
             </a>
             

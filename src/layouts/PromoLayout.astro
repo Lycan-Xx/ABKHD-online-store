@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import BrandIcons from '../components/layout/BrandIcons.astro';
+import BrandMark from '../components/layout/BrandMark.astro';
 
 /**
  * Stand-alone shell for the secret promo page: no navigation, search, cart
@@ -20,8 +22,7 @@ const { title = 'ABKHD | Exclusive' } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="theme-color" content="#ffffff" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <BrandIcons />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
@@ -31,8 +32,7 @@ const { title = 'ABKHD | Exclusive' } = Astro.props;
   <body class="bg-background text-foreground">
     <div class="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 pb-16 sm:px-6">
       <header class="flex items-center gap-2 py-6 font-semibold tracking-tight">
-        <span class="grid h-6 w-6 place-items-center rounded-full bg-foreground text-[10px] font-bold text-background">A</span>
-        <span class="text-[15px]">ABKHD</span>
+        <BrandMark size={32} />
       </header>
       <main class="flex-1">
         <slot />
