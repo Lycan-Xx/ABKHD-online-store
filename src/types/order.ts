@@ -13,7 +13,10 @@ export interface Order {
   state: string;
   postalCode: string;
   status: 'pending' | 'paid' | 'shipped' | 'delivered';
-  paymentMethod: 'card' | 'bank' | 'ussd' | 'transfer';
+  paymentMethod: 'card' | 'bank' | 'ussd' | 'transfer' | 'cash' | 'manual';
+  isManual?: boolean;
+  isDeleted?: boolean;
+  deletedAt?: string;
   createdAt: string;
   receiptId?: string;
   receiptGeneratedAt?: string;

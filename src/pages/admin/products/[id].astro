@@ -3,6 +3,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 import Icon from '../../../components/showroom/Icon.astro';
 import { databases, APPWRITE_DB_ID, APPWRITE_PRODUCTS_COLLECTION_ID } from '../../../lib/appwrite';
 import { parseDescription } from '../../../lib/utils';
+import { DELIVERY_OPTIONS } from '../../../lib/delivery';
 import { Query } from 'appwrite';
 
 export async function getStaticPaths() {
@@ -346,7 +347,62 @@ try {
         <p class="text-xs text-muted-foreground">
           Featured products appear on the homepage and get highlighted in listings
         </p>
-      </div>
+
+        <!-- Check availability -->
+        <div class="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="requiresAvailabilityCheck"
+            name="requiresAvailabilityCheck"
+            checked={product?.requiresAvailabilityCheck || false}
+            class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+          <div>
+            <label for="requiresAvailabilityCheck" class="text-sm font-medium">
+              Check availability instead of checkout
+            </label>
+            <p class="text-xs text-muted-foreground">
+              Hides Add to Cart and shows a WhatsApp availability button on the storefront
+            </p>
+          </div>
+        </div>
+
+        <!-- Price is estimate -->
+        <div class="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="priceIsEstimate"
+            name="priceIsEstimate"
+            checked={product?.priceIsEstimate || false}
+            class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+            <div>
+              <label for="priceIsEstimate" class="text-sm font-medium">
+                Price is an estimate
+              </label>
+              <p class="text-xs text-muted-foreground">
+                Shows the price as "Estimated" rather than a fixed price
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label for="deliveryEstimate" class="block text-sm font-medium mb-2">Delivery timeline</label>
+            <select
+              id="deliveryEstimate"
+              name="deliveryEstimate"
+              class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Not specified</option>
+              {DELIVERY_OPTIONS.map((option) => (
+                <option value={option.value} selected={product?.deliveryEstimate === option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p class="text-xs text-muted-foreground mt-1">Shown on the product page, cards and checkout.</p>
+          </div>
+        </div>
 
       <!-- Submit -->
       <div class="flex items-center gap-4">
@@ -830,6 +886,9 @@ try {
         video: videoUrl,
         videoThumbnail: videoThumbnailUrl,
         featured: formData.has('featured'),
+        requiresAvailabilityCheck: formData.has('requiresAvailabilityCheck'),
+        priceIsEstimate: formData.has('priceIsEstimate'),
+        deliveryEstimate: (formData.get('deliveryEstimate') as string) || '',
         isActive: isActiveToggle?.dataset.currentStatus === 'active',
         updatedBy: adminUser?.id || 'unknown',
         updatedByName: adminUser?.name || adminUser?.email || 'Unknown Admin'

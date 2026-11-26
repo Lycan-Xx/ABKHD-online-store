@@ -40,6 +40,11 @@ export interface PromoItem {
   originalPrice: number;
   promoPrice: number;
   sortOrder?: number;
+  /**
+   * Units available. Blank/null keeps the original one-of-a-kind behaviour
+   * (exactly one sale); a positive number allows that many claims.
+   */
+  stock?: number | null;
 }
 
 export interface PromoClaim {
@@ -68,6 +73,10 @@ export interface PublicPromoItem {
   originalPrice: number;
   promoPrice: number;
   state: PromoItemState;
+  /** Total units offered (1 for legacy one-of-a-kind items). */
+  stock: number;
+  /** Units still available to buy. */
+  remaining: number;
 }
 
 export type EventPhase = 'upcoming' | 'live' | 'ended';
@@ -95,7 +104,41 @@ export function itemState(claims: PromoClaim[], now = Date.now()): PromoItemStat
   return 'available';
 }
 
+/** Units offered for an item. Blank stock keeps the one-of-a-kind behaviour. */
+export function effectiveStock(item: Pick<PromoItem, 'stock'>): number {
+  const stock = item.stock;
+  if (typeof stock === 'number' && Number.isFinite(stock) && stock > 0) {
+    return Math.floor(stock);
+  }
+  return 1;
+}
+
+export function promoCounts(claims: PromoClaim[], now = Date.now()) {
+  return {
+    paid: claims.filter((c) => c.status === 'paid').length,
+    liveHolds: claims.filter((c) => isHoldLive(c, now)).length,
+  };
+}
+
+/**
+ * Stock-aware state. A multi-unit item stays available while any unit is
+ * unsold and unheld; it is only "claimed" once every unit has been paid for.
+ */
+export function itemStateForStock(
+  item: Pick<PromoItem, 'stock'>,
+  claims: PromoClaim[],
+  now = Date.now()
+): PromoItemState {
+  const stock = effectiveStock(item);
+  const { paid, liveHolds } = promoCounts(claims, now);
+  if (stock - paid <= 0) return 'claimed';
+  if (stock - paid - liveHolds <= 0) return 'reserved';
+  return 'available';
+}
+
 export function toPublicItem(item: PromoItem, claims: PromoClaim[]): PublicPromoItem {
+  const stock = effectiveStock(item);
+  const { paid } = promoCounts(claims);
   return {
     id: item.$id,
     name: item.name,
@@ -105,7 +148,9 @@ export function toPublicItem(item: PromoItem, claims: PromoClaim[]): PublicPromo
     images: item.images && item.images.length ? item.images : [item.image],
     originalPrice: item.originalPrice,
     promoPrice: item.promoPrice,
-    state: itemState(claims),
+    state: itemStateForStock(item, claims),
+    stock,
+    remaining: Math.max(0, stock - paid),
   };
 }
 

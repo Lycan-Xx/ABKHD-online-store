@@ -8,6 +8,7 @@ export interface CartItem {
   size?: string | null;
   color?: string | null;
   category?: string;
+  deliveryEstimate?: string;
 }
 
 export interface Cart {

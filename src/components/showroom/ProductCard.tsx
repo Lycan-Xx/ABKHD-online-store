@@ -1,7 +1,9 @@
-import { BadgeCheck } from 'lucide-react';
+import { BadgeCheck, MessageCircle } from 'lucide-react';
 import { formatPrice, calculateDiscount } from '../../lib/utils';
 import type { ShowroomProduct } from '../../lib/showroom';
 import { addFromCard, buyNowFromCard } from './cardActions';
+import { openAvailabilityWhatsApp } from '../../lib/whatsapp';
+import { getDeliveryShortLabel } from '../../lib/delivery';
 
 /**
  * Showroom product card (SPEC §6.3) - mockup card structure verbatim
@@ -11,7 +13,9 @@ import { addFromCard, buyNowFromCard } from './cardActions';
  */
 export function ProductCard({ product }: { product: ShowroomProduct }) {
   const discount = calculateDiscount(product.price, product.originalPrice || 0);
-  const outOfStock = product.stock <= 0;
+  const availabilityOnly = product.requiresAvailabilityCheck === true;
+  const outOfStock = !availabilityOnly && product.stock <= 0;
+  const deliveryShort = getDeliveryShortLabel(product.deliveryEstimate);
   const addClass = outOfStock
     ? 'flex-1 rounded-full border border-border bg-background px-3 py-2 text-xs font-medium opacity-40 pointer-events-none'
     : 'flex-1 rounded-full border border-border bg-background px-3 py-2 text-xs font-medium transition hover:bg-muted';
@@ -40,13 +44,18 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
         )}
 
         {/* Discount chip - bottom-left */}
-        {discount !== null && (
+        {discount !== null && !product.priceIsEstimate && (
           <span className="absolute bottom-3 left-3 z-10 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
             -{discount}%
           </span>
         )}
 
         {/* Stock chip - bottom-right (replaces "Out of stock" CTA context) */}
+        {availabilityOnly && (
+          <span className="absolute bottom-3 right-3 z-10 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
+            Check availability
+          </span>
+        )}
         {outOfStock && (
           <span className="absolute bottom-3 right-3 z-10 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur">
             Out of stock
@@ -70,38 +79,62 @@ export function ProductCard({ product }: { product: ShowroomProduct }) {
           <h3 className="text-[15px] font-semibold tracking-tight group-hover:underline underline-offset-4 decoration-foreground/20">
             {product.name}
           </h3>
-          <span className="whitespace-nowrap text-[15px] font-semibold tracking-tight">
+          <span className="whitespace-nowrap text-right text-[15px] font-semibold tracking-tight">
+            {product.priceIsEstimate && (
+              <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Est.
+              </span>
+            )}
             {formatPrice(product.price)}
           </span>
         </div>
         {/* Ratings row dropped (D3) - mockup line replaced by a subtle
             variant hint so the layout rhythm is preserved. */}
         <div className="mt-1 text-xs text-muted-foreground">
-          {outOfStock
-            ? 'Currently unavailable'
-            : product.hasVariants
-              ? 'Multiple options available'
-              : product.stock <= 5
-                ? `Only ${product.stock} left`
-                : 'In stock'}
+          {availabilityOnly
+            ? 'Available on request'
+            : outOfStock
+              ? 'Currently unavailable'
+              : product.hasVariants
+                ? 'Multiple options available'
+                : product.stock <= 5
+                  ? `Only ${product.stock} left`
+                  : 'In stock'}
         </div>
+        {deliveryShort && (
+          <div className="mt-0.5 text-[11px] text-muted-foreground">
+            Delivery: {deliveryShort}
+          </div>
+        )}
       </a>
 
       <div className="mt-4 flex items-center gap-2 px-1 pb-1">
-        <button
-          onClick={() => addFromCard(product)}
-          disabled={outOfStock}
-          className={addClass}
-        >
-          Add to Cart
-        </button>
-        <button
-          onClick={() => buyNowFromCard(product)}
-          disabled={outOfStock}
-          className={buyClass}
-        >
-          Buy Now
-        </button>
+        {availabilityOnly ? (
+          <button
+            onClick={() => openAvailabilityWhatsApp(product)}
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-foreground px-3 py-2 text-xs font-medium text-background transition hover:opacity-90"
+          >
+            <MessageCircle className="h-3 w-3" />
+            Check availability
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => addFromCard(product)}
+              disabled={outOfStock}
+              className={addClass}
+            >
+              Add to Cart
+            </button>
+            <button
+              onClick={() => buyNowFromCard(product)}
+              disabled={outOfStock}
+              className={buyClass}
+            >
+              Buy Now
+            </button>
+          </>
+        )}
       </div>
     </article>
   );

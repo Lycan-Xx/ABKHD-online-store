@@ -30,8 +30,9 @@ import {
   PROMO_EVENTS_COLLECTION,
   PROMO_ITEMS_COLLECTION,
   eventPhase,
+  effectiveStock,
   isHoldLive,
-  itemState,
+  itemStateForStock,
   newPromoRef,
   toPublicItem,
   type PromoClaim,
@@ -112,7 +113,7 @@ export async function claimItem(
   ]);
   const itemClaims = eventClaims.filter((c) => c.itemId === itemId);
 
-  const state = itemState(itemClaims);
+  const state = itemStateForStock(item, itemClaims);
   if (state === 'claimed') return { ok: false, code: 'taken' };
   if (state === 'reserved') return { ok: false, code: 'held' };
 
@@ -227,29 +228,26 @@ export async function finalizePromoPayment(
 
   if (!verified) return { state: 'pending', order };
 
-  const siblings = await dbList<PromoClaim>(PROMO_CLAIMS_COLLECTION, [
-    q.equal('itemId', claim.itemId),
-    q.limit(50),
-  ]);
-
-  if (siblings.some((c) => c.$id !== claim.$id && c.status === 'paid')) {
-    return { state: 'refund_due', order: await markRefundDue(claim, order) };
-  }
+  const itemRes = await dbGet<PromoItem>(PROMO_ITEMS_COLLECTION, claim.itemId);
+  const stock = itemRes.ok && itemRes.data ? effectiveStock(itemRes.data) : 1;
 
   await dbUpdate(PROMO_CLAIMS_COLLECTION, claim.$id, { status: 'paid' });
 
-  // Two payments verified in the same instant: the earliest-updated one wins.
+  // More verified payments than units: the earliest-updated claims win and the
+  // rest are refunded. Single-unit items keep the original first-wins rule.
   const after = await dbList<PromoClaim>(PROMO_CLAIMS_COLLECTION, [
     q.equal('itemId', claim.itemId),
-    q.limit(50),
+    q.limit(200),
   ]);
-  const winner = after
+  const winners = after
     .filter((c) => c.status === 'paid')
     .sort(
       (a, b) =>
         String(a.$updatedAt).localeCompare(String(b.$updatedAt)) || a.$id.localeCompare(b.$id)
-    )[0];
-  if (winner && winner.$id !== claim.$id) {
+    )
+    .slice(0, stock);
+
+  if (!winners.some((c) => c.$id === claim.$id)) {
     return { state: 'refund_due', order: await markRefundDue(claim, order) };
   }
 

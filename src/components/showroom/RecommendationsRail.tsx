@@ -1,8 +1,10 @@
 import { useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 import { formatPrice } from '../../lib/utils';
 import type { ShowroomProduct } from '../../lib/showroom';
 import { addFromCard, buyNowFromCard } from './cardActions';
+import { openAvailabilityWhatsApp } from '../../lib/whatsapp';
+import { getDeliveryShortLabel } from '../../lib/delivery';
 
 type Props = {
   products: ShowroomProduct[];
@@ -60,7 +62,9 @@ export function RecommendationsRail({
         className="no-scrollbar mt-8 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4"
       >
         {products.map((p) => {
-          const outOfStock = p.stock <= 0;
+          const availabilityOnly = p.requiresAvailabilityCheck === true;
+          const outOfStock = !availabilityOnly && p.stock <= 0;
+          const deliveryShort = getDeliveryShortLabel(p.deliveryEstimate);
           const addClass = outOfStock
             ? 'flex-1 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium opacity-40 pointer-events-none'
             : 'flex-1 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-muted';
@@ -90,33 +94,57 @@ export function RecommendationsRail({
                 <a href={`/products/${p.id}`} className="block">
                   <div className="flex items-start justify-between">
                     <h3 className="text-sm font-semibold tracking-tight">{p.name}</h3>
-                    <span className="whitespace-nowrap text-sm font-semibold">
+                    <span className="whitespace-nowrap text-right text-sm font-semibold">
+                      {p.priceIsEstimate && (
+                        <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                          Est.
+                        </span>
+                      )}
                       {formatPrice(p.price)}
                     </span>
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
-                    {outOfStock
-                      ? 'Currently unavailable'
-                      : p.hasVariants
-                        ? 'Multiple options available'
-                        : 'In stock'}
+                    {availabilityOnly
+                      ? 'Available on request'
+                      : outOfStock
+                        ? 'Currently unavailable'
+                        : p.hasVariants
+                          ? 'Multiple options available'
+                          : 'In stock'}
                   </div>
+                  {deliveryShort && (
+                    <div className="mt-0.5 text-[11px] text-muted-foreground">
+                      Delivery: {deliveryShort}
+                    </div>
+                  )}
                 </a>
                 <div className="mt-3 flex gap-2 pb-1">
-                  <button
-                    onClick={() => addFromCard(p)}
-                    disabled={outOfStock}
-                    className={addClass}
-                  >
-                    Add to Cart
-                  </button>
-                  <button
-                    onClick={() => buyNowFromCard(p)}
-                    disabled={outOfStock}
-                    className={buyClass}
-                  >
-                    Buy Now
-                  </button>
+                  {availabilityOnly ? (
+                    <button
+                      onClick={() => openAvailabilityWhatsApp(p)}
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background transition hover:opacity-90"
+                    >
+                      <MessageCircle className="h-3 w-3" />
+                      Check availability
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => addFromCard(p)}
+                        disabled={outOfStock}
+                        className={addClass}
+                      >
+                        Add to Cart
+                      </button>
+                      <button
+                        onClick={() => buyNowFromCard(p)}
+                        disabled={outOfStock}
+                        className={buyClass}
+                      >
+                        Buy Now
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </article>

@@ -195,7 +195,11 @@ export function mapOrderToReceipt(
             ? 'Bank Transfer'
             : order.paymentMethod === 'ussd'
               ? 'USSD'
-              : 'Squad Payment Gateway',
+              : order.paymentMethod === 'cash'
+                ? 'Cash'
+                : order.paymentMethod === 'manual'
+                  ? 'Manual / Other'
+                  : 'Squad Payment Gateway',
       transactionReference: order.paymentRef || 'Pending',
       status: paymentStatus,
     },

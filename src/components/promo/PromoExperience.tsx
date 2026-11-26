@@ -57,21 +57,22 @@ export function PromoExperience({ token, title, endsAt, initialItems }: Props) {
   // Close the sheet if the item is taken while the buyer is reading it.
   const liveSelected = selected ? items.find((i) => i.id === selected.id) : null;
 
-  const left = items.filter((i) => i.state === 'available').length;
+  const totalUnits = items.reduce((sum, i) => sum + i.stock, 0);
+  const remainingUnits = items.reduce((sum, i) => sum + i.remaining, 0);
 
   return (
     <div>
       <section className="pb-8 pt-2">
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          One of a kind · first come, first served
+          Limited drop · first come, first served
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
         <p className="mt-3 text-sm text-muted-foreground">
           {items.length === 0
             ? 'No items yet. Check back soon.'
-            : left === 0
+            : remainingUnits === 0
               ? 'Everything has been claimed. Thank you!'
-              : `${left} of ${items.length} still available`}
+              : `${remainingUnits} of ${totalUnits} still available`}
           {endsAt ? ` · ends ${new Date(endsAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}` : ''}
         </p>
       </section>
@@ -159,6 +160,11 @@ function PromoCard({ item, onClaim }: { item: PublicPromoItem; onClaim: () => vo
               ? 'Someone is paying now. It may come back.'
               : item.category}
         </p>
+        {!claimed && item.stock > 1 && (
+          <p className="mt-1 text-[11px] font-medium text-muted-foreground">
+            {item.remaining} left
+          </p>
+        )}
       </div>
 
       <div className="mt-4 px-1 pb-1">

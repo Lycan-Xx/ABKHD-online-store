@@ -16,6 +16,14 @@ export interface Product {
   isActive?: boolean;
   isArchived?: boolean;
   isUnique?: boolean;
+  /** Set when a sale automatically deactivated the product (out of stock / unique). */
+  autoDeactivated?: boolean;
+  /** No on-site stock: show "Check availability" on WhatsApp instead of checkout. */
+  requiresAvailabilityCheck?: boolean;
+  /** Price is an estimate, not a firm price. */
+  priceIsEstimate?: boolean;
+  /** Stable delivery option value (see lib/delivery.ts). */
+  deliveryEstimate?: string;
   sizes?: string[];
   colors?: string[];
   createdAt?: string;

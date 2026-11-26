@@ -12,6 +12,10 @@ import { formatPrice } from '../../lib/utils';
         <h1 class="text-2xl md:text-3xl font-bold">Orders</h1>
         <p class="text-muted-foreground mt-1">Manage customer orders</p>
       </div>
+      <button id="new-manual-receipt" class="btn-primary inline-flex items-center gap-2">
+        <Icon name="plus" class="h-4 w-4" strokeWidth={2} />
+        New Manual Receipt
+      </button>
     </div>
 
     <!-- Loading State -->
@@ -92,6 +96,133 @@ import { formatPrice } from '../../lib/utils';
     <!-- Overlay for slide-in panel -->
     <div id="details-overlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
 
+    <!-- Manual Receipt Form -->
+    <div id="manual-receipt-modal" class="fixed inset-0 z-[60] hidden">
+      <div class="absolute inset-0 bg-black/50" data-close-manual></div>
+      <div id="manual-receipt-scroll" class="absolute inset-0 overflow-y-auto p-4 sm:p-6">
+        <div class="mx-auto max-w-3xl rounded-xl border bg-card shadow-2xl">
+          <div class="flex items-center justify-between border-b p-5">
+            <div>
+              <h2 class="text-xl font-bold">Manual Receipt</h2>
+              <p class="text-sm text-muted-foreground">Create a receipt for an offline or manual sale.</p>
+            </div>
+            <button id="close-manual" type="button" class="p-2 hover:bg-muted rounded-lg transition-colors">
+              <Icon name="x" class="h-5 w-5" strokeWidth={2} />
+            </button>
+          </div>
+
+          <form id="manual-receipt-form" class="p-5 space-y-5">
+            <div>
+              <label for="manual-source-order" class="block text-sm font-medium mb-2">Start from an existing order</label>
+              <select id="manual-source-order" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                <option value="">Blank receipt</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="manual-name" class="block text-sm font-medium mb-2">Customer name <span class="text-red-500">*</span></label>
+                <input id="manual-name" name="name" type="text" required class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              <div>
+                <label for="manual-phone" class="block text-sm font-medium mb-2">Phone</label>
+                <input id="manual-phone" name="phone" type="text" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              <div class="sm:col-span-2">
+                <label for="manual-email" class="block text-sm font-medium mb-2">Email</label>
+                <input id="manual-email" name="email" type="email" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              <div class="sm:col-span-2">
+                <label for="manual-address" class="block text-sm font-medium mb-2">Address</label>
+                <input id="manual-address" name="address" type="text" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              <div>
+                <label for="manual-city" class="block text-sm font-medium mb-2">City</label>
+                <input id="manual-city" name="city" type="text" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              <div>
+                <label for="manual-state" class="block text-sm font-medium mb-2">State</label>
+                <input id="manual-state" name="state" type="text" value="Adamawa" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              <div>
+                <label for="manual-postal" class="block text-sm font-medium mb-2">Postal code</label>
+                <input id="manual-postal" name="postal" type="text" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label for="manual-payment-method" class="block text-sm font-medium mb-2">Payment method</label>
+                <select id="manual-payment-method" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <option value="cash">Cash</option>
+                  <option value="transfer">Bank Transfer</option>
+                  <option value="manual">Manual / Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="manual-status" class="block text-sm font-medium mb-2">Status</label>
+                <select id="manual-status" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <option value="paid">Paid</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+              <div>
+                <label for="manual-ref" class="block text-sm font-medium mb-2">Reference</label>
+                <input id="manual-ref" type="text" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium">Items</label>
+                <button type="button" id="manual-add-item" class="text-sm text-primary hover:underline">+ Add item</button>
+              </div>
+              <div id="manual-items" class="space-y-2"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="manual-delivery-fee" class="block text-sm font-medium mb-2">Delivery fee</label>
+                <input id="manual-delivery-fee" type="number" min="0" step="1" value="0" class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              <div class="flex items-end justify-end">
+                <p class="text-sm text-muted-foreground">Total: <span id="manual-total" class="text-lg font-bold text-foreground">₦0</span></p>
+              </div>
+            </div>
+
+            <label class="flex items-start gap-3 rounded-lg border p-3">
+              <input id="manual-update-stock" type="checkbox" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
+              <span class="text-sm">
+                Also update stock
+                <span class="block text-xs text-muted-foreground">Only affects items linked to a product. Leave off for receipts that should not change inventory.</span>
+              </span>
+            </label>
+
+            <div class="flex flex-col sm:flex-row gap-3 pt-2 border-t">
+              <button type="button" id="manual-print-only" class="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-medium hover:bg-muted">
+                Print without saving
+              </button>
+              <button type="submit" class="flex-1 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:opacity-90">
+                Save &amp; Show Receipt
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Receipt Preview -->
+    <div id="manual-preview-modal" class="fixed inset-0 z-[70] hidden overflow-y-auto bg-black/60 p-4 sm:p-6">
+      <div class="mx-auto max-w-5xl">
+        <div class="mb-3 flex justify-end">
+          <button id="close-manual-preview" type="button" class="rounded-lg bg-card px-4 py-2 text-sm font-medium border hover:bg-muted">
+            Close Preview
+          </button>
+        </div>
+        <div id="manual-preview-slot" class="rounded-lg bg-white p-2"></div>
+      </div>
+    </div>
+
     <!-- Error State -->
     <div id="error-state" class="hidden p-12 text-center rounded-xl border bg-card">
       <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -110,6 +241,10 @@ import { formatPrice } from '../../lib/utils';
   import { databases, APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID } from '../../lib/appwrite';
   import { Query } from 'appwrite';
   import { lucideIcon } from '../../lib/lucideIcons';
+  import { reduceMultipleProductsStock, restoreMultipleProductsStock } from '../../lib/stock-manager';
+  import { isPromoRef } from '../../lib/promo';
+  import { getDeliveryLabel } from '../../lib/delivery';
+  import { deriveReceiptNumber, mapOrderToReceipt } from '../../lib/receiptUtils';
 
   function formatPrice(price: number): string {
     return '₦' + price.toLocaleString();
@@ -157,6 +292,337 @@ import { formatPrice } from '../../lib/utils';
 
     receiptRoot = createRoot(slot);
     receiptRoot.render(React.createElement(ReceiptDisplay, { data }));
+  }
+
+  /* ───────────────────────── Manual receipts ───────────────────────── */
+
+  let ordersCache: any[] = [];
+  let manualPreviewRoot: any = null;
+
+  function escapeHtml(value: unknown): string {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => {
+      switch (char) {
+        case '&': return '&amp;';
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '"': return '&quot;';
+        default: return '&#39;';
+      }
+    });
+  }
+
+  function formatNaira(value: number): string {
+    return '₦' + Number(value || 0).toLocaleString('en-NG');
+  }
+
+  function newManualRef(): string {
+    return `ABKHD-MANUAL-${Date.now().toString(36).toUpperCase()}`;
+  }
+
+  function manualValue(id: string): string {
+    return (document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null)?.value?.trim() || '';
+  }
+
+  function addManualItemRow(item: any = {}) {
+    const container = document.getElementById('manual-items');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'manual-item grid grid-cols-12 gap-2 items-center';
+    row.innerHTML = `
+      <input type="hidden" class="manual-item-id" value="${escapeHtml(item.id || item.productId || '')}" />
+      <input type="text" class="manual-item-name col-span-6 px-3 py-2 rounded-lg border bg-background text-sm" placeholder="Item name" value="${escapeHtml(item.name || '')}" />
+      <input type="number" min="1" step="1" class="manual-item-qty col-span-2 px-3 py-2 rounded-lg border bg-background text-sm" value="${escapeHtml(item.quantity || 1)}" />
+      <input type="number" min="0" step="1" class="manual-item-price col-span-3 px-3 py-2 rounded-lg border bg-background text-sm" value="${escapeHtml(item.price || 0)}" />
+      <button type="button" class="manual-remove-item col-span-1 rounded-lg border px-2 py-2 text-sm hover:bg-muted" aria-label="Remove item">×</button>
+    `;
+    container.appendChild(row);
+
+    row.querySelector('.manual-remove-item')?.addEventListener('click', () => {
+      row.remove();
+      if (!container.children.length) addManualItemRow();
+      updateManualTotal();
+    });
+    row.querySelectorAll('input').forEach((input) => input.addEventListener('input', updateManualTotal));
+  }
+
+  function collectManualItems() {
+    const items: any[] = [];
+    document.querySelectorAll('.manual-item').forEach((row, index) => {
+      const name = (row.querySelector('.manual-item-name') as HTMLInputElement | null)?.value.trim() || '';
+      const quantity = Number((row.querySelector('.manual-item-qty') as HTMLInputElement | null)?.value) || 0;
+      const price = Number((row.querySelector('.manual-item-price') as HTMLInputElement | null)?.value) || 0;
+      const productId = (row.querySelector('.manual-item-id') as HTMLInputElement | null)?.value || '';
+
+      if (!name || quantity <= 0) return;
+
+      items.push({
+        id: productId || `manual-${index}`,
+        cartId: `manual-${index}`,
+        name,
+        price,
+        quantity,
+        category: 'Manual',
+        image: '',
+      });
+    });
+    return items;
+  }
+
+  function manualSubtotal(items: any[] = collectManualItems()): number {
+    return items.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0);
+  }
+
+  function updateManualTotal() {
+    const fee = Number(manualValue('manual-delivery-fee')) || 0;
+    const totalEl = document.getElementById('manual-total');
+    if (totalEl) totalEl.textContent = formatNaira(manualSubtotal() + fee);
+  }
+
+  function buildManualOrder(): any {
+    const items = collectManualItems();
+    const subtotal = manualSubtotal(items);
+    const deliveryFee = Number(manualValue('manual-delivery-fee')) || 0;
+    const total = subtotal + deliveryFee;
+    const name = manualValue('manual-name');
+    const email = manualValue('manual-email');
+    const phone = manualValue('manual-phone');
+    const paymentRef = manualValue('manual-ref') || newManualRef();
+
+    return {
+      $id: 'preview',
+      $createdAt: new Date().toISOString(),
+      customer: JSON.stringify({ name, email, phone }),
+      customerName: name,
+      customerEmail: email,
+      customerPhone: phone,
+      items: JSON.stringify(items),
+      total,
+      totalAmount: total,
+      paymentRef,
+      address: manualValue('manual-address'),
+      city: manualValue('manual-city'),
+      state: manualValue('manual-state'),
+      postalCode: manualValue('manual-postal'),
+      status: manualValue('manual-status') || 'paid',
+      paymentMethod: manualValue('manual-payment-method') || 'cash',
+      receiptId: deriveReceiptNumber(paymentRef),
+      receiptGeneratedAt: new Date().toISOString(),
+      isManual: true,
+      isDeleted: false,
+      deletedAt: '',
+    };
+  }
+
+  function openManualForm(sourceOrder: any = null) {
+    const modal = document.getElementById('manual-receipt-modal');
+    const form = document.getElementById('manual-receipt-form') as HTMLFormElement | null;
+    if (!modal || !form) return;
+
+    form.reset();
+
+    const itemsBox = document.getElementById('manual-items');
+    if (itemsBox) itemsBox.innerHTML = '';
+
+    const refInput = document.getElementById('manual-ref') as HTMLInputElement | null;
+    if (refInput) refInput.value = newManualRef();
+
+    const feeInput = document.getElementById('manual-delivery-fee') as HTMLInputElement | null;
+    if (feeInput) feeInput.value = '0';
+
+    const statusSelect = document.getElementById('manual-status') as HTMLSelectElement | null;
+    if (statusSelect) statusSelect.value = 'paid';
+
+    const methodSelect = document.getElementById('manual-payment-method') as HTMLSelectElement | null;
+    if (methodSelect) methodSelect.value = 'cash';
+
+    const sourceSelect = document.getElementById('manual-source-order') as HTMLSelectElement | null;
+    if (sourceSelect) sourceSelect.value = sourceOrder?.$id || '';
+
+    if (sourceOrder) {
+      (document.getElementById('manual-name') as HTMLInputElement).value = sourceOrder.customerName || '';
+      (document.getElementById('manual-email') as HTMLInputElement).value = sourceOrder.customerEmail || '';
+      (document.getElementById('manual-phone') as HTMLInputElement).value = sourceOrder.customerPhone || '';
+      (document.getElementById('manual-address') as HTMLInputElement).value = sourceOrder.address || '';
+      (document.getElementById('manual-city') as HTMLInputElement).value = sourceOrder.city || '';
+      (document.getElementById('manual-state') as HTMLInputElement).value = sourceOrder.state || 'Adamawa';
+      (document.getElementById('manual-postal') as HTMLInputElement).value = sourceOrder.postalCode || '';
+      if (refInput && sourceOrder.paymentRef) refInput.value = sourceOrder.paymentRef;
+      if (statusSelect) statusSelect.value = sourceOrder.status === 'paid' ? 'paid' : 'pending';
+
+      let sourceItems: any[] = [];
+      try {
+        sourceItems = JSON.parse(sourceOrder.items || '[]');
+      } catch (e) {
+        console.error('Failed to parse order items for receipt:', e);
+      }
+
+      sourceItems.forEach((item) => addManualItemRow(item));
+      if (!sourceItems.length) addManualItemRow();
+
+      const subtotal = manualSubtotal(sourceItems);
+      const sourceTotal = Number(sourceOrder.totalAmount || sourceOrder.total || 0);
+      if (feeInput) feeInput.value = String(Math.max(0, sourceTotal - subtotal));
+    } else {
+      addManualItemRow();
+    }
+
+    updateManualTotal();
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeManualForm() {
+    document.getElementById('manual-receipt-modal')?.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  async function showManualReceiptPreview(order: any) {
+    const modal = document.getElementById('manual-preview-modal');
+    const slot = document.getElementById('manual-preview-slot');
+    if (!modal || !slot) return;
+
+    modal.classList.remove('hidden');
+    if (manualPreviewRoot) {
+      try { manualPreviewRoot.unmount(); } catch (e) { console.error(e); }
+      manualPreviewRoot = null;
+    }
+    slot.innerHTML = '';
+
+    const [React, { createRoot }, { ReceiptDisplay }] = await Promise.all([
+      import('react'),
+      import('react-dom/client'),
+      import('../../components/receipt/ReceiptDisplay'),
+    ]);
+
+    const items = JSON.parse(order.items || '[]');
+    const subtotal = manualSubtotal(items);
+    const total = Number(order.totalAmount || order.total || 0);
+    const data = mapOrderToReceipt(order, items, {
+      receiptId: order.receiptId,
+      deliveryFee: Math.max(0, total - subtotal),
+    });
+
+    manualPreviewRoot = createRoot(slot);
+    manualPreviewRoot.render(React.createElement(ReceiptDisplay, { data }));
+  }
+
+  function populateManualSourceOrders(orders: any[]) {
+    const select = document.getElementById('manual-source-order') as HTMLSelectElement | null;
+    if (!select) return;
+
+    const current = select.value;
+    select.innerHTML =
+      '<option value="">Blank receipt</option>' +
+      orders
+        .map(
+          (order) =>
+            `<option value="${escapeHtml(order.$id)}">${escapeHtml(order.customerName || 'Customer')} — ${escapeHtml(order.paymentRef || order.$id)}</option>`
+        )
+        .join('');
+    if (current) select.value = current;
+  }
+
+  async function saveManualReceipt() {
+    const name = manualValue('manual-name');
+    if (!name) {
+      window.alert('Customer name is required.');
+      return;
+    }
+
+    const items = collectManualItems();
+    if (!items.length) {
+      window.alert('Add at least one item with a name and quantity.');
+      return;
+    }
+
+    const order = buildManualOrder();
+    const form = document.getElementById('manual-receipt-form') as HTMLFormElement | null;
+    const submitBtn = form?.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+    }
+
+    try {
+      const { ID } = await import('../../lib/appwrite');
+      const created = await databases.createDocument(
+        APPWRITE_DB_ID,
+        APPWRITE_ORDERS_COLLECTION_ID,
+        ID.unique(),
+        {
+          customer: order.customer,
+          customerEmail: order.customerEmail,
+          customerName: order.customerName,
+          customerPhone: order.customerPhone,
+          items: order.items,
+          total: order.total,
+          totalAmount: order.totalAmount,
+          paymentRef: order.paymentRef,
+          address: order.address,
+          city: order.city,
+          state: order.state,
+          postalCode: order.postalCode,
+          status: order.status,
+          paymentMethod: order.paymentMethod,
+          receiptId: order.receiptId,
+          receiptGeneratedAt: order.receiptGeneratedAt,
+          isManual: true,
+          isDeleted: false,
+          deletedAt: '',
+        }
+      );
+
+      const updateStock = (document.getElementById('manual-update-stock') as HTMLInputElement | null)?.checked;
+      if (updateStock) {
+        const stockItems = items
+          .filter((item) => !String(item.id).startsWith('manual-') && Number(item.quantity) > 0)
+          .map((item) => ({ productId: String(item.id), quantity: Number(item.quantity) }));
+
+        if (stockItems.length) {
+          const results = await reduceMultipleProductsStock(stockItems);
+          const failed = results.filter((result: any) => result.success === false);
+          if (failed.length) {
+            window.alert(
+              'Receipt saved, but stock could not be updated for: ' +
+                failed.map((result: any) => result.productId).join(', ') + '.'
+            );
+          }
+        }
+      }
+
+      closeManualForm();
+      await loadOrders();
+      showOrderDetails(created);
+    } catch (err) {
+      console.error('Failed to create manual receipt:', err);
+      window.alert(
+        'Failed to save receipt: ' + (err instanceof Error ? err.message : 'Unknown error')
+      );
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save & Show Receipt';
+      }
+    }
+  }
+
+  async function printManualReceiptWithoutSaving() {
+    const name = manualValue('manual-name');
+    if (!name) {
+      window.alert('Customer name is required.');
+      return;
+    }
+
+    const items = collectManualItems();
+    if (!items.length) {
+      window.alert('Add at least one item with a name and quantity.');
+      return;
+    }
+
+    const order = buildManualOrder();
+    closeManualForm();
+    await showManualReceiptPreview(order);
   }
 
   async function showOrderDetails(order: any) {
@@ -239,6 +705,7 @@ import { formatPrice } from '../../lib/utils';
               <div class="flex-1">
                 <p class="font-medium">${item.name}</p>
                 <p class="text-sm text-muted-foreground">Qty: ${item.quantity}</p>
+                <p class="text-sm text-muted-foreground">Delivery: ${getDeliveryLabel(item.deliveryEstimate) || 'Contact us'}</p>
                 <p class="text-sm font-semibold text-primary">${formatPrice(item.price)} each</p>
               </div>
               <div class="text-right">
@@ -301,6 +768,13 @@ import { formatPrice } from '../../lib/utils';
 
       <!-- Actions -->
       <div class="flex gap-3">
+        <button
+          id="manual-from-order-btn"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors"
+        >
+          ${lucideIcon('file-plus', 'w-4 h-4')}
+          New Receipt
+        </button>
         <button 
           onclick="window.print()" 
           class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors"
@@ -329,11 +803,54 @@ import { formatPrice } from '../../lib/utils';
     deleteBtn?.addEventListener('click', async () => {
       const orderId = activeOrder?.$id;
       if (!orderId) return;
-      if (!window.confirm('Delete this order? This cannot be undone.')) return;
+      if (!window.confirm('Delete this order? It will be hidden from the list and its stock will be restored.')) return;
       try {
         deleteBtn.disabled = true;
         deleteBtn.textContent = 'Deleting...';
-        await databases.deleteDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, orderId);
+
+        const order = activeOrder;
+        const shouldRestock =
+          order.isDeleted !== true &&
+          ['paid', 'shipped', 'delivered'].includes(order.status);
+
+        let items: any[] = [];
+        try {
+          items = JSON.parse(order.items || '[]');
+        } catch (e) {
+          console.error('Failed to parse order items:', e);
+        }
+
+        const isPromoOrder =
+          isPromoRef(order.paymentRef || order.paymentReference) ||
+          items.some((item: any) => item?.promo === true);
+
+        // Mark deleted first so a retry can never restock the same order twice.
+        await databases.updateDocument(APPWRITE_DB_ID, APPWRITE_ORDERS_COLLECTION_ID, orderId, {
+          isDeleted: true,
+          deletedAt: new Date().toISOString(),
+        });
+
+        if (shouldRestock && !isPromoOrder) {
+          const restockItems = items
+            .map((item: any) => ({
+              productId: item.productId || item.id,
+              quantity: Number(item.quantity) || 0,
+            }))
+            .filter((item: any) => item.productId && item.quantity > 0);
+
+          if (restockItems.length > 0) {
+            const results = await restoreMultipleProductsStock(restockItems);
+            const failed = results.filter((result: any) => result.success === false);
+            if (failed.length > 0) {
+              window.alert(
+                'Order deleted, but stock could not be restored for: ' +
+                  failed.map((result: any) => result.productId).join(', ') +
+                  '. Please adjust those products manually.'
+              );
+            }
+          }
+        }
+
         hideOrderDetails();
         loadOrders();
       } catch (err) {
@@ -344,6 +861,10 @@ import { formatPrice } from '../../lib/utils';
         deleteBtn.disabled = false;
         deleteBtn.textContent = 'Delete Order';
       }
+    });
+
+    content.querySelector('#manual-from-order-btn')?.addEventListener('click', () => {
+      openManualForm(activeOrder);
     });
 
     // Show panel and overlay
@@ -391,8 +912,11 @@ import { formatPrice } from '../../lib/utils';
         ]
       );
 
-      const orders = response.documents;
+      const orders = response.documents.filter((order: any) => order.isDeleted !== true);
       console.log('Orders fetched:', orders.length);
+
+      ordersCache = orders;
+      populateManualSourceOrders(orders);
 
       // Hide loading
       loadingState?.classList.add('hidden');
@@ -502,10 +1026,64 @@ import { formatPrice } from '../../lib/utils';
     }
   };
 
+  // Setup manual receipt UI
+  const setupManualHandlers = () => {
+    const newBtn = document.getElementById('new-manual-receipt');
+    if (newBtn) newBtn.onclick = () => openManualForm();
+
+    const closeBtn = document.getElementById('close-manual');
+    if (closeBtn) closeBtn.onclick = closeManualForm;
+
+    document.querySelectorAll('[data-close-manual]').forEach((el) => {
+      (el as HTMLElement).onclick = closeManualForm;
+    });
+
+    const scroll = document.getElementById('manual-receipt-scroll');
+    if (scroll) {
+      scroll.onclick = (event) => {
+        if (event.target === scroll) closeManualForm();
+      };
+    }
+
+    const addItemBtn = document.getElementById('manual-add-item');
+    if (addItemBtn) addItemBtn.onclick = () => addManualItemRow();
+
+    const feeInput = document.getElementById('manual-delivery-fee');
+    if (feeInput) feeInput.oninput = () => updateManualTotal();
+
+    const sourceSelect = document.getElementById('manual-source-order') as HTMLSelectElement | null;
+    if (sourceSelect) {
+      sourceSelect.onchange = () => {
+        const selected = ordersCache.find((order) => order.$id === sourceSelect.value);
+        openManualForm(selected || null);
+      };
+    }
+
+    const form = document.getElementById('manual-receipt-form') as HTMLFormElement | null;
+    if (form) {
+      form.onsubmit = async (event) => {
+        event.preventDefault();
+        await saveManualReceipt();
+      };
+    }
+
+    const printBtn = document.getElementById('manual-print-only');
+    if (printBtn) printBtn.onclick = () => printManualReceiptWithoutSaving();
+
+    const closePreviewBtn = document.getElementById('close-manual-preview');
+    if (closePreviewBtn) {
+      closePreviewBtn.onclick = () => {
+        document.getElementById('manual-preview-modal')?.classList.add('hidden');
+      };
+    }
+  };
+
   // Close on Escape key
   const handleEscape = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       hideOrderDetails();
+      closeManualForm();
+      document.getElementById('manual-preview-modal')?.classList.add('hidden');
     }
   };
 
@@ -513,10 +1091,12 @@ import { formatPrice } from '../../lib/utils';
 
   // Initial setup
   setupCloseHandlers();
+  setupManualHandlers();
 
   // Reload after view transitions
   document.addEventListener('astro:after-swap', () => {
     loadOrders();
     setupCloseHandlers();
+    setupManualHandlers();
   });
 </script>

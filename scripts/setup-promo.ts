@@ -118,6 +118,7 @@ async function main() {
     { key: 'originalPrice', type: 'integer', required: true },
     { key: 'promoPrice', type: 'integer', required: true },
     { key: 'sortOrder', type: 'integer', def: 0 },
+    { key: 'stock', type: 'integer' },
   ]);
   await ensureIndex(ITEMS, 'event_idx', 'key', ['eventId']);
 
