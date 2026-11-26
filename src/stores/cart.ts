@@ -120,6 +120,7 @@ if (typeof window !== 'undefined') {
       size,
       color,
       category: product.category,
+      deliveryEstimate: product.deliveryEstimate,
     });
   }) as EventListener);
 }

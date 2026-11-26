@@ -1001,6 +1001,8 @@ import Icon from '../components/showroom/Icon.astro';
      SCRIPT
 ═══════════════════════════════════════════════════════════════ -->
 <script>
+import { getDeliveryLabel } from '../lib/delivery';
+
 (async () => {
 
   /* ── Constants ── */
@@ -1093,6 +1095,7 @@ import Icon from '../components/showroom/Icon.astro';
         <div class="co-item-body">
           <div class="co-item-name" title="${item.name}">${item.name}</div>
           <div class="co-item-meta">${fmt(item.price)} each</div>
+          ${item.deliveryEstimate && getDeliveryLabel(item.deliveryEstimate) ? `<div class="co-item-meta">Delivery: ${getDeliveryLabel(item.deliveryEstimate)}</div>` : ''}
           <div class="co-item-sub">${fmt(item.price * item.quantity)}</div>
           ${!successMode ? `
             <div class="co-qty">

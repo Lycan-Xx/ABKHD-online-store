@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { BadgeCheck, ChevronDown, Minus, Plus } from 'lucide-react';
+import { BadgeCheck, ChevronDown, MessageCircle, Minus, Plus } from 'lucide-react';
 import { formatPrice, calculateDiscount, parseDescription } from '../../lib/utils';
 import type { ShowroomProduct } from '../../lib/showroom';
 import { addToCart, openCart } from '../../stores/cart';
+import { openAvailabilityWhatsApp } from '../../lib/whatsapp';
+import { getDeliveryLabel } from '../../lib/delivery';
 
 /** Store policy defaults (SPEC §6.5) - owner to confirm final wording. */
 const SHIPPING_TEXT =
@@ -26,14 +28,18 @@ export function ProductDetail({ product }: Props) {
   const [qty, setQty] = useState(1);
   const [open, setOpen] = useState<string | null>('details');
 
-  const outOfStock = product.stock <= 0;
+  const availabilityOnly = product.requiresAvailabilityCheck === true;
+  const outOfStock = !availabilityOnly && product.stock <= 0;
   const discount = calculateDiscount(product.price, product.originalPrice || 0);
+  const deliveryLabel = getDeliveryLabel(product.deliveryEstimate);
 
-  const stockLine = outOfStock
-    ? 'Out of stock'
-    : product.stock <= 5
-      ? `Only ${product.stock} left`
-      : 'In stock';
+  const stockLine = availabilityOnly
+    ? 'Availability on request'
+    : outOfStock
+      ? 'Out of stock'
+      : product.stock <= 5
+        ? `Only ${product.stock} left`
+        : 'In stock';
 
   const maxQty = product.stock > 0 ? product.stock : 1;
   // Functional update - safe against stale closures on rapid clicks.
@@ -41,7 +47,7 @@ export function ProductDetail({ product }: Props) {
     setQty((q) => Math.max(1, Math.min(maxQty, fn(q))));
 
   const add = () => {
-    if (outOfStock) return;
+    if (outOfStock || availabilityOnly) return;
     addToCart({
       id: product.id,
       name: product.name,
@@ -51,6 +57,7 @@ export function ProductDetail({ product }: Props) {
       size: product.sizes?.length ? (size ?? product.sizes[0]) : null,
       color: product.colors?.length ? (color ?? product.colors[0]) : null,
       category: product.category,
+      deliveryEstimate: product.deliveryEstimate,
     });
   };
 
@@ -62,6 +69,10 @@ export function ProductDetail({ product }: Props) {
   const onBuyNow = () => {
     add();
     window.location.href = '/checkout';
+  };
+
+  const onCheckAvailability = () => {
+    openAvailabilityWhatsApp(product, { color, size });
   };
 
   const accordionRows = [
@@ -82,6 +93,14 @@ export function ProductDetail({ product }: Props) {
     { k: 'shipping', title: 'Shipping', body: SHIPPING_TEXT },
     { k: 'returns', title: 'Returns', body: RETURNS_TEXT },
   ];
+
+  if (availabilityOnly) {
+    accordionRows.unshift({
+      k: 'availability',
+      title: 'Availability',
+      body: 'This item is sourced on request. Message us on WhatsApp and we will confirm local availability, pricing and delivery before you pay.',
+    });
+  }
 
   return (
     <>
@@ -109,22 +128,40 @@ export function ProductDetail({ product }: Props) {
         </div>
 
         <div className="mt-4 flex flex-wrap items-baseline gap-3">
+          {product.priceIsEstimate && (
+            <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              Estimated
+            </span>
+          )}
           <p className="text-3xl font-semibold tracking-tight md:text-4xl">
             {formatPrice(product.price)}
           </p>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <>
-              <span className="text-sm text-muted-foreground line-through">
-                {formatPrice(product.originalPrice)}
-              </span>
-              {discount !== null && (
-                <span className="rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground">
-                  -{discount}%
+          {!product.priceIsEstimate &&
+            product.originalPrice &&
+            product.originalPrice > product.price && (
+              <>
+                <span className="text-sm text-muted-foreground line-through">
+                  {formatPrice(product.originalPrice)}
                 </span>
-              )}
-            </>
+                {discount !== null && (
+                  <span className="rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-muted-foreground">
+                    -{discount}%
+                  </span>
+                )}
+              </>
+            )}
+          {product.priceIsEstimate && (
+            <span className="text-xs text-muted-foreground">
+              Final price confirmed on availability.
+            </span>
           )}
         </div>
+
+        {deliveryLabel && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Estimated delivery: <span className="font-medium text-foreground">{deliveryLabel}</span>
+          </p>
+        )}
 
         <p className="mt-6 line-clamp-4 max-w-md text-sm leading-relaxed text-muted-foreground">
           {product.description
@@ -182,26 +219,43 @@ export function ProductDetail({ product }: Props) {
 
         {/* Qty + actions (desktop) */}
         <div className="mt-8 hidden flex-wrap items-center gap-3 md:flex">
-          <QtyStepper qty={qty} onDecrement={() => stepQty((q) => q - 1)} onIncrement={() => stepQty((q) => q + 1)} disabled={outOfStock} />
-          <button
-            onClick={onAddToCart}
-            disabled={outOfStock}
-            className={`min-w-[180px] flex-1 rounded-full border border-border bg-background px-6 py-3 text-sm font-medium hover:bg-muted ${
-              outOfStock ? 'pointer-events-none opacity-40' : ''
-            }`}
-          >
-            Add to Cart
-          </button>
-          <button
-            onClick={onBuyNow}
-            disabled={outOfStock}
-            className={`min-w-[180px] flex-1 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background hover:opacity-90 ${
-              outOfStock ? 'pointer-events-none opacity-40' : ''
-            }`}
-          >
-            Buy Now
-          </button>
+          {availabilityOnly ? (
+            <button
+              onClick={onCheckAvailability}
+              className="inline-flex min-w-[240px] flex-1 items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition hover:opacity-90"
+            >
+              <MessageCircle className="h-4 w-4" />
+              Check availability on WhatsApp
+            </button>
+          ) : (
+            <>
+              <QtyStepper qty={qty} onDecrement={() => stepQty((q) => q - 1)} onIncrement={() => stepQty((q) => q + 1)} disabled={outOfStock} />
+              <button
+                onClick={onAddToCart}
+                disabled={outOfStock}
+                className={`min-w-[180px] flex-1 rounded-full border border-border bg-background px-6 py-3 text-sm font-medium hover:bg-muted ${
+                  outOfStock ? 'pointer-events-none opacity-40' : ''
+                }`}
+              >
+                Add to Cart
+              </button>
+              <button
+                onClick={onBuyNow}
+                disabled={outOfStock}
+                className={`min-w-[180px] flex-1 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background hover:opacity-90 ${
+                  outOfStock ? 'pointer-events-none opacity-40' : ''
+                }`}
+              >
+                Buy Now
+              </button>
+            </>
+          )}
         </div>
+        {availabilityOnly && (
+          <p className="mt-3 hidden text-xs text-muted-foreground md:block">
+            We source this item on request. Message us to confirm local availability and delivery.
+          </p>
+        )}
         {outOfStock && (
           <p className="mt-3 hidden text-xs text-muted-foreground md:block">
             This item is currently out of stock. Check back soon.
@@ -242,25 +296,37 @@ export function ProductDetail({ product }: Props) {
       {/* Sticky mobile action bar - exact mockup */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 p-3 backdrop-blur-xl md:hidden">
         <div className="mx-auto flex max-w-[1240px] items-center gap-2">
-          <QtyStepper qty={qty} onDecrement={() => stepQty((q) => q - 1)} onIncrement={() => stepQty((q) => q + 1)} compact disabled={outOfStock} />
-          <button
-            onClick={onAddToCart}
-            disabled={outOfStock}
-            className={`flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-xs font-medium ${
-              outOfStock ? 'pointer-events-none opacity-40' : ''
-            }`}
-          >
-            Add to Cart
-          </button>
-          <button
-            onClick={onBuyNow}
-            disabled={outOfStock}
-            className={`flex-1 rounded-full bg-foreground px-4 py-2.5 text-xs font-medium text-background ${
-              outOfStock ? 'pointer-events-none opacity-40' : ''
-            }`}
-          >
-            Buy Now
-          </button>
+          {availabilityOnly ? (
+            <button
+              onClick={onCheckAvailability}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-xs font-medium text-background"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              Check availability on WhatsApp
+            </button>
+          ) : (
+            <>
+              <QtyStepper qty={qty} onDecrement={() => stepQty((q) => q - 1)} onIncrement={() => stepQty((q) => q + 1)} compact disabled={outOfStock} />
+              <button
+                onClick={onAddToCart}
+                disabled={outOfStock}
+                className={`flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-xs font-medium ${
+                  outOfStock ? 'pointer-events-none opacity-40' : ''
+                }`}
+              >
+                Add to Cart
+              </button>
+              <button
+                onClick={onBuyNow}
+                disabled={outOfStock}
+                className={`flex-1 rounded-full bg-foreground px-4 py-2.5 text-xs font-medium text-background ${
+                  outOfStock ? 'pointer-events-none opacity-40' : ''
+                }`}
+              >
+                Buy Now
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>

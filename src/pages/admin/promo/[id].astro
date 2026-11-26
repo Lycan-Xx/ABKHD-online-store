@@ -140,6 +140,13 @@ const input =
             </div>
           </div>
           <div class="md:col-span-2">
+            <label for="i-stock" class="block text-sm font-medium mb-2">Units available (optional)</label>
+            <input id="i-stock" type="number" min="1" step="1" class={input} placeholder="Leave blank for a one-of-a-kind item" />
+            <p class="text-xs text-muted-foreground mt-1">
+              Blank means only one can be claimed. A number lets that many people buy the same deal.
+            </p>
+          </div>
+          <div class="md:col-span-2">
             <label for="i-files" class="block text-sm font-medium mb-2">Photos (up to 4, first is the cover)</label>
             <input id="i-files" type="file" accept="image/*" multiple class="block w-full text-sm" />
             <p id="i-import-note" class="hidden text-xs text-muted-foreground mt-1">
@@ -168,7 +175,8 @@ const input =
     PROMO_EVENTS_COLLECTION,
     PROMO_ITEMS_COLLECTION,
     eventPhase,
-    itemState,
+    effectiveStock,
+    itemStateForStock,
     promoUrl,
     type PromoClaim,
     type PromoEvent,
@@ -243,14 +251,22 @@ const input =
       const byItem = new Map<string, PromoClaim[]>();
       claims.forEach((c) => byItem.set(c.itemId, [...(byItem.get(c.itemId) ?? []), c]));
 
-      const sold = items.filter((i) => itemState(byItem.get(i.$id) ?? []) === 'claimed').length;
-      $('items-summary').textContent = `${items.length} item${items.length === 1 ? '' : 's'} · ${sold} claimed`;
+      const totalUnits = items.reduce((sum, i) => sum + effectiveStock(i), 0);
+      const remainingUnits = items.reduce((sum, i) => {
+        const ic = byItem.get(i.$id) ?? [];
+        const paidCount = ic.filter((c) => c.status === 'paid').length;
+        return sum + Math.max(0, effectiveStock(i) - paidCount);
+      }, 0);
+      $('items-summary').textContent = `${items.length} item${items.length === 1 ? '' : 's'} · ${remainingUnits} of ${totalUnits} left`;
 
       $('items-list').innerHTML =
         items
           .map((item) => {
             const ic = byItem.get(item.$id) ?? [];
-            const state = itemState(ic);
+            const state = itemStateForStock(item, ic);
+            const stock = effectiveStock(item);
+            const paidCount = ic.filter((c) => c.status === 'paid').length;
+            const remaining = Math.max(0, stock - paidCount);
             const paid = ic.find((c) => c.status === 'paid');
             const refunds = ic.filter((c) => c.status === 'refund_due');
             const badge =
@@ -258,7 +274,7 @@ const input =
                 ? '<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-600">Claimed</span>'
                 : state === 'reserved'
                   ? '<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-600">On hold</span>'
-                  : '<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">Available</span>';
+                  : `<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">Available${stock > 1 ? ` · ${remaining} of ${stock} left` : ''}</span>`;
             return `
               <div class="rounded-xl border bg-card p-4 flex gap-4 items-start" data-item="${esc(item.$id)}">
                 <img src="${esc(item.image)}" alt="" class="h-20 w-20 rounded-lg object-cover bg-muted shrink-0" />
@@ -271,7 +287,7 @@ const input =
                     <span class="text-muted-foreground line-through ml-1">${formatPrice(item.originalPrice)}</span>
                     <span class="text-muted-foreground ml-2">${esc(item.category)}</span>
                   </p>
-                  ${paid ? `<p class="text-xs text-muted-foreground mt-1">Bought by ${esc(paid.email || 'unknown')} · ref ${esc(paid.paymentRef)} (see Orders)</p>` : ''}
+                  ${paidCount ? `<p class="text-xs text-muted-foreground mt-1">${paidCount}${stock > 1 ? ` of ${stock}` : ''} sold${paid?.email ? ` · ${esc(paid.email)}` : ''}${paid?.paymentRef ? ` · ref ${esc(paid.paymentRef)}` : ''} (see Orders)</p>` : ''}
                   ${refunds.map((r) => `<p class="text-xs text-red-500 mt-1">⚠ Refund due: ${esc(r.email || '')} · ref ${esc(r.paymentRef)}</p>`).join('')}
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2 shrink-0">
@@ -384,6 +400,7 @@ const input =
         ($('i-cat') as HTMLSelectElement).value = item.category;
         ($('i-orig') as HTMLInputElement).value = String(item.originalPrice);
         ($('i-promo') as HTMLInputElement).value = String(item.promoPrice);
+        ($('i-stock') as HTMLInputElement).value = item.stock ? String(item.stock) : '';
       }
       showPreviews(existingPhotos());
       form.classList.remove('hidden');
@@ -478,6 +495,13 @@ const input =
         note(msg, 'Prices must be whole naira, and the promo price must be lower than the normal price.');
         return;
       }
+
+      const stockRaw = ($('i-stock') as HTMLInputElement).value.trim();
+      const stock = stockRaw === '' ? null : Number(stockRaw);
+      if (stock !== null && (!Number.isInteger(stock) || stock < 1)) {
+        note(msg, 'Units available must be a whole number of 1 or more, or left blank.');
+        return;
+      }
       if (!editing && pendingFiles.length === 0 && importUrls.length === 0) {
         note(msg, 'Add at least one photo.');
         return;
@@ -492,6 +516,7 @@ const input =
           category: ($('i-cat') as HTMLSelectElement).value,
           originalPrice,
           promoPrice,
+          stock,
         };
 
         // Imported photos are copied so the promo item owns its own files:

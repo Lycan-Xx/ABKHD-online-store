@@ -15,6 +15,7 @@ function toCartLine(p: ShowroomProduct, quantity = 1) {
     image: p.image,
     quantity,
     category: p.category,
+    deliveryEstimate: p.deliveryEstimate,
   };
 }
 

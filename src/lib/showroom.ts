@@ -37,6 +37,9 @@ export interface ShowroomProduct {
   colors?: string[]; // colors
   description?: string; // description (PDP only)
   brand?: string; // brand
+  requiresAvailabilityCheck: boolean; // no on-site stock - WhatsApp CTA
+  priceIsEstimate: boolean; // display price as an estimate
+  deliveryEstimate?: string; // stable delivery option value (see lib/delivery.ts)
 }
 
 /** Raw Appwrite product document (loose-typed - attributes arrive as-is). */
@@ -75,5 +78,8 @@ export function toShowroomProduct(doc: ProductDoc): ShowroomProduct {
     colors: colors.length ? colors : undefined,
     description: doc.description || undefined,
     brand: doc.brand || undefined,
+    requiresAvailabilityCheck: doc.requiresAvailabilityCheck === true,
+    priceIsEstimate: doc.priceIsEstimate === true,
+    deliveryEstimate: doc.deliveryEstimate || undefined,
   };
 }

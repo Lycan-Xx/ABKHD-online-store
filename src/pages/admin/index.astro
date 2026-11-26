@@ -200,7 +200,7 @@ import { formatPrice } from '../../lib/utils';
         APPWRITE_ORDERS_COLLECTION_ID,
         [Query.limit(100), Query.orderDesc('$createdAt')]
       );
-      const orders = ordersResponse.documents;
+      const orders = ordersResponse.documents.filter((order: any) => order.isDeleted !== true);
 
       console.log('Products:', products.length, 'Orders:', orders.length);
 

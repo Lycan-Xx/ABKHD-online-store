@@ -2,6 +2,7 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/showroom/Icon.astro';
 import { formatPrice } from '../../lib/utils';
+import { DELIVERY_OPTIONS } from '../../lib/delivery';
 ---
 
 <AdminLayout title="Products | ABKHD Admin">
@@ -345,6 +346,47 @@ import { formatPrice } from '../../lib/utils';
               <p class="text-xs text-muted-foreground">Auto-deactivates when purchased (for used items)</p>
             </div>
           </div>
+
+          <div class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="requiresAvailabilityCheck"
+              name="requiresAvailabilityCheck"
+              class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <div>
+              <label for="requiresAvailabilityCheck" class="text-sm font-medium">Check availability instead of checkout</label>
+              <p class="text-xs text-muted-foreground">Hides Add to Cart and shows a WhatsApp availability button</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="priceIsEstimate"
+              name="priceIsEstimate"
+              class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <div>
+              <label for="priceIsEstimate" class="text-sm font-medium">Price is an estimate</label>
+              <p class="text-xs text-muted-foreground">Shows the price as "Estimated" rather than fixed</p>
+            </div>
+          </div>
+
+          <div>
+            <label for="deliveryEstimate" class="block text-sm font-medium mb-2">Delivery timeline</label>
+            <select
+              id="deliveryEstimate"
+              name="deliveryEstimate"
+              class="w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Not specified</option>
+              {DELIVERY_OPTIONS.map((option) => (
+                <option value={option.value}>{option.label}</option>
+              ))}
+            </select>
+            <p class="text-xs text-muted-foreground mt-1">Shown on the product page, cards and checkout.</p>
+          </div>
         </div>
 
         <!-- Submit -->
@@ -436,7 +478,7 @@ import { formatPrice } from '../../lib/utils';
     return '₦' + price.toLocaleString();
   }
 
-  function showPanel(product = null) {
+  function showPanel(product: any = null) {
     const panel = document.getElementById('product-panel');
     const overlay = document.getElementById('panel-overlay');
     const form = document.getElementById('product-form') as HTMLFormElement;
@@ -470,6 +512,12 @@ import { formatPrice } from '../../lib/utils';
       (document.getElementById('featured') as HTMLInputElement).checked = product.featured || false;
       (document.getElementById('verified') as HTMLInputElement).checked = product.verified || false;
       (document.getElementById('isUnique') as HTMLInputElement).checked = product.isUnique || false;
+      (document.getElementById('requiresAvailabilityCheck') as HTMLInputElement).checked =
+        product.requiresAvailabilityCheck || false;
+      (document.getElementById('priceIsEstimate') as HTMLInputElement).checked =
+        product.priceIsEstimate || false;
+      (document.getElementById('deliveryEstimate') as HTMLSelectElement).value =
+        product.deliveryEstimate || '';
 
       // Set active toggle
       const isActive = product.isActive !== false;
@@ -771,6 +819,8 @@ import { formatPrice } from '../../lib/utils';
                     ${product.isActive !== false ? 'Active' : 'Inactive'}
                   </span>
                   ${product.featured ? '<span class="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold bg-yellow-500/10 text-yellow-500">Featured</span>' : ''}
+                  ${product.requiresAvailabilityCheck ? '<span class="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold bg-blue-500/10 text-blue-600">On request</span>' : ''}
+                  ${product.priceIsEstimate ? '<span class="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold bg-orange-500/10 text-orange-600">Est. price</span>' : ''}
                 </div>
               </div>
             </div>
@@ -1266,6 +1316,9 @@ import { formatPrice } from '../../lib/utils';
         featured: formData.has('featured'),
         verified: formData.has('verified'),
         isUnique: formData.has('isUnique'),
+        requiresAvailabilityCheck: formData.has('requiresAvailabilityCheck'),
+        priceIsEstimate: formData.has('priceIsEstimate'),
+        deliveryEstimate: (formData.get('deliveryEstimate') as string) || '',
         isActive: isActiveToggle?.dataset.currentStatus === 'active',
         isArchived: false
       };
